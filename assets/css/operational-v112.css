@@ -1,0 +1,294 @@
+/* CRM Suministros V11.2 · integración operacional
+   Jornada + Recepción + Facturación + Transportadoras */
+
+/* Regla de contraste solicitada: toda superficie azul operativa usa texto blanco. */
+.btn-primary,
+.btn-primary *,
+.work-now.running,
+.work-now.running *,
+.workforce-tab.active,
+.workforce-tab.active *,
+.v112-dashboard-tabs .btn-primary,
+.v112-dashboard-tabs .btn-primary * {
+  color:#fff !important;
+}
+
+.work-now.running a,
+.work-now.running button:not(.btn-success):not(.btn-danger),
+.work-now.running button:not(.btn-success):not(.btn-danger) * {
+  color:#fff !important;
+}
+
+/* Cronograma y botones uniformes */
+.work-planner-actions {
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.work-planner-actions .btn,
+.work-planner-actions .segment-control,
+.work-planner-actions .segment-control button {
+  min-height:42px;
+}
+.work-planner-actions > .btn {
+  min-width:168px;
+  justify-content:center;
+}
+.work-catalog-list {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:10px;
+}
+.work-catalog-item {
+  min-height:78px;
+  height:100%;
+  align-items:center;
+  border-radius:14px;
+}
+.work-catalog-item > span:nth-child(2) {
+  min-width:0;
+}
+.work-catalog-item strong,
+.work-catalog-item small {
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.work-assignment-block {
+  min-height:96px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  gap:5px;
+  position:relative;
+  padding-right:36px !important;
+}
+.work-assignment-menu {
+  position:absolute !important;
+  right:8px !important;
+  top:8px !important;
+  width:28px !important;
+  height:28px !important;
+  min-width:28px !important;
+  border-radius:9px !important;
+}
+
+/* Popups V11.2 */
+.v112-dialog-intro {
+  display:grid;
+  gap:5px;
+  padding:16px 18px;
+  margin-bottom:16px;
+  border:1px solid rgba(15,72,130,.15);
+  border-radius:16px;
+  background:linear-gradient(135deg,rgba(232,243,255,.95),rgba(255,255,255,.98));
+}
+.v112-dialog-intro > span,
+.v112-dashboard-kicker {
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+  color:#1769aa;
+}
+.v112-dialog-intro > strong {
+  font-size:20px;
+  line-height:1.2;
+}
+.v112-dialog-intro p {margin:0;color:var(--muted,#637083)}
+.v112-schedule-grid {align-items:start}
+.v112-open-ended {
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  padding:13px 14px;
+  border:1px solid rgba(17,71,120,.14);
+  border-radius:14px;
+  background:#f8fbff;
+}
+.v112-open-ended input {margin-top:3px;accent-color:#0d62a8}
+.v112-open-ended span {display:grid;gap:3px}
+.v112-open-ended strong {font-size:14px}
+.v112-open-ended small {color:var(--muted,#677486);line-height:1.35}
+[data-v112-end-field].disabled {opacity:.48}
+.v112-subsection {
+  display:grid;
+  gap:14px;
+  margin-top:18px;
+  padding:16px;
+  border:1px solid rgba(20,67,112,.12);
+  border-radius:16px;
+  background:#fbfcfe;
+}
+.v112-subsection > header {display:grid;gap:3px}
+.v112-subsection > header strong {font-size:15px}
+.v112-subsection > header small {color:var(--muted,#677486)}
+.v112-cost-note {
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  margin-top:15px;
+  padding:13px 15px;
+  border-radius:13px;
+  background:#f5f9fd;
+  border:1px solid rgba(11,80,135,.13);
+}
+.v112-cost-note strong {white-space:nowrap}
+.v112-cost-note span {color:var(--muted,#657184);font-size:13px;line-height:1.4}
+.v112-ratio-field output {
+  display:flex;
+  align-items:center;
+  min-height:44px;
+  padding:0 13px;
+  border:1px dashed rgba(11,80,135,.28);
+  border-radius:12px;
+  background:#f6faff;
+  font-weight:800;
+  color:#0d5e9d;
+}
+
+/* Solicitudes / aprobaciones de Jornada */
+.v112-work-requests {margin-top:18px}
+.v112-work-requests-body {display:grid;gap:18px}
+.v112-request-group {display:grid;gap:10px}
+.v112-group-title {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding-bottom:8px;
+  border-bottom:1px solid rgba(20,55,90,.10);
+}
+.v112-group-title span {
+  min-width:28px;
+  height:28px;
+  padding:0 9px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:#edf5fc;
+  color:#125f9d;
+  font-weight:800;
+}
+.v112-request-row {
+  display:grid;
+  grid-template-columns:minmax(220px,1.15fr) minmax(220px,1fr) auto;
+  align-items:center;
+  gap:14px;
+  padding:13px 14px;
+  border:1px solid rgba(18,58,96,.11);
+  border-radius:14px;
+  background:#fff;
+}
+.v112-request-row > div:first-child {display:grid;gap:3px;min-width:0}
+.v112-request-row strong {overflow:hidden;text-overflow:ellipsis}
+.v112-request-row small,
+.v112-request-row p {color:var(--muted,#667486);font-size:12px;line-height:1.4}
+.v112-request-row p {margin:0}
+.v112-request-row.warning {border-color:rgba(191,117,0,.32);background:#fffaf2}
+.v112-request-status {
+  width:max-content;
+  max-width:100%;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#eef5fb;
+  color:#165f99;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.v112-request-status.approved {background:#e9f8ef;color:#1c7445}
+.v112-request-status.rejected {background:#fff0f0;color:#aa3232}
+.v112-request-flags {display:flex;gap:6px;flex-wrap:wrap}
+.v112-request-flags span {padding:4px 7px;border-radius:8px;background:#fff0cf;color:#875700;font-size:10px;font-weight:800}
+.v112-reject-button {margin-top:12px}
+.v112-approval-details {margin-bottom:14px}
+
+/* Dashboard operativo integrado */
+.v112-operational-dashboard {margin:20px 0}
+.v112-dashboard-head {align-items:flex-start}
+.v112-dashboard-head > div {display:grid;gap:3px}
+.v112-dashboard-head h3 {margin:0}
+.v112-dashboard-head p {margin:0;color:var(--muted,#657184)}
+.v112-dashboard-toolbar {
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:16px;
+  align-items:end;
+  margin-bottom:16px;
+}
+.v112-dashboard-tabs {display:flex;gap:8px;flex-wrap:wrap}
+.v112-dashboard-tabs .btn {min-height:42px;min-width:142px;justify-content:center;gap:8px}
+.v112-dashboard-filters {
+  display:flex;
+  justify-content:flex-end;
+  align-items:end;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.v112-dashboard-filters label {display:grid;gap:5px;font-size:11px;font-weight:800;color:var(--muted,#657184)}
+.v112-dashboard-filters .control {min-width:145px}
+.v112-summary-strip {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin-bottom:15px;
+}
+.v112-summary-strip article {
+  min-height:92px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:3px;
+  padding:14px;
+  border:1px solid rgba(18,58,96,.10);
+  border-radius:14px;
+  background:linear-gradient(180deg,#fff,#f8fbfe);
+}
+.v112-summary-strip small {font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted,#657184)}
+.v112-summary-strip strong {font-size:21px;line-height:1.1}
+.v112-summary-strip span {font-size:11px;color:var(--muted,#657184)}
+.v112-op-table table {min-width:1040px}
+.v112-op-table td small {display:block;margin-top:3px;color:var(--muted,#657184)}
+.v112-control-chip {
+  display:inline-flex;
+  align-items:center;
+  min-height:26px;
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+}
+.v112-control-chip.ok {background:#e9f8ef;color:#1a7042}
+.v112-control-chip.bad {background:#fff0f0;color:#aa3232}
+
+@media (max-width:1100px){
+  .v112-dashboard-toolbar {grid-template-columns:1fr}
+  .v112-dashboard-filters {justify-content:flex-start}
+  .v112-summary-strip {grid-template-columns:repeat(2,minmax(0,1fr))}
+  .v112-request-row {grid-template-columns:1fr auto}
+  .v112-request-row > p {grid-column:1 / -1}
+}
+@media (max-width:720px){
+  .work-planner-actions > .btn {min-width:0;flex:1 1 150px}
+  .work-catalog-list {grid-template-columns:1fr}
+  .v112-summary-strip {grid-template-columns:1fr 1fr}
+  .v112-dashboard-tabs {display:grid;grid-template-columns:1fr}
+  .v112-dashboard-tabs .btn {width:100%;min-width:0}
+  .v112-dashboard-filters {display:grid;grid-template-columns:1fr 1fr}
+  .v112-dashboard-filters .btn {width:100%}
+  .v112-request-row {grid-template-columns:1fr}
+  .v112-request-row > p {grid-column:auto}
+  .v112-request-row .btn {width:100%}
+  .v112-cost-note {display:grid}
+}
+@media (max-width:460px){
+  .v112-summary-strip {grid-template-columns:1fr}
+  .v112-dashboard-filters {grid-template-columns:1fr}
+}
