@@ -2,8 +2,12 @@ import {state} from "../core/state.js";
 import {installGuidesV113,openModuleGuide} from "./guides-v113.js";
 import {installActivityBrowserV113} from "./activity-browser-v113.js";
 import {installWorkforceTaxonomyV113} from "./workforce-taxonomy-v113.js";
+import {installAccessibilityV114} from "./accessibility-v114.js";
+import {installReceivingV114} from "./receiving-v114.js";
 
 installGuidesV113();
+installAccessibilityV114();
+installReceivingV114();
 
 document.addEventListener("click",event=>{
   const button=event.target.closest?.("[data-v113-guide-module]");
