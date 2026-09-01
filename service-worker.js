@@ -1,4 +1,4 @@
-const CACHE="crm-suministros-v11-5-0-20260901";
+const CACHE="crm-suministros-v11-5-1-20260901";
 const ASSETS=[
   "./","./index.html","./manifest.webmanifest",
   "./assets/css/app.css","./assets/css/operational-v112.css","./assets/css/guides-v113.css","./assets/css/workforce-taxonomy-v113.css","./assets/css/receiving-v115.css","./assets/css/receiving-guide-v115.css",
