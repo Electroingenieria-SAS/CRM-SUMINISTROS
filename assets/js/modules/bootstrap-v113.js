@@ -4,12 +4,10 @@ import {installActivityBrowserV113} from "./activity-browser-v113.js";
 import {installWorkforceTaxonomyV113} from "./workforce-taxonomy-v113.js";
 import {installAccessibilityV114} from "./accessibility-v114.js";
 import {installReceivingDomainV115} from "./receiving-hub-v115.js";
-import {installReceivingRouteV115} from "./receiving-route-v115.js";
 
 installGuidesV113();
 installAccessibilityV114();
 installReceivingDomainV115();
-installReceivingRouteV115();
 
 document.addEventListener("click",event=>{
   const button=event.target.closest?.("[data-v113-guide-module]");
