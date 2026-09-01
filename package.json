@@ -1,6 +1,6 @@
 {
-  "name": "erp-electroingenieria-v10",
-  "version": "10.33.1",
+  "name": "crm-suministros-electroingenieria",
+  "version": "11.0.0",
   "private": true,
   "type": "module",
   "scripts": {
