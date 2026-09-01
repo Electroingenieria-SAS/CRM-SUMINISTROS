@@ -7,7 +7,7 @@ const ASSETS=[
   "./assets/js/modules/active-work.js","./assets/js/modules/work-clock.js","./assets/js/modules/workforce.js",
   "./assets/js/modules/operational-v112.js","./assets/js/modules/operational-resolve-guard-v112.js",
   "./assets/js/modules/guides-v113.js","./assets/js/modules/activity-browser-v113.js","./assets/js/modules/workforce-taxonomy-v113.js","./assets/js/modules/bootstrap-v113.js",
-  "./assets/js/modules/accessibility-v114.js","./assets/js/modules/receiving-hub-v115.js","./assets/js/modules/receiving-route-v115.js",
+  "./assets/js/modules/accessibility-v114.js","./assets/js/modules/receiving-hub-v115.js",
   "./assets/js/modules/order-cancellation.js","./assets/js/modules/support-flow.js",
   "./assets/js/modules/receiving-order.js","./assets/js/modules/financial-flow.js","./assets/js/modules/picking-flow.js",
   "./assets/js/modules/cutting-flow.js","./assets/js/modules/shipping-flow.js","./assets/js/modules/queue.js",
