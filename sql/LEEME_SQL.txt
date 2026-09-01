@@ -1,0 +1,31 @@
+ERP Electroingeniería V10.25.0
+
+INSTALACIÓN NUEVA
+=================
+Ejecutar exclusivamente:
+  sql/00_INSTALL_ALL.sql
+
+Después ejecutar la verificación:
+  sql/99_POST_INSTALL_CHECK.sql
+
+BASE EXISTENTE V10.24
+=====================
+No volver a ejecutar el instalador completo.
+Aplicar únicamente:
+  sql/migrations/053_total_system_qa_robot_v10_25.sql
+
+Después:
+  sql/99_POST_INSTALL_CHECK.sql
+
+Los archivos de sql/legacy son únicamente históricos y NO deben ejecutarse.
+
+ROBOT QA EXTERNO
+================
+La migración SQL habilita el Robot QA interno. Para el E2E con navegador real consulta:
+  docs/QA_TOTAL_V10_25.md
+
+GitHub Actions requiere una configuración única de:
+  ERP_QA_BASE_URL
+  ERP_QA_EMAIL
+  ERP_QA_PASSWORD
+como Repository Secrets.
