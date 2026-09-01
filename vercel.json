@@ -1,0 +1,23 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/((?!assets/|templates/|service-worker\\.js|manifest\\.json|favicon\\.ico).*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(self), geolocation=(self), microphone=(), payment=(), usb=()" },
+        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin-allow-popups" },
+        { "key": "X-Permitted-Cross-Domain-Policies", "value": "none" },
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self' https://script.google.com; script-src 'self' https://cdn.jsdelivr.net https://accounts.google.com https://apis.google.com https://www.gstatic.com https://cdnjs.cloudflare.com https://cdn.sheetjs.com; style-src 'self' 'unsafe-inline' https://accounts.google.com; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://hezjxcxxcjlpmyalftam.supabase.co wss://hezjxcxxcjlpmyalftam.supabase.co https://accounts.google.com https://www.googleapis.com https://script.google.com https://script.googleusercontent.com https://www.datos.gov.co; frame-src 'self' https://accounts.google.com https://script.google.com https://script.googleusercontent.com; worker-src 'self' blob:; manifest-src 'self'; upgrade-insecure-requests" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "erp-electroingenieria-v10",
+  "version": "10.33.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "node scripts/serve.mjs",
+    "validate": "node scripts/validate.mjs && node --experimental-vm-modules scripts/link-check.mjs && node scripts/security-check.mjs",
+    "security": "node scripts/security-check.mjs"
+  }
+}
