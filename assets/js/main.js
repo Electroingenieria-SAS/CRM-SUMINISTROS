@@ -23,12 +23,14 @@ import {renderWorkforce} from "./modules/workforce.js";
 import {initWorkClock} from "./modules/work-clock.js";
 import {installOperationalV112,enhanceOperationalDashboard,enhanceWorkforce} from "./modules/operational-v112.js";
 import {installOperationalResolveGuard} from "./modules/operational-resolve-guard-v112.js";
+import {renderReceivingHub} from "./modules/receiving-hub-v115.js";
 
 const routes={
   dashboard:async root=>{await renderDashboard(root);await enhanceOperationalDashboard(root)},
   orders:renderOrders,
   sales:renderOrders,
   credit:renderCredit,
+  receiving:renderReceivingHub,
   inventory:renderInventory,
   approvals:renderApprovals,
   vsm:renderVsm,
@@ -39,11 +41,11 @@ const routes={
   cutting:renderCutting,
   workforce:async root=>{await renderWorkforce(root);await enhanceWorkforce(root)}
 };
-const queueModules={cartera:["CARTERA"],caja:["CAJA","CAJA_FACTURACION"],purchasing:["COMPRAS"],receiving:["RECEPCION_MERCANCIA","RECEPCION_PEDIDO"],picking:["ALISTAMIENTO"],billing:["FACTURACION"],shipping:["CLIENT_POINT","CLIENT_PICKUP","LOCAL_DISPATCH","NATIONAL_DISPATCH","CLOSURE"]};
+const queueModules={cartera:["CARTERA"],caja:["CAJA","CAJA_FACTURACION"],purchasing:["COMPRAS"],picking:["ALISTAMIENTO"],billing:["FACTURACION"],shipping:["CLIENT_POINT","CLIENT_PICKUP","LOCAL_DISPATCH","NATIONAL_DISPATCH","CLOSURE"]};
 let authBootPromise=null;
 const SESSION_PROFILE_ERROR=/usuario sin perfil operativo activo|perfil operativo activo|jwt expired|token.*expired/i;
 
-const titles={dashboard:["Centro de operaciones","Indicadores, cargas y prioridades de la operación"],orders:["Pedidos","Consulta, trazabilidad y gestión integral"],sales:["Ventas y pedidos","Creación y seguimiento comercial"],credit:["Crédito","Radicación, estudio y decisión"],cartera:["Cartera","Validación financiera y liberación"],caja:["Caja","Retenidos y facturación de pedidos PVN"],purchasing:["Compras","Abastecimiento y órdenes PVE"],receiving:["Recepción","Ingreso documental, físico, calidad y etiquetas"],picking:["Alistamiento","Preparación, controles y novedades"],cutting:["Centro de corte","Referencias agrupadas, carretos y entrega a Alistamiento"],billing:["Facturación","Factura, soporte y liberación"],shipping:["Despachos y entregas","Rutas, recogidas, evidencias y cierre"],inventory:["Inventario","Existencias, lotes, ubicaciones y movimientos"],workforce:["Jornada y actividades","Planeación, cronograma, evidencias y capacidad"],approvals:["Excepciones y aprobaciones","Novedades, reportes, decisiones y SLA"],vsm:["Flujo y tiempos","Tiempo total, trabajo productivo, espera y productividad"],reports:["Analítica y reportes","Indicadores, causas y exportaciones"],imports:["Histórico de pedidos","Carga controlada de pedidos cerrados por CSV"],audit:["Auditoría","Registro de decisiones y movimientos"],admin:["Administración de CRM Suministros","Usuarios, roles, calendarios y configuración"]};
+const titles={dashboard:["Centro de operaciones","Indicadores, cargas y prioridades de la operación"],orders:["Pedidos","Consulta, trazabilidad y gestión integral"],sales:["Ventas y pedidos","Creación y seguimiento comercial"],credit:["Crédito","Radicación, estudio y decisión"],cartera:["Cartera","Validación financiera y liberación"],caja:["Caja","Retenidos y facturación de pedidos PVN"],purchasing:["Compras","Abastecimiento y órdenes PVE"],receiving:["Recepción","Recepción de mercancía para bodega y Recepción de pedido como procesos separados"],picking:["Alistamiento","Preparación, controles y novedades"],cutting:["Centro de corte","Referencias agrupadas, carretos y entrega a Alistamiento"],billing:["Facturación","Factura, soporte y liberación"],shipping:["Despachos y entregas","Rutas, recogidas, evidencias y cierre"],inventory:["Inventario","Existencias, lotes, ubicaciones y movimientos"],workforce:["Jornada y actividades","Planeación, cronograma, evidencias y capacidad"],approvals:["Excepciones y aprobaciones","Novedades, reportes, decisiones y SLA"],vsm:["Flujo y tiempos","Tiempo total, trabajo productivo, espera y productividad"],reports:["Analítica y reportes","Indicadores, causas y exportaciones"],imports:["Histórico de pedidos","Carga controlada de pedidos cerrados por CSV"],audit:["Auditoría","Registro de decisiones y movimientos"],admin:["Administración de CRM Suministros","Usuarios, roles, calendarios y configuración"]};
 
 async function bootAuthenticated(){
   if(authBootPromise)return authBootPromise;
