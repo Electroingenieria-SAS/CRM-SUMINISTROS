@@ -27,4 +27,4 @@ http.createServer((req,res)=>{
   res.writeHead(200,{...headers,"Content-Type":mime[ext]||"application/octet-stream"});
   if(req.method==="HEAD")return res.end();
   fs.createReadStream(file).pipe(res);
-}).listen(port,"127.0.0.1",()=>console.log(`ERP EI local: http://127.0.0.1:${port}`));
+}).listen(port,"127.0.0.1",()=>console.log(`CRM Suministros local: http://127.0.0.1:${port}`));

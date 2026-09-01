@@ -27,7 +27,7 @@ const queueModules={cartera:["CARTERA"],caja:["CAJA","CAJA_FACTURACION"],purchas
 let authBootPromise=null;
 const SESSION_PROFILE_ERROR=/usuario sin perfil operativo activo|perfil operativo activo|jwt expired|token.*expired/i;
 
-const titles={dashboard:["Centro de operaciones","Indicadores, cargas y prioridades de la operación"],orders:["Pedidos","Consulta, trazabilidad y gestión integral"],sales:["Ventas y pedidos","Creación y seguimiento comercial"],credit:["Crédito","Radicación, estudio y decisión"],cartera:["Cartera","Validación financiera y liberación"],caja:["Caja","Retenidos y facturación de pedidos PVN"],purchasing:["Compras","Abastecimiento y órdenes PVE"],receiving:["Recepción","Ingreso documental, físico, calidad y etiquetas"],picking:["Alistamiento","Preparación, controles y novedades"],cutting:["Centro de corte","Referencias agrupadas, carretos y entrega a Alistamiento"],billing:["Facturación","Factura, soporte y liberación"],shipping:["Despachos y entregas","Rutas, recogidas, evidencias y cierre"],inventory:["Inventario","Existencias, lotes, ubicaciones y movimientos"],workforce:["Jornada y actividades","Planeación, tiempo, evidencias y capacidad"],approvals:["Excepciones y aprobaciones","Novedades, reportes, decisiones y SLA"],vsm:["Flujo y tiempos","Tiempo total, trabajo productivo, espera y productividad"],reports:["Analítica y reportes","Indicadores, causas y exportaciones"],imports:["Histórico de pedidos","Carga controlada de pedidos cerrados por CSV"],audit:["Auditoría","Registro de decisiones y movimientos"],admin:["Administración del ERP","Usuarios, roles, calendarios y configuración"]};
+const titles={dashboard:["Centro de operaciones","Indicadores, cargas y prioridades de la operación"],orders:["Pedidos","Consulta, trazabilidad y gestión integral"],sales:["Ventas y pedidos","Creación y seguimiento comercial"],credit:["Crédito","Radicación, estudio y decisión"],cartera:["Cartera","Validación financiera y liberación"],caja:["Caja","Retenidos y facturación de pedidos PVN"],purchasing:["Compras","Abastecimiento y órdenes PVE"],receiving:["Recepción","Ingreso documental, físico, calidad y etiquetas"],picking:["Alistamiento","Preparación, controles y novedades"],cutting:["Centro de corte","Referencias agrupadas, carretos y entrega a Alistamiento"],billing:["Facturación","Factura, soporte y liberación"],shipping:["Despachos y entregas","Rutas, recogidas, evidencias y cierre"],inventory:["Inventario","Existencias, lotes, ubicaciones y movimientos"],workforce:["Jornada y actividades","Planeación, cronograma, evidencias y capacidad"],approvals:["Excepciones y aprobaciones","Novedades, reportes, decisiones y SLA"],vsm:["Flujo y tiempos","Tiempo total, trabajo productivo, espera y productividad"],reports:["Analítica y reportes","Indicadores, causas y exportaciones"],imports:["Histórico de pedidos","Carga controlada de pedidos cerrados por CSV"],audit:["Auditoría","Registro de decisiones y movimientos"],admin:["Administración de CRM Suministros","Usuarios, roles, calendarios y configuración"]};
 
 async function bootAuthenticated(){
   if(authBootPromise)return authBootPromise;
@@ -37,12 +37,12 @@ async function bootAuthenticated(){
       const context=await api.session();setState({profile:context.profile,organization:context.organization,modules:context.modules,catalogs:context.catalogs});renderShell();initActiveWork();initWorkClock();installSupportFlow();
     initRouter(async route=>{
       if(route.segments[0]==="order"&&route.segments[1]){navigate("orders");setTimeout(()=>openOrder(route.segments[1]),0);return}
-      const moduleId=route.module;const [title,sub]=titles[moduleId]||["ERP Electroingeniería",""];updateShell(moduleId,title,sub);
+      const moduleId=route.module;const [title,sub]=titles[moduleId]||["CRM Suministros",""];updateShell(moduleId,title,sub);
       const root=document.querySelector("#page-content");root.innerHTML=loading();
       try{
         if(queueModules[moduleId])await renderQueue(root,{moduleId,steps:queueModules[moduleId],params:route.params});
         else await (routes[moduleId]||renderDashboard)(root,{moduleId,params:route.params});
-      }catch(e){console.error("[ERP MODULE]",moduleId,e);root.innerHTML=`<div class="card card-pad module-error"><h3>No fue posible cargar el módulo</h3><p class="danger">${fmt.escape(e.message)}</p><button class="btn btn-primary" id="retry-module">Reintentar</button></div>`;root.querySelector("#retry-module")?.addEventListener("click",()=>location.reload());toast(e.message,"error",8000)}
+      }catch(e){console.error("[CRM MODULE]",moduleId,e);root.innerHTML=`<div class="card card-pad module-error"><h3>No fue posible cargar el módulo</h3><p class="danger">${fmt.escape(e.message)}</p><button class="btn btn-primary" id="retry-module">Reintentar</button></div>`;root.querySelector("#retry-module")?.addEventListener("click",()=>location.reload());toast(e.message,"error",8000)}
     });
     }catch(e){
       const technical=String(e?.technicalMessage||e?.message||"");
@@ -92,7 +92,7 @@ function bindLogin(){
       await bootAuthenticated();
     }catch(err){
       setState({session:null,profile:null,organization:null,modules:[],catalogs:{}});
-      renderLogin(err.message||"No fue posible iniciar el ERP.");
+      renderLogin(err.message||"No fue posible iniciar CRM Suministros.");
       bindLogin();
     }
   };

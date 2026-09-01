@@ -64,7 +64,7 @@ export async function uploadOrderFile(orderId,file,category="EVIDENCE",taskId=nu
   const metadata={
     name:safeName(file.name,"archivo"),
     parents:[categoryFolder],
-    description:`ERP Electroingeniería · pedido ${orderNumber||orderId} · ${category}`,
+    description:`CRM Suministros · pedido ${orderNumber||orderId} · ${category}`,
     appProperties:{erp:"ERP_ELECTROINGENIERIA",orderId:String(orderId),orderNumber:String(orderNumber||""),category:String(category)}
   };
   const boundary=`erp_${Date.now()}_${crypto.randomUUID()}`;

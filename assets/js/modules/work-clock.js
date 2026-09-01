@@ -28,7 +28,7 @@ function scheduleRefresh(){setTimeout(()=>refresh(),220)}
 
 async function refresh(force=false){
   if(!slot)return;
-  try{data=await api.workMyDay();render()}catch(error){if(force)console.error("[ERP WORK CLOCK]",error)}
+  try{data=await api.workMyDay();render()}catch(error){if(force)console.error("[CRM WORK CLOCK]",error)}
 }
 
 function render(){
