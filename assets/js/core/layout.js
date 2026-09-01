@@ -31,15 +31,15 @@ export function renderLogin(error=""){
         <div class="login-card">
           <div class="login-card-icon"><img src="./assets/img/iso-electroingenieria.png" alt=""></div>
           <span class="eyebrow">Acceso seguro</span>
-          <h2>Acceso al ERP</h2>
-          <p class="sub">Ingresa con tus credenciales corporativas.</p>
+          <h2>Ingresa a CRM Suministros</h2>
+          <p class="sub">Tu operación comercial y de suministros, clara y conectada.</p>
           ${error?`<div class="login-error" role="alert"><strong>No fue posible ingresar</strong><span>${fmt.escape(error)}</span></div>`:""}
           <form id="login-form">
             <div class="field"><label for="email">Correo corporativo</label><div class="input-shell">${icon("credit")}<input class="control" id="email" name="email" type="email" autocomplete="username" placeholder="nombre@ei.com.co" required></div></div>
             <div class="field"><label for="password">Contraseña</label><div class="input-shell">${icon("admin")}<input class="control" id="password" name="password" type="password" autocomplete="current-password" placeholder="Escribe tu contraseña" required></div></div>
-            <button class="btn btn-primary btn-block" type="submit">Acceder al ERP ${icon("chevron")}</button>
+            <button class="btn btn-primary btn-block" type="submit">Ingresar a CRM Suministros ${icon("chevron")}</button>
           </form>
-          <p class="login-help">Si necesitas recuperar el acceso, contacta al administrador del ERP.</p>
+          <p class="login-help">Si necesitas recuperar el acceso, contacta al administrador de la plataforma.</p>
           <p class="version-note">Versión ${CONFIG.version}</p>
         </div>
       </section>
@@ -56,14 +56,14 @@ export function renderShell(){
   const p=state.profile||{};
   const quickOrder=allowed("sales")?`<button class="btn btn-create shell-new-order" id="quick-order"><span>Nuevo pedido</span></button>`:"";
   document.querySelector("#app").innerHTML=`<div class="shell">
-    <header class="global-shell" aria-label="Barra global del ERP">
+    <header class="global-shell" aria-label="Barra global de CRM Suministros">
       <div class="shell-brand">
         <button class="icon-btn mobile-menu" id="menu-toggle" type="button" aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false">${icon("menu")}</button>
         <span class="shell-brand-mark"><img src="./assets/img/iso-electroingenieria.png" alt=""></span>
-        <span class="shell-brand-copy"><strong>ERP Electroingeniería</strong><small>Operación y suministros</small></span>
+        <span class="shell-brand-copy"><strong>CRM Suministros</strong><small>Electroingeniería S.A.S.</small></span>
       </div>
       <div class="shell-context" aria-live="polite">
-        <div class="shell-breadcrumb"><span>ERP</span><b>›</b><span id="top-section">Operación</span></div>
+        <div class="shell-breadcrumb"><span>CRM</span><b>›</b><span id="top-section">Operación</span></div>
         <div class="shell-current"><strong id="top-title">Centro de operaciones</strong><span id="top-subtitle">Visibilidad, control y ejecución</span></div>
       </div>
       <div class="top-actions">
@@ -76,7 +76,7 @@ export function renderShell(){
     </header>
     <aside class="sidebar" id="sidebar" aria-label="Menú principal" aria-hidden="true">
       <header class="sidebar-head">
-        <div class="sidebar-heading"><span>Navegación</span><strong>Módulos del ERP</strong></div>
+        <div class="sidebar-heading"><span>Navegación</span><strong>CRM Suministros</strong></div>
         <button class="sidebar-close" id="sidebar-close" type="button" aria-label="Cerrar menú"><span aria-hidden="true"></span></button>
       </header>
       <nav class="nav-scroll" id="sidebar-nav" aria-label="Navegación principal">${navHtml()}</nav>
