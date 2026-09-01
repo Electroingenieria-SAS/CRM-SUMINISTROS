@@ -190,6 +190,19 @@ button,.btn,.nav-item,.workforce-tab,.work-catalog-item{overflow-wrap:anywhere}
 .field label{font-size:12px;letter-spacing:0}
 .field-help{font-size:12px}
 
+.eyebrow{font-size:10.5px;letter-spacing:.12em}
+.login-message>p{font-size:17px;line-height:1.65}
+.login-features{gap:15px;margin-top:38px}
+.login-features>div{min-height:160px;padding:20px;border-radius:16px}
+.login-feature-icon{width:42px;height:42px;border-radius:12px}
+.login-feature-icon .ui-icon{width:20px;height:20px}
+.login-features strong{font-size:13px;line-height:1.35}
+.login-features span:not(.login-feature-icon){font-size:11px;line-height:1.55}
+.login-note{font-size:10.5px}
+.login-card{max-width:450px;padding:38px}
+.login-card .sub{font-size:13px;line-height:1.5}
+.login-help,.version-note{font-size:10.5px;line-height:1.45}
+
 .global-shell{
   grid-template-columns:var(--sidebar) minmax(280px,1fr) auto;
   background:linear-gradient(112deg,#031b36 0%,#073b78 52%,#075aa9 100%);
@@ -402,6 +415,14 @@ button,.btn,.nav-item,.workforce-tab,.work-catalog-item{overflow-wrap:anywhere}
 }
 
 @media(max-width:760px){
+  .login-page{grid-template-columns:1fr}
+  .login-hero{min-height:auto;padding:30px 22px 34px}
+  .login-message{margin:42px 0 16px}
+  .login-message h1{font-size:clamp(36px,11vw,52px)}
+  .login-features{grid-template-columns:1fr;gap:10px}
+  .login-features>div{min-height:0}
+  .login-panel{padding:28px 16px calc(28px + env(safe-area-inset-bottom))}
+  .login-card{max-width:560px;padding:26px 22px}
   .content{padding:18px 14px calc(58px + env(safe-area-inset-bottom))}
   .page-head{align-items:stretch;flex-direction:column;gap:16px;padding:22px 19px 19px 22px;border-radius:18px}
   .page-head h2{font-size:28px}.page-head p{font-size:13px}
@@ -426,6 +447,15 @@ button,.btn,.nav-item,.workforce-tab,.work-catalog-item{overflow-wrap:anywhere}
 }
 
 @media(max-width:520px){
+  .login-brand img{width:min(250px,70vw)}
+  .login-message h1{font-size:35px;letter-spacing:-.045em}
+  .login-message>p{font-size:15px}
+  .login-features strong{font-size:13px}
+  .login-features span:not(.login-feature-icon){font-size:11.5px}
+  .login-note{margin-top:24px;font-size:10px}
+  .login-panel{padding-inline:10px}
+  .login-card{padding:24px 18px;border-radius:18px}
+  .login-card h2{font-size:27px}
   .shell-brand-mark{width:40px;height:40px;flex-basis:40px}.shell-brand-mark img{width:30px;height:30px}
   .top-actions .active-work-slot{display:none}
   .content{padding-inline:10px}
