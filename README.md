@@ -1,14 +1,19 @@
-# ERP EI — Electroingeniería S.A.S.
+# CRM Suministros — Electroingeniería S.A.S.
 
-> Línea base auditada: **V10.33.1 — Security Rebuild 2026-09-01**  
-> Supabase objetivo: **hezjxcxxcjlpmyalftam**  
+> Versión de producto: **V11.0.0 — Renovación visual y de experiencia**
+>
+> Línea base técnica heredada: **V10.33.1 — Security Rebuild 2026-09-01**
+>
+> Supabase objetivo: **hezjxcxxcjlpmyalftam**
 > Estado del paquete: validación estática y hardening inicial completados; requiere campaña E2E autenticada por rol y cierre de settings de plataforma antes de declarar producción definitiva.
 
 ## 1. Qué es
 
-ERP EI es el sistema interno de trazabilidad de pedidos, suministros y operación de Electroingeniería S.A.S. Centraliza el ciclo desde Ventas hasta el cierre de entrega, con Cartera, Caja, Compras, Recepción, Alistamiento, Corte, Facturación, Despacho, inventario, aprobaciones, auditoría y gestión de actividades del personal.
+CRM Suministros es la plataforma interna de relación comercial, trazabilidad de pedidos, suministros y operación de Electroingeniería S.A.S. Combina una experiencia web informativa y navegable con las capacidades transaccionales necesarias desde Ventas hasta el cierre de entrega: Cartera, Caja, Compras, Recepción, Alistamiento, Corte, Facturación, Despacho, inventario, aprobaciones, auditoría y gestión de actividades del personal.
 
-El sistema está pensado para que una transición de negocio **no dependa de que un botón cambie un estado en el navegador**. El frontend solicita una acción; PostgreSQL/Supabase valida identidad, rol, ownership, versión y reglas del flujo antes de aceptar la mutación.
+El sistema está pensado para que una transición de negocio **no dependa de que un botón cambie un estado en el navegador**. El frontend solicita una acción; PostgreSQL/Supabase valida identidad, rol, propiedad del registro, versión y reglas del flujo antes de aceptar la mutación.
+
+Los identificadores técnicos heredados `erp_x_*`, eventos `erp:*` y la carpeta institucional `ERP_SUPPLY_ENTERPRISE` se conservan temporalmente por compatibilidad. No forman parte del nombre visible del producto y solo se renombrarán mediante una migración controlada que no fracture RPC, sesiones, archivos o integraciones existentes.
 
 ## 2. Arquitectura
 
@@ -31,7 +36,7 @@ Más detalle: `docs/ARCHITECTURE.md`.
 
 ## 3. Estado de la auditoría 2026-09-01
 
-Se verificó el proyecto Supabase `hezjxcxxcjlpmyalftam` en estado saludable. La base auditada contiene 33 perfiles ERP y 32 usuarios Auth; no existen links Auth rotos. Los invariantes revisados de pedidos/tareas no presentan inconsistencias estructurales.
+Se verificó el proyecto Supabase `hezjxcxxcjlpmyalftam` en estado saludable. La base auditada contiene 33 perfiles operativos y 32 usuarios Auth; no existen vínculos Auth rotos. Los invariantes revisados de pedidos/tareas no presentan inconsistencias estructurales.
 
 El validador del repositorio ahora termina correctamente:
 
@@ -64,9 +69,9 @@ Informe completo: `docs/AUDITORIA_INTEGRAL_2026-09-01.md`.
 - Facturación.
 - Despachos y entregas.
 
-### Personas
+### Personas y productividad
 
-- Jornada y actividades / Workforce.
+- Jornada, actividades, cronograma semanal, calendario mensual, evidencias y capacidad.
 
 ### Control
 
@@ -177,7 +182,7 @@ Leer obligatoriamente `docs/SECURITY.md` antes de producción.
 
 ## 10. Contraseñas
 
-ERP EI no implementa hashing casero. Las contraseñas pertenecen a Supabase Auth y Supabase almacena el hash server-side. La aplicación nunca debe guardar contraseñas en `profiles`, auditoría, metadata ni logs.
+CRM Suministros no implementa hashing casero. Las contraseñas pertenecen a Supabase Auth y Supabase almacena el hash server-side. La aplicación nunca debe guardar contraseñas en `profiles`, auditoría, metadata ni logs.
 
 La protección contra contraseñas filtradas debe habilitarse en los settings de Auth del proyecto cuando el plan lo permita.
 
@@ -191,7 +196,7 @@ Auditoría es un perfil de solo lectura operativo. Super Admin concentra adminis
 
 El Apps Script institucional:
 
-1. recibe POST del ERP;
+1. recibe POST de CRM Suministros;
 2. valida el origen exacto;
 3. valida JWT llamando `erp_x_session`;
 4. valida contexto, tamaño y tipo del archivo;
