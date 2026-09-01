@@ -1,4 +1,4 @@
-const CACHE="erp-electroingenieria-v10-33-1-regresion-total-20260814";
+const CACHE="crm-suministros-v11-visual-20260901";
 const ASSETS=[
   "./",
   "./index.html",
