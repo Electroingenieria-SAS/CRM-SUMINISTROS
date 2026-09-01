@@ -1,11 +1,12 @@
-const CACHE="crm-suministros-v11-2-20260901";
+const CACHE="crm-suministros-v11-3-20260901";
 const ASSETS=[
   "./","./index.html","./manifest.webmanifest",
-  "./assets/css/app.css","./assets/css/operational-v112.css",
+  "./assets/css/app.css","./assets/css/operational-v112.css","./assets/css/guides-v113.css",
   "./assets/img/logo-electroingenieria.png","./assets/img/iso-electroingenieria.png",
   "./assets/js/main.js","./assets/js/config.js","./assets/js/core/icons.js","./assets/js/core/layout.js",
   "./assets/js/modules/active-work.js","./assets/js/modules/work-clock.js","./assets/js/modules/workforce.js",
   "./assets/js/modules/operational-v112.js","./assets/js/modules/operational-resolve-guard-v112.js",
+  "./assets/js/modules/guides-v113.js","./assets/js/modules/activity-browser-v113.js","./assets/js/modules/bootstrap-v113.js",
   "./assets/js/modules/order-cancellation.js","./assets/js/modules/support-flow.js",
   "./assets/js/modules/receiving-order.js","./assets/js/modules/financial-flow.js","./assets/js/modules/picking-flow.js",
   "./assets/js/modules/cutting-flow.js","./assets/js/modules/shipping-flow.js","./assets/js/modules/queue.js",
