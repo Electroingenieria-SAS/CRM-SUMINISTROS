@@ -1,34 +1,16 @@
-const CACHE="crm-suministros-v11-visual-20260901";
+const CACHE="crm-suministros-v11-2-20260901";
 const ASSETS=[
-  "./",
-  "./index.html",
-  "./manifest.webmanifest",
-  "./assets/css/app.css",
-  "./assets/img/logo-electroingenieria.png",
-  "./assets/img/iso-electroingenieria.png",
-  "./assets/js/main.js",
-  "./assets/js/config.js",
-  "./assets/js/core/icons.js",
-  "./assets/js/core/layout.js",
-  "./assets/js/modules/active-work.js",
-  "./assets/js/modules/work-clock.js",
-  "./assets/js/modules/workforce.js",
-  "./assets/js/modules/order-cancellation.js",
-  "./assets/js/modules/support-flow.js",
-  "./assets/js/modules/receiving-order.js",
-  "./assets/js/modules/financial-flow.js",
-  "./assets/js/modules/picking-flow.js",
-  "./assets/js/modules/cutting-flow.js",
-  "./assets/js/modules/shipping-flow.js",
-  "./assets/js/modules/queue.js",
-  "./assets/js/modules/orders.js",
-  "./assets/js/modules/inventory.js",
-  "./assets/js/services/api.js",
-  "./assets/js/services/supabase.js",
-  "./assets/js/services/materials.js",
-  "./assets/js/services/drive.js",
-  "./assets/js/services/location.js",
-  "./assets/js/services/pdf-order-reader.js"
+  "./","./index.html","./manifest.webmanifest",
+  "./assets/css/app.css","./assets/css/operational-v112.css",
+  "./assets/img/logo-electroingenieria.png","./assets/img/iso-electroingenieria.png",
+  "./assets/js/main.js","./assets/js/config.js","./assets/js/core/icons.js","./assets/js/core/layout.js",
+  "./assets/js/modules/active-work.js","./assets/js/modules/work-clock.js","./assets/js/modules/workforce.js",
+  "./assets/js/modules/operational-v112.js","./assets/js/modules/order-cancellation.js","./assets/js/modules/support-flow.js",
+  "./assets/js/modules/receiving-order.js","./assets/js/modules/financial-flow.js","./assets/js/modules/picking-flow.js",
+  "./assets/js/modules/cutting-flow.js","./assets/js/modules/shipping-flow.js","./assets/js/modules/queue.js",
+  "./assets/js/modules/orders.js","./assets/js/modules/inventory.js","./assets/js/services/api.js",
+  "./assets/js/services/supabase.js","./assets/js/services/materials.js","./assets/js/services/drive.js",
+  "./assets/js/services/location.js","./assets/js/services/pdf-order-reader.js"
 ];
 self.addEventListener("install",event=>event.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
