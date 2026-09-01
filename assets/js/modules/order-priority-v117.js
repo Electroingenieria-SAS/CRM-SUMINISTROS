@@ -46,3 +46,5 @@ function normalize(value){
   if(["URGENT","URGENTE","HIGH","ALTA","ALTO","CRITICAL","CRITICA","CRÍTICA","CRITICO","CRÍTICO"].includes(v))return "URGENT";
   return null;
 }
+
+installOrderPriorityV117();
