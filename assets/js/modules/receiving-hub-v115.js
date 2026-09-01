@@ -19,7 +19,7 @@ async function rpc(name,params={}){
 function esc(value){return fmt.escape(String(value??""))}
 function normalize(value){return String(value??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()}
 function n(value){const x=Number(value);return Number.isFinite(x)?x:0}
-function dateInput(date=new Date()){const d=new Date(date);return d.toISOString().slice(0,10)}
+function dateInput(date=new Date()){return new Date(date).toISOString().slice(0,10)}
 
 export function installReceivingDomainV115(){
   if(domainInstalled)return;
@@ -121,7 +121,9 @@ async function loadGoodsList(host){
     });
     target.innerHTML=rows.length?`<div class="v115-goods-list">${rows.map(goodsReceiptCard).join("")}</div>`:empty("Aún no hay recepciones de mercancía","Crea la primera recepción cuando llegue una compra a bodega.");
     target.querySelectorAll("[data-v115-open-receipt]").forEach(button=>button.addEventListener("click",()=>openGoodsReceiptDetail(button.dataset.v115OpenReceipt)));
-  }catch(error){target.innerHTML=`<div class="module-error"><strong>No fue posible consultar las recepciones</strong><p>${esc(error.message)}</p></div>`}
+  }catch(error){
+    target.innerHTML=`<div class="module-error"><strong>No fue posible consultar las recepciones</strong><p>${esc(error.message)}</p></div>`;
+  }
 }
 
 function goodsReceiptCard(row){
@@ -174,9 +176,13 @@ async function openGoodsReceiptOrigin(){
   }catch(error){toast(error.message,"error",7500)}
 }
 
-function pveCards(rows){
-  return `<div class="v115-pve-list">${rows.map(row=>`<label class="v115-pve-card"><input type="radio" name="v115Pve" value="${esc(row.id)}"><span></span><div><small>PVE · ${esc(fmt.step(row.currentStep))}</small><strong>${esc(row.orderNumber)}</strong><p>${esc(row.clientName)}</p></div><div><small>Orden de compra</small><b>${esc(row.purchaseOrder||"—")}</b><small>Proveedor</small><b>${esc(row.supplierName||"—")}</b></div><em>${row.arrivalStatus==="ARRIVED"?"Mercancía OK":row.warehouseReceiptCount?`${row.warehouseReceiptCount} recepción(es)`:"Sin recepción"}</em></label>`).join("")}</div>`;
+function pveCard(row){
+  let arrivalLabel="Sin recepción";
+  if(row.arrivalStatus==="ARRIVED")arrivalLabel="Mercancía OK";
+  else if(row.warehouseReceiptCount)arrivalLabel=`${row.warehouseReceiptCount} recepción(es)`;
+  return `<label class="v115-pve-card"><input type="radio" name="v115Pve" value="${esc(row.id)}"><span></span><div><small>PVE · ${esc(fmt.step(row.currentStep))}</small><strong>${esc(row.orderNumber)}</strong><p>${esc(row.clientName)}</p></div><div><small>Orden de compra</small><b>${esc(row.purchaseOrder||"—")}</b><small>Proveedor</small><b>${esc(row.supplierName||"—")}</b></div><em>${esc(arrivalLabel)}</em></label>`;
 }
+function pveCards(rows){return `<div class="v115-pve-list">${rows.map(pveCard).join("")}</div>`}
 
 async function openGoodsReceiptFormForPve(orderId){
   try{
@@ -224,7 +230,8 @@ function openGoodsReceiptForm(pveDetail){
     onConfirm:async dialog=>{
       const payload=collectGoodsReceipt(dialog,pveDetail,requestId);
       const result=await rpc("erp_x_goods_receipt_create",{p_payload:payload});
-      toast(linked?`Recepción ${result.receipt.receipt_number} guardada. Mercancía OK quedó marcada en el PVE sin mover su flujo.`:`Recepción ${result.receipt.receipt_number} guardada e ingresada a bodega.`,"success",8000);
+      const message=linked?`Recepción ${result.receipt.receipt_number} guardada. Mercancía OK quedó marcada en el PVE sin mover su flujo.`:`Recepción ${result.receipt.receipt_number} guardada e ingresada a bodega.`;
+      toast(message,"success",8000);
       window.__erpQueueRefresh?.();
       setTimeout(()=>openGoodsReceiptDetail(result.receipt.id),60);
       if(state.currentModule==="receiving"&&activeView==="GOODS")setTimeout(()=>{const host=document.querySelector("#receiving-v115-content");if(host)renderGoodsReceiving(host)},120);
@@ -242,9 +249,10 @@ function openGoodsReceiptForm(pveDetail){
 
 function blankGoodsLine(){return {orderItemId:null,materialMasterId:null,materialVariantId:null,reference:"",description:"",unit:"UND",expected:null,received:"",accepted:"",rejected:0,location:"RECEPCION",lot:""}}
 function goodsLineHtml(line,index){
+  const expected=line.expected!=null?`<small class="v115-expected">Referencia PVE: ${fmt.number(line.expected,3)} ${esc(line.unit||"UND")}</small>`:"";
   return `<article class="v115-goods-line" data-v115-line data-order-item-id="${esc(line.orderItemId||"")}">
     <div class="v115-line-number">${index+1}</div>
-    <div class="v115-line-material">${materialPickerHtml({materialMasterId:line.materialMasterId,materialVariantId:line.materialVariantId,reference:line.reference,name:line.description,unit:line.unit})}${line.expected!=null?`<small class="v115-expected">Referencia PVE: ${fmt.number(line.expected,3)} ${esc(line.unit||"UND")}</small>`:""}</div>
+    <div class="v115-line-material">${materialPickerHtml({materialMasterId:line.materialMasterId,materialVariantId:line.materialVariantId,reference:line.reference,name:line.description,unit:line.unit})}${expected}</div>
     <div class="v115-line-qty"><label>Recibido<input class="control" type="number" step="any" min="0" data-field="received" value="${esc(line.received)}"></label><label>Aceptado<input class="control" type="number" step="any" min="0" data-field="accepted" value="${esc(line.accepted)}"></label><label>Rechazado<input class="control" type="number" step="any" min="0" data-field="rejected" value="${esc(line.rejected)}"></label></div>
     <div class="v115-line-lot"><label>Ubicación<input class="control" data-field="location" value="${esc(line.location||"RECEPCION")}"></label><label>Lote<input class="control" data-field="lot" value="${esc(line.lot||"")}"></label></div>
     <button type="button" class="icon-btn" data-v115-remove-line aria-label="Quitar material">×</button>
@@ -272,24 +280,34 @@ function collectGoodsReceipt(dialog,pveDetail,requestId){
     const received=n(row.querySelector('[data-field="received"]').value),accepted=n(row.querySelector('[data-field="accepted"]').value),rejected=n(row.querySelector('[data-field="rejected"]').value);
     if(received<=0)return;
     if(Math.abs(accepted+rejected-received)>0.0001)throw new Error(`Línea ${index+1}: aceptado + rechazado debe ser igual a recibido.`);
-    let material;try{material=readMaterialPicker(row.querySelector("[data-material-picker]"),true)}catch(error){throw new Error(`Línea ${index+1}: ${error.message}`)}
+    let material;
+    try{material=readMaterialPicker(row.querySelector("[data-material-picker]"),true)}catch(error){throw new Error(`Línea ${index+1}: ${error.message}`)}
     lines.push({orderItemId:row.dataset.orderItemId||null,materialMasterId:material.materialMasterId,materialVariantId:material.materialVariantId,receivedQuantity:received,acceptedQuantity:accepted,rejectedQuantity:rejected,location:row.querySelector('[data-field="location"]').value.trim()||defaultLocation,lotNumber:row.querySelector('[data-field="lot"]').value.trim()||null,qualityStatus:rejected>0?"REJECTED":"ACCEPTED"});
   });
   if(!lines.length)throw new Error("Registra al menos un material con cantidad recibida mayor que cero.");
   const noveltyType=dialog.querySelector('[name="noveltyType"]').value||null,noveltyNote=dialog.querySelector('[name="noveltyNote"]').value.trim()||null;
   if(noveltyType&&!noveltyNote)throw new Error("Describe la novedad registrada.");
-  return {requestId,linkedPveId:pveDetail?.order?.id||null,linkedPurchaseOrderId:pveDetail?.purchaseOrder?.id||null,receiptType:dialog.querySelector('[name="receiptType"]').value,documentPrefix:dialog.querySelector('[name="documentPrefix"]').value.trim().toUpperCase(),status:dialog.querySelector('[name="receiptStatus"]:checked')?.value||"CONFORMING",purchaseOrderNumber:dialog.querySelector('[name="purchaseOrderNumber"]').value.trim()||null,supplierName:dialog.querySelector('[name="supplierName"]').value.trim()||null,supplierDocument:dialog.querySelector('[name="supplierDocument"]').value.trim()||null,invoiceNumber:dialog.querySelector('[name="invoiceNumber"]').value.trim()||null,warehouseCode:dialog.querySelector('[name="warehouseCode"]').value.trim()||null,defaultLocation,noveltyType,noveltySeverity:dialog.querySelector('[name="noveltySeverity"]').value,noveltyNote,verified:dialog.querySelector('[name="verified"]').checked,informationCaptured:dialog.querySelector('[name="informationCaptured"]').value.trim()||null,verificationNote:dialog.querySelector('[name="verificationNote"]').value.trim()||null,generalNote:dialog.querySelector('[name="generalNote"]').value.trim()||null,lines,metadata:{uiVersion:"11.5.0",domain:"WAREHOUSE_RECEIVING"}};
+  return {requestId,linkedPveId:pveDetail?.order?.id||null,linkedPurchaseOrderId:pveDetail?.purchaseOrder?.id||null,receiptType:dialog.querySelector('[name="receiptType"]').value,documentPrefix:dialog.querySelector('[name="documentPrefix"]').value.trim().toUpperCase(),status:dialog.querySelector('[name="receiptStatus"]:checked')?.value||"CONFORMING",purchaseOrderNumber:dialog.querySelector('[name="purchaseOrderNumber"]').value.trim()||null,supplierName:dialog.querySelector('[name="supplierName"]').value.trim()||null,supplierDocument:dialog.querySelector('[name="supplierDocument"]').value.trim()||null,invoiceNumber:dialog.querySelector('[name="invoiceNumber"]').value.trim()||null,warehouseCode:dialog.querySelector('[name="warehouseCode"]').value.trim()||null,defaultLocation,noveltyType,noveltySeverity:dialog.querySelector('[name="noveltySeverity"]').value,noveltyNote,verified:dialog.querySelector('[name="verified"]').checked,informationCaptured:dialog.querySelector('[name="informationCaptured"]').value.trim()||null,verificationNote:dialog.querySelector('[name="verificationNote"]').value.trim()||null,generalNote:dialog.querySelector('[name="generalNote"]').value.trim()||null,lines,metadata:{uiVersion:"11.5.1",domain:"WAREHOUSE_RECEIVING"}};
 }
 
 async function openGoodsReceiptDetail(id){
   try{
     const data=await rpc("erp_x_goods_receipt_detail",{p_receipt_id:id});
     const r=data.receipt,linked=data.linkedPve;
-    const view=modal({title:`Recepción ${r.receipt_number}`,confirmLabel:"Cerrar",size:"wide",body:`
+    const verificationText=r.verified_at?`Verificada · ${esc(data.verifiedBy||"")}`:"Pendiente";
+    const relationText=linked?`${esc(linked.orderNumber)} · Mercancía OK`:"Independiente";
+    const workflowHtml=linked
+      ? `<div class="v115-no-workflow"><strong>✓ PVE enlazado sin modificar workflow</strong><span>Etapa actual: ${esc(fmt.step(linked.currentStep))} · Estado: ${esc(fmt.label(linked.status))}</span></div>`
+      : `<div class="v115-no-workflow"><strong>Recepción independiente</strong><span>No existe ni se requiere un pedido para este ingreso de bodega.</span></div>`;
+    const linesHtml=(data.lines||[]).map(line=>{
+      return `<tr><td><strong>${esc(line.reference)}</strong><small>${esc(line.description)}</small></td><td>${fmt.number(line.receivedQuantity,3)} ${esc(line.unit)}</td><td>${fmt.number(line.acceptedQuantity,3)}</td><td>${fmt.number(line.rejectedQuantity,3)}</td><td>${esc(line.location)}</td><td>${esc(line.lotNumber||"—")}</td></tr>`;
+    }).join("");
+    const body=`
       <section class="v115-detail-hero"><div><span>RECEPCIÓN DE MERCANCÍA</span><strong>${esc(r.receipt_number)}</strong><p>${esc(r.supplier_name||"Proveedor no informado")} · ${fmt.date(r.received_at)}</p></div><div class="v115-detail-actions"><button type="button" class="btn btn-primary" data-v115-print>Imprimir QR + código</button></div></section>
-      <div class="v115-detail-grid"><article><small>Tipo</small><strong>${r.receipt_type==="RETURN"?"Devolución":"Compra"}</strong></article><article><small>Orden de compra</small><strong>${esc(r.purchase_order_number||"—")}</strong></article><article><small>Factura proveedor</small><strong>${esc(r.invoice_number||"—")}</strong></article><article><small>Recibió</small><strong>${esc(data.receivedBy||"—")}</strong></article><article><small>Verificación</small><strong>${r.verified_at?`Verificada · ${esc(data.verifiedBy||"")}`:"Pendiente"}</strong></article><article><small>Relación con pedido</small><strong>${linked?`${esc(linked.orderNumber)} · Mercancía OK`:"Independiente"}</strong></article></div>
-      ${linked?`<div class="v115-no-workflow"><strong>✓ PVE enlazado sin modificar workflow</strong><span>Etapa actual: ${esc(fmt.step(linked.currentStep))} · Estado: ${esc(fmt.label(linked.status))}</span></div>`:"<div class="v115-no-workflow"><strong>Recepción independiente</strong><span>No existe ni se requiere un pedido para este ingreso de bodega.</span></div>"}
-      <div class="table-wrap v115-detail-lines"><table><thead><tr><th>Material</th><th>Recibido</th><th>Aceptado</th><th>Rechazado</th><th>Ubicación</th><th>Lote</th></tr></thead><tbody>${(data.lines||[]).map(line=>`<tr><td><strong>${esc(line.reference)}</strong><small>${esc(line.description)}</small></td><td>${fmt.number(line.receivedQuantity,3)} ${esc(line.unit)}</td><td>${fmt.number(line.acceptedQuantity,3)}</td><td>${fmt.number(line.rejectedQuantity,3)}</td><td>${esc(line.location)}</td><td>${esc(line.lotNumber||"—")}</td></tr>`).join("")}</tbody></table></div>`});
+      <div class="v115-detail-grid"><article><small>Tipo</small><strong>${r.receipt_type==="RETURN"?"Devolución":"Compra"}</strong></article><article><small>Orden de compra</small><strong>${esc(r.purchase_order_number||"—")}</strong></article><article><small>Factura proveedor</small><strong>${esc(r.invoice_number||"—")}</strong></article><article><small>Recibió</small><strong>${esc(data.receivedBy||"—")}</strong></article><article><small>Verificación</small><strong>${verificationText}</strong></article><article><small>Relación con pedido</small><strong>${relationText}</strong></article></div>
+      ${workflowHtml}
+      <div class="table-wrap v115-detail-lines"><table><thead><tr><th>Material</th><th>Recibido</th><th>Aceptado</th><th>Rechazado</th><th>Ubicación</th><th>Lote</th></tr></thead><tbody>${linesHtml}</tbody></table></div>`;
+    const view=modal({title:`Recepción ${r.receipt_number}`,confirmLabel:"Cerrar",size:"wide",body});
     view.root.querySelector("[data-v115-print]")?.addEventListener("click",()=>printGoodsReceipt(data));
   }catch(error){toast(error.message,"error",7500)}
 }
@@ -299,8 +317,15 @@ function printGoodsReceipt(data){
     if(!window.JsBarcode||!window.qrcode)throw new Error("Los componentes de QR/código de barras no están disponibles todavía.");
     const r=data.receipt,svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
     window.JsBarcode(svg,String(r.barcode_value),{format:"CODE128",displayValue:true,height:52,margin:5,fontSize:13});
-    const qr=window.qrcode(0,"M");qr.addData(String(r.qr_value));qr.make();const qrUrl=qr.createDataURL(5,2);
-    const win=window.open("","_blank","width=900,height=700");if(!win)throw new Error("El navegador bloqueó la ventana de impresión.");
-    win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(r.receipt_number)}</title><style>body{font-family:Arial,sans-serif;margin:10mm;color:#111}.label{border:2px solid #111;border-radius:14px;padding:9mm}.head{display:flex;justify-content:space-between;border-bottom:1px solid #aaa;padding-bottom:5mm}.head h1{margin:2mm 0}.meta{display:grid;grid-template-columns:repeat(2,1fr);gap:4mm;margin:6mm 0}.meta div{border:1px solid #ddd;border-radius:8px;padding:3mm}.meta small{display:block;color:#555;text-transform:uppercase}.codes{display:grid;grid-template-columns:1fr 45mm;gap:8mm;align-items:center;border-top:1px solid #aaa;padding-top:5mm}.codes svg{max-width:100%}.codes img{width:42mm;height:42mm}@media print{body{margin:3mm}}</style></head><body><section class="label"><div class="head"><div><small>Recepción de mercancía · Bodega</small><h1>${esc(r.receipt_number)}</h1><strong>${r.receipt_type==="RETURN"?"DEVOLUCIÓN":"COMPRA"}</strong></div><div><small>${data.linkedPve?"PVE enlazado":"Registro"}</small><h2>${data.linkedPve?esc(data.linkedPve.orderNumber):"INDEPENDIENTE"}</h2></div></div><div class="meta"><div><small>Proveedor</small><strong>${esc(r.supplier_name||"—")}</strong></div><div><small>Orden de compra</small><strong>${esc(r.purchase_order_number||"—")}</strong></div><div><small>Recibió</small><strong>${esc(data.receivedBy||"—")}</strong></div><div><small>Materiales</small><strong>${(data.lines||[]).length}</strong></div></div><div class="codes"><div>${svg.outerHTML}</div><img src="${qrUrl}" alt="QR"></div></section><script>window.addEventListener('load',()=>window.print(),{once:true});<\/script></body></html>`);win.document.close();
+    const qr=window.qrcode(0,"M");
+    qr.addData(String(r.qr_value));
+    qr.make();
+    const qrUrl=qr.createDataURL(5,2);
+    const win=window.open("","_blank","width=900,height=700");
+    if(!win)throw new Error("El navegador bloqueó la ventana de impresión.");
+    const linkedLabel=data.linkedPve?esc(data.linkedPve.orderNumber):"INDEPENDIENTE";
+    const document=`<!doctype html><html><head><meta charset="utf-8"><title>${esc(r.receipt_number)}</title><style>body{font-family:Arial,sans-serif;margin:10mm;color:#111}.label{border:2px solid #111;border-radius:14px;padding:9mm}.head{display:flex;justify-content:space-between;border-bottom:1px solid #aaa;padding-bottom:5mm}.head h1{margin:2mm 0}.meta{display:grid;grid-template-columns:repeat(2,1fr);gap:4mm;margin:6mm 0}.meta div{border:1px solid #ddd;border-radius:8px;padding:3mm}.meta small{display:block;color:#555;text-transform:uppercase}.codes{display:grid;grid-template-columns:1fr 45mm;gap:8mm;align-items:center;border-top:1px solid #aaa;padding-top:5mm}.codes svg{max-width:100%}.codes img{width:42mm;height:42mm}@media print{body{margin:3mm}}</style></head><body><section class="label"><div class="head"><div><small>Recepción de mercancía · Bodega</small><h1>${esc(r.receipt_number)}</h1><strong>${r.receipt_type==="RETURN"?"DEVOLUCIÓN":"COMPRA"}</strong></div><div><small>${data.linkedPve?"PVE enlazado":"Registro"}</small><h2>${linkedLabel}</h2></div></div><div class="meta"><div><small>Proveedor</small><strong>${esc(r.supplier_name||"—")}</strong></div><div><small>Orden de compra</small><strong>${esc(r.purchase_order_number||"—")}</strong></div><div><small>Recibió</small><strong>${esc(data.receivedBy||"—")}</strong></div><div><small>Materiales</small><strong>${(data.lines||[]).length}</strong></div></div><div class="codes"><div>${svg.outerHTML}</div><img src="${qrUrl}" alt="QR"></div></section><script>window.addEventListener('load',()=>window.print(),{once:true});<\/script></body></html>`;
+    win.document.write(document);
+    win.document.close();
   }catch(error){toast(error.message,"error",7000)}
 }
