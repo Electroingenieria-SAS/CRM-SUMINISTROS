@@ -1,7 +1,7 @@
 export const CONFIG = Object.freeze({
-  version: "10.33.1-regresion-total",
-  build: "2026-08-14.9",
-  appName: "ERP Electroingeniería",
+  version: "11.0.0",
+  build: "2026-09-01.1",
+  appName: "CRM Suministros",
   company: "Electroingeniería S.A.S.",
   supabase: {
     url: "https://hezjxcxxcjlpmyalftam.supabase.co",
