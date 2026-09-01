@@ -1,11 +1,11 @@
 {
-  "name": "ERP Electroingeniería",
-  "short_name": "ERP EI",
+  "name": "CRM Suministros · Electroingeniería",
+  "short_name": "CRM Suministros",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#071a45",
-  "description": "Gestión integral de pedidos, suministros, inventario y logística de Electroingeniería.",
+  "theme_color": "#073b78",
+  "description": "Gestión de clientes, pedidos, suministros, inventario, logística y actividades de Electroingeniería.",
   "icons": [
     {"src":"./assets/img/iso-electroingenieria.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
   ]
