@@ -22,6 +22,7 @@ import {installSupportFlow} from "./modules/support-flow.js";
 import {renderWorkforce} from "./modules/workforce.js";
 import {initWorkClock} from "./modules/work-clock.js";
 import {installOperationalV112,enhanceOperationalDashboard,enhanceWorkforce} from "./modules/operational-v112.js";
+import {installOperationalResolveGuard} from "./modules/operational-resolve-guard-v112.js";
 
 const routes={
   dashboard:async root=>{await renderDashboard(root);await enhanceOperationalDashboard(root)},
@@ -55,6 +56,7 @@ async function bootAuthenticated(){
       initActiveWork();
       initWorkClock();
       installSupportFlow();
+      installOperationalResolveGuard();
       installOperationalV112();
       initRouter(async route=>{
         if(route.segments[0]==="order"&&route.segments[1]){navigate("orders");setTimeout(()=>openOrder(route.segments[1]),0);return}
