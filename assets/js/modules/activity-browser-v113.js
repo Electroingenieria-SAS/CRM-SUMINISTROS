@@ -25,7 +25,7 @@ export function installActivityBrowserV113(){
 export async function enhanceActivityBrowserV113(root=document.querySelector("#page-content")){
  if(state.currentModule!=="workforce"||!root)return;
  const body=root.querySelector(".workforce-quick-card .card-body");
- if(!body||body.dataset.v113Browser==="loading")return;
+ if(!body||body.dataset.v113Browser==="loading"||body.dataset.v113Browser==="ready")return;
  body.dataset.v113Browser="loading";const current=++token;
  try{
   const data=await api.workMyDay();if(current!==token||!body.isConnected)return;
