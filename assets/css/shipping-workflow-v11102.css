@@ -1,0 +1,173 @@
+.shipping-process-modal.shipping-workflow-v11102{
+  width:min(980px,calc(100vw - 44px));
+  max-width:980px;
+  max-height:min(900px,calc(100dvh - 34px));
+  border-radius:20px;
+  overflow:hidden;
+}
+.shipping-workflow-v11102 .shipping-process-head{
+  background:#fff!important;
+  border-bottom:1px solid #dce6ef!important;
+  padding:18px 22px!important;
+}
+.shipping-workflow-v11102 .shipping-process-head h3{
+  color:#0a3157!important;
+  font-size:21px!important;
+  line-height:1.15!important;
+  margin:3px 0 2px!important;
+  opacity:1!important;
+  text-shadow:none!important;
+}
+.shipping-workflow-v11102 .shipping-process-head p{color:#61758a!important;font-size:12.5px!important}
+.shipping-workflow-v11102 .shipping-process-head .wizard-kicker{color:#176db9!important;font-weight:800!important;letter-spacing:.08em!important}
+.shipping-workflow-v11102 .shipping-process-body{padding:16px 18px 20px!important;background:#f7fafc!important}
+.shipping-workflow-v11102 .popup-process-guide-v1190{display:none!important}
+
+.shipping-workflow-head-v11102{
+  background:#fff;
+  border:1px solid #d7e4ef;
+  border-radius:17px;
+  padding:18px 20px;
+  box-shadow:0 8px 24px rgba(20,56,89,.045);
+  margin:0 0 12px;
+}
+.shipping-workflow-top-v11102{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.shipping-route-icon-v11102{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:#eaf4ff;color:#0d6dcc;flex:0 0 auto}
+.shipping-route-icon-v11102 svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.shipping-route-name-v11102{font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#155f9f}
+.shipping-step-count-v11102{margin-left:auto;padding:6px 9px;border-radius:999px;background:#f4f7fa;border:1px solid #e0e7ee;color:#60778b;font-size:10.5px;font-weight:800}
+.shipping-workflow-head-v11102 h4{margin:0;color:#082f57;font-size:23px;line-height:1.2}
+.shipping-workflow-head-v11102>p{margin:6px 0 14px;color:#607589;font-size:13.5px;line-height:1.5;max-width:780px}
+.shipping-essential-facts-v11102{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.shipping-essential-facts-v11102>div{min-width:0;padding:10px 11px;border-radius:11px;background:#f6f9fc;border:1px solid #e2eaf1}
+.shipping-essential-facts-v11102 small{display:block;color:#6d8194;font-size:9.8px;text-transform:uppercase;letter-spacing:.06em;font-weight:800;margin-bottom:3px}
+.shipping-essential-facts-v11102 strong{display:block;color:#173b5f;font-size:12.5px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.shipping-workflow-v11102 .shipping-take-focus-v11101,
+.shipping-workflow-v11102 .shipping-primary-task-v11102{
+  display:block!important;
+  min-height:0!important;
+  text-align:left!important;
+  padding:20px!important;
+  border:1px solid #d7e4ef!important;
+  border-radius:17px!important;
+  background:#fff!important;
+  box-shadow:0 8px 24px rgba(20,56,89,.04)!important;
+  margin:0!important;
+}
+.shipping-workflow-v11102 .shipping-legacy-hidden-v11102{display:none!important}
+.shipping-primary-task-v11102 h4{margin:0 0 6px!important;color:#082f57!important;font-size:20px!important;line-height:1.25!important}
+.shipping-primary-task-v11102>p,
+.shipping-primary-task-v11102 header p{margin:0!important;color:#61768a!important;font-size:13px!important;line-height:1.5!important;max-width:760px!important}
+.shipping-take-task-v11102 .shipping-destination-compact-v11102{margin:15px 0 0;padding:12px 14px;border-radius:12px;background:#f4f8fc;border-left:4px solid #0e70cf}
+.shipping-destination-compact-v11102 span{display:block;color:#1a6eae;font-size:9.8px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+.shipping-destination-compact-v11102 strong{display:block;color:#163b5f;font-size:13.5px;margin-top:3px}
+.shipping-destination-compact-v11102 small{display:block;color:#6d8092;font-size:11.5px;line-height:1.45;margin-top:2px}
+.shipping-primary-cta-v11102{min-height:48px!important;margin-top:15px!important;padding:0 19px!important;border-radius:11px!important;font-size:13px!important;font-weight:850!important}
+.shipping-inline-help-v11102{display:block!important;margin-top:8px!important;color:#718497!important;font-size:11px!important}
+
+.shipping-workflow-v11102 .shipping-stepper-v11101,
+.shipping-workflow-v11102 .shipping-stepper-v11102{
+  display:grid!important;
+  grid-template-columns:repeat(3,1fr)!important;
+  gap:8px!important;
+  margin:0 0 10px!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+}
+.shipping-workflow-v11102 .shipping-progress-item{min-height:42px!important;padding:7px 10px!important;border-radius:11px!important;background:#fff!important;border:1px solid #dce6ef!important;display:flex!important;align-items:center!important;gap:8px!important}
+.shipping-workflow-v11102 .shipping-progress-item span{width:26px!important;height:26px!important;border-radius:50%!important;display:grid!important;place-items:center!important;background:#eaf0f5!important;color:#607487!important;font-size:11px!important;font-weight:900!important}
+.shipping-workflow-v11102 .shipping-progress-item strong{font-size:11.5px!important;color:#264967!important}
+.shipping-workflow-v11102 .shipping-progress-item.active{border-color:#9ec9f4!important;background:#eef6ff!important}
+.shipping-workflow-v11102 .shipping-progress-item.active span{background:#0e70d1!important;color:#fff!important}
+.shipping-workflow-v11102 .shipping-progress-item.done{border-color:#b9dfca!important;background:#f1faf5!important}
+.shipping-workflow-v11102 .shipping-progress-item.done span{background:#15985c!important;color:#fff!important}
+
+.shipping-primary-stack-v11102{margin:0!important}
+.shipping-guide-task-v11102>header{display:grid!important;grid-template-columns:38px minmax(0,1fr) auto!important;gap:11px!important;align-items:start!important}
+.shipping-guide-task-v11102>header>span{width:38px!important;height:38px!important;border-radius:11px!important;background:#eaf4ff!important;color:#0b6ecb!important;display:grid!important;place-items:center!important;font-weight:900!important}
+.shipping-guide-task-v11102>header>b{align-self:start!important;padding:5px 8px!important;border-radius:999px!important;background:#eaf7ef!important;color:#168053!important;font-size:10px!important}
+.shipping-guide-task-v11102 .shipping-data-card{margin-top:14px!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;padding:0!important;background:transparent!important;border:0!important}
+.shipping-guide-task-v11102 .shipping-data-card>div,
+.shipping-guide-extra-v11102>div{padding:10px 11px;border-radius:10px;background:#f6f9fc;border:1px solid #e1e9f0}
+.shipping-guide-task-v11102 .shipping-data-card small,
+.shipping-guide-extra-v11102 small{display:block;color:#718496;font-size:9.8px;text-transform:uppercase;letter-spacing:.05em;font-weight:800}
+.shipping-guide-task-v11102 .shipping-data-card strong,
+.shipping-guide-extra-v11102 strong{display:block;color:#173b5e;font-size:12.5px;margin-top:2px}
+.shipping-guide-extra-v11102{display:contents}
+.shipping-guide-task-v11102 .shipping-data-card>a{grid-column:1/-1;justify-self:start;font-size:11.5px;font-weight:800;color:#126bb7}
+
+.shipping-workflow-v11102 .shipping-system-action-v11102{display:none!important}
+.shipping-workflow-v11102 .shipping-next-card-v11101{display:none!important}
+
+.shipping-secondary-v11102{margin-top:12px;border:1px solid #d9e4ed;border-radius:13px;background:#fff;overflow:hidden}
+.shipping-secondary-v11102>summary{list-style:none;cursor:pointer;padding:13px 15px;display:flex;align-items:center;gap:12px;color:#123c61;font-size:12.5px;font-weight:850}
+.shipping-secondary-v11102>summary::-webkit-details-marker{display:none}
+.shipping-secondary-v11102>summary:after{content:"+";margin-left:2px;color:#1a70bd;font-size:18px;font-weight:500}
+.shipping-secondary-v11102[open]>summary:after{content:"–"}
+.shipping-secondary-v11102>summary small{margin-left:auto;color:#7b8d9e;font-size:10.5px;font-weight:500}
+.shipping-secondary-body-v11102{padding:0 13px 13px}
+.shipping-secondary-body-v11102>*{margin-top:10px!important}
+.shipping-secondary-body-v11102 .shipping-overview-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+.shipping-secondary-actions-v11102{display:flex;justify-content:flex-end;padding:9px 0 2px}
+.shipping-cancellation-secondary-v11102{min-height:38px!important;padding:0 12px!important;border-radius:9px!important;font-size:10.5px!important}
+.shipping-secondary-v11102 .order-support-zone{padding:0!important;background:transparent!important}
+
+.shipping-closure-task-v11102{text-align:left!important}
+.shipping-closure-task-v11102 .shipping-auto-close{margin-top:14px!important}
+.shipping-closure-task-v11102 .shipping-photo-help{display:block!important;margin-top:8px!important;color:#718496!important;font-size:11px!important}
+
+.shipping-workflow-v11102 .shipping-footer-v11102{padding:11px 15px calc(11px + env(safe-area-inset-bottom))!important;gap:12px!important;background:#fff!important;border-top:1px solid #dce6ef!important}
+.shipping-workflow-v11102 .shipping-footer-v11102 .parallel-work-note small{font-size:10.8px!important;line-height:1.35!important}
+.shipping-workflow-v11102 .shipping-footer-v11102 .parallel-work-actions{gap:8px!important}
+.shipping-workflow-v11102 .shipping-footer-v11102 .btn{min-height:44px!important;border-radius:10px!important;padding:0 16px!important;font-size:11.5px!important;font-weight:850!important}
+.shipping-next-v11102{min-width:132px}
+.shipping-take-another-v11102{min-width:165px}
+.shipping-next-highlight-v11102{animation:shippingNextPulse11102 .8s ease}
+@keyframes shippingNextPulse11102{0%,100%{box-shadow:0 8px 24px rgba(20,56,89,.04)}50%{box-shadow:0 0 0 4px rgba(26,115,200,.14),0 10px 26px rgba(20,56,89,.08)}}
+
+.shipping-guide-v11102 .popup-process-guide-v1190{display:none!important}
+.shipping-guide-v11102 .guide-reader-hero-v11101{padding:17px!important}
+.shipping-guide-v11102 .guide-reader-hero-v11101 h4{font-size:19px!important}
+.shipping-guide-v11102 .guide-reader-hero-v11101 p{font-size:12.5px!important;line-height:1.5!important}
+.shipping-guide-v11102 .guide-reader-field-v11101>span em{color:#c73b4c;font-style:normal}
+.shipping-guide-v11102 .guide-reader-help-v11101{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+.shipping-guide-v11102 .guide-reader-help-v11101 span{min-width:0!important}
+
+@media(max-width:760px){
+  .shipping-process-modal.shipping-workflow-v11102{width:100vw!important;max-width:none!important;height:100dvh!important;max-height:100dvh!important;border-radius:0!important;margin:0!important;padding-top:env(safe-area-inset-top)}
+  .shipping-workflow-v11102 .shipping-process-head{padding:13px 15px!important}
+  .shipping-workflow-v11102 .shipping-process-head h3{font-size:18px!important}
+  .shipping-workflow-v11102 .shipping-process-body{padding:11px!important}
+  .shipping-workflow-head-v11102{padding:15px!important;border-radius:14px!important}
+  .shipping-workflow-head-v11102 h4{font-size:20px!important}
+  .shipping-workflow-head-v11102>p{font-size:12.5px!important;margin-bottom:11px!important}
+  .shipping-essential-facts-v11102{grid-template-columns:1fr 1fr!important}
+  .shipping-essential-facts-v11102 strong{white-space:normal!important}
+  .shipping-workflow-v11102 .shipping-primary-task-v11102{padding:16px!important;border-radius:14px!important}
+  .shipping-primary-task-v11102 h4{font-size:18px!important}
+  .shipping-primary-cta-v11102{width:100%!important;justify-content:center!important}
+  .shipping-workflow-v11102 .shipping-stepper-v11102,.shipping-workflow-v11102 .shipping-stepper-v11101{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;overflow:visible!important}
+  .shipping-workflow-v11102 .shipping-progress-item{min-width:0!important;padding:6px!important;justify-content:center!important}
+  .shipping-workflow-v11102 .shipping-progress-item strong{font-size:10.5px!important}
+  .shipping-guide-task-v11102 .shipping-data-card{grid-template-columns:1fr!important}
+  .shipping-guide-task-v11102 .shipping-data-card>a{grid-column:1!important}
+  .shipping-secondary-v11102>summary{flex-wrap:wrap!important}
+  .shipping-secondary-v11102>summary small{width:100%!important;margin:0!important}
+  .shipping-secondary-body-v11102 .shipping-overview-grid{grid-template-columns:1fr 1fr!important}
+  .shipping-workflow-v11102 .shipping-footer-v11102{display:block!important}
+  .shipping-workflow-v11102 .shipping-footer-v11102 .parallel-work-note{margin-bottom:8px!important}
+  .shipping-workflow-v11102 .shipping-footer-v11102 .parallel-work-actions{display:grid!important;grid-template-columns:1fr!important}
+  .shipping-workflow-v11102 .shipping-footer-v11102 .shipping-next-v11102{grid-row:1!important;width:100%!important}
+  .shipping-workflow-v11102 .shipping-footer-v11102 .shipping-take-another-v11102{grid-row:2!important;width:100%!important}
+  .shipping-guide-v11102 .guide-reader-help-v11101{grid-template-columns:1fr!important}
+}
+
+@media(max-width:430px){
+  .shipping-essential-facts-v11102{grid-template-columns:1fr!important}
+  .shipping-secondary-body-v11102 .shipping-overview-grid{grid-template-columns:1fr!important}
+  .shipping-workflow-v11102 .shipping-footer-v11102 .parallel-work-note{display:none!important}
+}
+
+@media(prefers-reduced-motion:reduce){.shipping-next-highlight-v11102{animation:none!important}.shipping-workflow-v11102 *{scroll-behavior:auto!important}}
