@@ -45,7 +45,7 @@ jobs:
               print('\n'.join(missing))
               sys.exit(1)
           PY
-      - name: Validate V11.9.9 release contract
+      - name: Validate V11.10.0 release contract
         shell: bash
         run: |
           set -euo pipefail
@@ -68,6 +68,10 @@ jobs:
           test -s assets/css/billing-focus-v1198.css
           test -s assets/css/billing-upload-v1199.css
           test -s assets/css/billing-invoice-reader-v1199.css
+          test -s assets/css/global-progress-v11100.css
+          test -s assets/js/core/progress.js
+          test -s assets/js/modules/global-progress-v11100.js
+          test -s assets/js/modules/imports.js
           test -s assets/js/modules/audit.js
           test -s assets/js/modules/dashboard.js
           test -s assets/js/modules/orders.js
@@ -87,20 +91,31 @@ jobs:
           test -s assets/js/modules/bootstrap-v113.js
           test -s supabase/migrations/081_audit_dashboard_v11_8_2.sql
           test -s supabase/migrations/083_order_type_labels_v11_9_1.sql
-          grep -q 'version: "11.9.9"' assets/js/config.js
-          grep -q 'build: "2026-09-04.19"' assets/js/config.js
-          grep -q 'v=11.9.9' index.html
-          grep -q 'billing-focus-v1198.css?v=11.9.9' index.html
-          grep -q 'billing-upload-v1199.css?v=11.9.9' index.html
-          grep -q 'billing-invoice-reader-v1199.css?v=11.9.9' index.html
-          grep -q 'billing-focus-v1198.js?v=11.9.9' index.html
-          grep -q 'billing-upload-v1199.js?v=11.9.9' index.html
-          grep -q 'billing-invoice-reader-v1199.js?v=11.9.9' index.html
-          grep -q 'crm-suministros-v11-9-9-20260904' service-worker.js
-          grep -q './assets/css/billing-upload-v1199.css' service-worker.js
-          grep -q './assets/css/billing-invoice-reader-v1199.css' service-worker.js
-          grep -q './assets/js/modules/billing-upload-v1199.js' service-worker.js
-          grep -q './assets/js/modules/billing-invoice-reader-v1199.js' service-worker.js
+          grep -q 'version: "11.10.0"' assets/js/config.js
+          grep -q 'build: "2026-09-04.20"' assets/js/config.js
+          grep -q 'v=11.10.0' index.html
+          grep -q 'global-progress-v11100.css?v=11.10.0' index.html
+          grep -q 'global-progress-v11100.js?v=11.10.0' index.html
+          grep -q 'billing-upload-v1199.css?v=11.10.0' index.html
+          grep -q 'billing-invoice-reader-v1199.js?v=11.10.0' index.html
+          grep -q 'crm-suministros-v11-10-0-20260904' service-worker.js
+          grep -q './assets/css/global-progress-v11100.css' service-worker.js
+          grep -q './assets/js/core/progress.js' service-worker.js
+          grep -q './assets/js/modules/global-progress-v11100.js' service-worker.js
+          grep -q './assets/js/modules/imports.js' service-worker.js
+          grep -q 'operationProgress' assets/js/services/drive.js
+          grep -q 'Subiendo a Drive' assets/js/modules/global-progress-v11100.js
+          grep -q 'El CRM sigue trabajando' assets/js/modules/global-progress-v11100.js
+          grep -q 'crm-busy-button-v11100' assets/js/modules/global-progress-v11100.js
+          grep -q 'crm-busy-button-v11100' assets/css/global-progress-v11100.css
+          grep -q 'env(safe-area-inset-bottom)' assets/css/global-progress-v11100.css
+          grep -q 'prefers-reduced-motion:reduce' assets/css/global-progress-v11100.css
+          grep -q 'Subiendo factura' assets/js/services/drive.js
+          grep -q 'Enviando a Google Drive' assets/js/services/drive.js
+          grep -q 'Drive confirmó el archivo' assets/js/services/drive.js
+          grep -q 'Archivo guardado en Drive y registrado correctamente' assets/js/services/drive.js
+          grep -q 'Importando historial' assets/js/modules/imports.js
+          grep -q 'Procesando lote' assets/js/modules/imports.js
           grep -q 'invoiceNumberV1199' assets/js/modules/billing-invoice-reader-v1199.js
           grep -q 'invoiceWeightV1199' assets/js/modules/billing-invoice-reader-v1199.js
           grep -q 'packageWeightKg' assets/js/modules/billing-invoice-reader-v1199.js
@@ -146,11 +161,11 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.9.9" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.10.0" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.9.9-deployable
+          name: crm-suministros-v11.10.0-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
