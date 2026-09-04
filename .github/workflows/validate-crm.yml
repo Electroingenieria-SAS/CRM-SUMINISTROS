@@ -45,7 +45,7 @@ jobs:
               print('\n'.join(missing))
               sys.exit(1)
           PY
-      - name: Validate V11.9.2 release contract
+      - name: Validate V11.9.3 release contract
         shell: bash
         run: |
           set -euo pipefail
@@ -60,6 +60,7 @@ jobs:
           test -s assets/css/popup-ux-v1190.css
           test -s assets/css/order-create-v1191.css
           test -s assets/css/receiving-order-v1192.css
+          test -s assets/css/receiving-focus-v1193.css
           test -s assets/js/modules/audit.js
           test -s assets/js/modules/dashboard.js
           test -s assets/js/modules/orders.js
@@ -70,19 +71,27 @@ jobs:
           test -s assets/js/modules/popup-ux-v1190.js
           test -s assets/js/modules/order-create-v1191.js
           test -s assets/js/modules/receiving-order-v1192.js
+          test -s assets/js/modules/receiving-focus-v1193.js
           test -s supabase/migrations/081_audit_dashboard_v11_8_2.sql
           test -s supabase/migrations/083_order_type_labels_v11_9_1.sql
-          grep -q 'version: "11.9.2"' assets/js/config.js
-          grep -q 'v=11.9.2' index.html
-          grep -q 'receiving-order-v1192.css?v=11.9.2' index.html
-          grep -q 'receiving-order-v1192.js?v=11.9.2' index.html
-          grep -q 'crm-suministros-v11-9-2-20260904' service-worker.js
-          grep -q './assets/css/receiving-order-v1192.css' service-worker.js
-          grep -q './assets/js/modules/receiving-order-v1192.js' service-worker.js
+          grep -q 'version: "11.9.3"' assets/js/config.js
+          grep -q 'build: "2026-09-04.14"' assets/js/config.js
+          grep -q 'v=11.9.3' index.html
+          grep -q 'receiving-focus-v1193.css?v=11.9.3' index.html
+          grep -q 'receiving-focus-v1193.js?v=11.9.3' index.html
+          grep -q 'crm-suministros-v11-9-3-20260904' service-worker.js
+          grep -q './assets/css/receiving-focus-v1193.css' service-worker.js
+          grep -q './assets/js/modules/receiving-focus-v1193.js' service-worker.js
+          grep -q 'width:min(1180px,calc(100vw - 64px))' assets/css/receiving-focus-v1193.css
+          grep -q 'env(safe-area-inset-top)' assets/css/receiving-focus-v1193.css
+          grep -q 'font-size:16px!important' assets/css/receiving-focus-v1193.css
+          grep -q 'reception-take-focus-v1193' assets/js/modules/receiving-focus-v1193.js
+          grep -q 'Ver resumen del pedido' assets/js/modules/receiving-focus-v1193.js
+          grep -q 'Corrige solo lo necesario' assets/js/modules/receiving-focus-v1193.js
+          grep -q 'Confirmar y enviar a alistamiento' assets/js/modules/receiving-focus-v1193.js
           grep -q 'reception-now-v1192' assets/css/receiving-order-v1192.css
           grep -q 'Todo está correcto' assets/js/modules/receiving-order-v1192.js
           grep -q 'Revisar con PDF' assets/js/modules/receiving-order-v1192.js
-          grep -q 'reception-disclosure-v1192' assets/js/modules/receiving-order-v1192.js
           grep -q 'client-extra-choice-v1191' assets/css/order-create-v1191.css
           grep -q '¿Quiere agregar más datos del cliente?' assets/js/modules/order-create-v1191.js
           grep -q 'ORDER_TYPES=new Set' assets/js/modules/order-create-v1191.js
@@ -107,11 +116,11 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.9.2" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.9.3" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.9.2-deployable
+          name: crm-suministros-v11.9.3-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
