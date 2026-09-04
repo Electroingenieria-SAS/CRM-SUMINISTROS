@@ -45,6 +45,9 @@ const queueModules={cartera:["CARTERA"],caja:["CAJA","CAJA_FACTURACION"],purchas
 let authBootPromise=null;
 const SESSION_PROFILE_ERROR=/usuario sin perfil operativo activo|perfil operativo activo|jwt expired|token.*expired/i;
 
+function moduleReadable(code){return Boolean(state.modules?.find(module=>module.code===code)?.canRead)}
+function firstReadableModule(){return state.modules?.find(module=>module.canRead)?.code||"dashboard"}
+
 const titles={dashboard:["Centro de operaciones","Indicadores, cargas y prioridades de la operación"],orders:["Pedidos","Consulta, trazabilidad y gestión integral"],sales:["Ventas y pedidos","Creación y seguimiento comercial"],credit:["Crédito","Radicación, estudio y decisión"],cartera:["Cartera","Validación financiera y liberación"],caja:["Caja","Retenidos y facturación de pedidos PVN"],purchasing:["Compras","Abastecimiento y órdenes PVE"],receiving:["Recepción","Recepción de mercancía para bodega y Recepción de pedido como procesos separados"],picking:["Alistamiento","Preparación, controles y novedades"],cutting:["Centro de corte","Referencias agrupadas, carretos y entrega a Alistamiento"],billing:["Facturación","Factura, soporte y liberación"],shipping:["Despachos y entregas","Rutas, recogidas, evidencias y cierre"],inventory:["Inventario","Existencias, lotes, ubicaciones y movimientos"],workforce:["Jornada y actividades","Planeación, cronograma, evidencias y capacidad"],approvals:["Excepciones y aprobaciones","Novedades, reportes, decisiones y SLA"],vsm:["Flujo y tiempos","Tiempo total, trabajo productivo, espera y productividad"],reports:["Analítica y reportes","Indicadores, causas y exportaciones"],imports:["Histórico de pedidos","Carga controlada de pedidos cerrados por CSV"],audit:["Auditoría","Registro de decisiones y movimientos"],admin:["Administración de CRM Suministros","Usuarios, roles, calendarios y configuración"]};
 
 async function bootAuthenticated(){
@@ -61,6 +64,11 @@ async function bootAuthenticated(){
       installOperationalResolveGuard();
       installOperationalV112();
       initRouter(async route=>{
+        const requestedModule=route.segments[0]==="order"?"orders":route.module;
+        if(!moduleReadable(requestedModule)){
+          const fallback=firstReadableModule();
+          if(fallback!==route.module){navigate(fallback);return}
+        }
         if(route.segments[0]==="order"&&route.segments[1]){navigate("orders");setTimeout(()=>openOrder(route.segments[1]),0);return}
         const moduleId=route.module;
         const [title,sub]=titles[moduleId]||["CRM Suministros",""];

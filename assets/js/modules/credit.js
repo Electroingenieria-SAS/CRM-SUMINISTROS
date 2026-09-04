@@ -2,15 +2,17 @@ import {api} from "../services/api.js";
 import {fmt,statusBadge} from "../core/format.js";
 import {loading,empty,wizard,toast,actionCards,guide} from "../core/ui.js";
 import {workspaceIntro,summaryItem,choice} from "../core/guided.js";
+import {can} from "../core/state.js";
 
 export async function renderCredit(root){
   let status="";
+  const canCreate=can("credit","canCreate");
   root.innerHTML=`
     <section class="page-head"><div><h2>Solicitudes de crédito</h2><p>Radica solicitudes y acompaña su estudio con pasos claros y decisiones trazables.</p></div><div class="page-actions"><button class="btn btn-help" id="credit-help">Ver guía</button></div></section>
-    ${workspaceIntro({title:"Gestión de crédito",description:"Selecciona la operación requerida para radicar, estudiar o consultar solicitudes de crédito.",cards:actionCards([{id:"new-credit",title:"Radicar nueva solicitud",description:"Registra cliente, valor y plazo en un asistente de tres pasos.",icon:"＋",tone:"accent"},{id:"submitted-credit",title:"Solicitudes radicadas",description:"Consulta solicitudes nuevas que deben ser tomadas por Cartera.",icon:"1",tone:"primary"},{id:"review-credit",title:"Solicitudes en estudio",description:"Revisa solicitudes asignadas y registra la decisión.",icon:"2",tone:"warning"},{id:"all-credit",title:"Historial de crédito",description:"Consulta solicitudes aprobadas, rechazadas y pendientes.",icon:"▦",tone:"success"}])})}
+    ${workspaceIntro({title:"Gestión de crédito",description:"Selecciona la operación requerida para radicar, estudiar o consultar solicitudes de crédito.",cards:actionCards([...(canCreate?[{id:"new-credit",title:"Radicar nueva solicitud",description:"Registra cliente, valor y plazo en un asistente de tres pasos.",icon:"＋",tone:"accent"}]:[]),{id:"submitted-credit",title:"Solicitudes radicadas",description:"Consulta solicitudes nuevas que deben ser tomadas por Cartera.",icon:"1",tone:"primary"},{id:"review-credit",title:"Solicitudes en estudio",description:"Revisa solicitudes asignadas y registra la decisión.",icon:"2",tone:"warning"},{id:"all-credit",title:"Historial de crédito",description:"Consulta solicitudes aprobadas, rechazadas y pendientes.",icon:"▦",tone:"success"}])})}
     <section class="card card-pad"><div class="toolbar"><input class="control search-wide" id="credit-search" placeholder="Buscar solicitud, cliente o documento"><button class="btn btn-search" id="credit-load">Buscar</button></div><div id="credit-result">${loading()}</div></section>`;
   async function load(){const target=root.querySelector("#credit-result");target.innerHTML=loading("Consultando solicitudes de crédito…");const data=await api.creditList(status||null,root.querySelector("#credit-search").value,1,100);target.innerHTML=data.items.length?cards(data.items):empty("Sin solicitudes","No hay solicitudes para los filtros seleccionados.");target.querySelectorAll("[data-credit-action]").forEach(button=>button.onclick=()=>transition(JSON.parse(button.dataset.request),button.dataset.creditAction,load))}
-  root.querySelector("#new-credit").onclick=()=>createWizard(load);
+  root.querySelector("#new-credit")?.addEventListener("click",()=>createWizard(load));
   root.querySelector("#submitted-credit").onclick=()=>{status="SUBMITTED";load()};
   root.querySelector("#review-credit").onclick=()=>{status="UNDER_REVIEW";load()};
   root.querySelector("#all-credit").onclick=()=>{status="";load()};
