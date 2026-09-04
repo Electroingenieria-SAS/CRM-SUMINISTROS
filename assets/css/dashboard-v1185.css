@@ -1,4 +1,4 @@
-/* CRM Suministros V11.8.5 · Centro de operaciones · jerarquía visual e iconografía */
+/* CRM Suministros V11.8.6 · Centro de operaciones · jerarquía visual e iconografía */
 
 .dashboard-v1185{display:block}
 
@@ -15,6 +15,8 @@
 .dashboard-v1185 .guided-action-card:hover:not(:disabled){transform:translateY(-2px);border-color:#aec7df;background:#fff;box-shadow:0 13px 28px rgba(14,49,85,.10),inset 0 1px 0 #fff}
 .dashboard-v1185 .guided-action-icon{position:relative;width:62px;height:62px;display:grid;place-items:center;border:1px solid #c9dced;border-radius:18px;background:linear-gradient(145deg,#eff6fd,#dcecf9);color:#185f9e;box-shadow:0 8px 17px rgba(20,86,144,.11),inset 0 1px 0 rgba(255,255,255,.95)}
 .dashboard-v1185 .guided-action-icon:before{content:"";position:absolute;inset:7px;border:1px solid rgba(255,255,255,.8);border-radius:13px;pointer-events:none}
+/* El estilo base anterior dibujaba un + mediante ::after en tarjetas accent. Con SVG ya no debe existir. */
+.dashboard-v1185 .guided-action-card .guided-action-icon:after{content:none!important;display:none!important}
 .dashboard-v1185 .guided-action-icon .ui-icon{position:relative;width:27px;height:27px;stroke-width:1.75}
 .dashboard-v1185 .guided-action-copy{min-width:0;display:grid;gap:6px}
 .dashboard-v1185 .guided-action-copy strong{color:#173858;font-size:14px;line-height:1.28;letter-spacing:-.012em}
@@ -32,7 +34,8 @@
 .dashboard-v1185 .grid-kpi{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
 .dashboard-v1185 .dashboard-kpi{position:relative;overflow:hidden;min-height:152px;padding:17px 18px 16px;border:1px solid #d8e2ec;border-radius:15px;background:#fff;box-shadow:0 6px 18px rgba(14,49,85,.05),inset 0 1px 0 #fff;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
 .dashboard-v1185 .dashboard-kpi:hover{transform:translateY(-1px);border-color:#bed0e1;box-shadow:0 11px 24px rgba(14,49,85,.075)}
-.dashboard-v1185 .dashboard-kpi:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:#9ebbd5}
+/* Limpia por completo las propiedades del punto circular heredado de .kpi::after. */
+.dashboard-v1185 .dashboard-kpi:after{content:"";position:absolute;left:0;right:0;top:auto;bottom:0;width:auto;height:3px;border-radius:0;background:#9ebbd5;box-shadow:none}
 .dashboard-v1185 .dashboard-kpi.tone-warning:after{background:#d69d20}
 .dashboard-v1185 .dashboard-kpi.tone-danger:after{background:#c85656}
 .dashboard-v1185 .dashboard-kpi.tone-success:after{background:#2b9671}
