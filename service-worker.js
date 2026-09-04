@@ -1,13 +1,13 @@
-const CACHE="crm-suministros-v11-8-3-20260904";
+const CACHE="crm-suministros-v11-8-4-20260904";
 const ASSETS=[
   "./","./index.html","./manifest.webmanifest","./templates/historical_orders.csv",
-  "./assets/css/app.css","./assets/css/operational-v112.css","./assets/css/guides-v113.css","./assets/css/workforce-taxonomy-v113.css","./assets/css/receiving-v115.css","./assets/css/receiving-guide-v115.css","./assets/css/inventory-scan-v116.css","./assets/css/v118.css","./assets/css/audit-v1182.css","./assets/css/audit-v1183.css",
+  "./assets/css/app.css","./assets/css/operational-v112.css","./assets/css/guides-v113.css","./assets/css/workforce-taxonomy-v113.css","./assets/css/receiving-v115.css","./assets/css/receiving-guide-v115.css","./assets/css/inventory-scan-v116.css","./assets/css/v118.css","./assets/css/audit-v1182.css","./assets/css/audit-v1183.css","./assets/css/ui-v1184.css",
   "./assets/img/logo-electroingenieria.png","./assets/img/iso-electroingenieria.png",
   "./assets/js/main.js","./assets/js/config.js","./assets/js/core/icons.js","./assets/js/core/layout.js","./assets/js/core/format.js","./assets/js/core/ui.js",
   "./assets/js/modules/active-work.js","./assets/js/modules/work-clock.js","./assets/js/modules/workforce.js",
   "./assets/js/modules/operational-v112.js","./assets/js/modules/operational-resolve-guard-v112.js",
   "./assets/js/modules/guides-v113.js","./assets/js/modules/activity-browser-v113.js","./assets/js/modules/workforce-taxonomy-v113.js","./assets/js/modules/bootstrap-v113.js",
-  "./assets/js/modules/accessibility-v114.js","./assets/js/modules/receiving-hub-v115.js","./assets/js/modules/receiving-guide-v115.js","./assets/js/modules/inventory-scan-v116.js","./assets/js/modules/inventory-scan-bootstrap-v116.js","./assets/js/modules/order-priority-v117.js",
+  "./assets/js/modules/accessibility-v114.js","./assets/js/modules/receiving-hub-v115.js","./assets/js/modules/receiving-guide-v115.js","./assets/js/modules/inventory-scan-v116.js","./assets/js/modules/inventory-scan-bootstrap-v116.js","./assets/js/modules/order-priority-v117.js","./assets/js/modules/pagination-v1184.js",
   "./assets/js/modules/order-cancellation.js","./assets/js/modules/support-flow.js",
   "./assets/js/modules/receiving-order.js","./assets/js/modules/financial-flow.js","./assets/js/modules/picking-flow.js",
   "./assets/js/modules/cutting-flow.js","./assets/js/modules/shipping-flow.js","./assets/js/modules/queue.js",
