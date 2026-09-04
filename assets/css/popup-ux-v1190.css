@@ -1,0 +1,134 @@
+/* CRM Suministros V11.9.0 · Sistema unificado de pop-ups accesibles y guiados */
+
+/* Ventana base: más limpia, legible y consistente */
+.modal-overlay{background:rgba(5,24,45,.58);backdrop-filter:blur(6px) saturate(1.02)}
+.modal.popup-ux-v1190{border:1px solid #cbd9e6;border-radius:18px;background:#fff;box-shadow:0 30px 78px rgba(3,27,51,.31),0 8px 24px rgba(7,54,97,.12);animation:popupEnterV1190 .2s cubic-bezier(.2,.8,.2,1) both}
+.modal.popup-ux-v1190:not(.full):not(.split):not(.wizard-modal){width:min(680px,100%)}
+.modal.popup-ux-v1190.wizard-modal.wide{width:min(940px,100%)}
+.modal.popup-ux-v1190 .modal-head{min-height:76px;padding:17px 18px 17px 22px;border-bottom:1px solid #dfe8f0;background:linear-gradient(180deg,#fff,#f9fbfd);box-shadow:inset 4px 0 0 #1479df}
+.modal.popup-ux-v1190 .modal-kicker,.modal.popup-ux-v1190 .wizard-kicker{font-size:8.5px;letter-spacing:.13em}
+.modal.popup-ux-v1190 .modal-head h3{margin-top:4px;color:#082f5b;font-size:19px;line-height:1.2;letter-spacing:-.022em}
+.modal.popup-ux-v1190 .modal-head p{max-width:720px;margin-top:5px;color:#62758a;font-size:10.5px;line-height:1.5}
+.modal.popup-ux-v1190 .icon-close,.modal.popup-ux-v1190 [data-close].icon-btn{width:40px;height:40px;min-width:40px;border:1px solid #d6e2ed;border-radius:11px;background:#fff;color:#45647f;font-size:19px;box-shadow:0 3px 9px rgba(10,48,84,.05)}
+.modal.popup-ux-v1190 .icon-close:hover,.modal.popup-ux-v1190 [data-close].icon-btn:hover{border-color:#a9c3da;background:#f5f9fd;color:#0b5da9}
+.modal.popup-ux-v1190 .modal-body{padding:18px 20px 20px;background:#f7fafc}
+
+/* Los procesos especiales conservan su lógica, pero usan la misma cabecera visual */
+.modal.popup-ux-v1190 [class*="process-head"]{min-height:76px;padding:17px 18px 17px 22px;border-bottom:1px solid #dfe8f0;background:linear-gradient(180deg,#fff,#f9fbfd);color:#14283d;box-shadow:inset 4px 0 0 #1479df}
+.modal.popup-ux-v1190 [class*="process-head"] h3{color:#082f5b;font-size:19px;line-height:1.2}
+.modal.popup-ux-v1190 [class*="process-head"] p{color:#62758a;font-size:10.5px;line-height:1.5}
+.modal.popup-ux-v1190 [class*="process-head"] .wizard-kicker{color:#0b65c7}
+.modal.popup-ux-v1190 [class*="process-head"] .icon-btn{color:#45647f;border-color:#d6e2ed;background:#fff}
+
+/* Guía breve del proceso: una sola explicación, sin llenar la pantalla */
+.popup-process-guide-v1190{display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;gap:11px;padding:10px 18px;border-bottom:1px solid #e2eaf1;background:#f3f8fd;color:#294966}
+.popup-guide-icon-v1190{width:34px;height:34px;display:grid;place-items:center;border:1px solid #cfe0ef;border-radius:10px;background:#fff;color:#1968ab;box-shadow:0 2px 7px rgba(10,65,112,.05)}
+.popup-guide-icon-v1190 .ui-icon{width:16px;height:16px;stroke-width:1.9}
+.popup-guide-copy-v1190{min-width:0;display:grid;gap:2px}
+.popup-guide-copy-v1190 strong{color:#173f66;font-size:11.5px;line-height:1.3}
+.popup-guide-copy-v1190 p{margin:0;color:#64788b;font-size:9.8px;line-height:1.45}
+.popup-guide-meta-v1190{display:inline-flex;align-items:center;justify-content:center;min-height:27px;padding:5px 8px;border:1px solid #d5e4f0;border-radius:999px;background:#fff;color:#60788e;font-size:8.3px;font-weight:850;white-space:nowrap}
+.modal.popup-ux-v1190 .commercial-wizard-assist{display:none!important}
+
+/* Asistentes: pasos fáciles de identificar y sin tarjetas innecesariamente grandes */
+.modal.popup-ux-v1190 .wizard-progress{padding:0 16px;border-bottom:1px solid #dfe7ef;background:#fff}
+.modal.popup-ux-v1190 .wizard-progress-item{min-width:118px;gap:8px;padding:11px 8px;border-bottom-width:3px;color:#667a8d}
+.modal.popup-ux-v1190 .wizard-progress-item>span{width:28px;height:28px;flex-basis:28px;border-color:#c7d6e3;font-size:9.5px}
+.modal.popup-ux-v1190 .wizard-progress-item strong{font-size:9.8px;line-height:1.3}
+.modal.popup-ux-v1190 .wizard-progress-item.active{background:#f8fbfe;color:#0b579f}
+.modal.popup-ux-v1190 .wizard-progress-item.active>span{box-shadow:0 3px 8px rgba(11,101,199,.16)}
+.modal.popup-ux-v1190 .wizard-body{padding:18px 20px 20px;background:#f7fafc}
+.modal.popup-ux-v1190 .wizard-panel.active{animation:popupStepInV1190 .18s ease both}
+.modal.popup-ux-v1190 .wizard-step-intro{margin-bottom:15px;padding:11px 13px 12px;border:1px solid #d9e4ed;border-left:4px solid #1479df;border-radius:10px;background:#fff;box-shadow:none}
+.modal.popup-ux-v1190 .wizard-step-intro>span{font-size:8.5px}
+.modal.popup-ux-v1190 .wizard-step-intro h4{margin-top:4px;color:#173c60;font-size:16px;line-height:1.25}
+.modal.popup-ux-v1190 .wizard-step-intro p{margin-top:4px;color:#65788b;font-size:10.2px;line-height:1.48}
+
+/* Campos: tamaño cómodo para jóvenes y personas mayores */
+.modal.popup-ux-v1190 .field{gap:7px;margin-bottom:16px}
+.modal.popup-ux-v1190 .field label,.modal.popup-ux-v1190 .field>span:first-child{color:#2a4967;font-size:11px;font-weight:850;line-height:1.3}
+.modal.popup-ux-v1190 .field-help{margin-top:3px;color:#6c7f91;font-size:10px;line-height:1.45}
+.modal.popup-ux-v1190 .control{min-height:48px;padding:10px 12px;border:1px solid #adc5da;border-radius:11px;background:#fff;color:#17314c;font-size:12px;line-height:1.35;box-shadow:inset 0 1px 2px rgba(7,45,82,.035);transition:border-color .14s ease,box-shadow .14s ease,background .14s ease}
+.modal.popup-ux-v1190 .control:hover{border-color:#7ca8ce}
+.modal.popup-ux-v1190 .control:focus,.modal.popup-ux-v1190 .control:focus-visible{border-color:#1479df;box-shadow:0 0 0 3px rgba(20,121,223,.14),0 3px 9px rgba(10,63,110,.07)}
+.modal.popup-ux-v1190 textarea.control{min-height:112px;line-height:1.5}
+.modal.popup-ux-v1190 input[type="checkbox"],.modal.popup-ux-v1190 input[type="radio"]{width:19px;height:19px;accent-color:#0b65c7}
+.modal.popup-ux-v1190 .form-grid{gap:2px 16px}
+.popup-auto-badge-v1190{display:inline-flex;align-items:center;width:max-content;margin-left:7px;padding:3px 6px;border-radius:999px;background:#eaf6ef;color:#23714e;font-size:7.8px;font-weight:900;letter-spacing:.02em;vertical-align:middle}
+.modal.popup-ux-v1190 .control[readonly]{border-style:dashed;border-color:#c5d6e3;background:#f2f7fb;color:#5e7184}
+.modal.popup-ux-v1190 .control.popup-invalid-v1190{border-color:#c93b4e!important;background:#fffafb;box-shadow:0 0 0 3px rgba(181,38,59,.10)!important}
+
+/* Validación legible: explicar el problema antes de obligar al usuario a buscarlo */
+.popup-validation-v1190{display:grid;gap:3px;margin:0 0 13px;padding:10px 12px;border:1px solid #efc8cf;border-left:4px solid #b5263b;border-radius:9px;background:#fff4f6;color:#8f2638;animation:popupValidationInV1190 .16s ease both}
+.popup-validation-v1190 strong{font-size:10.8px}
+.popup-validation-v1190 span{font-size:9.7px;line-height:1.4}
+
+/* Selecciones y resúmenes */
+.modal.popup-ux-v1190 .wizard-choice-grid{gap:10px}
+.modal.popup-ux-v1190 .wizard-choice{min-height:76px;grid-template-columns:20px minmax(0,1fr);gap:10px;padding:12px 13px;border-radius:11px;box-shadow:none}
+.modal.popup-ux-v1190 .wizard-choice strong{font-size:11.5px;line-height:1.3}
+.modal.popup-ux-v1190 .wizard-choice small{font-size:9.8px;line-height:1.45}
+.modal.popup-ux-v1190 .wizard-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.modal.popup-ux-v1190 .wizard-summary-item{padding:11px 12px;border-radius:10px;box-shadow:none}
+.modal.popup-ux-v1190 .wizard-summary-item label{font-size:8.5px}
+.modal.popup-ux-v1190 .wizard-summary-item strong{font-size:11px;line-height:1.35}
+.modal.popup-ux-v1190 .wizard-tip,.modal.popup-ux-v1190 .info-note,.modal.popup-ux-v1190 .simple-form-intro{font-size:10px;line-height:1.48}
+.modal.popup-ux-v1190 .simple-details{border-color:#dbe5ed;border-radius:10px;background:#fff}
+.modal.popup-ux-v1190 .simple-details summary{padding:12px 14px;font-size:10.5px}
+
+/* Botones: grandes, claros y con jerarquía inequívoca */
+.modal.popup-ux-v1190 .modal-foot{min-height:66px;gap:9px;padding:10px 14px;border-top:1px solid #dfe7ef;background:#fff;box-shadow:0 -4px 14px rgba(16,42,70,.025)}
+.modal.popup-ux-v1190 .modal-foot .btn,.modal.popup-ux-v1190 .modal-task-panel>footer .btn{min-height:45px;padding:10px 15px;border-radius:10px;font-size:11px}
+.modal.popup-ux-v1190 .wizard-foot-actions{gap:8px}
+.modal.popup-ux-v1190 [data-next],.modal.popup-ux-v1190 [data-confirm],.modal.popup-ux-v1190 [data-task-panel-confirm]{min-width:142px}
+.modal.popup-ux-v1190 [data-prev]{min-width:105px}
+.modal.popup-ux-v1190 .financial-main-button,.modal.popup-ux-v1190 .billing-entry-card,.modal.popup-ux-v1190 .reception-decision-card{min-height:74px}
+.modal.popup-ux-v1190 .financial-main-button strong,.modal.popup-ux-v1190 .billing-entry-card strong,.modal.popup-ux-v1190 .reception-decision-card strong{font-size:12px}
+.modal.popup-ux-v1190 .financial-main-button small,.modal.popup-ux-v1190 .billing-entry-card small,.modal.popup-ux-v1190 .reception-decision-card small{font-size:10px;line-height:1.4}
+
+/* Panel lateral de una acción dentro del popup */
+.modal.popup-ux-v1190 .modal-task-panel{width:min(470px,94%);border-left:1px solid #cbd9e5;box-shadow:-18px 0 44px rgba(4,32,60,.20);animation:popupTaskInV1190 .2s ease both}
+.modal.popup-ux-v1190 .modal-task-panel>header{min-height:68px;padding:14px 16px;background:linear-gradient(180deg,#fff,#f8fbfd);color:#173b5e;border-bottom:1px solid #dfe8f0;box-shadow:inset 4px 0 0 #1479df}
+.modal.popup-ux-v1190 .modal-task-panel>header span{color:#0b65c7;font-size:8.3px}
+.modal.popup-ux-v1190 .modal-task-panel>header h4{color:#153b61;font-size:14px}
+.modal.popup-ux-v1190 .modal-task-panel-body{padding:16px;background:#f7fafc}
+.modal.popup-ux-v1190 .modal-task-panel>footer{padding:10px 12px;background:#fff}
+
+/* Evitar que ayudas antiguas compitan con la guía unificada */
+.modal.popup-ux-v1190 .commercial-wizard-assist+ .wizard-progress{border-top:0}
+
+@keyframes popupEnterV1190{from{opacity:0;transform:translateY(9px) scale(.992)}to{opacity:1;transform:none}}
+@keyframes popupStepInV1190{from{opacity:.35;transform:translateY(5px)}to{opacity:1;transform:none}}
+@keyframes popupTaskInV1190{from{opacity:.45;transform:translateX(18px)}to{opacity:1;transform:none}}
+@keyframes popupValidationInV1190{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
+@media(max-width:760px){
+  .modal-overlay{padding:8px}
+  .modal.popup-ux-v1190,.modal.popup-ux-v1190.wide,.modal.popup-ux-v1190.wizard-modal.wide,.modal.popup-ux-v1190.full,.modal.popup-ux-v1190.split{width:100%;max-height:calc(100dvh - 16px);border-radius:15px}
+  .modal.popup-ux-v1190 .modal-head,.modal.popup-ux-v1190 [class*="process-head"]{min-height:70px;padding:14px 13px 14px 17px}
+  .modal.popup-ux-v1190 .modal-head h3,.modal.popup-ux-v1190 [class*="process-head"] h3{font-size:17px}
+  .popup-process-guide-v1190{grid-template-columns:32px minmax(0,1fr);gap:9px;padding:9px 13px}
+  .popup-guide-icon-v1190{width:31px;height:31px}
+  .popup-guide-meta-v1190{grid-column:2;justify-self:start;min-height:24px}
+  .modal.popup-ux-v1190 .modal-body,.modal.popup-ux-v1190 .wizard-body{padding:14px}
+  .modal.popup-ux-v1190 .control{min-height:50px;font-size:13px}
+  .modal.popup-ux-v1190 .field label{font-size:11.5px}
+  .modal.popup-ux-v1190 .field-help{font-size:10.5px}
+  .modal.popup-ux-v1190 .wizard-progress{padding:0 8px}
+  .modal.popup-ux-v1190 .wizard-progress-item{min-width:120px}
+  .modal.popup-ux-v1190 .wizard-summary,.modal.popup-ux-v1190 .wizard-choice-grid{grid-template-columns:1fr}
+  .modal.popup-ux-v1190 .modal-foot{display:grid;grid-template-columns:1fr;gap:8px;padding:9px 10px}
+  .modal.popup-ux-v1190 .wizard-foot-actions{display:grid;grid-template-columns:1fr 1.15fr;width:100%}
+  .modal.popup-ux-v1190 .modal-foot .btn,.modal.popup-ux-v1190 .wizard-foot-actions .btn{width:100%;min-width:0;min-height:48px}
+  .modal.popup-ux-v1190 .modal-task-panel{width:100%}
+}
+
+@media(max-width:480px){
+  .modal.popup-ux-v1190 .wizard-foot-actions{grid-template-columns:1fr 1fr}
+  .popup-guide-copy-v1190 p{font-size:9.6px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .modal.popup-ux-v1190,.modal.popup-ux-v1190 .wizard-panel.active,.modal.popup-ux-v1190 .modal-task-panel,.popup-validation-v1190{animation:none!important}
+  .modal.popup-ux-v1190 *{scroll-behavior:auto!important;transition-duration:.01ms!important}
+}
