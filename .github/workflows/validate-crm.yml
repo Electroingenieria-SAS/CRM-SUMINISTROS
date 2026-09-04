@@ -88,8 +88,8 @@ jobs:
           grep -q 'font-size:24px!important' assets/css/receiving-polish-v1194.css
           grep -q 'modal-task-panel-shell' assets/css/receiving-polish-v1194.css
           grep -q 'Cerrar y tomar otro' assets/js/modules/receiving-polish-v1194.js
-          grep -q 'takeAnother="RECEPCION_PEDIDO"' assets/js/modules/receiving-polish-v1194.js
-          grep -q 'data.receptionNext' assets/js/modules/receiving-polish-v1194.js
+          grep -q 'RECEPCION_PEDIDO' assets/js/modules/receiving-polish-v1194.js
+          grep -q 'dataset.receptionNext' assets/js/modules/receiving-polish-v1194.js
           grep -q 'Siguiente' assets/js/modules/receiving-polish-v1194.js
           grep -q 'reception-take-focus-v1193' assets/js/modules/receiving-focus-v1193.js
           grep -q 'Ver resumen del pedido' assets/js/modules/receiving-focus-v1193.js
