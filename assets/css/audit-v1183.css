@@ -1,0 +1,110 @@
+/* CRM Suministros V11.8.3 · Ajuste visual final del módulo de Auditoría */
+
+/* El contenido auditado tiene prioridad visual sobre el resumen lateral. */
+.audit-workspace{
+  grid-template-columns:minmax(0,1fr) 292px;
+  gap:12px;
+}
+.audit-main-card{min-width:0;overflow:hidden}
+.audit-insights{gap:9px}
+.audit-side-card{padding:13px}
+.audit-severity-block{grid-template-columns:96px minmax(0,1fr);gap:10px;margin-top:12px}
+.audit-donut{width:92px;height:92px}
+.audit-donut:after{inset:13px}
+.audit-split-card{grid-template-columns:minmax(0,1fr) 96px;gap:10px}
+.audit-sla-box{padding-left:10px}
+
+/* Bitácora: todas las columnas caben en escritorio sin scroll horizontal. */
+.audit-table-wrap{
+  width:100%;
+  max-height:min(72vh,740px);
+  overflow-y:auto;
+  overflow-x:hidden;
+  scrollbar-gutter:stable;
+}
+.audit-table{
+  width:100%;
+  min-width:0;
+  table-layout:fixed;
+}
+.audit-table thead th{
+  padding:11px 8px;
+  font-size:.61rem;
+  line-height:1.2;
+  white-space:normal;
+  vertical-align:middle;
+}
+.audit-table tbody td{
+  padding:12px 8px;
+  font-size:.71rem;
+  line-height:1.32;
+  overflow-wrap:anywhere;
+}
+
+/* Proporciones de las diez columnas de la auditoría. */
+.audit-table th:nth-child(1),.audit-table td:nth-child(1){width:9.5%}
+.audit-table th:nth-child(2),.audit-table td:nth-child(2){width:10%}
+.audit-table th:nth-child(3),.audit-table td:nth-child(3){width:10.5%}
+.audit-table th:nth-child(4),.audit-table td:nth-child(4){width:10%}
+.audit-table th:nth-child(5),.audit-table td:nth-child(5){width:18.5%}
+.audit-table th:nth-child(6),.audit-table td:nth-child(6){width:14%}
+.audit-table th:nth-child(7),.audit-table td:nth-child(7){width:6.5%}
+.audit-table th:nth-child(8),.audit-table td:nth-child(8){width:6.5%}
+.audit-table th:nth-child(9),.audit-table td:nth-child(9){width:7.5%}
+.audit-table th:nth-child(10),.audit-table td:nth-child(10){width:7%}
+
+/* Evita que los contenidos obliguen a ensanchar artificialmente la tabla. */
+.audit-change{
+  white-space:normal;
+  flex-wrap:wrap;
+  align-items:center;
+  row-gap:2px;
+  line-height:1.22;
+}
+.audit-change span{min-width:0}
+.audit-person{min-width:0;width:100%}
+.audit-person>span:last-child{min-width:0}
+.audit-person b,.audit-person small{max-width:100%}
+.audit-evidence-count{display:inline-flex;max-width:100%;white-space:normal;text-align:center;line-height:1.15}
+.audit-table .cell-main{line-height:1.25}
+.audit-table .cell-sub{line-height:1.2;margin-top:3px}
+.audit-table td:nth-child(7),
+.audit-table td:nth-child(8),
+.audit-table td:nth-child(9),
+.audit-table td:nth-child(10){text-align:left}
+
+/* La cabecera queda más limpia y alineada con una lectura de auditoría. */
+.audit-table-head{padding:15px 16px 11px;align-items:center}
+.audit-table-head>div{min-width:0}
+.audit-table-head small{max-width:420px;line-height:1.35}
+
+/* En portátiles damos todo el ancho a la evidencia y movemos el resumen debajo. */
+@media(max-width:1380px){
+  .audit-workspace{grid-template-columns:1fr}
+  .audit-insights{
+    position:static;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    align-items:start;
+  }
+  .audit-insights .audit-side-card:first-child{grid-column:span 2}
+  .audit-insights .audit-side-card:last-child{grid-column:span 3}
+  .audit-table-wrap{max-height:min(70vh,700px)}
+}
+
+/* Entre tablet grande y portátil pequeño se conserva la tabla íntegra con scroll solo si es imprescindible. */
+@media(max-width:1000px) and (min-width:761px){
+  .audit-insights{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .audit-insights .audit-side-card:first-child,
+  .audit-insights .audit-side-card:last-child{grid-column:span 2}
+  .audit-table-wrap{overflow-x:auto}
+  .audit-table{min-width:1040px;table-layout:fixed}
+}
+
+/* En móvil se mantiene la presentación tipo ficha definida por V11.8.2. */
+@media(max-width:760px){
+  .audit-table-wrap{max-height:none;overflow:visible}
+  .audit-table{min-width:0;table-layout:auto}
+  .audit-insights{grid-template-columns:1fr}
+  .audit-insights .audit-side-card:first-child,
+  .audit-insights .audit-side-card:last-child{grid-column:auto}
+}
