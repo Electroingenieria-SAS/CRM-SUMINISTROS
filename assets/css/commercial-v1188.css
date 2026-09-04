@@ -1,0 +1,99 @@
+/* CRM Suministros V11.8.8 · Tarjetas compactas y consistentes con Centro de operaciones */
+
+/* Acciones: mismo lenguaje visual del Centro de operaciones */
+.commercial-v1187 .ops-action-card-v1188{position:relative;overflow:hidden;min-height:112px;grid-template-columns:52px minmax(0,1fr) 32px;gap:12px;padding:14px 15px;border:1px solid #d8e2ec;border-radius:15px;background:#fff;box-shadow:0 6px 18px rgba(14,49,85,.05),inset 0 1px 0 #fff}
+.commercial-v1187 .ops-action-card-v1188:after{content:"";position:absolute;left:0;top:16px;bottom:16px;width:3px;border-radius:0 4px 4px 0;background:#7faed5}
+.commercial-v1187 .ops-action-card-v1188:hover:not(:disabled){transform:translateY(-2px);border-color:#b8cde1;box-shadow:0 12px 25px rgba(14,49,85,.085)}
+.commercial-v1187 .ops-action-card-v1188 .guided-action-icon{width:50px;height:50px;border-radius:15px;box-shadow:0 6px 15px rgba(20,86,144,.09),inset 0 1px 0 #fff}
+.commercial-v1187 .ops-action-card-v1188 .guided-action-icon .ui-icon{width:23px;height:23px;stroke-width:1.8}
+.commercial-v1187 .ops-action-card-v1188 .guided-action-copy{gap:4px}
+.commercial-v1187 .ops-action-card-v1188 .guided-action-copy strong{font-size:13px}
+.commercial-v1187 .ops-action-card-v1188 .guided-action-copy small{font-size:9.5px;line-height:1.48}
+.commercial-v1187 .ops-action-card-v1188 .guided-action-arrow{width:30px;height:30px;border-radius:10px}
+.commercial-v1187 #create-order.ops-action-card-v1188:after,.commercial-v1187 #new-credit.ops-action-card-v1188:after{background:#e1b32b}
+.commercial-v1187 #show-all-orders.ops-action-card-v1188:after,.commercial-v1187 #submitted-credit.ops-action-card-v1188:after{background:#1874c6}
+.commercial-v1187 #show-my-orders.ops-action-card-v1188:after,.commercial-v1187 #all-credit.ops-action-card-v1188:after{background:#2a8a68}
+.commercial-v1187 #orders-help.ops-action-card-v1188:after,.commercial-v1187 #review-credit.ops-action-card-v1188:after{background:#d0781e}
+
+/* Figura reutilizable para registros operativos */
+.record-figure-v1188{width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;border:1px solid #cfe0ef;border-radius:13px;background:linear-gradient(145deg,#f2f8fd,#e5f1fb);color:#25699f;box-shadow:0 4px 10px rgba(20,77,127,.065)}
+.record-figure-v1188 .record-icon-v1188{width:19px;height:19px;stroke-width:1.8}
+.record-figure-credit-v1188{border-color:#d5ddf0;background:linear-gradient(145deg,#f5f7ff,#e9eefb);color:#4d64a7}
+
+/* Pedidos: ficha compacta, legible y fácil de comparar */
+.commercial-v1187 #orders-result{padding:0 16px 16px}
+.commercial-v1187 .orders-master-list{gap:7px;padding-top:10px}
+.commercial-v1187 .orders-master-row.compact-order-record-v1188{position:relative;display:grid;grid-template-columns:42px minmax(185px,.95fr) minmax(430px,2.4fr) minmax(88px,.45fr) 112px;align-items:center;gap:11px;min-height:96px;padding:10px 12px;border:1px solid #dce5ed;border-radius:13px;background:#fff;box-shadow:0 3px 11px rgba(12,49,84,.035);transition:.14s ease}
+.commercial-v1187 .orders-master-row.compact-order-record-v1188:before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 4px 4px 0;background:#6fa7d4}
+.commercial-v1187 .orders-master-row.compact-order-record-v1188:hover{transform:translateY(-1px);border-color:#b8cde0;box-shadow:0 8px 18px rgba(12,49,84,.07)}
+.commercial-v1187 .compact-order-record-v1188 .erp-work-main{display:grid;gap:3px;min-width:0}
+.commercial-v1187 .compact-order-record-v1188 .erp-work-eyebrow{padding:3px 7px;font-size:7.7px;line-height:1.25}
+.commercial-v1187 .compact-order-record-v1188 .erp-work-main>strong{font-size:14.5px;line-height:1.18}
+.commercial-v1187 .compact-order-record-v1188 .erp-work-main>small{font-size:9px;line-height:1.35;white-space:normal}
+.commercial-v1187 .compact-order-record-v1188 .order-partial-tag{margin-top:1px;padding:3px 6px;font-size:7.7px}
+.commercial-v1187 .compact-order-record-v1188 .erp-work-meta{display:grid;grid-template-columns:repeat(5,minmax(76px,1fr));gap:6px;min-width:0}
+.commercial-v1187 .compact-order-record-v1188 .erp-work-meta>span{min-width:0;display:grid;gap:2px;padding:6px 7px;border:1px solid #e7edf3;border-radius:8px;background:#f8fafc}
+.commercial-v1187 .compact-order-record-v1188 .erp-work-meta small{font-size:7.2px;line-height:1.1;color:#8796a5;letter-spacing:.04em}
+.commercial-v1187 .compact-order-record-v1188 .erp-work-meta b{font-size:9.2px;line-height:1.25;color:#36516d;white-space:normal;overflow-wrap:anywhere}
+.commercial-v1187 .compact-order-record-v1188 .erp-work-meta .status-badge{font-size:8px;padding:3px 6px}
+.commercial-v1187 .compact-order-record-v1188 .erp-work-status{display:flex;align-items:flex-start;justify-content:flex-start;gap:4px;flex-wrap:wrap}
+.commercial-v1187 .compact-order-record-v1188 .erp-work-status .badge,.commercial-v1187 .compact-order-record-v1188 .erp-work-status .priority-badge{font-size:8px;padding:4px 7px}
+.commercial-v1187 .compact-order-record-v1188 .erp-work-status small{font-size:7.8px}
+.commercial-v1187 .compact-order-record-v1188 .erp-work-action{min-height:38px;padding:8px 10px;border-radius:9px;font-size:9.5px}
+
+/* Crédito: varias solicitudes visibles sin perder información */
+.commercial-credit-v1187 #credit-result{padding:12px 15px 17px}
+.commercial-credit-v1187 .credit-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.commercial-credit-v1187 .compact-credit-record-v1188{min-height:0;border-radius:14px;box-shadow:0 4px 13px rgba(9,47,84,.04)}
+.commercial-credit-v1187 .compact-credit-record-v1188:hover{transform:translateY(-1px);box-shadow:0 9px 20px rgba(9,47,84,.075)}
+.commercial-credit-v1187 .compact-credit-record-v1188>header{min-height:54px;display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:9px;padding:9px 11px}
+.commercial-credit-v1187 .compact-credit-record-v1188>header .record-figure-v1188{width:38px;height:38px;flex-basis:38px;border-radius:11px}
+.commercial-credit-v1187 .compact-credit-record-v1188>header .record-icon-v1188{width:17px;height:17px}
+.commercial-credit-v1187 .compact-credit-record-v1188>header>div{gap:2px}
+.commercial-credit-v1187 .compact-credit-record-v1188>header strong{font-size:11px}
+.commercial-credit-v1187 .compact-credit-record-v1188>header span{font-size:7.8px}
+.commercial-credit-v1187 .compact-credit-record-v1188 .credit-card-body{padding:11px 12px 10px}
+.commercial-credit-v1187 .compact-credit-record-v1188 .credit-card-body h3{margin:0 0 3px;font-size:13.5px;line-height:1.25}
+.commercial-credit-v1187 .compact-credit-record-v1188 .credit-card-body>p{font-size:8.5px}
+.commercial-credit-v1187 .compact-credit-record-v1188 .credit-amount{margin:10px 0 9px;padding:8px 9px;border-radius:9px;font-size:18px}
+.commercial-credit-v1187 .compact-credit-record-v1188 .credit-meta{gap:3px;font-size:8.7px}
+.commercial-credit-v1187 .compact-credit-record-v1188 .credit-meta>span{padding:5px 0}
+.commercial-credit-v1187 .compact-credit-record-v1188 .review-text{margin-top:8px;padding:8px 9px;font-size:8.5px}
+.commercial-credit-v1187 .compact-credit-record-v1188>footer{gap:6px;padding:8px 10px}
+.commercial-credit-v1187 .compact-credit-record-v1188>footer .btn{min-height:36px;min-width:82px;padding:7px 9px;font-size:8.8px}
+.commercial-credit-v1187 .compact-credit-record-v1188>footer .muted{font-size:8.5px}
+
+/* Patrón reutilizable: cualquier ficha de registro que adopte esta clase mantiene la misma densidad */
+.compact-record-v1188{--record-card-radius:13px;--record-card-gap:10px}
+
+@media(max-width:1500px){
+  .commercial-v1187 .orders-master-row.compact-order-record-v1188{grid-template-columns:42px minmax(175px,.9fr) minmax(360px,2.1fr) minmax(82px,.42fr) 106px}
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-meta{grid-template-columns:repeat(5,minmax(70px,1fr))}
+  .commercial-credit-v1187 .credit-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:1220px){
+  .commercial-v1187 .orders-master-row.compact-order-record-v1188{grid-template-columns:42px minmax(190px,1fr) minmax(0,2fr) 108px;min-height:108px}
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-meta{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-status{grid-column:2;grid-row:2}
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-action{grid-column:4;grid-row:1/3}
+}
+@media(max-width:980px){
+  .commercial-v1187 .orders-master-row.compact-order-record-v1188{grid-template-columns:42px minmax(0,1fr) 108px;gap:9px}
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-meta{grid-column:2/-1;grid-row:2;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-status{grid-column:2;grid-row:3}
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-action{grid-column:3;grid-row:1}
+  .commercial-credit-v1187 .credit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:720px){
+  .commercial-v1187 .ops-action-card-v1188{min-height:104px;grid-template-columns:48px minmax(0,1fr) 28px;padding:13px}
+  .commercial-v1187 .ops-action-card-v1188 .guided-action-icon{width:46px;height:46px}
+  .commercial-v1187 #orders-result{padding:0 10px 13px}
+  .commercial-v1187 .orders-master-list{gap:8px}
+  .commercial-v1187 .orders-master-row.compact-order-record-v1188{grid-template-columns:38px minmax(0,1fr);min-height:0;padding:12px;gap:9px}
+  .record-figure-v1188{width:38px;height:38px;flex-basis:38px;border-radius:11px}
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-main{grid-column:2}
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-meta{grid-column:1/-1;grid-row:auto;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-status{grid-column:1/-1;grid-row:auto}
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-action{grid-column:1/-1;grid-row:auto;width:100%;min-height:44px}
+  .commercial-credit-v1187 .credit-grid{grid-template-columns:1fr}
+}
