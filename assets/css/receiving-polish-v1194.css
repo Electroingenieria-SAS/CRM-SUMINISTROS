@@ -1,0 +1,240 @@
+/* CRM Suministros V11.9.4 · Recepción: amplitud real, confirmación compacta y navegación inequívoca */
+
+/* V11.9.3 no lograba vencer la regla global de popup-ux. Esta regla tiene especificidad suficiente. */
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-focus-v1193{
+  width:min(1120px,calc(100vw - 56px))!important;
+  max-width:1120px!important;
+  height:auto!important;
+  max-height:calc(100dvh - 40px)!important;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-focus-v1193 .reception-process-body{
+  flex:0 1 auto;
+  min-height:0;
+  max-height:calc(100dvh - 205px);
+}
+
+/* El pie ya no debe competir con el proceso. */
+.receiving-focus-v1193 .parallel-work-footer{
+  min-height:66px;
+  gap:18px;
+  padding:10px 18px;
+}
+.receiving-focus-v1193 .parallel-work-note{
+  flex:1 1 auto;
+  max-width:560px;
+}
+.receiving-focus-v1193 .parallel-work-note strong{font-size:12px}
+.receiving-focus-v1193 .parallel-work-note small{font-size:10.5px;line-height:1.4}
+.receiving-focus-v1193 .parallel-work-actions{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:9px;
+  flex-wrap:wrap;
+}
+.receiving-focus-v1193 .parallel-work-actions .btn{
+  min-height:44px!important;
+  padding:9px 14px!important;
+  border-radius:10px!important;
+  font-size:11.5px!important;
+}
+.receiving-focus-v1193 .parallel-work-actions [data-take-another]{
+  min-width:150px;
+}
+.receiving-focus-v1193 .parallel-work-actions [data-reception-next]{
+  min-width:122px;
+  box-shadow:0 7px 16px rgba(8,93,181,.24),inset 0 1px 0 rgba(255,255,255,.28);
+}
+
+/* Confirmación: ya no es un drawer de altura completa con espacio vacío. */
+#modal-root .receiving-focus-v1193.has-task-panel .modal-task-panel-shell{
+  align-items:center;
+  justify-content:center;
+  padding:28px;
+}
+#modal-root .receiving-focus-v1193.has-task-panel .modal-task-panel-scrim{
+  background:rgba(4,27,52,.46);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+}
+#modal-root .receiving-focus-v1193.has-task-panel .modal-task-panel{
+  width:min(560px,calc(100% - 56px))!important;
+  height:auto!important;
+  max-height:calc(100% - 56px);
+  border:1px solid #cbd9e6;
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 28px 70px rgba(3,27,51,.28),0 8px 22px rgba(7,54,97,.12);
+}
+#modal-root .receiving-focus-v1193.has-task-panel .modal-task-panel>header{
+  min-height:72px;
+  padding:15px 17px 15px 20px;
+}
+#modal-root .receiving-focus-v1193.has-task-panel .modal-task-panel>header span{font-size:9px}
+#modal-root .receiving-focus-v1193.has-task-panel .modal-task-panel>header h4{font-size:17px;line-height:1.25}
+#modal-root .receiving-focus-v1193.has-task-panel .modal-task-panel-body{
+  flex:0 1 auto;
+  min-height:0;
+  max-height:min(58dvh,520px);
+  overflow:auto;
+  padding:20px;
+  background:#f8fafc;
+}
+#modal-root .receiving-focus-v1193.has-task-panel .modal-task-panel>footer{
+  min-height:64px;
+  padding:10px 14px;
+  gap:9px;
+}
+#modal-root .receiving-focus-v1193.has-task-panel .modal-task-panel>footer .btn{
+  min-height:46px;
+  padding:10px 15px;
+  font-size:11.5px;
+}
+
+/* Resumen de confirmación legible: los números son información principal. */
+.receiving-focus-v1193 .reception-confirm-dialog{
+  display:grid;
+  gap:13px;
+}
+.receiving-focus-v1193 .reception-confirm-dialog>strong{
+  color:#183e62;
+  font-size:17px;
+  line-height:1.35;
+}
+.receiving-focus-v1193 .reception-confirm-dialog>p{
+  margin:0;
+  color:#5f7488;
+  font-size:13px;
+  line-height:1.55;
+}
+.receiving-focus-v1193 .reception-confirm-dialog>div{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin-top:2px;
+}
+.receiving-focus-v1193 .reception-confirm-dialog .reception-summary-chip{
+  min-height:76px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:14px 16px;
+  border:1px solid #d6e4f0;
+  border-radius:13px;
+  background:linear-gradient(145deg,#f4f9fe,#eaf3fb);
+  color:#315174;
+}
+.receiving-focus-v1193 .reception-confirm-dialog .reception-summary-chip small{
+  color:#526d86!important;
+  font-size:12.5px!important;
+  line-height:1.25!important;
+  font-weight:850!important;
+  letter-spacing:.01em!important;
+  text-transform:none!important;
+}
+.receiving-focus-v1193 .reception-confirm-dialog .reception-summary-chip strong{
+  margin:0!important;
+  color:#0b4f91!important;
+  font-size:24px!important;
+  line-height:1!important;
+  font-weight:900!important;
+}
+
+/* Ayuda visual cuando “Siguiente” lleva a una decisión y no puede elegir por el usuario. */
+.receiving-focus-v1193 .reception-next-highlight-v1194{
+  animation:receptionNextPulseV1194 .75s ease both;
+}
+@keyframes receptionNextPulseV1194{
+  0%,100%{box-shadow:0 0 0 0 rgba(20,121,223,0)}
+  35%{box-shadow:0 0 0 5px rgba(20,121,223,.14)}
+}
+
+@media(max-width:900px){
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-focus-v1193{
+    width:calc(100vw - 24px)!important;
+    max-width:none!important;
+    max-height:calc(100dvh - 24px)!important;
+  }
+  .receiving-focus-v1193 .parallel-work-footer{align-items:flex-start}
+  .receiving-focus-v1193 .parallel-work-note{max-width:420px}
+}
+
+/* iPhone/iOS: superficie táctil grande, safe-area y acción principal inequívoca. */
+@media(max-width:720px){
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-focus-v1193{
+    width:100%!important;
+    max-width:none!important;
+    height:calc(100dvh - max(12px,env(safe-area-inset-top)) - max(12px,env(safe-area-inset-bottom)))!important;
+    max-height:none!important;
+  }
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-focus-v1193 .reception-process-body{
+    flex:1 1 auto;
+    max-height:none;
+  }
+  .receiving-focus-v1193 .parallel-work-footer{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:8px;
+    padding:9px 12px calc(9px + env(safe-area-inset-bottom));
+  }
+  .receiving-focus-v1193 .parallel-work-note{max-width:none}
+  .receiving-focus-v1193 .parallel-work-note small{display:none}
+  .receiving-focus-v1193 .parallel-work-actions{
+    width:100%;
+    margin:0;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+  .receiving-focus-v1193 .parallel-work-actions [data-reception-next]{
+    grid-column:1/-1;
+    grid-row:1;
+    width:100%;
+    min-height:50px!important;
+    font-size:14px!important;
+  }
+  .receiving-focus-v1193 .parallel-work-actions [data-take-another],
+  .receiving-focus-v1193 .parallel-work-actions .btn-danger{
+    width:100%;
+    min-width:0;
+  }
+
+  #modal-root .receiving-focus-v1193.has-task-panel .modal-task-panel-shell{
+    align-items:flex-end;
+    justify-content:center;
+    padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));
+  }
+  #modal-root .receiving-focus-v1193.has-task-panel .modal-task-panel{
+    width:100%!important;
+    max-width:none!important;
+    max-height:min(86dvh,720px);
+    border-radius:20px;
+  }
+  #modal-root .receiving-focus-v1193.has-task-panel .modal-task-panel-body{
+    max-height:none;
+    padding:17px 15px;
+  }
+  #modal-root .receiving-focus-v1193.has-task-panel .modal-task-panel>footer{
+    padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+  }
+  #modal-root .receiving-focus-v1193.has-task-panel .modal-task-panel>footer .btn{
+    min-height:50px;
+    font-size:13px;
+  }
+  .receiving-focus-v1193 .reception-confirm-dialog>div{grid-template-columns:1fr 1fr}
+  .receiving-focus-v1193 .reception-confirm-dialog .reception-summary-chip{min-height:70px;padding:12px 13px}
+  .receiving-focus-v1193 .reception-confirm-dialog .reception-summary-chip small{font-size:13px!important}
+  .receiving-focus-v1193 .reception-confirm-dialog .reception-summary-chip strong{font-size:23px!important}
+}
+
+@media(max-width:420px){
+  .receiving-focus-v1193 .parallel-work-actions{grid-template-columns:1fr}
+  .receiving-focus-v1193 .parallel-work-actions [data-reception-next]{grid-column:1}
+  .receiving-focus-v1193 .reception-confirm-dialog>div{grid-template-columns:1fr}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .receiving-focus-v1193 .reception-next-highlight-v1194{animation:none!important}
+}
