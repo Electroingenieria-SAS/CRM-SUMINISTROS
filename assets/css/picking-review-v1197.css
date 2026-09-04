@@ -1,0 +1,331 @@
+/* CRM Suministros V11.9.7 · Alistamiento: revisar materiales sin ruido visual */
+
+/* La verificación debe sentirse como una lista de chequeo, no como un dashboard. */
+#modal-root .picking-review-v1197[data-picking-stage-v1195="VERIFY"] .picking-process-body{
+  gap:10px;
+  padding:14px 18px 16px;
+}
+
+/* El progreso permanece visible, pero deja de competir con los materiales. */
+.picking-review-v1197[data-picking-stage-v1195="VERIFY"] .picking-progress-strip{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:0;
+}
+.picking-review-v1197[data-picking-stage-v1195="VERIFY"] .picking-progress-strip>div{
+  flex:1 1 0;
+  min-height:36px;
+  padding:6px 9px;
+  border-radius:9px;
+  box-shadow:none;
+}
+.picking-review-v1197[data-picking-stage-v1195="VERIFY"] .picking-progress-strip span{
+  width:22px;
+  height:22px;
+  border-radius:7px;
+  font-size:9px;
+}
+.picking-review-v1197[data-picking-stage-v1195="VERIFY"] .picking-progress-strip strong{
+  font-size:9.5px;
+  line-height:1.2;
+}
+
+/* La tarea real es lo principal. */
+.picking-review-v1197 .picking-verification-card{
+  gap:12px;
+  padding:16px 17px 14px;
+  border:1px solid #bfd5e9;
+  border-radius:13px;
+  background:#fff;
+  box-shadow:0 8px 22px rgba(10,55,96,.055);
+}
+.picking-review-v1197 .picking-stage-head{
+  align-items:center;
+  gap:16px;
+  padding-bottom:11px;
+  border-bottom:1px solid #e5edf4;
+}
+.picking-review-v1197 .picking-stage-head h4{
+  margin:4px 0 2px;
+  color:#0c3158;
+  font-size:21px;
+  line-height:1.2;
+}
+.picking-review-v1197 .picking-stage-head p{
+  margin:0;
+  color:#60758a;
+  font-size:11.5px;
+  line-height:1.45;
+}
+.picking-review-v1197 .picking-counter{
+  min-width:105px;
+  display:flex;
+  align-items:baseline;
+  justify-content:flex-end;
+  gap:6px;
+}
+.picking-review-v1197 .picking-counter strong{
+  color:#0e65bf;
+  font-size:24px;
+  line-height:1;
+}
+.picking-review-v1197 .picking-counter span{
+  color:#76889a;
+  font-size:10.5px;
+  white-space:nowrap;
+}
+
+/* Cada material se lee como una sola línea visual. */
+.picking-review-v1197 .picking-items{
+  gap:8px;
+}
+.picking-review-v1197 .picking-item-row{
+  grid-template-columns:36px minmax(0,1fr) minmax(218px,250px)!important;
+  gap:12px!important;
+  align-items:center!important;
+  padding:13px 14px!important;
+  border-radius:11px!important;
+  background:#fff!important;
+  box-shadow:none!important;
+}
+.picking-review-v1197 .picking-item-number{
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border-radius:9px;
+  background:#edf5fc;
+  color:#165c9b;
+  font-size:11px;
+  font-weight:900;
+}
+.picking-review-v1197 .picking-item-data{
+  grid-template-columns:minmax(105px,.62fr) minmax(250px,2fr) minmax(90px,.55fr)!important;
+  gap:13px!important;
+  align-items:center;
+}
+/* Origen/corte no se repite en la fila. Si debe elegirse origen, aparece el control específico al marcar Encontrado. */
+.picking-review-v1197 .picking-item-data>div:nth-child(n+4){
+  display:none!important;
+}
+.picking-review-v1197 .picking-item-data>div{
+  gap:3px;
+}
+.picking-review-v1197 .picking-item-data small{
+  color:#7a8b9d;
+  font-size:9px!important;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.picking-review-v1197 .picking-item-data strong{
+  color:#193d61;
+  font-size:12.5px!important;
+  line-height:1.35!important;
+}
+.picking-review-v1197 .picking-item-data .description strong{
+  color:#0d2f51;
+  font-size:13px!important;
+}
+.picking-review-v1197 .picking-mini-actions{
+  grid-template-columns:1fr 1fr;
+  gap:7px!important;
+}
+.picking-review-v1197 .picking-result{
+  min-height:48px!important;
+  padding:9px 11px!important;
+  border-radius:10px!important;
+  font-size:11.5px!important;
+  font-weight:850;
+}
+.picking-review-v1197 .picking-result .picking-result-icon{
+  width:22px;
+  height:22px;
+  font-size:11px;
+}
+
+/* Solo mostrar información adicional cuando realmente aparece una excepción o un origen. */
+.picking-review-v1197 .picking-origin,
+.picking-review-v1197 .picking-cut-origin-note,
+.picking-review-v1197 .picking-novelty{
+  grid-column:2/-1;
+  margin-top:0;
+}
+.picking-review-v1197 .picking-novelty{
+  padding:11px 12px;
+  border-radius:10px;
+  background:#fff7f7;
+}
+.picking-review-v1197 .picking-novelty label{
+  font-size:11px;
+}
+.picking-review-v1197 .picking-novelty small{
+  font-size:10px;
+}
+
+/* Estado breve; el botón grande duplicado desaparece y Siguiente se vuelve la continuidad real. */
+.picking-review-v1197 .picking-result-summary{
+  min-height:0;
+}
+.picking-review-v1197 .picking-summary-state{
+  min-height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:8px 11px;
+  border-radius:9px;
+}
+.picking-review-v1197 .picking-summary-state strong{
+  font-size:11.5px;
+}
+.picking-review-v1197 .picking-summary-state span{
+  font-size:10.5px;
+  text-align:right;
+}
+.picking-review-v1197 .picking-send-button,
+.picking-review-v1197 .picking-route-note{
+  display:none!important;
+}
+
+/* Todo lo que no ayuda a marcar materiales queda detrás de una sola sección secundaria. */
+.picking-review-v1197 .simple-details{
+  margin-top:0;
+  border-color:#d9e4ee;
+  background:#fbfdff;
+}
+.picking-review-v1197 .simple-details>summary{
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  padding:10px 13px!important;
+  color:#245078;
+  font-size:10.5px!important;
+}
+.picking-review-v1197 .simple-details[open]>summary{
+  border-bottom:1px solid #e4ebf2;
+}
+.picking-review-v1197 .picking-secondary-support-v1197{
+  margin:12px 12px 0!important;
+  padding:10px 11px!important;
+  border-radius:10px!important;
+  box-shadow:none!important;
+}
+.picking-review-v1197 .picking-secondary-support-v1197 .order-support-toolbar{
+  align-items:center;
+}
+.picking-review-v1197 .picking-secondary-support-v1197 .order-support-title span{
+  font-size:8.5px;
+}
+.picking-review-v1197 .picking-secondary-support-v1197 .order-support-title strong{
+  font-size:10.5px;
+}
+.picking-review-v1197 .picking-secondary-support-v1197 .support-btn{
+  min-height:37px;
+  padding:7px 10px;
+  font-size:10px;
+}
+.picking-review-v1197 .picking-secondary-facts-v1197{
+  margin:10px 12px 12px!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:7px!important;
+}
+.picking-review-v1197 .picking-secondary-facts-v1197>div{
+  min-height:58px!important;
+  padding:9px 10px!important;
+}
+.picking-review-v1197 .picking-secondary-facts-v1197 small{font-size:8.5px!important}
+.picking-review-v1197 .picking-secondary-facts-v1197 strong{font-size:11px!important}
+
+/* En móvil se conserva la misma idea: primero material y decisión. */
+@media(max-width:900px){
+  .picking-review-v1197 .picking-item-row{
+    grid-template-columns:34px minmax(0,1fr)!important;
+  }
+  .picking-review-v1197 .picking-item-data{
+    grid-template-columns:minmax(95px,.65fr) minmax(180px,1.6fr) minmax(80px,.5fr)!important;
+  }
+  .picking-review-v1197 .picking-mini-actions,
+  .picking-review-v1197 .picking-origin,
+  .picking-review-v1197 .picking-cut-origin-note,
+  .picking-review-v1197 .picking-novelty{
+    grid-column:2!important;
+  }
+  .picking-review-v1197 .picking-secondary-facts-v1197{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+
+@media(max-width:720px){
+  #modal-root .picking-review-v1197[data-picking-stage-v1195="VERIFY"] .picking-process-body{
+    padding:11px 10px 13px;
+  }
+  .picking-review-v1197[data-picking-stage-v1195="VERIFY"] .picking-progress-strip{
+    overflow-x:auto;
+    overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+  .picking-review-v1197[data-picking-stage-v1195="VERIFY"] .picking-progress-strip>div{
+    flex:0 0 150px;
+  }
+  .picking-review-v1197 .picking-stage-head{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:8px;
+  }
+  .picking-review-v1197 .picking-counter{
+    min-width:0;
+    justify-content:flex-start;
+  }
+  .picking-review-v1197 .picking-item-row{
+    grid-template-columns:1fr!important;
+    gap:9px!important;
+    padding:12px!important;
+  }
+  .picking-review-v1197 .picking-item-number{
+    display:none;
+  }
+  .picking-review-v1197 .picking-item-data{
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+  }
+  .picking-review-v1197 .picking-item-data>div{
+    padding-bottom:7px;
+    border-bottom:1px solid #edf2f6;
+  }
+  .picking-review-v1197 .picking-item-data>div:nth-child(3){border-bottom:0;padding-bottom:0}
+  .picking-review-v1197 .picking-mini-actions,
+  .picking-review-v1197 .picking-origin,
+  .picking-review-v1197 .picking-cut-origin-note,
+  .picking-review-v1197 .picking-novelty{
+    grid-column:1!important;
+  }
+  .picking-review-v1197 .picking-result{
+    min-height:52px!important;
+    font-size:13px!important;
+  }
+  .picking-review-v1197 .picking-summary-state{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:3px;
+  }
+  .picking-review-v1197 .picking-summary-state span{text-align:left}
+  .picking-review-v1197 .picking-secondary-support-v1197 .order-support-toolbar{
+    align-items:stretch;
+    flex-direction:column;
+  }
+  .picking-review-v1197 .picking-secondary-support-v1197 .order-support-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    width:100%;
+  }
+  .picking-review-v1197 .picking-secondary-support-v1197 .support-btn{width:100%}
+}
+
+@media(max-width:430px){
+  .picking-review-v1197 .picking-mini-actions,
+  .picking-review-v1197 .picking-secondary-support-v1197 .order-support-actions,
+  .picking-review-v1197 .picking-secondary-facts-v1197{
+    grid-template-columns:1fr!important;
+  }
+}
