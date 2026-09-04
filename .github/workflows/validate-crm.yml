@@ -45,14 +45,20 @@ jobs:
               print('\n'.join(missing))
               sys.exit(1)
           PY
-      - name: Validate V11.8.1 release contract
+      - name: Validate V11.8.2 release contract
         shell: bash
         run: |
           set -euo pipefail
           test -s templates/historical_orders.csv
-          grep -q 'version: "11.8.1"' assets/js/config.js
-          grep -q 'v=11.8.1' index.html
-          grep -q 'crm-suministros-v11-8-1-20260904' service-worker.js
+          test -s assets/css/audit-v1182.css
+          test -s assets/js/modules/audit.js
+          test -s supabase/migrations/081_audit_dashboard_v11_8_2.sql
+          grep -q 'version: "11.8.2"' assets/js/config.js
+          grep -q 'v=11.8.2' index.html
+          grep -q 'audit-v1182.css?v=11.8.2' index.html
+          grep -q 'crm-suministros-v11-8-2-20260904' service-worker.js
+          grep -q './assets/css/audit-v1182.css' service-worker.js
+          grep -q './assets/js/modules/audit.js' service-worker.js
           test ! -e assets/js/modules/receiving-v114.js
           test ! -e assets/js/services/drive-bridge.js
           test ! -e assets/js/services/drive-oauth.js
@@ -64,11 +70,11 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.8.1" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.8.2" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.8.1-deployable
+          name: crm-suministros-v11.8.2-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
