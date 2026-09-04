@@ -1,0 +1,42 @@
+/* CRM Suministros V11.9.6 · Corrección de contraste del encabezado de Alistamiento */
+
+#modal-root .modal.popup-ux-v1190.picking-process-modal.picking-focus-v1195 .picking-process-head,
+#modal-root .modal.popup-ux-v1190.picking-process-modal.picking-focus-v1195 .simple-process-head{
+  color:#0b2f55!important;
+  background:#ffffff!important;
+  border-bottom-color:#d8e4ef!important;
+}
+
+#modal-root .modal.popup-ux-v1190.picking-process-modal.picking-focus-v1195 .picking-process-head .wizard-kicker,
+#modal-root .modal.popup-ux-v1190.picking-process-modal.picking-focus-v1195 .simple-process-head .wizard-kicker{
+  color:#1764aa!important;
+  opacity:1!important;
+}
+
+#modal-root .modal.popup-ux-v1190.picking-process-modal.picking-focus-v1195 .picking-process-head h3,
+#modal-root .modal.popup-ux-v1190.picking-process-modal.picking-focus-v1195 .simple-process-head h3{
+  color:#0a2f57!important;
+  opacity:1!important;
+  text-shadow:none!important;
+}
+
+#modal-root .modal.popup-ux-v1190.picking-process-modal.picking-focus-v1195 .picking-process-head p,
+#modal-root .modal.popup-ux-v1190.picking-process-modal.picking-focus-v1195 .simple-process-head p{
+  color:#536b82!important;
+  opacity:1!important;
+  text-shadow:none!important;
+}
+
+#modal-root .modal.popup-ux-v1190.picking-process-modal.picking-focus-v1195 .picking-process-head .icon-btn,
+#modal-root .modal.popup-ux-v1190.picking-process-modal.picking-focus-v1195 .simple-process-head .icon-btn{
+  color:#123d68!important;
+  border-color:#c9d9e8!important;
+  background:#ffffff!important;
+}
+
+#modal-root .modal.popup-ux-v1190.picking-process-modal.picking-focus-v1195 .picking-process-head .icon-btn:hover,
+#modal-root .modal.popup-ux-v1190.picking-process-modal.picking-focus-v1195 .simple-process-head .icon-btn:hover{
+  color:#0a2f57!important;
+  background:#eef6fd!important;
+  border-color:#a9c6df!important;
+}
