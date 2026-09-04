@@ -1,7 +1,7 @@
-const CACHE="crm-suministros-v11-8-8-20260904";
+const CACHE="crm-suministros-v11-8-9-20260904";
 const ASSETS=[
   "./","./index.html","./manifest.webmanifest","./templates/historical_orders.csv",
-  "./assets/css/app.css","./assets/css/operational-v112.css","./assets/css/guides-v113.css","./assets/css/workforce-taxonomy-v113.css","./assets/css/receiving-v115.css","./assets/css/receiving-guide-v115.css","./assets/css/inventory-scan-v116.css","./assets/css/v118.css","./assets/css/audit-v1182.css","./assets/css/audit-v1183.css","./assets/css/ui-v1184.css","./assets/css/dashboard-v1185.css","./assets/css/commercial-v1187.css","./assets/css/commercial-v1188.css",
+  "./assets/css/app.css","./assets/css/operational-v112.css","./assets/css/guides-v113.css","./assets/css/workforce-taxonomy-v113.css","./assets/css/receiving-v115.css","./assets/css/receiving-guide-v115.css","./assets/css/inventory-scan-v116.css","./assets/css/v118.css","./assets/css/audit-v1182.css","./assets/css/audit-v1183.css","./assets/css/ui-v1184.css","./assets/css/dashboard-v1185.css","./assets/css/commercial-v1187.css","./assets/css/commercial-v1188.css","./assets/css/operational-lists-v1189.css",
   "./assets/img/logo-electroingenieria.png","./assets/img/iso-electroingenieria.png",
   "./assets/js/main.js","./assets/js/config.js","./assets/js/core/icons.js","./assets/js/core/layout.js","./assets/js/core/format.js","./assets/js/core/ui.js",
   "./assets/js/modules/active-work.js","./assets/js/modules/work-clock.js","./assets/js/modules/workforce.js","./assets/js/modules/dashboard.js",
