@@ -110,6 +110,30 @@ function removeCard(id){
   setTimeout(()=>{entry.node.remove();cards.delete(id);if(root&&!root.children.length)root.remove();stopClockIfIdle()},220);
 }
 
+function watchBusyButton(button){
+  if(!(button instanceof HTMLButtonElement)||button.dataset.crmBusyWatch==="1")return;
+  button.dataset.crmBusyWatch="1";
+  let ticks=0;
+  const check=()=>{
+    ticks+=1;
+    if(!button.isConnected||!button.disabled){
+      button.classList.remove("crm-busy-button-v11100");
+      button.removeAttribute("aria-busy");
+      delete button.dataset.crmBusyWatch;
+      return;
+    }
+    button.classList.add("crm-busy-button-v11100");
+    button.setAttribute("aria-busy","true");
+    if(ticks<900)setTimeout(check,200);
+  };
+  setTimeout(check,40);
+}
+
+document.addEventListener("click",event=>{
+  const button=event.target.closest?.("button.btn,[data-confirm],[data-next],[data-task-panel-confirm]");
+  if(button)watchBusyButton(button);
+},true);
+
 window.addEventListener(EVENT_NAME,event=>{
   const detail=event.detail||{};
   if(!detail.id)return;
