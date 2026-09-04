@@ -174,7 +174,7 @@ function showValidation(modal,control){
 
 function clearValidation(target){
   if(!(target instanceof HTMLElement)||!target.classList.contains("popup-invalid-v1190"))return;
-  if(typeof target.checkValidity==="function"&&target.checkValidity()){
+  if(target.validity?.valid){
     target.classList.remove("popup-invalid-v1190");
     target.removeAttribute("aria-invalid");
     target.closest(".wizard-panel,.modal-body,.modal-task-panel-body")?.querySelector(".popup-validation-v1190")?.remove();
@@ -222,7 +222,8 @@ function updateGuideMeta(modal){
   const parts=[];
   if(required)parts.push(`${required} obligatorio${required===1?"":"s"}`);
   if(automatic)parts.push(`${automatic} automático${automatic===1?"":"s"}`);
-  meta.textContent=parts.join(" · ")||"Solo lo necesario";
+  const next=parts.join(" · ")||"Solo lo necesario";
+  if(meta.textContent!==next)meta.textContent=next;
 }
 
 function install(){
