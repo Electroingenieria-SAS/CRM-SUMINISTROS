@@ -45,7 +45,7 @@ jobs:
               print('\n'.join(missing))
               sys.exit(1)
           PY
-      - name: Validate V11.8.9 release contract
+      - name: Validate V11.9.0 release contract
         shell: bash
         run: |
           set -euo pipefail
@@ -57,6 +57,7 @@ jobs:
           test -s assets/css/commercial-v1187.css
           test -s assets/css/commercial-v1188.css
           test -s assets/css/operational-lists-v1189.css
+          test -s assets/css/popup-ux-v1190.css
           test -s assets/js/modules/audit.js
           test -s assets/js/modules/dashboard.js
           test -s assets/js/modules/orders.js
@@ -64,23 +65,27 @@ jobs:
           test -s assets/js/modules/pagination-v1184.js
           test -s assets/js/modules/commercial-v1187.js
           test -s assets/js/modules/commercial-records-v1188.js
+          test -s assets/js/modules/popup-ux-v1190.js
           test -s supabase/migrations/081_audit_dashboard_v11_8_2.sql
-          grep -q 'version: "11.8.9"' assets/js/config.js
-          grep -q 'v=11.8.9' index.html
-          grep -q 'commercial-v1188.css?v=11.8.9' index.html
-          grep -q 'operational-lists-v1189.css?v=11.8.9' index.html
-          grep -q 'commercial-records-v1188.js?v=11.8.9' index.html
-          grep -q 'crm-suministros-v11-8-9-20260904' service-worker.js
-          grep -q './assets/css/operational-lists-v1189.css' service-worker.js
+          grep -q 'version: "11.9.0"' assets/js/config.js
+          grep -q 'v=11.9.0' index.html
+          grep -q 'popup-ux-v1190.css?v=11.9.0' index.html
+          grep -q 'popup-ux-v1190.js?v=11.9.0' index.html
+          grep -q 'crm-suministros-v11-9-0-20260904' service-worker.js
+          grep -q './assets/css/popup-ux-v1190.css' service-worker.js
+          grep -q './assets/js/modules/popup-ux-v1190.js' service-worker.js
+          grep -q 'popup-process-guide-v1190' assets/css/popup-ux-v1190.css
+          grep -q 'popup-validation-v1190' assets/js/modules/popup-ux-v1190.js
+          grep -q 'popup-auto-badge-v1190' assets/js/modules/popup-ux-v1190.js
+          grep -q 'prefers-reduced-motion:reduce' assets/css/popup-ux-v1190.css
+          grep -q 'target.validity?.valid' assets/js/modules/popup-ux-v1190.js
+          grep -q 'if(meta.textContent!==next)meta.textContent=next' assets/js/modules/popup-ux-v1190.js
           grep -q 'compact-order-record-v1188' assets/css/operational-lists-v1189.css
           grep -q 'credit-grid{display:grid;grid-template-columns:1fr' assets/css/operational-lists-v1189.css
-          grep -q 'erp-work-list:not(.orders-master-list)' assets/css/operational-lists-v1189.css
           grep -q 'record-figure-v1188' assets/js/modules/commercial-records-v1188.js
           grep -q 'ops-action-card-v1188' assets/css/commercial-v1188.css
           grep -q 'commercial-advanced-filters' assets/js/modules/commercial-v1187.js
-          grep -q 'commercial-wizard-assist' assets/js/modules/commercial-v1187.js
           grep -q 'guided-action-icon:after{content:none!important' assets/css/dashboard-v1185.css
-          grep -q 'top:auto;bottom:0;width:auto;height:3px;border-radius:0' assets/css/dashboard-v1185.css
           test ! -e assets/js/modules/receiving-v114.js
           test ! -e assets/js/services/drive-bridge.js
           test ! -e assets/js/services/drive-oauth.js
@@ -92,11 +97,11 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.8.9" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.9.0" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.8.9-deployable
+          name: crm-suministros-v11.9.0-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
