@@ -45,21 +45,24 @@ jobs:
               print('\n'.join(missing))
               sys.exit(1)
           PY
-      - name: Validate V11.8.3 release contract
+      - name: Validate V11.8.4 release contract
         shell: bash
         run: |
           set -euo pipefail
           test -s templates/historical_orders.csv
           test -s assets/css/audit-v1182.css
           test -s assets/css/audit-v1183.css
+          test -s assets/css/ui-v1184.css
           test -s assets/js/modules/audit.js
+          test -s assets/js/modules/pagination-v1184.js
           test -s supabase/migrations/081_audit_dashboard_v11_8_2.sql
-          grep -q 'version: "11.8.3"' assets/js/config.js
-          grep -q 'v=11.8.3' index.html
-          grep -q 'audit-v1183.css?v=11.8.3' index.html
-          grep -q 'crm-suministros-v11-8-3-20260904' service-worker.js
-          grep -q './assets/css/audit-v1183.css' service-worker.js
-          grep -q './assets/js/modules/audit.js' service-worker.js
+          grep -q 'version: "11.8.4"' assets/js/config.js
+          grep -q 'v=11.8.4' index.html
+          grep -q 'ui-v1184.css?v=11.8.4' index.html
+          grep -q 'pagination-v1184.js?v=11.8.4' index.html
+          grep -q 'crm-suministros-v11-8-4-20260904' service-worker.js
+          grep -q './assets/css/ui-v1184.css' service-worker.js
+          grep -q './assets/js/modules/pagination-v1184.js' service-worker.js
           test ! -e assets/js/modules/receiving-v114.js
           test ! -e assets/js/services/drive-bridge.js
           test ! -e assets/js/services/drive-oauth.js
@@ -71,11 +74,11 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.8.3" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.8.4" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.8.3-deployable
+          name: crm-suministros-v11.8.4-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
