@@ -1,0 +1,30 @@
+name: Package CRM Suministros V11.8
+
+on:
+  push:
+    branches:
+      - ops/v118-deploy-package
+
+permissions:
+  contents: read
+\ njobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build static package
+        run: |
+          set -euo pipefail
+          mkdir -p deploy
+          cp index.html 404.html manifest.webmanifest service-worker.js deploy/
+          cp -R assets deploy/assets
+          cd deploy
+          zip -r ../crm-suministros-v11.8-static.zip .
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: crm-suministros-v11.8-static
+          path: crm-suministros-v11.8-static.zip
+          if-no-files-found: error
+          retention-days: 3
