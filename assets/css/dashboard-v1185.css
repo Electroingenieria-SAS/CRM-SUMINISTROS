@@ -1,0 +1,104 @@
+/* CRM Suministros V11.8.5 · Centro de operaciones · jerarquía visual e iconografía */
+
+.dashboard-v1185{display:block}
+
+/* Acciones prioritarias: reemplazan símbolos tipográficos por assets SVG del sistema. */
+.dashboard-v1185 .guided-workspace{margin-bottom:16px;border:1px solid #d6e2ef;border-radius:16px;background:linear-gradient(180deg,#fbfdff 0%,#f6f9fc 100%);box-shadow:0 10px 28px rgba(10,45,82,.055)}
+.dashboard-v1185 .guided-workspace-head{padding:20px 22px 17px;border-bottom:1px solid #e3eaf2}
+.dashboard-v1185 .guided-workspace-head h3{margin-top:4px;font-size:18px;letter-spacing:-.02em}
+.dashboard-v1185 .guided-workspace-head p{max-width:820px;line-height:1.55}
+.dashboard-v1185 .guided-helper-pill{padding:7px 11px;border:1px solid #d8e4f0;background:#fff;box-shadow:0 3px 9px rgba(10,45,82,.035)}
+.dashboard-v1185 .guided-action-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;padding:16px 18px 19px}
+.dashboard-v1185 .guided-action-card{position:relative;isolation:isolate;overflow:hidden;min-height:154px;display:grid;grid-template-columns:64px minmax(0,1fr) 34px;align-items:center;gap:14px;padding:19px;border:1px solid #d7e2ec;border-radius:15px;background:#fff;color:#243d56;text-align:left;box-shadow:0 6px 18px rgba(14,49,85,.055),inset 0 1px 0 #fff;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease,background .16s ease}
+.dashboard-v1185 .guided-action-card:before{content:"";position:absolute;z-index:-1;right:-38px;top:-44px;width:122px;height:122px;border-radius:50%;background:radial-gradient(circle,rgba(39,112,184,.10),rgba(39,112,184,0) 68%);pointer-events:none}
+.dashboard-v1185 .guided-action-card:after{content:"";position:absolute;left:0;top:18px;bottom:18px;width:3px;border-radius:0 4px 4px 0;background:#88add2}
+.dashboard-v1185 .guided-action-card:hover:not(:disabled){transform:translateY(-2px);border-color:#aec7df;background:#fff;box-shadow:0 13px 28px rgba(14,49,85,.10),inset 0 1px 0 #fff}
+.dashboard-v1185 .guided-action-icon{position:relative;width:62px;height:62px;display:grid;place-items:center;border:1px solid #c9dced;border-radius:18px;background:linear-gradient(145deg,#eff6fd,#dcecf9);color:#185f9e;box-shadow:0 8px 17px rgba(20,86,144,.11),inset 0 1px 0 rgba(255,255,255,.95)}
+.dashboard-v1185 .guided-action-icon:before{content:"";position:absolute;inset:7px;border:1px solid rgba(255,255,255,.8);border-radius:13px;pointer-events:none}
+.dashboard-v1185 .guided-action-icon .ui-icon{position:relative;width:27px;height:27px;stroke-width:1.75}
+.dashboard-v1185 .guided-action-copy{min-width:0;display:grid;gap:6px}
+.dashboard-v1185 .guided-action-copy strong{color:#173858;font-size:14px;line-height:1.28;letter-spacing:-.012em}
+.dashboard-v1185 .guided-action-copy small{color:#6c7d8f;font-size:10px;line-height:1.52;white-space:normal}
+.dashboard-v1185 .guided-action-arrow{width:32px;height:32px;display:grid;place-items:center;border:1px solid #d6e2ed;border-radius:11px;background:#f7fafd;color:#49708f;font-size:19px;line-height:1;transition:.16s ease}
+.dashboard-v1185 .guided-action-card:hover .guided-action-arrow{border-color:#a7c4df;background:#edf5fc;color:#0d5ca6;transform:translateX(2px)}
+.dashboard-v1185 .guided-action-card.accent:after{background:#e4b426}
+.dashboard-v1185 .guided-action-card.accent .guided-action-icon{border-color:#ead488;background:linear-gradient(145deg,#fff8d8,#ffe99c);color:#745400;box-shadow:0 8px 18px rgba(166,121,0,.12),inset 0 1px 0 #fff}
+.dashboard-v1185 .guided-action-card.primary:after{background:#176dbe}
+.dashboard-v1185 .guided-action-card.primary .guided-action-icon{border-color:#a9cae8;background:linear-gradient(145deg,#eaf5ff,#d2e9fb);color:#0c5aa5}
+.dashboard-v1185 .guided-action-card.warning:after{background:#db7a21}
+.dashboard-v1185 .guided-action-card.warning .guided-action-icon{border-color:#efcfac;background:linear-gradient(145deg,#fff6ea,#ffe2c2);color:#a6530b;box-shadow:0 8px 18px rgba(166,85,10,.10),inset 0 1px 0 #fff}
+
+/* KPI: cada métrica recibe un asset contextual y una estructura más escaneable. */
+.dashboard-v1185 .grid-kpi{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.dashboard-v1185 .dashboard-kpi{position:relative;overflow:hidden;min-height:152px;padding:17px 18px 16px;border:1px solid #d8e2ec;border-radius:15px;background:#fff;box-shadow:0 6px 18px rgba(14,49,85,.05),inset 0 1px 0 #fff;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+.dashboard-v1185 .dashboard-kpi:hover{transform:translateY(-1px);border-color:#bed0e1;box-shadow:0 11px 24px rgba(14,49,85,.075)}
+.dashboard-v1185 .dashboard-kpi:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:#9ebbd5}
+.dashboard-v1185 .dashboard-kpi.tone-warning:after{background:#d69d20}
+.dashboard-v1185 .dashboard-kpi.tone-danger:after{background:#c85656}
+.dashboard-v1185 .dashboard-kpi.tone-success:after{background:#2b9671}
+.dashboard-kpi-head{display:flex;align-items:center;gap:10px;margin-bottom:13px}
+.dashboard-kpi-figure{width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;border:1px solid #d3e2ef;border-radius:13px;background:linear-gradient(145deg,#f3f8fd,#e6f1fa);color:#28689d;box-shadow:0 4px 10px rgba(20,77,127,.07)}
+.dashboard-kpi-figure .ui-icon{width:20px;height:20px;stroke-width:1.8}
+.dashboard-v1185 .tone-warning .dashboard-kpi-figure{border-color:#ecd6a4;background:#fff8e8;color:#a56a0d}
+.dashboard-v1185 .tone-danger .dashboard-kpi-figure{border-color:#eccaca;background:#fff3f3;color:#a63e48}
+.dashboard-v1185 .tone-success .dashboard-kpi-figure{border-color:#bfe0d3;background:#eff9f5;color:#247455}
+.dashboard-v1185 .dashboard-kpi .kpi-label{margin:0;color:#65788b;font-size:10px;font-weight:900;line-height:1.35;text-transform:uppercase;letter-spacing:.055em}
+.dashboard-v1185 .dashboard-kpi .kpi-value{margin:0 0 7px;color:#173b63;font-size:31px;line-height:1;letter-spacing:-.045em}
+.dashboard-v1185 .dashboard-kpi .kpi-foot{color:#7b8998;font-size:10px;line-height:1.42}
+
+/* Carga por etapa: figura visual por dominio operacional. */
+.dashboard-v1185 .queue-grid{gap:13px}
+.dashboard-v1185 .dashboard-queue-card{position:relative;overflow:hidden;min-height:178px;padding:16px 16px 15px;border:1px solid #d9e3ec;border-radius:15px;background:#fff;box-shadow:0 5px 16px rgba(14,49,85,.045);transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+.dashboard-v1185 .dashboard-queue-card:hover{transform:translateY(-2px);border-color:#b8cde1;box-shadow:0 12px 25px rgba(14,49,85,.085)}
+.dashboard-v1185 .dashboard-queue-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:#7faed5}
+.dashboard-v1185 .dashboard-queue-title{min-width:0;display:flex;align-items:center;gap:10px}
+.dashboard-v1185 .dashboard-queue-figure{width:39px;height:39px;flex:0 0 39px;display:grid;place-items:center;border:1px solid #cfe0ef;border-radius:12px;background:#eff6fc;color:#24679f}
+.dashboard-v1185 .dashboard-queue-figure .ui-icon{width:19px;height:19px;stroke-width:1.8}
+.dashboard-v1185 .dashboard-queue-card .queue-name{min-width:0;color:#25415e;font-size:11px;font-weight:900;line-height:1.3;white-space:normal}
+.dashboard-v1185 .dashboard-queue-card .queue-number{margin:15px 0 10px;color:#173d66;font-size:29px;line-height:1;letter-spacing:-.04em}
+.dashboard-v1185 .dashboard-queue-card .progress{height:7px;margin-bottom:11px;background:#eaf0f5}
+.dashboard-v1185 .dashboard-queue-card .queue-meta{padding-top:2px;color:#758699;font-size:9.5px}
+.dashboard-v1185 .dashboard-queue-card[data-step="CARTERA"]:before{background:#6b63b6}
+.dashboard-v1185 .dashboard-queue-card[data-step="CARTERA"] .dashboard-queue-figure{border-color:#d6d2ef;background:#f4f2ff;color:#5b4ea2}
+.dashboard-v1185 .dashboard-queue-card[data-step="CAJA"]:before,.dashboard-v1185 .dashboard-queue-card[data-step="CAJA_FACTURACION"]:before{background:#2f8d6b}
+.dashboard-v1185 .dashboard-queue-card[data-step="CAJA"] .dashboard-queue-figure,.dashboard-v1185 .dashboard-queue-card[data-step="CAJA_FACTURACION"] .dashboard-queue-figure{border-color:#c7e3d7;background:#f1faf6;color:#297657}
+.dashboard-v1185 .dashboard-queue-card[data-step="COMPRAS"]:before{background:#d39b21}
+.dashboard-v1185 .dashboard-queue-card[data-step="COMPRAS"] .dashboard-queue-figure{border-color:#ecd79e;background:#fff8e5;color:#9c6810}
+.dashboard-v1185 .dashboard-queue-card[data-step^="RECEPCION"]:before{background:#2384a7}
+.dashboard-v1185 .dashboard-queue-card[data-step^="RECEPCION"] .dashboard-queue-figure{border-color:#c5e0e9;background:#eef9fc;color:#1d6f8c}
+.dashboard-v1185 .dashboard-queue-card[data-step="ALISTAMIENTO"]:before{background:#2b76bf}
+.dashboard-v1185 .dashboard-queue-card[data-step="CORTE"]:before{background:#d36d2d}
+.dashboard-v1185 .dashboard-queue-card[data-step="CORTE"] .dashboard-queue-figure{border-color:#edd1c0;background:#fff5ef;color:#a95321}
+.dashboard-v1185 .dashboard-queue-card[data-step="FACTURACION"]:before{background:#4f66b3}
+.dashboard-v1185 .dashboard-queue-card[data-step="FACTURACION"] .dashboard-queue-figure{border-color:#d0d8ef;background:#f2f4fd;color:#44589a}
+.dashboard-v1185 .dashboard-queue-card[data-step*="DISPATCH"]:before,.dashboard-v1185 .dashboard-queue-card[data-step="CLIENT_POINT"]:before,.dashboard-v1185 .dashboard-queue-card[data-step="CLIENT_PICKUP"]:before,.dashboard-v1185 .dashboard-queue-card[data-step="CLOSURE"]:before{background:#26857d}
+.dashboard-v1185 .dashboard-queue-card[data-step*="DISPATCH"] .dashboard-queue-figure,.dashboard-v1185 .dashboard-queue-card[data-step="CLIENT_POINT"] .dashboard-queue-figure,.dashboard-v1185 .dashboard-queue-card[data-step="CLIENT_PICKUP"] .dashboard-queue-figure,.dashboard-v1185 .dashboard-queue-card[data-step="CLOSURE"] .dashboard-queue-figure{border-color:#c6e2df;background:#eff9f8;color:#27756f}
+
+/* Aire adicional en bloques secundarios del Centro. */
+.dashboard-v1185>.section-gap{height:16px}
+.dashboard-v1185 .partial-time-card>.card-head,.dashboard-v1185>.card>.card-head,.dashboard-v1185>.grid-2 .card-head{padding:17px 19px}
+.dashboard-v1185 .partial-time-card>.card-body,.dashboard-v1185>.card>.card-body,.dashboard-v1185>.grid-2 .card-body{padding:18px 19px}
+
+@media(max-width:1320px){
+  .dashboard-v1185 .guided-action-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dashboard-v1185 .grid-kpi{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:1120px){
+  .dashboard-v1185 .grid-kpi{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:720px){
+  .dashboard-v1185 .guided-workspace-head{padding:17px 16px 14px}
+  .dashboard-v1185 .guided-action-grid{grid-template-columns:1fr;padding:13px}
+  .dashboard-v1185 .guided-action-card{min-height:132px;grid-template-columns:54px minmax(0,1fr) 30px;padding:15px;gap:11px}
+  .dashboard-v1185 .guided-action-icon{width:52px;height:52px;border-radius:15px}
+  .dashboard-v1185 .guided-action-icon .ui-icon{width:23px;height:23px}
+  .dashboard-v1185 .grid-kpi{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .dashboard-v1185 .dashboard-kpi{min-height:144px;padding:14px}
+  .dashboard-kpi-head{align-items:flex-start;flex-direction:column;gap:7px;margin-bottom:9px}
+  .dashboard-v1185 .dashboard-kpi .kpi-value{font-size:27px}
+}
+@media(max-width:480px){
+  .dashboard-v1185 .grid-kpi{grid-template-columns:1fr}
+  .dashboard-kpi-head{align-items:center;flex-direction:row}
+  .dashboard-v1185 .dashboard-kpi{min-height:132px}
+}
