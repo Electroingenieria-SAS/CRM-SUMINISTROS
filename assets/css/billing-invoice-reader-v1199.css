@@ -1,0 +1,44 @@
+/* CRM Suministros V11.9.9 · Lector de datos de factura editable */
+#modal-root .invoice-reader-v1199.billing-upload-v1199{width:min(920px,calc(100vw - 42px))!important;max-width:920px!important}
+#modal-root .invoice-reader-v1199 .invoice-reader-panel-v1199{display:grid;gap:13px;padding:17px;border:1px solid #cdddea;border-radius:15px;background:#fff;box-shadow:0 8px 22px rgba(10,55,96,.045)}
+#modal-root .invoice-reader-v1199 .invoice-reader-head-v1199{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center}
+#modal-root .invoice-reader-v1199 .invoice-reader-icon-v1199{width:44px;height:44px;display:grid;place-items:center;border-radius:12px;background:#eaf4fd;color:#1265af;font-size:20px;font-weight:900}
+#modal-root .invoice-reader-v1199 .invoice-reader-head-v1199>div:nth-child(2){display:grid;gap:2px;min-width:0}
+#modal-root .invoice-reader-v1199 .invoice-reader-head-v1199 span:first-child{color:#1764a8;font-size:8.5px;font-weight:900;letter-spacing:.075em}
+#modal-root .invoice-reader-v1199 .invoice-reader-head-v1199 h4{margin:0;color:#0b3159;font-size:18px;line-height:1.25;letter-spacing:-.015em}
+#modal-root .invoice-reader-v1199 .invoice-reader-head-v1199 p{margin:0;color:#687f95;font-size:10.5px;line-height:1.42}
+#modal-root .invoice-reader-v1199 .invoice-reader-status-v1199{display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:6px 9px;border-radius:999px;background:#eef5fb;color:#355e83;font-size:9px;font-weight:900;white-space:nowrap}
+#modal-root .invoice-reader-v1199 [data-invoice-reader-state="reading"] .invoice-reader-status-v1199{background:#eaf4ff;color:#1265af}
+#modal-root .invoice-reader-v1199 [data-invoice-reader-state="ready"] .invoice-reader-status-v1199{background:#eaf8f1;color:#0b8751}
+#modal-root .invoice-reader-v1199 .invoice-reader-message-v1199{padding:10px 12px;border-radius:10px;background:#f5f8fb;color:#63798f;font-size:10px;line-height:1.4}
+#modal-root .invoice-reader-v1199 .invoice-reader-message-v1199.needs-review{background:#fff8ec;color:#8b5a0b;border:1px solid #f0d49a}
+#modal-root .invoice-reader-v1199 .invoice-reader-grid-v1199{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px 12px}
+#modal-root .invoice-reader-v1199 .invoice-reader-field-v1199{min-width:0;display:grid;gap:6px;padding:11px 12px;border:1px solid #dce6ee;border-radius:11px;background:#fbfdff;transition:border-color .16s ease,box-shadow .16s ease,background .16s ease}
+#modal-root .invoice-reader-v1199 .invoice-reader-field-v1199:focus-within{border-color:#93bce0;box-shadow:0 0 0 3px rgba(20,121,223,.07);background:#fff}
+#modal-root .invoice-reader-v1199 .invoice-reader-field-v1199>span{color:#294966;font-size:10.5px;font-weight:900;line-height:1.25}
+#modal-root .invoice-reader-v1199 .invoice-reader-field-v1199 em{color:#bf3041;font-style:normal}
+#modal-root .invoice-reader-v1199 .invoice-reader-field-v1199 .control{min-height:44px!important;padding:9px 10px!important;border-radius:9px!important;background:#fff!important;color:#0b3159!important;font-size:13px!important;font-weight:750!important}
+#modal-root .invoice-reader-v1199 .invoice-reader-field-v1199 small{min-height:13px;color:#8091a1;font-size:8.8px;line-height:1.25}
+#modal-root .invoice-reader-v1199 .invoice-reader-field-v1199 small.detected{color:#0b8751;font-weight:800}
+#modal-root .invoice-reader-v1199 .invoice-reader-field-v1199 small.manual{color:#1764a8;font-weight:800}
+#modal-root .invoice-reader-v1199 .invoice-reader-field-v1199 small.missing{color:#a25d0a;font-weight:850}
+#modal-root .invoice-reader-v1199 .invoice-reader-field-v1199.needs-review{border-color:#edc879;background:#fffaf0}
+#modal-root .invoice-reader-v1199 .invoice-reader-field-v1199.needs-review>span:after{content:" · revisar";color:#a25d0a;font-size:8.5px;font-weight:850}
+#modal-root .invoice-reader-v1199 .invoice-reader-foot-v1199{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:2px}
+#modal-root .invoice-reader-v1199 .invoice-reader-foot-v1199>span{display:block;padding:8px 10px;border-radius:9px;background:#f5f8fb;color:#708397;font-size:9px;line-height:1.35}
+#modal-root .invoice-reader-v1199 .invoice-reader-foot-v1199 b{color:#315b80}
+#modal-root .invoice-reader-v1199 .billing-upload-auto-v1199{display:none!important}
+#modal-root .invoice-reader-v1199 .modal-foot [data-confirm]:disabled{opacity:.5}
+@media(max-width:760px){
+  #modal-root .invoice-reader-v1199.billing-upload-v1199{width:calc(100vw - 14px)!important;max-width:none!important}
+  #modal-root .invoice-reader-v1199 .invoice-reader-grid-v1199{grid-template-columns:1fr}
+  #modal-root .invoice-reader-v1199 .invoice-reader-head-v1199{grid-template-columns:40px minmax(0,1fr)}
+  #modal-root .invoice-reader-v1199 .invoice-reader-status-v1199{grid-column:1/-1;width:max-content}
+  #modal-root .invoice-reader-v1199 .invoice-reader-foot-v1199{grid-template-columns:1fr}
+  #modal-root .invoice-reader-v1199 .invoice-reader-field-v1199 .control{font-size:16px!important}
+}
+@media(max-width:430px){
+  #modal-root .invoice-reader-v1199 .invoice-reader-panel-v1199{padding:12px;gap:10px;border-radius:12px}
+  #modal-root .invoice-reader-v1199 .invoice-reader-head-v1199 h4{font-size:17px}
+  #modal-root .invoice-reader-v1199 .invoice-reader-head-v1199 p{font-size:10px}
+}
