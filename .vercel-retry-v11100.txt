@@ -1,0 +1,4 @@
+V11.10.0 production deployment retry
+Requested: 2026-09-04
+Purpose: retrigger GitHub → Vercel deployment after the previous rate-limit response.
+No application logic is changed by this marker.
