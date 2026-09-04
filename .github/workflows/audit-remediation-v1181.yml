@@ -3,96 +3,26 @@ name: Audit remediation V11.8.1
 on:
   push:
     branches:
-      - fix/v11.8.1-audit-remediation-20260904
+      - "fix/v11.8.1-audit-remediation-20260904"
 
 permissions:
   contents: write
 
 jobs:
   remediate:
-    if: github.actor != 'github-actions[bot]'
+    if: ${{ github.actor != 'github-actions[bot]' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          ref: fix/v11.8.1-audit-remediation-20260904
+          ref: "fix/v11.8.1-audit-remediation-20260904"
       - name: Apply audited fixes
+        run: python scripts/audit_remediation_v1181.py
+      - name: Validate JavaScript and release markers
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
-          from pathlib import Path
-
-          # Histórico: ocultar importación cuando el rol no puede crear y entregar plantilla real.
-          p=Path('assets/js/modules/imports.js'); s=p.read_text()
-          s=s.replace('import {workspaceIntro,summaryItem} from "../core/guided.js";','import {workspaceIntro,summaryItem} from "../core/guided.js";\nimport {can} from "../core/state.js";')
-          s=s.replace('export async function renderImports(root){\n  root.innerHTML=`','export async function renderImports(root){\n  const canCreate=can("imports","canCreate");\n  root.innerHTML=`')
-          s=s.replace('cards:actionCards([{id:"start-import",title:"Importar archivo histórico",description:"Selecciona el CSV y revisa los registros antes de cargarlos.",icon:"⇩",tone:"accent"},{id:"download-template",title:"Descargar plantilla",description:"Obtén el formato oficial con encabezados en español.",icon:"▤",tone:"primary"},{id:"check-columns",title:"Revisar columnas",description:"Consulta qué información debe contener el archivo.",icon:"?",tone:"warning"}])','cards:actionCards([...(canCreate?[{id:"start-import",title:"Importar archivo histórico",description:"Selecciona el CSV y revisa los registros antes de cargarlos.",icon:"⇩",tone:"accent"}]:[]),{id:"download-template",title:"Descargar plantilla",description:"Obtén el formato oficial con encabezados en español.",icon:"▤",tone:"primary"},{id:"check-columns",title:"Revisar columnas",description:"Consulta qué información debe contener el archivo.",icon:"?",tone:"warning"}])')
-          s=s.replace('root.querySelector("#start-import").onclick=startWizard;','root.querySelector("#start-import")?.addEventListener("click",startWizard);')
-          p.write_text(s)
-
-          # Crédito: no mostrar Radicar a perfiles de solo lectura.
-          p=Path('assets/js/modules/credit.js'); s=p.read_text()
-          s=s.replace('import {workspaceIntro,summaryItem,choice} from "../core/guided.js";','import {workspaceIntro,summaryItem,choice} from "../core/guided.js";\nimport {can} from "../core/state.js";')
-          s=s.replace('export async function renderCredit(root){\n  let status="";','export async function renderCredit(root){\n  let status="";\n  const canCreate=can("credit","canCreate");')
-          s=s.replace('cards:actionCards([{id:"new-credit",title:"Radicar nueva solicitud",description:"Registra cliente, valor y plazo en un asistente de tres pasos.",icon:"＋",tone:"accent"},{id:"submitted-credit",title:"Solicitudes radicadas",description:"Consulta solicitudes nuevas que deben ser tomadas por Cartera.",icon:"1",tone:"primary"},{id:"review-credit",title:"Solicitudes en estudio",description:"Revisa solicitudes asignadas y registra la decisión.",icon:"2",tone:"warning"},{id:"all-credit",title:"Historial de crédito",description:"Consulta solicitudes aprobadas, rechazadas y pendientes.",icon:"▦",tone:"success"}])','cards:actionCards([...(canCreate?[{id:"new-credit",title:"Radicar nueva solicitud",description:"Registra cliente, valor y plazo en un asistente de tres pasos.",icon:"＋",tone:"accent"}]:[]),{id:"submitted-credit",title:"Solicitudes radicadas",description:"Consulta solicitudes nuevas que deben ser tomadas por Cartera.",icon:"1",tone:"primary"},{id:"review-credit",title:"Solicitudes en estudio",description:"Revisa solicitudes asignadas y registra la decisión.",icon:"2",tone:"warning"},{id:"all-credit",title:"Historial de crédito",description:"Consulta solicitudes aprobadas, rechazadas y pendientes.",icon:"▦",tone:"success"}])')
-          s=s.replace('root.querySelector("#new-credit").onclick=()=>createWizard(load);','root.querySelector("#new-credit")?.addEventListener("click",()=>createWizard(load));')
-          p.write_text(s)
-
-          # Recepción: no ofrecer alta de mercancía a roles de solo lectura.
-          p=Path('assets/js/modules/receiving-hub-v115.js'); s=p.read_text()
-          s=s.replace('import {state} from "../core/state.js";','import {state,can} from "../core/state.js";')
-          s=s.replace('async function renderGoodsReceiving(host){\n  host.innerHTML=`','async function renderGoodsReceiving(host){\n  const canCreateGoods=can("receiving","canCreate")||can("receiving","canUpdate");\n  host.innerHTML=`')
-          s=s.replace('<div class="v115-goods-actions"><button type="button" class="btn btn-create btn-large" data-v115-new-goods>+ Nueva recepción de mercancía</button><small>PVE opcional · inventario obligatorio</small></div>','<div class="v115-goods-actions">${canCreateGoods?\'<button type="button" class="btn btn-create btn-large" data-v115-new-goods>+ Nueva recepción de mercancía</button>\':\'\'}<small>PVE opcional · inventario obligatorio</small></div>')
-          s=s.replace('host.querySelector("[data-v115-new-goods]").addEventListener("click",openGoodsReceiptOrigin);','host.querySelector("[data-v115-new-goods]")?.addEventListener("click",openGoodsReceiptOrigin);')
-          p.write_text(s)
-
-          # Navegación: si el hash apunta a un módulo no permitido, ir al primer módulo legible.
-          p=Path('assets/js/main.js'); s=p.read_text()
-          s=s.replace('const SESSION_PROFILE_ERROR=/usuario sin perfil operativo activo|perfil operativo activo|jwt expired|token.*expired/i;\n','const SESSION_PROFILE_ERROR=/usuario sin perfil operativo activo|perfil operativo activo|jwt expired|token.*expired/i;\n\nfunction moduleReadable(code){return Boolean(state.modules?.find(module=>module.code===code)?.canRead)}\nfunction firstReadableModule(){return state.modules?.find(module=>module.canRead)?.code||"dashboard"}\n')
-          old='''      initRouter(async route=>{\n        if(route.segments[0]==="order"&&route.segments[1]){navigate("orders");setTimeout(()=>openOrder(route.segments[1]),0);return}\n        const moduleId=route.module;'''
-          new='''      initRouter(async route=>{\n        const requestedModule=route.segments[0]==="order"?"orders":route.module;\n        if(!moduleReadable(requestedModule)){\n          const fallback=firstReadableModule();\n          if(fallback!==route.module){navigate(fallback);return}\n        }\n        if(route.segments[0]==="order"&&route.segments[1]){navigate("orders");setTimeout(()=>openOrder(route.segments[1]),0);return}\n        const moduleId=route.module;'''
-          if old not in s: raise SystemExit('No se encontró bloque de router esperado')
-          p.write_text(s.replace(old,new))
-
-          # Versión/caché.
-          p=Path('assets/js/config.js'); s=p.read_text().replace('version: "11.8.0"','version: "11.8.1"').replace('build: "2026-09-04.1"','build: "2026-09-04.2"'); p.write_text(s)
-          p=Path('index.html'); p.write_text(p.read_text().replace('v=11.8.0','v=11.8.1'))
-          p=Path('service-worker.js'); s=p.read_text().replace('crm-suministros-v11-8-0-20260904','crm-suministros-v11-8-1-20260904').replace('"./","./index.html","./manifest.webmanifest",','"./","./index.html","./manifest.webmanifest","./templates/historical_orders.csv",'); p.write_text(s)
-
-          Path('templates').mkdir(exist_ok=True)
-          Path('templates/historical_orders.csv').write_text('pedido,referencia_externa,tipo_pedido,condicion_pago,ruta,prioridad,requiere_corte,requiere_compra,cliente,documento,ciudad,estado,fecha_creacion,fecha_actualizacion,fecha_cierre\nPED-0001,REF-001,PVC,CREDITO,DESPACHO LOCAL,MEDIA,no,no,Cliente ejemplo,900000000,Cali,CERRADO,2026-01-15,2026-01-16,2026-01-16\n')
-
-          # Migración: alinear acciones/prioridades y retirar grants anon redundantes.
-          Path('supabase/migrations/075_audit_contract_hardening_v11_8_1.sql').write_text(r'''-- CRM Suministros V11.8.1 · remediación de auditoría
--- 1) NO_DELIVERY solo se ofrece a Ventas/Super Admin, en línea con erp_x_execute_action.
--- 2) Catálogo de prioridades expone únicamente LOW/MEDIUM/URGENT; normalizadores históricos conservan compatibilidad.
--- 3) Retira EXECUTE anónimo redundante en RPC que ya exigen perfil autenticado.
-
-do $$
-declare
-  v_def text;
-  v_old text;
-  v_new text;
-begin
-  select pg_get_functiondef('public.erp_x_get_actions(uuid)'::regprocedure) into v_def;
-  v_old := 'and erp_supply.actor_can(v_actor,v_order.current_step_code,''WAIT'',v_order.current_assignee_id) then v_actions:=v_actions||jsonb_build_array(jsonb_build_object(''code'',''NO_DELIVERY''';
-  v_new := 'and (erp_supply.has_role(''ventas'') or erp_supply.has_role(''super_admin'')) and erp_supply.actor_can(v_actor,v_order.current_step_code,''WAIT'',v_order.current_assignee_id) then v_actions:=v_actions||jsonb_build_array(jsonb_build_object(''code'',''NO_DELIVERY''';
-  if position(v_old in v_def)=0 then raise exception 'Contrato NO_DELIVERY inesperado; migración detenida'; end if;
-  execute replace(v_def,v_old,v_new);
-
-  select pg_get_functiondef('public.erp_x_session()'::regprocedure) into v_def;
-  v_old := '''priorities'',jsonb_build_array(''LOW'',''MEDIUM'',''HIGH'',''URGENT'',''CRITICAL'')';
-  v_new := '''priorities'',jsonb_build_array(''LOW'',''MEDIUM'',''URGENT'')';
-  if position(v_old in v_def)=0 then raise exception 'Catálogo de prioridades inesperado; migración detenida'; end if;
-  execute replace(v_def,v_old,v_new);
-end $$;
-
-revoke execute on function public.erp_x_goods_receipt_labels(text) from anon;
-revoke execute on function public.erp_x_inventory_scan_resolve(text) from anon;
-''')
-          PY
-
           find assets/js -name '*.js' -print0 | xargs -0 -n1 node --check
           test -s templates/historical_orders.csv
           grep -q '11.8.1' assets/js/config.js
