@@ -1,12 +1,20 @@
 let observer=null;
+let observedRoot=null;
 let scheduled=false;
+
+function observe(){
+  if(!observer||!observedRoot)return;
+  observer.observe(observedRoot,{childList:true,subtree:true,attributes:true,attributeFilter:["class","disabled"]});
+}
 
 function schedule(){
   if(scheduled)return;
   scheduled=true;
   requestAnimationFrame(()=>{
     scheduled=false;
+    observer?.disconnect();
     enhanceAll();
+    observe();
   });
 }
 
@@ -49,6 +57,10 @@ function visible(element){
   return Boolean(element&&element.offsetParent!==null&&!element.disabled);
 }
 
+function setText(node,value){
+  if(node&&node.textContent!==value)node.textContent=value;
+}
+
 function simplifySecondary(modal){
   const body=modal.querySelector(".simple-process-body");
   if(!body)return;
@@ -72,8 +84,7 @@ function simplifySecondary(modal){
 
   const blocked=modal.classList.contains("order-blocked-by-issue");
   details.classList.toggle("attention",blocked);
-  const label=details.querySelector("summary span");
-  if(label)label.textContent=blocked?"Hay una novedad pendiente · abre para resolver":"Más información y novedades";
+  setText(details.querySelector("summary span"),blocked?"Hay una novedad pendiente · abre para resolver":"Más información y novedades");
   if(blocked)details.open=true;
 }
 
@@ -121,16 +132,12 @@ function enhanceTake(modal,stage){
   const accept=billingAction(modal,"accept");
   const cash=modal.querySelector('[data-billing-action="cash"]');
   if(accept){
-    const strong=accept.querySelector("strong");
-    const small=accept.querySelector("small");
-    if(strong)strong.textContent=stage==="ROUTE_CHOICE"?"Facturar en Logística":"Tomar pedido";
-    if(small)small.textContent=stage==="ROUTE_CHOICE"?"Continúa la facturación desde este módulo.":"Inicia la gestión y habilita la carga del documento.";
+    setText(accept.querySelector("strong"),stage==="ROUTE_CHOICE"?"Facturar en Logística":"Tomar pedido");
+    setText(accept.querySelector("small"),stage==="ROUTE_CHOICE"?"Continúa la facturación desde este módulo.":"Inicia la gestión y habilita la carga del documento.");
   }
   if(cash){
-    const strong=cash.querySelector("strong");
-    const small=cash.querySelector("small");
-    if(strong)strong.textContent="Enviar a Caja";
-    if(small)small.textContent="Mueve el pedido a Caja para realizar la facturación allí.";
+    setText(cash.querySelector("strong"),"Enviar a Caja");
+    setText(cash.querySelector("small"),"Mueve el pedido a Caja para realizar la facturación allí.");
   }
 }
 
@@ -145,17 +152,16 @@ function enhanceSteps(modal,stage){
   stepper.querySelectorAll(".cash-invoice-step").forEach(step=>{
     const action=step.dataset.cashAction||step.dataset.billingAction||"";
     const strong=step.querySelector("strong");
-    if(!strong)return;
-    if(action==="accept")strong.textContent=step.classList.contains("done")?"Tomado":"Tomar";
-    if(action==="invoice"||action==="annex")strong.textContent="Documento";
-    if(action==="send")strong.textContent="Enviar";
+    if(action==="accept")setText(strong,step.classList.contains("done")?"Tomado":"Tomar");
+    if(action==="invoice"||action==="annex")setText(strong,"Documento");
+    if(action==="send")setText(strong,"Enviar");
   });
 
   let focus=modal.querySelector(".billing-task-focus-v1198");
   if(!focus){
     focus=document.createElement("section");
     focus.className="billing-task-focus-v1198";
-    stepper.parentNode?.insertBefore(focus,stepper.nextSibling);
+    if(stepper.parentNode)stepper.parentNode.insertBefore(focus,stepper.nextSibling);
   }
   renderTaskFocus(modal,focus,stage);
 }
@@ -184,15 +190,19 @@ function renderTaskFocus(modal,focus,stage){
     action="send";title="Documento listo";description=`El soporte requerido ya está registrado. Continúa hacia ${facts.route}.`;cta="Enviar a despacho";icon="check";
   }
 
-  focus.innerHTML=`
-    <span class="billing-task-icon-v1198" aria-hidden="true">${iconSvg(icon)}</span>
-    <div class="billing-task-copy-v1198"><span>${escapeHtml(kicker)}</span><h4>${escapeHtml(title)}</h4><p>${escapeHtml(description)}</p></div>
-    ${action?`<button type="button" class="btn btn-primary billing-task-cta-v1198" data-billing-focus-action="${action}">${escapeHtml(cta)}</button>`:""}`;
+  const signature=[stage,action,title,description,cta,icon].join("|");
+  if(focus.dataset.billingFocusSignature!==signature){
+    focus.dataset.billingFocusSignature=signature;
+    focus.innerHTML=`
+      <span class="billing-task-icon-v1198" aria-hidden="true">${iconSvg(icon)}</span>
+      <div class="billing-task-copy-v1198"><span>${escapeHtml(kicker)}</span><h4>${escapeHtml(title)}</h4><p>${escapeHtml(description)}</p></div>
+      ${action?`<button type="button" class="btn btn-primary billing-task-cta-v1198" data-billing-focus-action="${action}">${escapeHtml(cta)}</button>`:""}`;
+  }
 
-  const summary=modal.querySelector(":scope .invoice-confirmed");
-  if(summary&&!focus.contains(summary))focus.append(summary);
-  const exception=modal.querySelector(":scope .billing-approved-exception");
-  if(exception&&!focus.contains(exception))focus.append(exception);
+  const summary=[...modal.querySelectorAll(".invoice-confirmed")].find(node=>!focus.contains(node));
+  if(summary)focus.append(summary);
+  const exception=[...modal.querySelectorAll(".billing-approved-exception")].find(node=>!focus.contains(node));
+  if(exception)focus.append(exception);
 }
 
 function iconSvg(kind){
@@ -238,7 +248,7 @@ function syncNext(modal,stage=stageOf(modal)){
     else if(stage==="DOCUMENT")enabled=Boolean(visible(billingAction(modal,"invoice"))||visible(billingAction(modal,"annex")));
     else if(stage==="SEND")enabled=visible(billingAction(modal,"send"));
   }
-  button.disabled=!enabled;
+  if(button.disabled===enabled)button.disabled=!enabled;
   button.setAttribute("aria-disabled",enabled?"false":"true");
   button.title=blocked?"Resuelve la novedad pendiente antes de continuar":enabled?"Continuar con el paso actual de Facturación":"No hay una acción disponible en este momento";
 }
@@ -282,12 +292,9 @@ function enhanceUploadDialog(modal){
   if(!note)return;
   modal.classList.add("billing-upload-dialog-v1198");
   const isPvp=/PVP/i.test(modal.querySelector(".modal-head")?.textContent||modal.textContent||"");
-  const strong=note.querySelector("strong");
-  const paragraph=note.querySelector("p");
-  if(strong)strong.textContent=isPvp?"Selecciona el Anexo PVP":"Selecciona la factura en PDF";
-  if(paragraph)paragraph.textContent=isPvp?"El archivo quedará asociado automáticamente al pedido.":"El CRM registra automáticamente el nombre del archivo y la fecha de carga.";
-  const label=modal.querySelector('.field label');
-  if(label)label.textContent=isPvp?"Archivo Anexo PVP *":"Factura PDF *";
+  setText(note.querySelector("strong"),isPvp?"Selecciona el Anexo PVP":"Selecciona la factura en PDF");
+  setText(note.querySelector("p"),isPvp?"El archivo quedará asociado automáticamente al pedido.":"El CRM registra automáticamente el nombre del archivo y la fecha de carga.");
+  setText(modal.querySelector('.field label'),isPvp?"Archivo Anexo PVP *":"Factura PDF *");
 }
 
 function onClick(event){
@@ -317,10 +324,10 @@ function escapeHtml(value){
 function install(){
   enhanceAll();
   document.addEventListener("click",onClick);
-  const root=document.querySelector("#modal-root");
-  if(!root)return;
+  observedRoot=document.querySelector("#modal-root");
+  if(!observedRoot)return;
   observer=new MutationObserver(schedule);
-  observer.observe(root,{childList:true,subtree:true,attributes:true,attributeFilter:["class","disabled"]});
+  observe();
 }
 
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
