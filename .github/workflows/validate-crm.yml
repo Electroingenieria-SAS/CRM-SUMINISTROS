@@ -45,7 +45,7 @@ jobs:
               print('\n'.join(missing))
               sys.exit(1)
           PY
-      - name: Validate V11.8.5 release contract
+      - name: Validate V11.8.6 release contract
         shell: bash
         run: |
           set -euo pipefail
@@ -58,12 +58,14 @@ jobs:
           test -s assets/js/modules/dashboard.js
           test -s assets/js/modules/pagination-v1184.js
           test -s supabase/migrations/081_audit_dashboard_v11_8_2.sql
-          grep -q 'version: "11.8.5"' assets/js/config.js
-          grep -q 'v=11.8.5' index.html
-          grep -q 'dashboard-v1185.css?v=11.8.5' index.html
-          grep -q 'crm-suministros-v11-8-5-20260904' service-worker.js
+          grep -q 'version: "11.8.6"' assets/js/config.js
+          grep -q 'v=11.8.6' index.html
+          grep -q 'dashboard-v1185.css?v=11.8.6' index.html
+          grep -q 'crm-suministros-v11-8-6-20260904' service-worker.js
           grep -q './assets/css/dashboard-v1185.css' service-worker.js
           grep -q './assets/js/modules/dashboard.js' service-worker.js
+          grep -q 'guided-action-icon:after{content:none!important' assets/css/dashboard-v1185.css
+          grep -q 'top:auto;bottom:0;width:auto;height:3px;border-radius:0' assets/css/dashboard-v1185.css
           test ! -e assets/js/modules/receiving-v114.js
           test ! -e assets/js/services/drive-bridge.js
           test ! -e assets/js/services/drive-oauth.js
@@ -75,11 +77,11 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.8.5" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.8.6" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.8.5-deployable
+          name: crm-suministros-v11.8.6-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
