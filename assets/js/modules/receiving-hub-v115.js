@@ -1,5 +1,5 @@
 import {renderQueue} from "./queue.js";
-import {state} from "../core/state.js";
+import {state,can} from "../core/state.js";
 import {fmt} from "../core/format.js";
 import {modal,toast,closeDialog,loading,empty} from "../core/ui.js";
 import {getSupabase} from "../services/supabase.js";
@@ -90,10 +90,11 @@ async function switchView(root,view){
 }
 
 async function renderGoodsReceiving(host){
+  const canCreateGoods=can("receiving","canCreate")||can("receiving","canUpdate");
   host.innerHTML=`
     <section class="v115-goods-hero">
       <div class="v115-goods-copy"><span>RECEPCIÓN DE MERCANCÍA</span><h3>Ingreso físico a sistema y bodega</h3><p>Este proceso no crea, mueve ni finaliza pedidos. Puedes registrar una compra directamente o enlazar un PVE solo para centralizar la OC y marcar Mercancía OK.</p></div>
-      <div class="v115-goods-actions"><button type="button" class="btn btn-create btn-large" data-v115-new-goods>+ Nueva recepción de mercancía</button><small>PVE opcional · inventario obligatorio</small></div>
+      <div class="v115-goods-actions">${canCreateGoods?'<button type="button" class="btn btn-create btn-large" data-v115-new-goods>+ Nueva recepción de mercancía</button>':''}<small>PVE opcional · inventario obligatorio</small></div>
     </section>
     <section class="card card-pad v115-goods-list-card">
       <div class="v115-list-toolbar"><div><span>Historial de bodega</span><strong>Recepciones de mercancía</strong></div><div class="v115-list-filters"><input class="control" type="search" placeholder="Recepción, PVE, OC, proveedor o factura…" data-v115-search><input class="control" type="date" data-v115-from><input class="control" type="date" data-v115-to><button type="button" class="btn btn-search" data-v115-filter>Buscar</button></div></div>
@@ -102,7 +103,7 @@ async function renderGoodsReceiving(host){
   const today=new Date(),from=new Date(today.getTime()-30*864e5);
   host.querySelector("[data-v115-from]").value=dateInput(from);
   host.querySelector("[data-v115-to]").value=dateInput(today);
-  host.querySelector("[data-v115-new-goods]").addEventListener("click",openGoodsReceiptOrigin);
+  host.querySelector("[data-v115-new-goods]")?.addEventListener("click",openGoodsReceiptOrigin);
   const load=()=>loadGoodsList(host);
   host.querySelector("[data-v115-filter]").addEventListener("click",load);
   host.querySelector("[data-v115-search]").addEventListener("keydown",event=>{if(event.key==="Enter")load()});
