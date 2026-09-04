@@ -1,16 +1,14 @@
 import {CONFIG} from "../config.js";
+import {operationProgress} from "../core/progress.js";
 import {api} from "./api.js";
 
 /*
- * V10.11.2 · Carga institucional a Google Drive
+ * V11.10.0 · Carga institucional a Google Drive
  *
- * Las cargas se envían al Apps Script institucional, que valida la sesión
- * de Supabase y escribe con la cuenta propietaria. Por eso el trabajador no
- * inicia sesión en Google ni autoriza Drive para subir archivos.
- *
- * La autorización OAuth de Google se conserva únicamente como compatibilidad
- * para descargar un PDF privado ya existente cuando el lector de Recepción
- * lo necesita. No se utiliza para subir facturas, fotos, anexos o evidencias.
+ * Todas las cargas y lecturas largas informan su progreso mediante el HUD
+ * global. Apps Script no expone progreso byte-a-byte, por eso el porcentaje
+ * representa fases verificables del proceso y la fase de subida mantiene una
+ * animación activa hasta que Google Drive responde.
  */
 const MAX_FILE_BYTES = Number(CONFIG.drive.maxFileBytes || 15 * 1024 * 1024);
 const BRIDGE_TIMEOUT_MS = 180000;
@@ -26,6 +24,16 @@ function validateUploadFile(file) {
   const mime = String(file.type || "").toLowerCase();
   if (!ext || BLOCKED_FILE_EXTENSIONS.has(ext) || !ALLOWED_FILE_EXTENSIONS.has(ext)) throw new Error("Ese tipo de archivo no está permitido en el ERP.");
   if (mime && !ALLOWED_MIME_PREFIXES.some((allowed) => mime === allowed || mime.startsWith(`${allowed}.`))) throw new Error("El tipo MIME del archivo no está permitido.");
+}
+
+function uploadTitle(category){
+  const code=String(category||"").toUpperCase();
+  if(code.includes("INVOICE"))return "Subiendo factura";
+  if(code.includes("PVP"))return "Subiendo Anexo PVP";
+  if(code.includes("SHIPPING_GUIDE"))return "Subiendo guía de transporte";
+  if(code.includes("DELIVERY_EVIDENCE"))return "Subiendo evidencia de entrega";
+  if(code.includes("WORK_EVIDENCE"))return "Subiendo evidencia de actividad";
+  return "Subiendo archivo a Google Drive";
 }
 
 let tokenClient;
@@ -163,50 +171,63 @@ export async function uploadOrderFile(
   if (!orderId) throw new Error("No se recibió el identificador del pedido.");
   validateUploadFile(file);
 
-  const session = await currentSession();
-  if (!session?.access_token) throw new Error("Tu sesión venció. Ingresa nuevamente al ERP.");
-
   const uploadId = typeof crypto?.randomUUID === "function"
     ? crypto.randomUUID()
     : `upload_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  const progress=operationProgress({id:uploadId,title:uploadTitle(category),message:"Preparando el archivo para una carga segura…",fileName:file.name,fileSize:file.size,kind:"upload"});
 
-  const uploaded = await submitToBridge({
-    action: "UPLOAD",
-    requestId: uploadId,
-    uploadId,
-    origin: window.location.origin,
-    accessToken: session.access_token,
-    orderId: String(orderId),
-    taskId: taskId ? String(taskId) : null,
-    orderNumber: orderNumber ? String(orderNumber) : null,
-    category: String(category || "EVIDENCE"),
-    fileName: safeName(file.name, "archivo"),
-    mimeType: file.type || "application/octet-stream",
-    sizeBytes: file.size,
-    dataBase64: await fileToBase64(file),
-    clientVersion: CONFIG.version || "ERP_EI"
-  });
+  try{
+    progress.update({progress:11,phase:"SESSION",message:"Validando tu sesión del CRM…"});
+    const session = await currentSession();
+    if (!session?.access_token) throw new Error("Tu sesión venció. Ingresa nuevamente al ERP.");
 
-  return api.registerDriveFile({
-    orderId,
-    taskId,
-    category,
-    driveFileId: uploaded.id,
-    fileName: uploaded.name,
-    mimeType: uploaded.mimeType || file.type || "application/octet-stream",
-    sizeBytes: Number(uploaded.size || file.size),
-    webViewLink: uploaded.webViewLink,
-    webContentLink: uploaded.webContentLink,
-    metadata: {
-      orderNumber: orderNumber || null,
-      driveParentId: uploaded.parentId || null,
-      uploadMode: "INSTITUTIONAL_APPS_SCRIPT",
-      uploadedByProfileId: uploaded.uploadedByProfileId || null,
-      uploadedByEmail: uploaded.uploadedByEmail || null
-    }
-  });
+    progress.update({progress:24,phase:"ENCODE",message:"Preparando el archivo antes de enviarlo…"});
+    const dataBase64=await fileToBase64(file);
+
+    progress.update({progress:42,phase:"UPLOAD",message:"Enviando a Google Drive. Esta fase puede tardar unos segundos…"});
+    const uploaded = await submitToBridge({
+      action: "UPLOAD",
+      requestId: uploadId,
+      uploadId,
+      origin: window.location.origin,
+      accessToken: session.access_token,
+      orderId: String(orderId),
+      taskId: taskId ? String(taskId) : null,
+      orderNumber: orderNumber ? String(orderNumber) : null,
+      category: String(category || "EVIDENCE"),
+      fileName: safeName(file.name, "archivo"),
+      mimeType: file.type || "application/octet-stream",
+      sizeBytes: file.size,
+      dataBase64,
+      clientVersion: CONFIG.version || "ERP_EI"
+    });
+
+    progress.update({progress:80,phase:"REGISTER",message:"Drive confirmó el archivo. Registrándolo en el CRM…"});
+    const registered=await api.registerDriveFile({
+      orderId,
+      taskId,
+      category,
+      driveFileId: uploaded.id,
+      fileName: uploaded.name,
+      mimeType: uploaded.mimeType || file.type || "application/octet-stream",
+      sizeBytes: Number(uploaded.size || file.size),
+      webViewLink: uploaded.webViewLink,
+      webContentLink: uploaded.webContentLink,
+      metadata: {
+        orderNumber: orderNumber || null,
+        driveParentId: uploaded.parentId || null,
+        uploadMode: "INSTITUTIONAL_APPS_SCRIPT",
+        uploadedByProfileId: uploaded.uploadedByProfileId || null,
+        uploadedByEmail: uploaded.uploadedByEmail || null
+      }
+    });
+    progress.done("Archivo guardado en Drive y registrado correctamente.");
+    return registered;
+  }catch(error){
+    progress.error(error);
+    throw error;
+  }
 }
-
 
 /**
  * Carga evidencia de una actividad de Workforce y registra el archivo en la
@@ -227,55 +248,66 @@ export async function uploadWorkEvidence(
   const allowed = new Set(["BEFORE_PHOTO", "AFTER_PHOTO", "FINAL_PHOTO", "FILE"]);
   if (!allowed.has(type)) throw new Error("Tipo de evidencia de actividad inválido.");
 
-  const session = await currentSession();
-  if (!session?.access_token) throw new Error("Tu sesión venció. Ingresa nuevamente al ERP.");
-
   const requestId = typeof crypto?.randomUUID === "function"
     ? crypto.randomUUID()
     : `work_${Date.now()}_${Math.random().toString(36).slice(2)}`;
   const workTitle = safeName(title || "Actividad", "Actividad");
+  const progress=operationProgress({id:requestId,title:"Subiendo evidencia de actividad",message:"Preparando la evidencia…",fileName:file.name,fileSize:file.size,kind:"upload"});
 
-  const uploaded = await submitToBridge({
-    action: "UPLOAD",
-    requestId,
-    uploadId: requestId,
-    origin: window.location.origin,
-    accessToken: session.access_token,
-    // Compatibilidad con el puente histórico: usa la ejecución como identificador
-    // de carpeta sin registrar el archivo como soporte de un pedido.
-    orderId: id,
-    orderNumber: workTitle,
-    workExecutionId: id,
-    workTitle,
-    evidenceType: type,
-    category: `WORK_EVIDENCE_${type}`,
-    fileName: safeName(file.name, "evidencia"),
-    mimeType: file.type || "application/octet-stream",
-    sizeBytes: file.size,
-    dataBase64: await fileToBase64(file),
-    clientVersion: CONFIG.version || "ERP_EI"
-  });
+  try{
+    progress.update({progress:11,phase:"SESSION",message:"Validando tu sesión del CRM…"});
+    const session = await currentSession();
+    if (!session?.access_token) throw new Error("Tu sesión venció. Ingresa nuevamente al ERP.");
 
-  if (!uploaded?.id) throw new Error("Google Drive no devolvió el identificador de la evidencia.");
+    progress.update({progress:24,phase:"ENCODE",message:"Preparando el archivo antes de enviarlo…"});
+    const dataBase64=await fileToBase64(file);
 
-  await api.workRegisterEvidence(id, {
-    evidenceType: type,
-    driveFileId: uploaded.id,
-    fileName: uploaded.name || file.name,
-    mimeType: uploaded.mimeType || file.type || "application/octet-stream",
-    sizeBytes: Number(uploaded.size || file.size),
-    webViewLink: uploaded.webViewLink || null,
-    metadata: {
+    progress.update({progress:42,phase:"UPLOAD",message:"Enviando la evidencia a Google Drive…"});
+    const uploaded = await submitToBridge({
+      action: "UPLOAD",
+      requestId,
+      uploadId: requestId,
+      origin: window.location.origin,
+      accessToken: session.access_token,
+      orderId: id,
+      orderNumber: workTitle,
+      workExecutionId: id,
       workTitle,
-      driveParentId: uploaded.parentId || null,
-      uploadMode: "INSTITUTIONAL_APPS_SCRIPT",
-      uploadedByProfileId: uploaded.uploadedByProfileId || null,
-      uploadedByEmail: uploaded.uploadedByEmail || null,
+      evidenceType: type,
+      category: `WORK_EVIDENCE_${type}`,
+      fileName: safeName(file.name, "evidencia"),
+      mimeType: file.type || "application/octet-stream",
+      sizeBytes: file.size,
+      dataBase64,
       clientVersion: CONFIG.version || "ERP_EI"
-    }
-  });
+    });
 
-  return uploaded;
+    if (!uploaded?.id) throw new Error("Google Drive no devolvió el identificador de la evidencia.");
+    progress.update({progress:80,phase:"REGISTER",message:"Drive confirmó la evidencia. Registrándola en la actividad…"});
+
+    await api.workRegisterEvidence(id, {
+      evidenceType: type,
+      driveFileId: uploaded.id,
+      fileName: uploaded.name || file.name,
+      mimeType: uploaded.mimeType || file.type || "application/octet-stream",
+      sizeBytes: Number(uploaded.size || file.size),
+      webViewLink: uploaded.webViewLink || null,
+      metadata: {
+        workTitle,
+        driveParentId: uploaded.parentId || null,
+        uploadMode: "INSTITUTIONAL_APPS_SCRIPT",
+        uploadedByProfileId: uploaded.uploadedByProfileId || null,
+        uploadedByEmail: uploaded.uploadedByEmail || null,
+        clientVersion: CONFIG.version || "ERP_EI"
+      }
+    });
+
+    progress.done("Evidencia guardada y vinculada a la actividad.");
+    return uploaded;
+  }catch(error){
+    progress.error(error);
+    throw error;
+  }
 }
 
 /* Compatibilidad exclusiva para el lector PDF de Recepción. */
@@ -304,20 +336,30 @@ async function downloadToken() {
 export async function downloadDriveFile(fileId) {
   const id = String(fileId || "").trim();
   if (!id) throw new Error("No se recibió el identificador del archivo.");
+  const progress=operationProgress({title:"Abriendo archivo de Google Drive",message:"Solicitando acceso al documento…",kind:"download"});
 
-  const token = await downloadToken();
-  const response = await fetch(
-    `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(id)}?alt=media`,
-    {headers: {Authorization: `Bearer ${token}`}}
-  );
+  try{
+    progress.update({progress:18,phase:"SESSION",message:"Validando acceso al archivo…"});
+    const token = await downloadToken();
+    progress.update({progress:46,phase:"UPLOAD",message:"Descargando el archivo desde Google Drive…"});
+    const response = await fetch(
+      `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(id)}?alt=media`,
+      {headers: {Authorization: `Bearer ${token}`}}
+    );
 
-  if (!response.ok) {
-    await response.text().catch(() => "");
-    if (response.status === 403 || response.status === 404) {
-      throw new Error("No fue posible abrir el PDF cargado por el asesor. Verifica que esté compartido con tu cuenta o selecciónalo manualmente.");
+    if (!response.ok) {
+      await response.text().catch(() => "");
+      if (response.status === 403 || response.status === 404) {
+        throw new Error("No fue posible abrir el PDF cargado por el asesor. Verifica que esté compartido con tu cuenta o selecciónalo manualmente.");
+      }
+      throw new Error(`No fue posible descargar el PDF (código ${response.status}).`);
     }
-    throw new Error(`No fue posible descargar el PDF (código ${response.status}).`);
+    progress.update({progress:88,phase:"REGISTER",message:"Archivo recibido. Preparándolo para lectura…"});
+    const blob=await response.blob();
+    progress.done("Archivo listo para usar.");
+    return blob;
+  }catch(error){
+    progress.error(error);
+    throw error;
   }
-
-  return response.blob();
 }
