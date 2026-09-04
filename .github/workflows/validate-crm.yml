@@ -45,7 +45,7 @@ jobs:
               print('\n'.join(missing))
               sys.exit(1)
           PY
-      - name: Validate V11.10.1 release contract
+      - name: Validate V11.10.3 release contract
         shell: bash
         run: |
           set -euo pipefail
@@ -71,6 +71,8 @@ jobs:
           test -s assets/css/global-progress-v11100.css
           test -s assets/css/shipping-focus-v11101.css
           test -s assets/css/shipping-guide-reader-v11101.css
+          test -s assets/css/shipping-workflow-v11102.css
+          test -s assets/css/shipping-scale-v11103.css
           test -s assets/js/core/progress.js
           test -s assets/js/modules/global-progress-v11100.js
           test -s assets/js/modules/imports.js
@@ -93,25 +95,34 @@ jobs:
           test -s assets/js/modules/billing-multiformat-v11101.js
           test -s assets/js/modules/shipping-focus-v11101.js
           test -s assets/js/modules/shipping-guide-reader-v11101.js
+          test -s assets/js/modules/shipping-workflow-v11102.js
+          test -s assets/js/modules/shipping-scale-v11103.js
           test -s assets/js/services/document-reader-v11101.js
           test -s assets/js/modules/bootstrap-v113.js
           test -s supabase/migrations/081_audit_dashboard_v11_8_2.sql
           test -s supabase/migrations/083_order_type_labels_v11_9_1.sql
-          grep -q 'version: "11.10.1"' assets/js/config.js
-          grep -q 'build: "2026-09-04.21"' assets/js/config.js
-          grep -q 'v=11.10.1' index.html
+          grep -q 'version: "11.10.3"' assets/js/config.js
+          grep -q 'build: "2026-09-04.22"' assets/js/config.js
           grep -q 'shipping-focus-v11101.css?v=11.10.1' index.html
           grep -q 'shipping-guide-reader-v11101.css?v=11.10.1' index.html
+          grep -q 'shipping-workflow-v11102.css?v=11.10.2' index.html
+          grep -q 'shipping-scale-v11103.css?v=11.10.3' index.html
           grep -q 'billing-multiformat-v11101.js?v=11.10.1' index.html
           grep -q 'shipping-focus-v11101.js?v=11.10.1' index.html
           grep -q 'shipping-guide-reader-v11101.js?v=11.10.1' index.html
-          grep -q 'crm-suministros-v11-10-1-20260904' service-worker.js
+          grep -q 'shipping-workflow-v11102.js?v=11.10.2' index.html
+          grep -q 'shipping-scale-v11103.js?v=11.10.3' index.html
+          grep -q 'crm-suministros-v11-10-3-20260904' service-worker.js
           grep -q './assets/css/shipping-focus-v11101.css' service-worker.js
           grep -q './assets/css/shipping-guide-reader-v11101.css' service-worker.js
+          grep -q './assets/css/shipping-workflow-v11102.css' service-worker.js
+          grep -q './assets/css/shipping-scale-v11103.css' service-worker.js
           grep -q './assets/js/services/document-reader-v11101.js' service-worker.js
           grep -q './assets/js/modules/billing-multiformat-v11101.js' service-worker.js
           grep -q './assets/js/modules/shipping-focus-v11101.js' service-worker.js
           grep -q './assets/js/modules/shipping-guide-reader-v11101.js' service-worker.js
+          grep -q './assets/js/modules/shipping-workflow-v11102.js' service-worker.js
+          grep -q './assets/js/modules/shipping-scale-v11103.js' service-worker.js
           grep -q 'operationProgress' assets/js/services/drive.js
           grep -q 'Subiendo a Drive' assets/js/modules/global-progress-v11100.js
           grep -q 'El CRM sigue trabajando' assets/js/modules/global-progress-v11100.js
@@ -144,6 +155,9 @@ jobs:
           grep -q 'application/pdf,.pdf,image/\*,.csv,text/csv' assets/js/modules/billing-multiformat-v11101.js
           grep -q 'safe-area-inset-bottom' assets/css/shipping-focus-v11101.css
           grep -q 'font-size:16px' assets/css/shipping-guide-reader-v11101.css
+          grep -q '1200px' assets/css/shipping-scale-v11103.css
+          grep -q 'shipping-subdialog-v11103' assets/js/modules/shipping-scale-v11103.js
+          grep -q 'moveDuplicateAddress' assets/js/modules/shipping-scale-v11103.js
           test ! -e assets/js/modules/receiving-v114.js
           test ! -e assets/js/services/drive-bridge.js
           test ! -e assets/js/services/drive-oauth.js
@@ -155,11 +169,11 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.10.1" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.10.3" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.10.1-deployable
+          name: crm-suministros-v11.10.3-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
