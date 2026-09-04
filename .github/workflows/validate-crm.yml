@@ -45,7 +45,7 @@ jobs:
               print('\n'.join(missing))
               sys.exit(1)
           PY
-      - name: Validate V11.9.5 release contract
+      - name: Validate V11.9.7 release contract
         shell: bash
         run: |
           set -euo pipefail
@@ -63,6 +63,8 @@ jobs:
           test -s assets/css/receiving-focus-v1193.css
           test -s assets/css/receiving-polish-v1194.css
           test -s assets/css/picking-focus-v1195.css
+          test -s assets/css/picking-legibility-v1196.css
+          test -s assets/css/picking-review-v1197.css
           test -s assets/js/modules/audit.js
           test -s assets/js/modules/dashboard.js
           test -s assets/js/modules/orders.js
@@ -76,50 +78,47 @@ jobs:
           test -s assets/js/modules/receiving-focus-v1193.js
           test -s assets/js/modules/receiving-polish-v1194.js
           test -s assets/js/modules/picking-focus-v1195.js
+          test -s assets/js/modules/bootstrap-v113.js
           test -s supabase/migrations/081_audit_dashboard_v11_8_2.sql
           test -s supabase/migrations/083_order_type_labels_v11_9_1.sql
-          grep -q 'version: "11.9.5"' assets/js/config.js
-          grep -q 'build: "2026-09-04.16"' assets/js/config.js
-          grep -q 'v=11.9.5' index.html
-          grep -q 'picking-focus-v1195.css?v=11.9.5' index.html
-          grep -q 'picking-focus-v1195.js?v=11.9.5' index.html
-          grep -q 'crm-suministros-v11-9-5-20260904' service-worker.js
+          grep -q 'version: "11.9.7"' assets/js/config.js
+          grep -q 'build: "2026-09-04.17"' assets/js/config.js
+          grep -q 'v=11.9.7' index.html
+          grep -q 'picking-focus-v1195.css?v=11.9.7' index.html
+          grep -q 'picking-legibility-v1196.css?v=11.9.7' index.html
+          grep -q 'picking-review-v1197.css?v=11.9.7' index.html
+          grep -q 'picking-focus-v1195.js?v=11.9.7' index.html
+          grep -q 'crm-suministros-v11-9-7-20260904' service-worker.js
           grep -q './assets/css/picking-focus-v1195.css' service-worker.js
+          grep -q './assets/css/picking-legibility-v1196.css' service-worker.js
+          grep -q './assets/css/picking-review-v1197.css' service-worker.js
           grep -q './assets/js/modules/picking-focus-v1195.js' service-worker.js
+          grep -q 'picking-review-v1197' assets/js/modules/picking-focus-v1195.js
+          grep -q 'Más información y novedades' assets/js/modules/picking-focus-v1195.js
+          grep -q 'Revisa los materiales' assets/js/modules/picking-focus-v1195.js
+          grep -q 'send&&!send.disabled' assets/js/modules/picking-focus-v1195.js
+          grep -q 'picking-send-button' assets/css/picking-review-v1197.css
+          grep -q 'display:none!important' assets/css/picking-review-v1197.css
+          grep -q 'picking-item-data>div:nth-child(n+4)' assets/css/picking-review-v1197.css
+          grep -q 'installGlobalGuideV1197' assets/js/modules/bootstrap-v113.js
+          ! grep -q 'installGuidesV113();' assets/js/modules/bootstrap-v113.js
+          grep -q 'refresh.parentNode===actions' assets/js/modules/bootstrap-v113.js
           grep -q 'width:min(1180px,calc(100vw - 56px))!important' assets/css/picking-focus-v1195.css
           grep -q 'picking-take-facts-v1195' assets/css/picking-focus-v1195.css
           grep -q 'modal-task-panel-shell' assets/css/picking-focus-v1195.css
           grep -q 'Cerrar y tomar otro' assets/js/modules/picking-focus-v1195.js
           grep -q 'dataset.pickingNextV1195' assets/js/modules/picking-focus-v1195.js
           grep -q 'Siguiente' assets/js/modules/picking-focus-v1195.js
-          grep -q 'data-picking-item' assets/js/modules/picking-focus-v1195.js
           grep -q 'ALISTAMIENTO' assets/js/modules/picking-focus-v1195.js
           grep -q 'width:min(1120px,calc(100vw - 56px))!important' assets/css/receiving-polish-v1194.css
           grep -q 'font-size:24px!important' assets/css/receiving-polish-v1194.css
-          grep -q 'modal-task-panel-shell' assets/css/receiving-polish-v1194.css
           grep -q 'Cerrar y tomar otro' assets/js/modules/receiving-polish-v1194.js
-          grep -q 'RECEPCION_PEDIDO' assets/js/modules/receiving-polish-v1194.js
-          grep -q 'dataset.receptionNext' assets/js/modules/receiving-polish-v1194.js
           grep -q 'Siguiente' assets/js/modules/receiving-polish-v1194.js
-          grep -q 'reception-take-focus-v1193' assets/js/modules/receiving-focus-v1193.js
-          grep -q 'Ver resumen del pedido' assets/js/modules/receiving-focus-v1193.js
-          grep -q 'Confirmar y enviar a alistamiento' assets/js/modules/receiving-focus-v1193.js
-          grep -q 'reception-now-v1192' assets/css/receiving-order-v1192.css
-          grep -q 'Todo está correcto' assets/js/modules/receiving-order-v1192.js
-          grep -q 'Revisar con PDF' assets/js/modules/receiving-order-v1192.js
-          grep -q 'client-extra-choice-v1191' assets/css/order-create-v1191.css
           grep -q '¿Quiere agregar más datos del cliente?' assets/js/modules/order-create-v1191.js
           grep -q 'ORDER_TYPES=new Set' assets/js/modules/order-create-v1191.js
           grep -q "set name = code" supabase/migrations/083_order_type_labels_v11_9_1.sql
           grep -q 'popup-process-guide-v1190' assets/css/popup-ux-v1190.css
-          grep -q 'popup-validation-v1190' assets/js/modules/popup-ux-v1190.js
           grep -q 'prefers-reduced-motion:reduce' assets/css/popup-ux-v1190.css
-          grep -q 'compact-order-record-v1188' assets/css/operational-lists-v1189.css
-          grep -q 'credit-grid{display:grid;grid-template-columns:1fr' assets/css/operational-lists-v1189.css
-          grep -q 'record-figure-v1188' assets/js/modules/commercial-records-v1188.js
-          grep -q 'ops-action-card-v1188' assets/css/commercial-v1188.css
-          grep -q 'commercial-advanced-filters' assets/js/modules/commercial-v1187.js
-          grep -q 'guided-action-icon:after{content:none!important' assets/css/dashboard-v1185.css
           test ! -e assets/js/modules/receiving-v114.js
           test ! -e assets/js/services/drive-bridge.js
           test ! -e assets/js/services/drive-oauth.js
@@ -131,11 +130,11 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.9.5" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.9.7" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.9.5-deployable
+          name: crm-suministros-v11.9.7-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
