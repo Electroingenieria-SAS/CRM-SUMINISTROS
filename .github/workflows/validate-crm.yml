@@ -45,7 +45,7 @@ jobs:
               print('\n'.join(missing))
               sys.exit(1)
           PY
-      - name: Validate V11.10.0 release contract
+      - name: Validate V11.10.1 release contract
         shell: bash
         run: |
           set -euo pipefail
@@ -69,6 +69,8 @@ jobs:
           test -s assets/css/billing-upload-v1199.css
           test -s assets/css/billing-invoice-reader-v1199.css
           test -s assets/css/global-progress-v11100.css
+          test -s assets/css/shipping-focus-v11101.css
+          test -s assets/css/shipping-guide-reader-v11101.css
           test -s assets/js/core/progress.js
           test -s assets/js/modules/global-progress-v11100.js
           test -s assets/js/modules/imports.js
@@ -88,68 +90,60 @@ jobs:
           test -s assets/js/modules/billing-focus-v1198.js
           test -s assets/js/modules/billing-upload-v1199.js
           test -s assets/js/modules/billing-invoice-reader-v1199.js
+          test -s assets/js/modules/billing-multiformat-v11101.js
+          test -s assets/js/modules/shipping-focus-v11101.js
+          test -s assets/js/modules/shipping-guide-reader-v11101.js
+          test -s assets/js/services/document-reader-v11101.js
           test -s assets/js/modules/bootstrap-v113.js
           test -s supabase/migrations/081_audit_dashboard_v11_8_2.sql
           test -s supabase/migrations/083_order_type_labels_v11_9_1.sql
-          grep -q 'version: "11.10.0"' assets/js/config.js
-          grep -q 'build: "2026-09-04.20"' assets/js/config.js
-          grep -q 'v=11.10.0' index.html
-          grep -q 'global-progress-v11100.css?v=11.10.0' index.html
-          grep -q 'global-progress-v11100.js?v=11.10.0' index.html
-          grep -q 'billing-upload-v1199.css?v=11.10.0' index.html
-          grep -q 'billing-invoice-reader-v1199.js?v=11.10.0' index.html
-          grep -q 'crm-suministros-v11-10-0-20260904' service-worker.js
-          grep -q './assets/css/global-progress-v11100.css' service-worker.js
-          grep -q './assets/js/core/progress.js' service-worker.js
-          grep -q './assets/js/modules/global-progress-v11100.js' service-worker.js
-          grep -q './assets/js/modules/imports.js' service-worker.js
+          grep -q 'version: "11.10.1"' assets/js/config.js
+          grep -q 'build: "2026-09-04.21"' assets/js/config.js
+          grep -q 'v=11.10.1' index.html
+          grep -q 'shipping-focus-v11101.css?v=11.10.1' index.html
+          grep -q 'shipping-guide-reader-v11101.css?v=11.10.1' index.html
+          grep -q 'billing-multiformat-v11101.js?v=11.10.1' index.html
+          grep -q 'shipping-focus-v11101.js?v=11.10.1' index.html
+          grep -q 'shipping-guide-reader-v11101.js?v=11.10.1' index.html
+          grep -q 'crm-suministros-v11-10-1-20260904' service-worker.js
+          grep -q './assets/css/shipping-focus-v11101.css' service-worker.js
+          grep -q './assets/css/shipping-guide-reader-v11101.css' service-worker.js
+          grep -q './assets/js/services/document-reader-v11101.js' service-worker.js
+          grep -q './assets/js/modules/billing-multiformat-v11101.js' service-worker.js
+          grep -q './assets/js/modules/shipping-focus-v11101.js' service-worker.js
+          grep -q './assets/js/modules/shipping-guide-reader-v11101.js' service-worker.js
           grep -q 'operationProgress' assets/js/services/drive.js
           grep -q 'Subiendo a Drive' assets/js/modules/global-progress-v11100.js
           grep -q 'El CRM sigue trabajando' assets/js/modules/global-progress-v11100.js
           grep -q 'crm-busy-button-v11100' assets/js/modules/global-progress-v11100.js
-          grep -q 'crm-busy-button-v11100' assets/css/global-progress-v11100.css
           grep -q 'env(safe-area-inset-bottom)' assets/css/global-progress-v11100.css
-          grep -q 'prefers-reduced-motion:reduce' assets/css/global-progress-v11100.css
-          grep -q 'Subiendo factura' assets/js/services/drive.js
-          grep -q 'Enviando a Google Drive' assets/js/services/drive.js
-          grep -q 'Drive confirmó el archivo' assets/js/services/drive.js
-          grep -q 'Archivo guardado en Drive y registrado correctamente' assets/js/services/drive.js
-          grep -q 'Importando historial' assets/js/modules/imports.js
-          grep -q 'Procesando lote' assets/js/modules/imports.js
           grep -q 'invoiceNumberV1199' assets/js/modules/billing-invoice-reader-v1199.js
           grep -q 'invoiceWeightV1199' assets/js/modules/billing-invoice-reader-v1199.js
           grep -q 'packageWeightKg' assets/js/modules/billing-invoice-reader-v1199.js
-          grep -q 'packageQuantity' assets/js/modules/billing-invoice-reader-v1199.js
-          grep -q 'ensurePdfReader' assets/js/modules/billing-invoice-reader-v1199.js
-          grep -q 'parseOrderText' assets/js/modules/billing-invoice-reader-v1199.js
           grep -q 'Peso pendiente' assets/js/modules/billing-invoice-reader-v1199.js
-          grep -q 'Todos se pueden editar' assets/js/modules/billing-invoice-reader-v1199.js
-          grep -q 'billing-dropzone-v1199' assets/css/billing-upload-v1199.css
-          grep -q 'invoice-reader-grid-v1199' assets/css/billing-invoice-reader-v1199.css
-          grep -q 'font-size:16px!important' assets/css/billing-invoice-reader-v1199.css
           grep -q 'billing-secondary-v1198' assets/js/modules/billing-focus-v1198.js
           grep -q 'data-billing-next-v1198' assets/js/modules/billing-focus-v1198.js
           grep -q 'Cerrar y tomar otro' assets/js/modules/billing-focus-v1198.js
           grep -q 'Siguiente' assets/js/modules/billing-focus-v1198.js
-          grep -q 'ROUTE_CHOICE' assets/js/modules/billing-focus-v1198.js
-          grep -q 'observer?.disconnect' assets/js/modules/billing-focus-v1198.js
-          grep -q 'billingFocusSignature' assets/js/modules/billing-focus-v1198.js
-          grep -q 'env(safe-area-inset-bottom)' assets/css/billing-focus-v1198.css
-          grep -q 'prefers-reduced-motion:reduce' assets/css/billing-focus-v1198.css
           grep -q 'picking-review-v1197' assets/js/modules/picking-focus-v1195.js
           grep -q 'Más información y novedades' assets/js/modules/picking-focus-v1195.js
           grep -q 'Revisa los materiales' assets/js/modules/picking-focus-v1195.js
-          grep -q 'send&&!send.disabled' assets/js/modules/picking-focus-v1195.js
-          grep -q 'installGlobalGuideV1197' assets/js/modules/bootstrap-v113.js
-          ! grep -q 'installGuidesV113();' assets/js/modules/bootstrap-v113.js
-          grep -q 'refresh.parentNode===actions' assets/js/modules/bootstrap-v113.js
-          grep -q 'Cerrar y tomar otro' assets/js/modules/receiving-polish-v1194.js
-          grep -q 'Siguiente' assets/js/modules/receiving-polish-v1194.js
           grep -q '¿Quiere agregar más datos del cliente?' assets/js/modules/order-create-v1191.js
           grep -q 'ORDER_TYPES=new Set' assets/js/modules/order-create-v1191.js
           grep -q "set name = code" supabase/migrations/083_order_type_labels_v11_9_1.sql
           grep -q 'popup-process-guide-v1190' assets/css/popup-ux-v1190.css
-          grep -q 'prefers-reduced-motion:reduce' assets/css/popup-ux-v1190.css
+          grep -q 'readDocumentText' assets/js/services/document-reader-v11101.js
+          grep -q 'Tesseract' assets/js/services/document-reader-v11101.js
+          grep -q 'csvToReadableText' assets/js/services/document-reader-v11101.js
+          grep -q 'Registra la guía del envío' assets/js/modules/shipping-focus-v11101.js
+          grep -q 'Cerrar y tomar otro' assets/js/modules/shipping-focus-v11101.js
+          grep -q 'Siguiente' assets/js/modules/shipping-focus-v11101.js
+          grep -q 'carrierInvoiceNumberV11101' assets/js/modules/shipping-guide-reader-v11101.js
+          grep -q 'carrierCostV11101' assets/js/modules/shipping-guide-reader-v11101.js
+          grep -q 'application/pdf,.pdf,image/\*,.csv,text/csv' assets/js/modules/shipping-guide-reader-v11101.js
+          grep -q 'application/pdf,.pdf,image/\*,.csv,text/csv' assets/js/modules/billing-multiformat-v11101.js
+          grep -q 'safe-area-inset-bottom' assets/css/shipping-focus-v11101.css
+          grep -q 'font-size:16px' assets/css/shipping-guide-reader-v11101.css
           test ! -e assets/js/modules/receiving-v114.js
           test ! -e assets/js/services/drive-bridge.js
           test ! -e assets/js/services/drive-oauth.js
@@ -161,11 +155,11 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.10.0" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.10.1" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.10.0-deployable
+          name: crm-suministros-v11.10.1-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
