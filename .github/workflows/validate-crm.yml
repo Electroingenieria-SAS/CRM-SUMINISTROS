@@ -45,7 +45,7 @@ jobs:
               print('\n'.join(missing))
               sys.exit(1)
           PY
-      - name: Validate V11.9.7 release contract
+      - name: Validate V11.9.8 release contract
         shell: bash
         run: |
           set -euo pipefail
@@ -65,6 +65,7 @@ jobs:
           test -s assets/css/picking-focus-v1195.css
           test -s assets/css/picking-legibility-v1196.css
           test -s assets/css/picking-review-v1197.css
+          test -s assets/css/billing-focus-v1198.css
           test -s assets/js/modules/audit.js
           test -s assets/js/modules/dashboard.js
           test -s assets/js/modules/orders.js
@@ -78,21 +79,38 @@ jobs:
           test -s assets/js/modules/receiving-focus-v1193.js
           test -s assets/js/modules/receiving-polish-v1194.js
           test -s assets/js/modules/picking-focus-v1195.js
+          test -s assets/js/modules/billing-focus-v1198.js
           test -s assets/js/modules/bootstrap-v113.js
           test -s supabase/migrations/081_audit_dashboard_v11_8_2.sql
           test -s supabase/migrations/083_order_type_labels_v11_9_1.sql
-          grep -q 'version: "11.9.7"' assets/js/config.js
-          grep -q 'build: "2026-09-04.17"' assets/js/config.js
-          grep -q 'v=11.9.7' index.html
-          grep -q 'picking-focus-v1195.css?v=11.9.7' index.html
-          grep -q 'picking-legibility-v1196.css?v=11.9.7' index.html
-          grep -q 'picking-review-v1197.css?v=11.9.7' index.html
-          grep -q 'picking-focus-v1195.js?v=11.9.7' index.html
-          grep -q 'crm-suministros-v11-9-7-20260904' service-worker.js
+          grep -q 'version: "11.9.8"' assets/js/config.js
+          grep -q 'build: "2026-09-04.18"' assets/js/config.js
+          grep -q 'v=11.9.8' index.html
+          grep -q 'picking-focus-v1195.css?v=11.9.8' index.html
+          grep -q 'picking-legibility-v1196.css?v=11.9.8' index.html
+          grep -q 'picking-review-v1197.css?v=11.9.8' index.html
+          grep -q 'billing-focus-v1198.css?v=11.9.8' index.html
+          grep -q 'picking-focus-v1195.js?v=11.9.8' index.html
+          grep -q 'billing-focus-v1198.js?v=11.9.8' index.html
+          grep -q 'crm-suministros-v11-9-8-20260904' service-worker.js
           grep -q './assets/css/picking-focus-v1195.css' service-worker.js
           grep -q './assets/css/picking-legibility-v1196.css' service-worker.js
           grep -q './assets/css/picking-review-v1197.css' service-worker.js
+          grep -q './assets/css/billing-focus-v1198.css' service-worker.js
           grep -q './assets/js/modules/picking-focus-v1195.js' service-worker.js
+          grep -q './assets/js/modules/billing-focus-v1198.js' service-worker.js
+          grep -q 'billing-secondary-v1198' assets/js/modules/billing-focus-v1198.js
+          grep -q 'data-billing-next-v1198' assets/js/modules/billing-focus-v1198.js
+          grep -q 'Cerrar y tomar otro' assets/js/modules/billing-focus-v1198.js
+          grep -q 'Siguiente' assets/js/modules/billing-focus-v1198.js
+          grep -q 'billing-upload-dialog-v1198' assets/js/modules/billing-focus-v1198.js
+          grep -q 'ROUTE_CHOICE' assets/js/modules/billing-focus-v1198.js
+          grep -q 'observer?.disconnect' assets/js/modules/billing-focus-v1198.js
+          grep -q 'billingFocusSignature' assets/js/modules/billing-focus-v1198.js
+          grep -q 'width:min(1080px,calc(100vw - 48px))!important' assets/css/billing-focus-v1198.css
+          grep -q 'billing-task-focus-v1198' assets/css/billing-focus-v1198.css
+          grep -q 'env(safe-area-inset-bottom)' assets/css/billing-focus-v1198.css
+          grep -q 'prefers-reduced-motion:reduce' assets/css/billing-focus-v1198.css
           grep -q 'picking-review-v1197' assets/js/modules/picking-focus-v1195.js
           grep -q 'Más información y novedades' assets/js/modules/picking-focus-v1195.js
           grep -q 'Revisa los materiales' assets/js/modules/picking-focus-v1195.js
@@ -130,11 +148,11 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.9.7" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.9.8" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.9.7-deployable
+          name: crm-suministros-v11.9.8-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
