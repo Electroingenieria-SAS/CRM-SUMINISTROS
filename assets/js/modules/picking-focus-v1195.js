@@ -16,6 +16,7 @@ function enhanceAll(){
     const stage=stageOf(modal);
     modal.dataset.pickingStageV1195=stage;
     moveInitialFacts(modal,stage);
+    simplifyVerification(modal,stage);
     adaptFooter(modal);
     syncNextState(modal,stage);
   });
@@ -39,6 +40,40 @@ function moveInitialFacts(modal,stage){
   const action=card.querySelector(stage==="TAKE"?"[data-picking-take]":"[data-resume-partial]");
   strip.classList.add("picking-take-facts-v1195");
   if(action)card.insertBefore(strip,action);else card.append(strip);
+}
+
+function simplifyVerification(modal,stage){
+  if(stage!=="VERIFY")return;
+  modal.classList.add("picking-review-v1197");
+
+  const stageHead=modal.querySelector(".picking-stage-head");
+  const title=stageHead?.querySelector("h4");
+  const copy=stageHead?.querySelector("p");
+  if(title)title.textContent="Revisa los materiales";
+  if(copy)copy.textContent="Marca cada referencia como Encontrado o No encontrado.";
+
+  const counterLabel=modal.querySelector(".picking-counter span");
+  if(counterLabel){
+    const total=modal.querySelectorAll("[data-picking-item]").length;
+    counterLabel.textContent=`de ${total} revisados`;
+  }
+
+  const details=modal.querySelector(".simple-details");
+  if(!details)return;
+  const summary=details.querySelector(":scope > summary");
+  if(summary)summary.textContent="Más información y novedades";
+
+  const support=modal.querySelector(".order-support-zone");
+  if(support&&!details.contains(support)){
+    support.classList.add("picking-secondary-support-v1197");
+    details.append(support);
+  }
+
+  const strip=modal.querySelector(".picking-order-strip");
+  if(strip&&!details.contains(strip)){
+    strip.classList.add("picking-secondary-facts-v1197");
+    details.append(strip);
+  }
 }
 
 function adaptFooter(modal){
@@ -122,7 +157,7 @@ function continuePicking(modal){
 
   if(stage==="VERIFY"){
     const send=modal.querySelector("[data-picking-send]");
-    if(visible(send)){send.click();return;}
+    if(send&&!send.disabled){send.click();return;}
 
     const unresolved=[...modal.querySelectorAll("[data-picking-item]")].find(row=>!row.dataset.result);
     if(unresolved){
