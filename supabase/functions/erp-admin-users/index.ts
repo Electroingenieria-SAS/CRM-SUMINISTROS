@@ -9,7 +9,8 @@ const defaultAllowedOrigins = [
   "http://127.0.0.1:4173",
   "http://localhost:4173"
 ];
-const allowedOrigins = new Set((Deno.env.get("ERP_ALLOWED_ORIGINS") || defaultAllowedOrigins.join(",")).split(",").map((value) => value.trim()).filter(Boolean));
+const configuredOrigins = (Deno.env.get("ERP_ALLOWED_ORIGINS") || "").split(",").map((value) => value.trim()).filter(Boolean);
+const allowedOrigins = new Set([...defaultAllowedOrigins, ...configuredOrigins]);
 const MAX_BODY_BYTES = 64 * 1024;
 const MAX_NAME_LENGTH = 120;
 const MAX_REASON_LENGTH = 500;
