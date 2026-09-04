@@ -1,0 +1,224 @@
+/* CRM Suministros V11.8.7 · Pedidos, Ventas y Crédito · experiencia simple, guiada y accesible */
+
+.commercial-v1187{font-size:14px}
+.commercial-v1187 .page-head.commercial-page-head{position:relative;overflow:hidden;min-height:122px;display:flex;align-items:center;justify-content:space-between;gap:28px;padding:24px 26px;border:1px solid #d5e2ee;border-radius:18px;background:linear-gradient(135deg,#fff 0%,#f6faff 72%,#eef6fd 100%);box-shadow:0 10px 30px rgba(8,46,84,.065),inset 5px 0 0 #0b65c7}
+.commercial-v1187 .commercial-page-head:after{content:"";position:absolute;right:-80px;top:-100px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(20,121,223,.10),rgba(20,121,223,0) 68%);pointer-events:none}
+.commercial-v1187 .commercial-page-head>div:first-child{position:relative;z-index:1;max-width:860px}
+.commercial-v1187 .commercial-kicker{display:block;margin-bottom:7px;color:#0b65c7;font-size:9px;font-weight:900;letter-spacing:.14em;text-transform:uppercase}
+.commercial-v1187 .commercial-page-head h2{margin:0;color:#092c52;font-size:clamp(24px,2vw,34px);line-height:1.08;letter-spacing:-.035em}
+.commercial-v1187 .commercial-page-head p{max-width:760px;margin:10px 0 0;color:#5f7387;font-size:13px;line-height:1.65}
+.commercial-v1187 .commercial-page-actions{position:relative;z-index:1;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.commercial-v1187 .commercial-primary-action{min-height:48px;padding:11px 18px;border-radius:12px;font-size:12px}
+.commercial-v1187 .commercial-primary-action:before{display:none!important}
+.commercial-v1187 .commercial-primary-action .ui-icon{width:19px;height:19px}
+.commercial-v1187 .page-actions>.btn:not(.commercial-primary-action){min-height:44px;padding:10px 15px}
+
+/* Acciones principales */
+.commercial-v1187 .commercial-action-workspace{margin:18px 0 14px;border-radius:18px;border-color:#d6e2ee;box-shadow:0 8px 24px rgba(9,47,84,.055)}
+.commercial-v1187 .commercial-action-workspace .guided-workspace-head{padding:19px 22px 17px;background:linear-gradient(180deg,#fff,#f8fbfe)}
+.commercial-v1187 .commercial-action-workspace .guided-workspace-head h3{font-size:18px}
+.commercial-v1187 .commercial-action-workspace .guided-workspace-head p{font-size:11px;line-height:1.6}
+.commercial-v1187 .commercial-action-workspace .guided-helper-pill{display:none}
+.commercial-v1187 .guided-action-grid{gap:13px;padding:15px 17px 18px;background:#f7fafd}
+.commercial-v1187 .commercial-action-card{min-height:132px;grid-template-columns:58px minmax(0,1fr) 34px;gap:14px;padding:17px;border-radius:15px;border-color:#d5e1ec;background:#fff;box-shadow:0 5px 16px rgba(10,47,82,.05);transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+.commercial-v1187 .commercial-action-card:hover:not(:disabled){transform:translateY(-2px);border-color:#aac5df;box-shadow:0 13px 28px rgba(10,47,82,.10)}
+.commercial-v1187 .commercial-action-card .guided-action-icon{position:relative;width:56px;height:56px;display:grid;place-items:center;border-radius:16px;font-size:0}
+.commercial-v1187 .commercial-action-card .guided-action-icon:after{content:none!important;display:none!important}
+.commercial-v1187 .commercial-action-card .guided-action-icon .ui-icon{width:25px;height:25px;stroke-width:1.8}
+.commercial-v1187 .commercial-action-card .guided-action-copy{gap:5px}
+.commercial-v1187 .commercial-action-card .guided-action-copy strong{font-size:13.5px;line-height:1.3;color:#183b5f}
+.commercial-v1187 .commercial-action-card .guided-action-copy small{font-size:10px;line-height:1.55;color:#6a7d90}
+.commercial-v1187 .commercial-action-card .guided-action-arrow{width:32px;height:32px;display:grid;place-items:center;border:1px solid #d7e3ee;border-radius:10px;background:#f7fafd;color:#3f6f97}
+.commercial-sales-v1187 #create-order{border-color:#dfc15a;background:linear-gradient(135deg,#fffdf7,#fff7d8)}
+.commercial-sales-v1187 #create-order .guided-action-icon,.commercial-orders-v1187 #create-order .guided-action-icon{border-color:#e2ca78;background:linear-gradient(145deg,#fff7d6,#ffe89b);color:#765600;box-shadow:0 7px 16px rgba(154,113,8,.10)}
+.commercial-sales-v1187 #create-order:before,.commercial-orders-v1187 #create-order:before{background:#e5b727}
+.commercial-credit-v1187 #new-credit .guided-action-icon{border-color:#e2ca78;background:linear-gradient(145deg,#fff7d6,#ffe89b);color:#765600}
+.commercial-credit-v1187 #submitted-credit .guided-action-icon{background:#edf7ff;color:#17679e;border-color:#cce1ef}
+.commercial-credit-v1187 #review-credit .guided-action-icon{background:#fff4e8;color:#a35d14;border-color:#edd4b7}
+.commercial-credit-v1187 #all-credit .guided-action-icon{background:#eef9f4;color:#257455;border-color:#c8e2d7}
+
+/* Ruta visual */
+.commercial-journey{margin:0 0 16px;padding:15px 17px 17px;border:1px solid #d9e4ee;border-radius:16px;background:#fff;box-shadow:0 5px 17px rgba(9,47,84,.045)}
+.commercial-journey>header{display:flex;align-items:baseline;gap:10px;margin-bottom:13px}
+.commercial-journey>header span{color:#0b65c7;font-size:8.5px;font-weight:900;letter-spacing:.12em}
+.commercial-journey>header strong{color:#24425f;font-size:12.5px}
+.commercial-journey-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.commercial-journey-step{position:relative;min-height:78px;display:grid;grid-template-columns:34px minmax(0,1fr);align-items:center;gap:10px;padding:12px 13px;border:1px solid #e0e8ef;border-radius:12px;background:#fbfdff}
+.commercial-journey-step:not(:last-child):after{content:"›";position:absolute;right:-8px;z-index:2;width:17px;height:17px;display:grid;place-items:center;border:1px solid #d4e1ec;border-radius:50%;background:#fff;color:#7390a9;font-size:13px}
+.commercial-journey-step>b{width:32px;height:32px;display:grid;place-items:center;border-radius:10px;background:#eaf4fd;color:#0b65c7;font-size:11px}
+.commercial-journey-step>span{display:grid;gap:3px;min-width:0}
+.commercial-journey-step strong{color:#24425e;font-size:11.5px}
+.commercial-journey-step small{color:#748597;font-size:9.5px;line-height:1.45}
+
+/* Búsqueda principal */
+.commercial-v1187 .commercial-results-card{padding:0!important;overflow:hidden;border-radius:18px;border-color:#d6e2ed;box-shadow:0 8px 28px rgba(9,47,84,.055)}
+.commercial-search-shell{padding:20px 21px 17px;border-bottom:1px solid #e0e8ef;background:linear-gradient(180deg,#fff,#f8fbfe)}
+.commercial-search-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:15px}
+.commercial-search-head>div:first-child{max-width:760px}
+.commercial-search-head span{color:#0b65c7;font-size:8.5px;font-weight:900;letter-spacing:.12em}
+.commercial-search-head h3{margin:3px 0 5px;color:#12375d;font-size:19px;letter-spacing:-.02em}
+.commercial-search-head p{margin:0;color:#6c7e91;font-size:10.5px;line-height:1.55}
+.commercial-search-hint{flex:0 0 auto;padding:7px 10px;border:1px solid #d9e4ee;border-radius:9px;background:#fff;color:#647b91;font-size:9px}
+.commercial-search-primary{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:stretch}
+.commercial-search-input{position:relative}
+.commercial-search-input:before{content:"";position:absolute;z-index:1;left:16px;top:50%;width:15px;height:15px;border:2px solid #5d7f9e;border-radius:50%;transform:translateY(-56%);pointer-events:none}
+.commercial-search-input:after{content:"";position:absolute;z-index:1;left:28px;top:57%;width:7px;height:2px;border-radius:2px;background:#5d7f9e;transform:rotate(45deg);pointer-events:none}
+.commercial-v1187 .commercial-main-search{height:52px;min-height:52px;padding:11px 16px 11px 45px;border-radius:12px;border-color:#aac4da;background:#fff;font-size:13px;box-shadow:inset 0 1px 2px rgba(8,49,87,.035)}
+.commercial-v1187 .commercial-main-search::placeholder{color:#8a9bad}
+.commercial-v1187 .commercial-search-cta{min-width:160px;min-height:52px;border-radius:12px;font-size:11.5px}
+.commercial-v1187 .commercial-search-cta .ui-icon{width:18px;height:18px}
+.commercial-presets,.commercial-credit-status{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:12px}
+.commercial-presets button,.commercial-credit-status button{min-height:34px;padding:7px 11px;border:1px solid #d5e1ec;border-radius:999px;background:#fff;color:#49647d;font-size:9.5px;font-weight:900;transition:.14s ease}
+.commercial-presets button:hover,.commercial-credit-status button:hover,.commercial-presets button.active,.commercial-credit-status button.active{border-color:#83afd4;background:#edf6fe;color:#0b5f9f}
+.commercial-credit-status>span{margin-right:2px;color:#758699;font-size:9.5px;font-weight:800}
+.commercial-advanced-filters{margin-top:13px;border:1px solid #dce5ed;border-radius:12px;background:#fff;overflow:hidden}
+.commercial-advanced-filters>summary{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:11px 13px;cursor:pointer;list-style:none;color:#365775}
+.commercial-advanced-filters>summary::-webkit-details-marker{display:none}
+.commercial-advanced-filters>summary span{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:900}
+.commercial-advanced-filters>summary .ui-icon{width:15px;height:15px}
+.commercial-advanced-filters>summary small{color:#8190a0;font-size:9px}
+.commercial-advanced-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;padding:13px;border-top:1px solid #e5ebf1;background:#fafcfe}
+.commercial-v1187 .commercial-advanced-grid .control{min-height:44px;font-size:10.5px}
+.commercial-advanced-grid .filter-pill{min-height:44px;display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #d1deea;border-radius:9px;background:#fff;font-size:10px}
+.commercial-advanced-filters>footer{display:flex;justify-content:flex-end;padding:10px 13px;border-top:1px solid #e5ebf1;background:#fff}
+
+/* Encabezado de resultados */
+.commercial-v1187 .commercial-result-heading{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:15px 20px!important;border-bottom:1px solid #e1e8ef;background:#fff}
+.commercial-result-heading>div:first-child{display:grid;gap:3px}
+.commercial-result-heading>div:first-child span{color:#0b65c7;font-size:8px;font-weight:900;letter-spacing:.12em}
+.commercial-result-heading>div:first-child strong{color:#193b5c;font-size:14px}
+.commercial-result-summary{display:flex;align-items:baseline;gap:7px;padding:7px 10px;border-radius:10px;background:#f2f7fc;color:#677b8f}
+.commercial-result-summary b{color:#0b5f9f;font-size:17px}
+.commercial-result-summary small{font-size:9px}
+
+/* Lista de pedidos */
+.commercial-v1187 #orders-result{padding:0 18px 18px;background:#fff}
+.commercial-v1187 .orders-master-list{display:grid;gap:11px;padding-top:15px}
+.commercial-v1187 .orders-master-row.commercial-order-row{display:grid;grid-template-columns:minmax(210px,1.15fr) minmax(430px,2.2fr) minmax(110px,.55fr) 132px;align-items:center;gap:18px;min-height:142px;padding:18px 18px 18px 20px;border:1px solid #d9e3ec;border-radius:15px;background:#fff;box-shadow:0 4px 14px rgba(12,49,84,.04);transition:.15s ease}
+.commercial-v1187 .orders-master-row.commercial-order-row:hover{border-color:#b7cee1;box-shadow:0 11px 24px rgba(12,49,84,.075);transform:translateY(-1px)}
+.commercial-v1187 .orders-master-row .erp-work-main{display:grid;gap:5px;min-width:0}
+.commercial-v1187 .orders-master-row .erp-work-eyebrow{width:max-content;max-width:100%;padding:4px 8px;border-radius:999px;background:#eef6fd;color:#0b65a5;font-size:8.5px;font-weight:900;letter-spacing:.045em;text-transform:uppercase;white-space:normal}
+.commercial-v1187 .orders-master-row .erp-work-main>strong{color:#11385f;font-size:17px;line-height:1.2;letter-spacing:-.018em}
+.commercial-v1187 .orders-master-row .erp-work-main>small{color:#677b8f;font-size:10px;line-height:1.5}
+.commercial-v1187 .orders-master-row .erp-work-meta{display:grid;grid-template-columns:repeat(5,minmax(82px,1fr));gap:10px;min-width:0}
+.commercial-v1187 .orders-master-row .erp-work-meta>span{min-width:0;display:grid;gap:5px;padding:9px 10px;border-left:1px solid #e5ebf1}
+.commercial-v1187 .orders-master-row .erp-work-meta small{color:#8290a0;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.045em}
+.commercial-v1187 .orders-master-row .erp-work-meta b{min-width:0;color:#36516d;font-size:10.5px;line-height:1.4;white-space:normal;overflow-wrap:anywhere}
+.commercial-v1187 .orders-master-row .erp-work-status{display:grid;justify-items:start;gap:7px}
+.commercial-v1187 .orders-master-row .erp-work-action{min-height:46px;border-radius:11px;font-size:10.5px}
+.commercial-v1187 .orders-master-row .order-partial-tag{width:max-content;max-width:100%;font-size:8.5px}
+.commercial-v1187 #orders-result .pagination{margin-top:18px}
+
+/* Crédito */
+.commercial-credit-v1187 .credit-search-shell{padding-bottom:18px}
+.commercial-credit-v1187 #credit-result{padding:16px 18px 20px;background:#fff}
+.commercial-credit-v1187 .credit-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.commercial-credit-v1187 .commercial-credit-card{overflow:hidden;display:flex;flex-direction:column;min-height:300px;border:1px solid #d9e3ec;border-radius:16px;background:#fff;box-shadow:0 5px 17px rgba(9,47,84,.045);transition:.15s ease}
+.commercial-credit-v1187 .commercial-credit-card:hover{transform:translateY(-2px);border-color:#b6cce0;box-shadow:0 13px 27px rgba(9,47,84,.085)}
+.commercial-credit-v1187 .commercial-credit-card>header{min-height:58px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;border-bottom:1px solid #e3eaf1;background:linear-gradient(180deg,#fff,#f9fbfd)}
+.commercial-credit-v1187 .commercial-credit-card>header>div{display:grid;gap:3px}
+.commercial-credit-v1187 .commercial-credit-card>header strong{color:#183c60;font-size:12.5px}
+.commercial-credit-v1187 .commercial-credit-card>header span{color:#8391a0;font-size:8.5px}
+.commercial-credit-v1187 .credit-card-body{flex:1;padding:17px 16px}
+.commercial-credit-v1187 .credit-card-body h3{margin:0 0 4px;color:#163a5f;font-size:16px;line-height:1.3}
+.commercial-credit-v1187 .credit-card-body>p{margin:0;color:#7b8998;font-size:9.5px}
+.commercial-credit-v1187 .credit-amount{margin:17px 0 15px;padding:12px 13px;border:1px solid #d7e6f3;border-radius:12px;background:#f2f8fd;color:#0b5f9f;font-size:24px;font-weight:900;letter-spacing:-.025em}
+.commercial-credit-v1187 .credit-meta{display:grid;grid-template-columns:1fr;gap:7px;color:#64778a;font-size:10px}
+.commercial-credit-v1187 .credit-meta>span{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #edf1f5}
+.commercial-credit-v1187 .credit-meta strong{color:#36516d;text-align:right}
+.commercial-credit-v1187 .commercial-credit-card>footer{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 14px;border-top:1px solid #e3eaf1;background:#fbfcfe}
+.commercial-credit-v1187 .commercial-credit-card>footer .btn{min-height:44px;flex:1;min-width:110px}
+.commercial-credit-v1187 .review-text{margin-top:14px;padding:11px 12px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8ee}
+.commercial-credit-v1187 .review-text p{line-height:1.55}
+
+/* Asistentes de creación y crédito */
+.commercial-wizard{width:min(1100px,calc(100vw - 34px))!important;max-height:min(92dvh,940px)!important;border-radius:19px!important}
+.commercial-wizard .wizard-head{min-height:86px;padding:18px 22px 17px 25px}
+.commercial-wizard .wizard-head h3{font-size:22px}
+.commercial-wizard .wizard-head p{max-width:780px;font-size:10.5px;line-height:1.55}
+.commercial-wizard-assist{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 18px;border-bottom:1px solid #e2e9f0;background:#f7fafc}
+.commercial-wizard-assist>span{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid #dbe5ee;border-radius:999px;background:#fff;color:#60778d;font-size:9px;font-weight:800}
+.commercial-wizard-assist .ui-icon{width:14px;height:14px;color:#0b65c7}
+.commercial-wizard .wizard-progress{padding:14px 18px 13px;gap:8px;background:#fff}
+.commercial-wizard .wizard-progress-item{min-height:54px;border-radius:11px}
+.commercial-wizard .wizard-progress-item>span{width:30px;height:30px;font-size:10px}
+.commercial-wizard .wizard-progress-item strong{font-size:10px}
+.commercial-wizard .wizard-body{padding:23px 24px;background:#f7f9fc}
+.commercial-wizard .wizard-step-intro{margin-bottom:18px;padding:0 0 14px;border-bottom:1px solid #dfe7ef}
+.commercial-wizard .wizard-step-intro>span{font-size:9px}
+.commercial-wizard .wizard-step-intro h4{margin:4px 0 5px;font-size:19px;color:#153b61}
+.commercial-wizard .wizard-step-intro p{max-width:800px;font-size:11px;line-height:1.6}
+.commercial-wizard .field{gap:7px;margin-bottom:17px}
+.commercial-wizard .field label{font-size:11px;color:#314e6b}
+.commercial-wizard .field-help{font-size:9.5px;line-height:1.5}
+.commercial-wizard .control{min-height:48px;padding:11px 13px;border-radius:10px;font-size:12px;background:#fff}
+.commercial-wizard textarea.control{min-height:120px}
+.commercial-wizard .form-grid{gap:14px 16px}
+.commercial-wizard .wizard-foot{min-height:66px;padding:12px 18px}
+.commercial-wizard .wizard-foot .btn{min-height:44px;padding:9px 16px;font-size:10.5px}
+.commercial-order-wizard .sales-address-card,.commercial-order-wizard .sales-materials-intro,.commercial-order-wizard .simple-details{border-radius:14px}
+
+/* Responsive y accesibilidad */
+@media(max-width:1320px){
+  .commercial-v1187 .orders-master-row.commercial-order-row{grid-template-columns:minmax(210px,1fr) minmax(0,2fr) 132px}
+  .commercial-v1187 .orders-master-row .erp-work-status{grid-column:1;grid-row:2}
+  .commercial-v1187 .orders-master-row .erp-work-meta{grid-column:2;grid-row:1/3}
+  .commercial-v1187 .orders-master-row .erp-work-action{grid-column:3;grid-row:1/3}
+  .commercial-credit-v1187 .credit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:1080px){
+  .commercial-v1187 .page-head.commercial-page-head{align-items:flex-start;flex-direction:column}
+  .commercial-v1187 .commercial-page-actions{width:100%;justify-content:flex-start}
+  .commercial-v1187 .guided-action-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .commercial-journey-steps{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .commercial-journey-step:nth-child(2):after{display:none}
+  .commercial-advanced-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .commercial-v1187 .orders-master-row.commercial-order-row{grid-template-columns:1fr auto}
+  .commercial-v1187 .orders-master-row .erp-work-meta{grid-column:1/-1;grid-row:auto;grid-template-columns:repeat(3,minmax(0,1fr));order:3}
+  .commercial-v1187 .orders-master-row .erp-work-status{grid-column:1;grid-row:auto;order:2}
+  .commercial-v1187 .orders-master-row .erp-work-action{grid-column:2;grid-row:1/3;min-width:130px}
+}
+@media(max-width:760px){
+  .commercial-v1187{font-size:15px}
+  .commercial-v1187 .page-head.commercial-page-head{min-height:0;padding:20px 18px;border-radius:15px}
+  .commercial-v1187 .commercial-page-head h2{font-size:25px}
+  .commercial-v1187 .commercial-page-head p{font-size:12px}
+  .commercial-v1187 .commercial-page-actions{display:grid;grid-template-columns:1fr 1fr}
+  .commercial-v1187 .commercial-page-actions .btn{width:100%;min-width:0}
+  .commercial-v1187 .guided-action-grid{grid-template-columns:1fr;padding:12px}
+  .commercial-v1187 .commercial-action-card{min-height:118px;grid-template-columns:52px minmax(0,1fr) 30px;padding:15px}
+  .commercial-v1187 .commercial-action-card .guided-action-icon{width:50px;height:50px;border-radius:14px}
+  .commercial-journey{padding:14px}
+  .commercial-journey-steps{grid-template-columns:1fr}
+  .commercial-journey-step:after{display:none!important}
+  .commercial-search-shell{padding:17px 15px}
+  .commercial-search-head{display:grid}
+  .commercial-search-hint{width:max-content;max-width:100%}
+  .commercial-search-primary{grid-template-columns:1fr}
+  .commercial-v1187 .commercial-search-cta{width:100%}
+  .commercial-advanced-grid{grid-template-columns:1fr}
+  .commercial-v1187 .commercial-result-heading{padding:14px 15px!important}
+  .commercial-v1187 #orders-result{padding:0 12px 15px}
+  .commercial-v1187 .orders-master-row.commercial-order-row{display:grid;grid-template-columns:1fr;gap:13px;min-height:0;padding:16px}
+  .commercial-v1187 .orders-master-row .erp-work-meta{grid-column:auto;grid-template-columns:repeat(2,minmax(0,1fr));order:3}
+  .commercial-v1187 .orders-master-row .erp-work-status{grid-column:auto;order:2}
+  .commercial-v1187 .orders-master-row .erp-work-action{grid-column:auto;grid-row:auto;order:4;width:100%;min-height:48px}
+  .commercial-credit-v1187 .credit-grid{grid-template-columns:1fr}
+  .commercial-credit-v1187 #credit-result{padding:13px}
+  .commercial-wizard{width:100%!important;max-height:100dvh!important;height:100dvh;border-radius:0!important}
+  .commercial-wizard .wizard-head{padding:16px 17px}
+  .commercial-wizard .wizard-head h3{font-size:20px}
+  .commercial-wizard-assist{padding:9px 12px;overflow-x:auto;flex-wrap:nowrap}
+  .commercial-wizard-assist>span{flex:0 0 auto}
+  .commercial-wizard .wizard-progress{overflow-x:auto;grid-template-columns:none!important;display:flex}
+  .commercial-wizard .wizard-progress-item{min-width:150px;flex:0 0 150px}
+  .commercial-wizard .wizard-body{padding:18px 15px}
+  .commercial-wizard .form-grid{grid-template-columns:1fr}
+}
+@media(max-width:460px){
+  .commercial-v1187 .commercial-page-actions{grid-template-columns:1fr}
+  .commercial-result-heading{align-items:flex-start!important;flex-direction:column}
+  .commercial-v1187 .orders-master-row .erp-work-meta{grid-template-columns:1fr}
+  .commercial-credit-status,.commercial-presets{display:grid;grid-template-columns:1fr 1fr}
+  .commercial-credit-status>span{grid-column:1/-1}
+}
