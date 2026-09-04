@@ -1,0 +1,111 @@
+/* CRM Suministros V11.8.4 · Regla visual de respiración + paginación */
+
+/* Regla visual general: el contenido no debe quedar pegado a separadores o bordes. */
+.audit-table-head{padding:20px 20px 17px}
+.audit-table thead th{padding:14px 10px!important;line-height:1.28}
+.audit-table tbody td{padding:17px 10px!important;line-height:1.42}
+.audit-table tbody tr{min-height:72px}
+.audit-table .cell-main{line-height:1.35}
+.audit-table .cell-sub{margin-top:5px;line-height:1.35}
+.audit-priority-inline{margin-top:7px}
+.audit-person{gap:9px}
+.audit-side-card{padding:16px 15px}
+.audit-insights{gap:12px}
+.audit-severity-list{gap:9px}
+.audit-bottleneck{padding:2px 0 5px}
+.audit-bottleneck+.audit-bottleneck{margin-top:2px}
+.audit-alert-item{padding:10px}
+
+/* Ajuste fino de la bitácora después de ampliar el espaciado. */
+.audit-table th:nth-child(1),.audit-table td:nth-child(1){width:9.5%}
+.audit-table th:nth-child(2),.audit-table td:nth-child(2){width:10%}
+.audit-table th:nth-child(3),.audit-table td:nth-child(3){width:10.5%}
+.audit-table th:nth-child(4),.audit-table td:nth-child(4){width:10%}
+.audit-table th:nth-child(5),.audit-table td:nth-child(5){width:18%}
+.audit-table th:nth-child(6),.audit-table td:nth-child(6){width:13.5%}
+.audit-table th:nth-child(7),.audit-table td:nth-child(7){width:6.5%}
+.audit-table th:nth-child(8),.audit-table td:nth-child(8){width:6.5%}
+.audit-table th:nth-child(9),.audit-table td:nth-child(9){width:7.5%}
+.audit-table th:nth-child(10),.audit-table td:nth-child(10){width:8%}
+.audit-table td:nth-child(10) .badge{max-width:100%;min-width:0;padding:5px 7px;white-space:nowrap;font-size:.59rem}
+
+/* Paginación centrada tipo e-commerce. */
+.pagination.pagination-commerce{
+  display:grid;
+  grid-template-columns:1fr;
+  justify-items:center;
+  gap:10px;
+  margin:0;
+  padding:18px 16px 20px;
+  border-top:1px solid #e4ebf2;
+  background:linear-gradient(180deg,#fff,#fbfdff);
+  color:#6f8194;
+}
+.pagination-commerce .pagination-actions{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:7px;
+  width:100%;
+}
+.pagination-commerce .pagination-direction{
+  min-width:96px;
+  min-height:38px;
+  padding:8px 13px;
+  border-radius:10px;
+}
+.pagination-pages{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
+.pagination-page{
+  width:38px;
+  height:38px;
+  display:grid;
+  place-items:center;
+  padding:0;
+  border:1px solid #d5e0eb;
+  border-radius:10px;
+  background:#fff;
+  color:#31506f;
+  font:inherit;
+  font-size:11px;
+  font-weight:900;
+  box-shadow:0 2px 5px rgba(14,51,88,.04);
+  transition:.15s ease;
+}
+.pagination-page:hover:not(:disabled){transform:translateY(-1px);border-color:#8fb8df;background:#f3f8fd;color:#0b5fad;box-shadow:0 5px 12px rgba(15,78,137,.09)}
+.pagination-page.active,.pagination-page:disabled{
+  opacity:1;
+  cursor:default;
+  border-color:#0b5eae;
+  background:linear-gradient(135deg,#0e6cc4,#084d91);
+  color:#fff;
+  box-shadow:0 6px 14px rgba(10,88,163,.2);
+}
+.pagination-ellipsis{min-width:22px;text-align:center;color:#9aa7b5;font-size:13px;font-weight:800}
+.pagination-summary{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  color:#8391a0;
+  font-size:9.5px;
+  text-align:center;
+}
+.pagination-summary strong{color:#415b75;font-size:10px}
+.pagination-summary span{color:#8190a0}
+
+@media(max-width:760px){
+  .audit-table tbody tr{padding:13px 14px!important}
+  .audit-table tbody td{padding:8px 0!important}
+  .pagination.pagination-commerce{padding:15px 10px 17px}
+  .pagination-commerce .pagination-actions{gap:6px}
+  .pagination-commerce .pagination-direction{min-width:82px;flex:0 1 auto}
+  .pagination-page{width:36px;height:36px}
+  .pagination-summary{flex-wrap:wrap}
+}
+
+@media(max-width:480px){
+  .pagination-commerce .pagination-direction{min-width:0;padding-inline:10px}
+  .pagination-pages{gap:4px}
+  .pagination-page{width:34px;height:34px;border-radius:9px}
+}
