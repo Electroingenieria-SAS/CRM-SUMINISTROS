@@ -1,0 +1,399 @@
+/* CRM Suministros V11.9.3 · Recepción con foco, amplitud y responsive iOS */
+
+.reception-process-modal.receiving-focus-v1193{
+  width:min(1180px,calc(100vw - 64px));
+  max-width:1180px;
+  max-height:min(88dvh,900px);
+  border-radius:22px;
+  overflow:hidden;
+  background:#f8fafc;
+}
+.receiving-focus-v1193 .reception-process-head{
+  min-height:82px;
+  padding:18px 22px 17px 26px;
+  background:#fff;
+  border-bottom:1px solid #dbe5ee;
+  box-shadow:inset 4px 0 0 #1479df;
+}
+.receiving-focus-v1193 .reception-process-head .wizard-kicker{font-size:9.5px;letter-spacing:.12em}
+.receiving-focus-v1193 .reception-process-head h3{font-size:24px;line-height:1.15;color:#123c64}
+.receiving-focus-v1193 .reception-process-head p{font-size:13px;line-height:1.45;color:#687d91;margin-top:4px}
+.receiving-focus-v1193 .reception-process-body{
+  padding:18px 22px 24px;
+  overflow:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+.receiving-focus-v1193 .reception-hide-v1193{display:none!important}
+
+/* Stepper limpio y estable */
+.receiving-focus-v1193 .reception-stepper-v1193{
+  position:sticky;
+  top:0;
+  z-index:6;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:0;
+  margin:0 0 16px;
+  padding:10px 12px;
+  border:1px solid #dbe5ed;
+  border-radius:14px;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  box-shadow:0 4px 14px rgba(11,52,88,.045);
+}
+.receiving-focus-v1193 .reception-stepper-v1193>div{
+  position:relative;
+  min-height:38px;
+  padding:0 12px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  border:0;
+  background:transparent;
+  box-shadow:none;
+  color:#7b8b9a;
+}
+.receiving-focus-v1193 .reception-stepper-v1193>div:not(:last-child)::after{
+  content:"";
+  position:absolute;
+  right:0;
+  top:50%;
+  width:1px;
+  height:24px;
+  transform:translateY(-50%);
+  background:#e3e9ef;
+}
+.receiving-focus-v1193 .reception-stepper-v1193>div span{
+  flex:0 0 30px;
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  border:1px solid #ccd8e2;
+  background:#f7f9fb;
+  color:#6f8294;
+  font-size:11px;
+  font-weight:900;
+}
+.receiving-focus-v1193 .reception-stepper-v1193>div small{
+  font-size:12px;
+  line-height:1.25;
+  font-weight:800;
+}
+.receiving-focus-v1193 .reception-stepper-v1193>div.current{color:#0e66ad}
+.receiving-focus-v1193 .reception-stepper-v1193>div.current span{border-color:#1479df;background:#1479df;color:#fff}
+.receiving-focus-v1193 .reception-stepper-v1193>div.done{color:#3d7655}
+.receiving-focus-v1193 .reception-stepper-v1193>div.done span{border-color:#83bc98;background:#e8f5ed;color:#317b52}
+
+/* Toma del pedido: aquí vive el contexto importante */
+.receiving-focus-v1193 .reception-take-focus-v1193{
+  display:grid;
+  grid-template-columns:minmax(0,1.65fr) minmax(300px,.75fr);
+  gap:16px;
+  margin:2px 0 16px;
+}
+.receiving-focus-v1193 .reception-take-main-v1193,
+.receiving-focus-v1193 .reception-take-route-v1193{
+  border:1px solid #d8e3ec;
+  border-radius:18px;
+  background:#fff;
+  box-shadow:0 7px 22px rgba(10,52,90,.05);
+}
+.receiving-focus-v1193 .reception-take-main-v1193{
+  display:grid;
+  grid-template-columns:58px minmax(0,1fr);
+  gap:14px;
+  padding:20px;
+}
+.receiving-focus-v1193 .reception-take-icon-v1193{
+  width:56px;height:56px;
+  display:grid;place-items:center;
+  border-radius:17px;
+  background:linear-gradient(145deg,#edf6fd,#e3f0fb);
+  border:1px solid #c7dcec;
+  color:#146aa9;
+}
+.receiving-focus-v1193 .reception-take-icon-v1193 .ui-icon{width:25px;height:25px}
+.receiving-focus-v1193 .reception-take-copy-v1193{display:grid;align-content:start;gap:3px;min-width:0}
+.receiving-focus-v1193 .reception-take-copy-v1193>small,
+.receiving-focus-v1193 .reception-take-route-v1193>small{
+  color:#0e6cb7;font-size:10px;font-weight:900;letter-spacing:.09em
+}
+.receiving-focus-v1193 .reception-take-copy-v1193 h4{margin:2px 0 0;font-size:24px;color:#143e65;letter-spacing:-.025em}
+.receiving-focus-v1193 .reception-take-copy-v1193 p{margin:0;color:#667b8f;font-size:13px;line-height:1.45}
+.receiving-focus-v1193 .reception-take-facts-v1193{
+  grid-column:1/-1;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:0;
+  margin-top:4px;
+  padding-top:14px;
+  border-top:1px solid #e7edf2;
+}
+.receiving-focus-v1193 .reception-take-facts-v1193>span{
+  min-width:0;
+  padding:3px 14px;
+  display:grid;
+  gap:4px;
+}
+.receiving-focus-v1193 .reception-take-facts-v1193>span:first-child{padding-left:0}
+.receiving-focus-v1193 .reception-take-facts-v1193>span:not(:last-child){border-right:1px solid #e7edf2}
+.receiving-focus-v1193 .reception-take-facts-v1193 small{font-size:10px;font-weight:900;color:#8393a2;text-transform:uppercase;letter-spacing:.045em}
+.receiving-focus-v1193 .reception-take-facts-v1193 strong{font-size:13px;color:#36536e;line-height:1.3;overflow-wrap:anywhere}
+.receiving-focus-v1193 .reception-take-route-v1193{padding:18px 18px 16px}
+.receiving-focus-v1193 .reception-take-route-v1193 ol{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:11px}
+.receiving-focus-v1193 .reception-take-route-v1193 li{display:grid;grid-template-columns:32px minmax(0,1fr);gap:10px;align-items:start}
+.receiving-focus-v1193 .reception-take-route-v1193 li>span{width:30px;height:30px;display:grid;place-items:center;border-radius:10px;background:#eef6fd;color:#1268aa;font-size:11px;font-weight:900}
+.receiving-focus-v1193 .reception-take-route-v1193 li div{display:grid;gap:2px}
+.receiving-focus-v1193 .reception-take-route-v1193 li strong{font-size:13px;color:#294b68}
+.receiving-focus-v1193 .reception-take-route-v1193 li p{margin:0;font-size:11.5px;line-height:1.35;color:#738494}
+.receiving-focus-v1193 .reception-take-v1192{
+  max-width:none;
+  margin:0;
+  padding:18px 20px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  grid-template-areas:"title action" "text action";
+  gap:3px 18px;
+  align-items:center;
+  text-align:left;
+  border:1px solid #cfe1ef;
+  background:linear-gradient(135deg,#f5faff,#fff);
+  box-shadow:none;
+}
+.receiving-focus-v1193 .reception-take-v1192 .reception-step-tag{display:none}
+.receiving-focus-v1193 .reception-take-v1192 h4{grid-area:title;margin:0;font-size:18px;color:#173e63}
+.receiving-focus-v1193 .reception-take-v1192 p{grid-area:text;margin:0;font-size:12.5px;color:#6d8192}
+.receiving-focus-v1193 .reception-take-v1192 .reception-assigned-warning{grid-column:1/-1;margin-top:9px}
+.receiving-focus-v1193 .reception-take-v1192 [data-take-order]{grid-area:action;min-width:210px}
+
+/* Después de tomar: contexto oculto y recuperable */
+.receiving-focus-v1193 .reception-summary-disclosure-v1193{
+  margin:0 0 12px;
+  border:1px solid #dfe7ee;
+  border-radius:12px;
+  overflow:hidden;
+  background:#fff;
+}
+.receiving-focus-v1193 .reception-summary-disclosure-v1193>summary{
+  list-style:none;
+  cursor:pointer;
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr) 24px;
+  gap:10px;
+  align-items:center;
+  min-height:50px;
+  padding:8px 12px;
+  background:#fbfcfe;
+}
+.receiving-focus-v1193 .reception-summary-disclosure-v1193>summary::-webkit-details-marker{display:none}
+.receiving-focus-v1193 .reception-summary-disclosure-v1193>summary>span{width:32px;height:32px;display:grid;place-items:center;border-radius:10px;background:#edf5fb;color:#1769aa}
+.receiving-focus-v1193 .reception-summary-disclosure-v1193>summary .ui-icon{width:16px;height:16px}
+.receiving-focus-v1193 .reception-summary-disclosure-v1193>summary>div{display:grid;gap:1px}
+.receiving-focus-v1193 .reception-summary-disclosure-v1193>summary strong{font-size:12.5px;color:#2f4f6b}
+.receiving-focus-v1193 .reception-summary-disclosure-v1193>summary small{font-size:10.5px;color:#7b8c9b}
+.receiving-focus-v1193 .reception-summary-disclosure-v1193>summary>b{justify-self:end;font-size:18px;color:#58748c}
+.receiving-focus-v1193 .reception-summary-disclosure-v1193 .reception-order-strip{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:0;
+  margin:0;
+  padding:11px 12px;
+  border:0;
+  border-top:1px solid #e8edf2;
+  background:#fff;
+}
+.receiving-focus-v1193 .reception-summary-disclosure-v1193 .reception-order-strip>div{
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  background:transparent;
+  padding:4px 12px;
+}
+.receiving-focus-v1193 .reception-summary-disclosure-v1193 .reception-order-strip>div:not(:last-child){border-right:1px solid #e8edf2}
+.receiving-focus-v1193 .reception-summary-disclosure-v1193 .reception-order-strip small{font-size:10px}
+.receiving-focus-v1193 .reception-summary-disclosure-v1193 .reception-order-strip strong{font-size:12.5px}
+
+/* Etapas internas: menos paneles, mejor lectura */
+.receiving-focus-v1193 .reception-stage-card{
+  padding:20px 22px 22px;
+  border:1px solid #dce5ed;
+  border-radius:17px;
+  background:#fff;
+  box-shadow:0 6px 18px rgba(10,50,86,.04);
+}
+.receiving-focus-v1193 .reception-stage-heading{
+  margin-bottom:16px;
+  padding-bottom:14px;
+  border-bottom:1px solid #e9eef3;
+}
+.receiving-focus-v1193 .reception-stage-heading h4{font-size:21px;color:#173e63;line-height:1.25}
+.receiving-focus-v1193 .reception-stage-heading p{max-width:720px;font-size:13px;color:#6b7f91;line-height:1.45}
+.receiving-focus-v1193 .reception-step-tag{font-size:9.5px;min-height:25px;padding:5px 9px}
+.receiving-focus-v1193 .reception-advisor-summary-v1192{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  margin-bottom:12px;
+}
+.receiving-focus-v1193 .reception-advisor-summary-v1192 article{
+  padding:11px 12px;
+  border-radius:11px;
+  background:#fafcfe;
+}
+.receiving-focus-v1193 .reception-advisor-summary-v1192 small{font-size:10px}
+.receiving-focus-v1193 .reception-advisor-summary-v1192 strong{font-size:13px;line-height:1.35}
+
+.receiving-focus-v1193 .reception-disclosure-v1192{margin:9px 0;border-radius:12px}
+.receiving-focus-v1193 .reception-disclosure-v1192>summary{min-height:54px;padding:10px 12px;grid-template-columns:34px minmax(0,1fr) 24px}
+.receiving-focus-v1193 .reception-disclosure-v1192>summary>span{width:32px;height:32px}
+.receiving-focus-v1193 .reception-disclosure-v1192>summary strong{font-size:12.5px}
+.receiving-focus-v1193 .reception-disclosure-v1192>summary small{font-size:10.5px}
+
+.receiving-focus-v1193 .reception-decision-grid{gap:12px;margin-top:15px}
+.receiving-focus-v1193 .reception-choice-v1192{min-height:92px;padding:15px 16px;grid-template-columns:46px minmax(0,1fr);column-gap:13px;border-radius:14px}
+.receiving-focus-v1193 .reception-choice-v1192>span{width:44px;height:44px;border-radius:13px}
+.receiving-focus-v1193 .reception-choice-v1192>span .ui-icon{width:20px;height:20px}
+.receiving-focus-v1193 .reception-choice-v1192>strong{font-size:15px}
+.receiving-focus-v1193 .reception-choice-v1192>small{font-size:12px;line-height:1.4}
+
+/* Campos y acciones */
+.receiving-focus-v1193 .control,
+.receiving-focus-v1193 input,
+.receiving-focus-v1193 select,
+.receiving-focus-v1193 textarea{
+  font-size:14px;
+}
+.receiving-focus-v1193 .reception-assignment-grid>.field{padding:15px;border-radius:13px}
+.receiving-focus-v1193 .reception-assignment-grid>.field label{font-size:13px}
+.receiving-focus-v1193 .reception-assignment-grid>.field small{font-size:11px;line-height:1.4}
+.receiving-focus-v1193 .reception-assignment-grid .control{min-height:50px;font-size:14px}
+.receiving-focus-v1193 .reception-reader-status{font-size:12px;line-height:1.45;padding:11px 12px}
+.receiving-focus-v1193 .reception-reader-summary strong{font-size:13px}
+.receiving-focus-v1193 .reception-reader-summary span{font-size:11px}
+.receiving-focus-v1193 .reception-final-summary small{font-size:9.5px}
+.receiving-focus-v1193 .reception-final-summary strong{font-size:13px}
+
+.receiving-focus-v1193 .reception-primary-v1193{
+  min-height:50px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  padding:11px 18px;
+  border-radius:12px;
+  font-size:13px;
+  font-weight:850;
+  line-height:1.2;
+}
+.receiving-focus-v1193 .reception-button-icon-v1193{display:inline-grid;place-items:center}
+.receiving-focus-v1193 .reception-button-icon-v1193 .ui-icon{width:17px;height:17px}
+.receiving-focus-v1193 .reception-confirm-button.reception-primary-v1193{width:100%;min-height:54px;font-size:14px}
+.receiving-focus-v1193 .reception-back-v1192{font-size:11.5px;min-height:42px}
+.receiving-focus-v1193 .reception-editor-actions .btn{min-height:48px;font-size:12.5px}
+
+/* iPad / pantallas medianas */
+@media(max-width:1024px){
+  .reception-process-modal.receiving-focus-v1193{width:calc(100vw - 28px);max-height:calc(100dvh - 28px)}
+  .receiving-focus-v1193 .reception-take-focus-v1193{grid-template-columns:1fr}
+  .receiving-focus-v1193 .reception-take-route-v1193 ol{grid-template-columns:repeat(3,1fr);gap:10px}
+  .receiving-focus-v1193 .reception-take-route-v1193 li{grid-template-columns:30px minmax(0,1fr)}
+  .receiving-focus-v1193 .reception-advisor-summary-v1192{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+/* iOS / móvil: pantalla casi completa, safe-area y cero zoom accidental */
+@media(max-width:720px){
+  #modal-root .modal-overlay:has(.receiving-focus-v1193){
+    padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));
+    align-items:flex-end;
+  }
+  .reception-process-modal.receiving-focus-v1193{
+    width:100%;
+    max-width:none;
+    height:calc(100dvh - max(12px,env(safe-area-inset-top)) - max(12px,env(safe-area-inset-bottom)));
+    max-height:none;
+    border-radius:20px;
+    display:flex;
+    flex-direction:column;
+  }
+  .receiving-focus-v1193 .reception-process-head{
+    flex:0 0 auto;
+    min-height:72px;
+    padding:14px 50px 13px 18px;
+  }
+  .receiving-focus-v1193 .reception-process-head h3{font-size:21px}
+  .receiving-focus-v1193 .reception-process-head p{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .receiving-focus-v1193 .reception-process-body{
+    flex:1 1 auto;
+    min-height:0;
+    padding:12px 12px calc(18px + env(safe-area-inset-bottom));
+  }
+  .receiving-focus-v1193 .reception-stepper-v1193{
+    display:flex;
+    gap:0;
+    overflow-x:auto;
+    scrollbar-width:none;
+    padding:8px;
+    scroll-snap-type:x proximity;
+  }
+  .receiving-focus-v1193 .reception-stepper-v1193::-webkit-scrollbar{display:none}
+  .receiving-focus-v1193 .reception-stepper-v1193>div{min-width:112px;padding:0 8px;scroll-snap-align:start}
+  .receiving-focus-v1193 .reception-stepper-v1193>div small{font-size:11.5px}
+  .receiving-focus-v1193 .reception-stepper-v1193>div span{width:28px;height:28px;flex-basis:28px}
+
+  .receiving-focus-v1193 .reception-take-main-v1193{grid-template-columns:46px minmax(0,1fr);padding:15px;gap:11px}
+  .receiving-focus-v1193 .reception-take-icon-v1193{width:44px;height:44px;border-radius:13px}
+  .receiving-focus-v1193 .reception-take-icon-v1193 .ui-icon{width:21px;height:21px}
+  .receiving-focus-v1193 .reception-take-copy-v1193 h4{font-size:20px}
+  .receiving-focus-v1193 .reception-take-copy-v1193 p{font-size:12px}
+  .receiving-focus-v1193 .reception-take-facts-v1193{grid-template-columns:1fr 1fr;row-gap:12px}
+  .receiving-focus-v1193 .reception-take-facts-v1193>span{padding:0 10px;border-right:0!important}
+  .receiving-focus-v1193 .reception-take-facts-v1193>span:nth-child(odd){padding-left:0;border-right:1px solid #e7edf2!important}
+  .receiving-focus-v1193 .reception-take-route-v1193{padding:15px}
+  .receiving-focus-v1193 .reception-take-route-v1193 ol{grid-template-columns:1fr;gap:9px}
+  .receiving-focus-v1193 .reception-take-v1192{
+    grid-template-columns:1fr;
+    grid-template-areas:"title" "text" "action";
+    padding:15px;
+  }
+  .receiving-focus-v1193 .reception-take-v1192 [data-take-order]{width:100%;min-width:0;margin-top:10px}
+
+  .receiving-focus-v1193 .reception-summary-disclosure-v1193 .reception-order-strip{grid-template-columns:1fr 1fr;row-gap:8px}
+  .receiving-focus-v1193 .reception-summary-disclosure-v1193 .reception-order-strip>div{padding:5px 9px}
+  .receiving-focus-v1193 .reception-summary-disclosure-v1193 .reception-order-strip>div:nth-child(2n){border-right:0}
+
+  .receiving-focus-v1193 .reception-stage-card{padding:16px 14px 18px;border-radius:15px}
+  .receiving-focus-v1193 .reception-stage-heading{display:block;margin-bottom:13px;padding-bottom:12px}
+  .receiving-focus-v1193 .reception-stage-heading .btn-ghost{margin-top:10px;width:100%}
+  .receiving-focus-v1193 .reception-stage-heading h4{font-size:19px}
+  .receiving-focus-v1193 .reception-stage-heading p{font-size:12.5px}
+  .receiving-focus-v1193 .reception-advisor-summary-v1192{grid-template-columns:1fr}
+  .receiving-focus-v1193 .reception-decision-grid{grid-template-columns:1fr}
+  .receiving-focus-v1193 .reception-choice-v1192{min-height:86px}
+  .receiving-focus-v1193 .reception-assignment-grid{grid-template-columns:1fr}
+  .receiving-focus-v1193 .reception-final-summary{grid-template-columns:1fr}
+
+  .receiving-focus-v1193 .control,
+  .receiving-focus-v1193 input,
+  .receiving-focus-v1193 select,
+  .receiving-focus-v1193 textarea{font-size:16px!important;min-height:48px}
+  .receiving-focus-v1193 button,
+  .receiving-focus-v1193 .btn{touch-action:manipulation}
+  .receiving-focus-v1193 .reception-primary-v1193{width:100%;min-height:52px;font-size:14px}
+}
+
+@media(max-width:430px){
+  .receiving-focus-v1193 .reception-take-facts-v1193{grid-template-columns:1fr}
+  .receiving-focus-v1193 .reception-take-facts-v1193>span{padding:0!important;border-right:0!important}
+  .receiving-focus-v1193 .reception-summary-disclosure-v1193 .reception-order-strip{grid-template-columns:1fr}
+  .receiving-focus-v1193 .reception-summary-disclosure-v1193 .reception-order-strip>div{border-right:0!important;border-bottom:1px solid #edf1f4;padding:7px 4px}
+  .receiving-focus-v1193 .reception-summary-disclosure-v1193 .reception-order-strip>div:last-child{border-bottom:0}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .receiving-focus-v1193 *,
+  .receiving-focus-v1193 *::before,
+  .receiving-focus-v1193 *::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+}
