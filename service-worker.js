@@ -1,7 +1,7 @@
-const CACHE="crm-suministros-v11-7-0-20260901";
+const CACHE="crm-suministros-v11-8-0-20260904";
 const ASSETS=[
   "./","./index.html","./manifest.webmanifest",
-  "./assets/css/app.css","./assets/css/operational-v112.css","./assets/css/guides-v113.css","./assets/css/workforce-taxonomy-v113.css","./assets/css/receiving-v115.css","./assets/css/receiving-guide-v115.css","./assets/css/inventory-scan-v116.css",
+  "./assets/css/app.css","./assets/css/operational-v112.css","./assets/css/guides-v113.css","./assets/css/workforce-taxonomy-v113.css","./assets/css/receiving-v115.css","./assets/css/receiving-guide-v115.css","./assets/css/inventory-scan-v116.css","./assets/css/v118.css",
   "./assets/img/logo-electroingenieria.png","./assets/img/iso-electroingenieria.png",
   "./assets/js/main.js","./assets/js/config.js","./assets/js/core/icons.js","./assets/js/core/layout.js",
   "./assets/js/modules/active-work.js","./assets/js/modules/work-clock.js","./assets/js/modules/workforce.js",
