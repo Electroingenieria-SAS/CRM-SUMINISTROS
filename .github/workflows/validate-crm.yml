@@ -174,9 +174,8 @@ jobs:
           grep -q './assets/js/modules/vsm.js' service-worker.js
           grep -q './assets/js/services/supabase.js' service-worker.js
 
-          # Vercel quota guard: feature branches do not auto-deploy.
-          grep -q '"main": true' vercel.json
-          grep -q '"\*": false' vercel.json
+          # Vercel deployment hold: no Git branch may auto-deploy before visual review.
+          grep -q '"deploymentEnabled": false' vercel.json
 
       - name: Package deployable frontend
         shell: bash
