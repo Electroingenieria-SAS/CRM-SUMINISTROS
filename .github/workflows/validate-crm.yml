@@ -47,10 +47,10 @@ jobs:
 
           # Release identity.
           grep -q 'version: "11.16.0"' assets/js/config.js
-          grep -q 'build: "2026-09-07.09"' assets/js/config.js
+          grep -q 'build: "2026-09-07.10"' assets/js/config.js
           grep -q 'main.js?v=11.16.0' index.html
           grep -q 'admin-center-v11160.css?v=11.16.0' index.html
-          grep -q 'crm-suministros-v11-16-0-20260907' service-worker.js
+          grep -q 'crm-suministros-v11-16-0-20260907-10' service-worker.js
 
           # Administration V11.16.0 contract.
           test -s assets/css/admin-center-v11160.css
@@ -67,6 +67,21 @@ jobs:
           grep -q 'DOCUMENT_SEQUENCE' assets/js/modules/admin-center-v11160.js
           grep -q 'prefers-reduced-motion' assets/css/admin-center-v11160.css
           grep -q 'focus-visible' assets/css/admin-center-v11160.css
+
+          # Super Admin profile verification / isolated impersonation session.
+          test -s supabase/functions/erp-admin-impersonate/index.ts
+          test -s supabase/functions/erp-admin-impersonate/deno.json
+          test -s supabase/migrations/093_admin_impersonation_audit_v11_16_0.sql
+          grep -q 'erp-admin-impersonate' assets/js/modules/admin.js
+          grep -q 'Entrar como usuario' assets/js/modules/admin.js
+          grep -q 'impersonation_token' assets/js/modules/admin.js
+          grep -q 'IMPERSONATION_MODE' assets/js/services/supabase.js
+          grep -q 'verifyOtp' assets/js/services/supabase.js
+          grep -q 'verify-' assets/js/services/supabase.js
+          grep -q 'AUTH_IMPERSONATION_STARTED' supabase/functions/erp-admin-impersonate/index.ts
+          grep -q 'generateLink' supabase/functions/erp-admin-impersonate/index.ts
+          grep -q 'AUTH_IMPERSONATION_STARTED' supabase/migrations/093_admin_impersonation_audit_v11_16_0.sql
+          grep -q 'revoke all on function public.erp_x_admin_auth_audit' supabase/migrations/093_admin_impersonation_audit_v11_16_0.sql
 
           # Administration database contract and safety.
           grep -q 'erp_x_admin_control_center' supabase/migrations/092_admin_control_center_v11_16_0.sql
@@ -120,6 +135,7 @@ jobs:
           grep -q './assets/js/modules/admin-center-v11160.js' service-worker.js
           grep -q './assets/js/modules/reports-enterprise-v11140.js' service-worker.js
           grep -q './assets/js/modules/vsm.js' service-worker.js
+          grep -q './assets/js/services/supabase.js' service-worker.js
 
       - name: Package deployable frontend
         shell: bash
