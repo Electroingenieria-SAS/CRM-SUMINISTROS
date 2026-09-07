@@ -47,17 +47,18 @@ jobs:
               sys.exit(1)
           PY
 
-      - name: Validate V11.10.9 release contract
+      - name: Validate V11.11.0 release contract
         shell: bash
         run: |
           set -euo pipefail
 
-          test -s assets/css/inventory-core-v11109.css
+          test -s assets/css/inventory-core-v11110.css
           test -s assets/css/inventory-scan-v116.css
           test -s assets/js/modules/inventory.js
           test -s assets/js/modules/inventory-scan-v116.js
           test -s assets/js/services/inventory.js
           test -s supabase/migrations/084_inventory_traceability_v11_10_9.sql
+          test ! -e assets/css/inventory-core-v11109.css
 
           test -s assets/css/shipping-core-v11107.css
           test -s assets/css/shipping-guide-reader-v11101.css
@@ -70,12 +71,13 @@ jobs:
           test -s assets/js/services/document-reader-v11101.js
           test -s assets/js/services/drive.js
 
-          grep -q 'version: "11.10.9"' assets/js/config.js
-          grep -q 'build: "2026-09-07.03"' assets/js/config.js
-          grep -q 'inventory-core-v11109.css?v=11.10.9' index.html
-          grep -q 'inventory-scan-v116.css?v=11.10.9' index.html
-          grep -q 'inventory-scan-bootstrap-v116.js?v=11.10.9' index.html
-          grep -q 'main.js?v=11.10.9' index.html
+          grep -q 'version: "11.11.0"' assets/js/config.js
+          grep -q 'build: "2026-09-07.04"' assets/js/config.js
+          grep -q 'inventory-core-v11110.css?v=11.11.0' index.html
+          grep -q 'inventory-scan-v116.css?v=11.11.0' index.html
+          grep -q 'inventory-scan-bootstrap-v116.js?v=11.11.0' index.html
+          grep -q 'main.js?v=11.11.0' index.html
+          ! grep -q 'inventory-core-v11109.css' index.html
 
           grep -q 'api.inventoryFiltered' assets/js/modules/inventory.js
           grep -q 'inventory-list-head-v11109' assets/js/modules/inventory.js
@@ -98,12 +100,20 @@ jobs:
           grep -q 'idx_inventory_movements_item_created_v11109' supabase/migrations/084_inventory_traceability_v11_10_9.sql
           grep -q 'idx_inventory_movements_lot_created_v11109' supabase/migrations/084_inventory_traceability_v11_10_9.sql
 
-          grep -q 'inventory-summary-v11109' assets/css/inventory-core-v11109.css
-          grep -q 'inventory-list-head-v11109' assets/css/inventory-core-v11109.css
-          grep -q 'inventory-detail-tabs-v11109' assets/css/inventory-core-v11109.css
-          grep -q 'inventory-lot-row-v11109' assets/css/inventory-core-v11109.css
-          grep -q 'inventory-movement-row-v11109' assets/css/inventory-core-v11109.css
-          grep -q 'inventory-count-v11109' assets/css/inventory-core-v11109.css
+          grep -q 'Inventario final V11.11.0' assets/css/inventory-core-v11110.css
+          grep -q 'inventory-summary-v11109' assets/css/inventory-core-v11110.css
+          grep -q 'inventory-list-head-v11109' assets/css/inventory-core-v11110.css
+          grep -q 'position:sticky' assets/css/inventory-core-v11110.css
+          grep -q 'inventory-detail-tabs-v11109' assets/css/inventory-core-v11110.css
+          grep -q 'inventory-lot-row-v11109' assets/css/inventory-core-v11110.css
+          grep -q 'inventory-movement-head-v11109' assets/css/inventory-core-v11110.css
+          grep -q 'inventory-movement-row-v11109' assets/css/inventory-core-v11110.css
+          grep -q 'inventory-count-v11109' assets/css/inventory-core-v11110.css
+          grep -q 'inventory-count-summary-v11109' assets/css/inventory-core-v11110.css
+          grep -q 'focus-visible' assets/css/inventory-core-v11110.css
+          grep -q '@media(max-width:980px)' assets/css/inventory-core-v11110.css
+          grep -q '@media(max-width:680px)' assets/css/inventory-core-v11110.css
+          grep -q 'prefers-reduced-motion' assets/css/inventory-core-v11110.css
 
           grep -q 'shipping-core-v11107.css?v=11.10.8' index.html
           grep -q 'sent-orders-v11108.css?v=11.10.8' index.html
@@ -157,8 +167,9 @@ jobs:
           grep -q 'safe-area-inset-bottom' assets/css/shipping-core-v11107.css
           grep -q 'shipping-core-footer-v11107' assets/css/shipping-core-v11107.css
 
-          grep -q 'crm-suministros-v11-10-9-20260907' service-worker.js
-          grep -q './assets/css/inventory-core-v11109.css' service-worker.js
+          grep -q 'crm-suministros-v11-11-0-20260907' service-worker.js
+          grep -q './assets/css/inventory-core-v11110.css' service-worker.js
+          ! grep -q './assets/css/inventory-core-v11109.css' service-worker.js
           grep -q './assets/js/modules/inventory.js' service-worker.js
           grep -q './assets/js/services/inventory.js' service-worker.js
           grep -q './assets/css/shipping-core-v11107.css' service-worker.js
@@ -190,12 +201,12 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.10.9" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.11.0" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.10.9-deployable
+          name: crm-suministros-v11.11.0-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
