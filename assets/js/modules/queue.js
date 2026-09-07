@@ -4,7 +4,7 @@ import {paginationHtml,empty,loading,toast,guide} from "../core/ui.js";
 import {openOrder} from "./orders.js";
 import {openCutPickup} from "./picking-flow.js";
 import {openPurchaseArrival} from "./receiving-order.js";
-import {renderSentOrdersPanel} from "./shipping-flow.js";
+import {renderSentOrdersPanel} from "./sent-orders.js";
 import {hasRole} from "../core/state.js";
 
 export async function renderQueue(root,{moduleId,steps,params={}}){
@@ -20,7 +20,7 @@ export async function renderQueue(root,{moduleId,steps,params={}}){
         <div class="queue-scope" aria-label="Alcance de la cola"><button class="btn ${assignment==="ALL"?"btn-primary":"btn-ghost"}" data-assignment="ALL">Toda la cola</button><button class="btn ${assignment==="UNASSIGNED"?"btn-primary":"btn-ghost"}" data-assignment="UNASSIGNED">Sin asignar</button><button class="btn ${assignment==="MINE"?"btn-primary":"btn-ghost"}" data-assignment="MINE">Mis pedidos</button></div>
       </div>
       <div class="simple-queue-message"><strong>Lista de trabajo</strong><span>Busca el pedido y utiliza la acción disponible a la derecha. La ventana operativa concentra la información y decisiones de la etapa actual.</span></div>
-      ${showSentOrders?`<section class="sent-orders-panel"><header><div><span>Seguimiento comercial</span><h3>Pedidos enviados</h3><p>Ventas y Superadministración pueden enviar un reporte de no entrega a Logística.</p></div></header><div id="sent-orders-result">${loading("Consultando pedidos enviados…")}</div></section>`:""}
+      ${showSentOrders?`<section class="sent-orders-panel"><header><div><span>Seguimiento comercial</span><h3>Pedidos enviados</h3><p>Identifica rápidamente qué pedidos siguen en tránsito, cuáles ya terminaron y cuáles requieren una intervención comercial.</p></div></header><div id="sent-orders-result">${loading("Consultando pedidos enviados…")}</div></section>`:""}
       ${moduleId==="picking"?`<section class="cut-pickup-queue"><header><div><span>Entrega desde Corte</span><h3>Cortes por recoger</h3><p>Recoge primero las referencias terminadas y después continúa con la verificación normal del pedido.</p></div><span class="cut-pickup-queue-count" id="cut-pickup-count">0</span></header><div id="cut-pickup-result">${loading("Consultando cortes listos…")}</div></section>`:""}
       <div id="queue-result">${loading()}</div>
       ${moduleId==="picking"?`<section class="picking-partial-queue"><header><div><span>Continuidad del pedido</span><h3>Pedidos parciales pendientes</h3><p>El mismo pedido vuelve aquí cuando termina la primera salida y llega la mercancía faltante.</p></div></header><div id="picking-partial-result">${loading("Consultando parciales…")}</div></section>`:""}
@@ -51,7 +51,6 @@ export async function renderQueue(root,{moduleId,steps,params={}}){
       toast(error.message,"error",8000);
     }
   }
-
 
   async function loadCutPickups(search){
     const target=root.querySelector("#cut-pickup-result");
