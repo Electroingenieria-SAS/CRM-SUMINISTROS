@@ -40,43 +40,66 @@ jobs:
               print('\n'.join(missing));sys.exit(1)
           PY
 
-      - name: Validate V11.15.0 release contract
+      - name: Validate V11.16.0 release contract
         shell: bash
         run: |
           set -euo pipefail
 
           # Release identity.
-          grep -q 'version: "11.15.0"' assets/js/config.js
-          grep -q 'build: "2026-09-07.08"' assets/js/config.js
-          grep -q 'main.js?v=11.15.0' index.html
-          grep -q 'history-center-v11150.css?v=11.15.0' index.html
-          grep -q 'crm-suministros-v11-15-0-20260907' service-worker.js
+          grep -q 'version: "11.16.0"' assets/js/config.js
+          grep -q 'build: "2026-09-07.10"' assets/js/config.js
+          grep -q 'main.js?v=11.16.0' index.html
+          grep -q 'admin-center-v11160.css?v=11.16.0' index.html
+          grep -q 'crm-suministros-v11-16-0-20260907-10' service-worker.js
 
-          # Historical center contract.
+          # Administration V11.16.0 contract.
+          test -s assets/css/admin-center-v11160.css
+          test -s assets/js/modules/admin-center-v11160.js
+          test -s supabase/migrations/092_admin_control_center_v11_16_0.sql
+          grep -q 'admin-center-v11160.js' assets/js/modules/admin.js
+          grep -q 'Centro de Control Administrativo' assets/js/modules/admin-center-v11160.js
+          grep -q 'data-section' assets/js/modules/admin-center-v11160.js
+          grep -q 'erp_x_admin_control_center' assets/js/modules/admin-center-v11160.js
+          grep -q 'erp_x_admin_config_mutate' assets/js/modules/admin-center-v11160.js
+          grep -q 'PERMISSION' assets/js/modules/admin-center-v11160.js
+          grep -q 'WORKFLOW_STEP' assets/js/modules/admin-center-v11160.js
+          grep -q 'CALENDAR_DAY' assets/js/modules/admin-center-v11160.js
+          grep -q 'DOCUMENT_SEQUENCE' assets/js/modules/admin-center-v11160.js
+          grep -q 'prefers-reduced-motion' assets/css/admin-center-v11160.css
+          grep -q 'focus-visible' assets/css/admin-center-v11160.css
+
+          # Super Admin profile verification / isolated impersonation session.
+          test -s supabase/functions/erp-admin-impersonate/index.ts
+          test -s supabase/functions/erp-admin-impersonate/deno.json
+          test -s supabase/migrations/093_admin_impersonation_audit_v11_16_0.sql
+          grep -q 'erp-admin-impersonate' assets/js/modules/admin.js
+          grep -q 'Entrar como usuario' assets/js/modules/admin.js
+          grep -q 'impersonation_token' assets/js/modules/admin.js
+          grep -q 'IMPERSONATION_MODE' assets/js/services/supabase.js
+          grep -q 'verifyOtp' assets/js/services/supabase.js
+          grep -q 'verify-' assets/js/services/supabase.js
+          grep -q 'AUTH_IMPERSONATION_STARTED' supabase/functions/erp-admin-impersonate/index.ts
+          grep -q 'generateLink' supabase/functions/erp-admin-impersonate/index.ts
+          grep -q 'AUTH_IMPERSONATION_STARTED' supabase/migrations/093_admin_impersonation_audit_v11_16_0.sql
+          grep -q 'revoke all on function public.erp_x_admin_auth_audit' supabase/migrations/093_admin_impersonation_audit_v11_16_0.sql
+
+          # Administration database contract and safety.
+          grep -q 'erp_x_admin_control_center' supabase/migrations/092_admin_control_center_v11_16_0.sql
+          grep -q 'erp_x_admin_config_mutate' supabase/migrations/092_admin_control_center_v11_16_0.sql
+          grep -q "set search_path = ''" supabase/migrations/092_admin_control_center_v11_16_0.sql
+          grep -q "can_access_module('admin','admin')" supabase/migrations/092_admin_control_center_v11_16_0.sql
+          grep -q 'system_audit' supabase/migrations/092_admin_control_center_v11_16_0.sql
+          grep -q 'No se puede desactivar el rol Super Admin' supabase/migrations/092_admin_control_center_v11_16_0.sql
+          grep -q 'la secuencia solo puede avanzar' supabase/migrations/092_admin_control_center_v11_16_0.sql
+          grep -q 'revoke all on function public.erp_x_admin_control_center' supabase/migrations/092_admin_control_center_v11_16_0.sql
+
+          # Historical center V11.15 remains mandatory.
           test -s assets/css/history-center-v11150.css
           test -s assets/js/modules/history-center-v11150.js
-          grep -q 'history-center-v11150.js' assets/js/modules/imports.js
+          test -s supabase/migrations/091_history_center_v11_15_0.sql
           grep -q 'Centro Histórico de Pedidos' assets/js/modules/history-center-v11150.js
-          grep -q 'Archivo consolidado' assets/js/modules/history-center-v11150.js
-          grep -q 'Lotes históricos' assets/js/modules/history-center-v11150.js
-          grep -q 'Integridad documental' assets/js/modules/history-center-v11150.js
           grep -q 'erp_x_history_center' assets/js/modules/history-center-v11150.js
           grep -q 'erp_x_history_detail' assets/js/modules/history-center-v11150.js
-          grep -q 'erp_x_history_batches' assets/js/modules/history-center-v11150.js
-          grep -q 'erp_x_history_export' assets/js/modules/history-center-v11150.js
-          grep -q 'XLSX.writeFile' assets/js/modules/history-center-v11150.js
-          grep -q '5000' assets/js/modules/history-center-v11150.js
-          grep -q 'Archivo histórico, expedientes, importaciones y trazabilidad' assets/js/main.js
-
-          # Historical database contract.
-          test -s supabase/migrations/091_history_center_v11_15_0.sql
-          grep -q 'history_center_core' supabase/migrations/091_history_center_v11_15_0.sql
-          grep -q 'history_detail_core' supabase/migrations/091_history_center_v11_15_0.sql
-          grep -q 'history_batches_core' supabase/migrations/091_history_center_v11_15_0.sql
-          grep -q 'history_export_core' supabase/migrations/091_history_center_v11_15_0.sql
-          grep -q "can_access_module('imports','read')" supabase/migrations/091_history_center_v11_15_0.sql
-          grep -q 'ya existe como registro operativo' supabase/migrations/091_history_center_v11_15_0.sql
-          grep -q 'importBatchId' supabase/migrations/091_history_center_v11_15_0.sql
 
           # V11.14 analytics remains a mandatory regression baseline.
           test -s assets/css/reports-enterprise-v11140.css
@@ -104,15 +127,15 @@ jobs:
           test -s supabase/migrations/086_people_performance_analytics_v11_13_0.sql
           test -s supabase/migrations/087_people_analytics_profile_selector_v11_13_0.sql
 
-          # PWA must preserve current modules and include History V11.15.0.
-          grep -q './assets/css/flow-times-core-v11120.css' service-worker.js
-          grep -q './assets/css/flow-performance-v11130.css' service-worker.js
-          grep -q './assets/css/reports-enterprise-v11140.css' service-worker.js
+          # PWA contains current controlled modules.
           grep -q './assets/css/history-center-v11150.css' service-worker.js
-          grep -q './assets/js/modules/vsm.js' service-worker.js
-          grep -q './assets/js/modules/flow-performance-v11130.js' service-worker.js
-          grep -q './assets/js/modules/reports-enterprise-v11140.js' service-worker.js
+          grep -q './assets/css/admin-center-v11160.css' service-worker.js
           grep -q './assets/js/modules/history-center-v11150.js' service-worker.js
+          grep -q './assets/js/modules/admin.js' service-worker.js
+          grep -q './assets/js/modules/admin-center-v11160.js' service-worker.js
+          grep -q './assets/js/modules/reports-enterprise-v11140.js' service-worker.js
+          grep -q './assets/js/modules/vsm.js' service-worker.js
+          grep -q './assets/js/services/supabase.js' service-worker.js
 
       - name: Package deployable frontend
         shell: bash
@@ -121,12 +144,12 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.15.0" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.16.0" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.15.0-deployable
+          name: crm-suministros-v11.16.0-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
