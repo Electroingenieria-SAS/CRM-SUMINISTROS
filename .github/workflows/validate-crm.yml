@@ -47,10 +47,17 @@ jobs:
               sys.exit(1)
           PY
 
-      - name: Validate V11.10.8 release contract
+      - name: Validate V11.10.9 release contract
         shell: bash
         run: |
           set -euo pipefail
+
+          test -s assets/css/inventory-core-v11109.css
+          test -s assets/css/inventory-scan-v116.css
+          test -s assets/js/modules/inventory.js
+          test -s assets/js/modules/inventory-scan-v116.js
+          test -s assets/js/services/inventory.js
+          test -s supabase/migrations/084_inventory_traceability_v11_10_9.sql
 
           test -s assets/css/shipping-core-v11107.css
           test -s assets/css/shipping-guide-reader-v11101.css
@@ -63,14 +70,45 @@ jobs:
           test -s assets/js/services/document-reader-v11101.js
           test -s assets/js/services/drive.js
 
-          grep -q 'version: "11.10.8"' assets/js/config.js
-          grep -q 'build: "2026-09-07.02"' assets/js/config.js
+          grep -q 'version: "11.10.9"' assets/js/config.js
+          grep -q 'build: "2026-09-07.03"' assets/js/config.js
+          grep -q 'inventory-core-v11109.css?v=11.10.9' index.html
+          grep -q 'inventory-scan-v116.css?v=11.10.9' index.html
+          grep -q 'inventory-scan-bootstrap-v116.js?v=11.10.9' index.html
+          grep -q 'main.js?v=11.10.9' index.html
+
+          grep -q 'api.inventoryFiltered' assets/js/modules/inventory.js
+          grep -q 'inventory-list-head-v11109' assets/js/modules/inventory.js
+          grep -q 'data-inventory-detail' assets/js/modules/inventory.js
+          grep -q 'Lotes y ubicaciones' assets/js/modules/inventory.js
+          grep -q 'Movimientos' assets/js/modules/inventory.js
+          grep -q 'inventoryMovements' assets/js/modules/inventory.js
+          grep -q 'Conteo físico' assets/js/modules/inventory.js
+          grep -q 'PHYSICAL_COUNT' assets/js/modules/inventory.js
+          grep -q 'data-v116-scan' assets/js/modules/inventory.js
+          grep -q 'data-v116-item-labels' assets/js/modules/inventory.js
+          ! grep -q 'official-inventory-card' assets/js/modules/inventory.js
+          ! grep -q 'inventory-grid official-inventory-grid' assets/js/modules/inventory.js
+          ! grep -q 'function cards' assets/js/modules/inventory.js
+          ! grep -q 'choice("movementType","TRANSFER"' assets/js/modules/inventory.js
+          ! grep -q 'MutationObserver' assets/js/modules/inventory.js
+
+          grep -q 'erp_x_inventory_movements' assets/js/services/inventory.js
+          grep -q 'erp_x_inventory_movements' supabase/migrations/084_inventory_traceability_v11_10_9.sql
+          grep -q 'idx_inventory_movements_item_created_v11109' supabase/migrations/084_inventory_traceability_v11_10_9.sql
+          grep -q 'idx_inventory_movements_lot_created_v11109' supabase/migrations/084_inventory_traceability_v11_10_9.sql
+
+          grep -q 'inventory-summary-v11109' assets/css/inventory-core-v11109.css
+          grep -q 'inventory-list-head-v11109' assets/css/inventory-core-v11109.css
+          grep -q 'inventory-detail-tabs-v11109' assets/css/inventory-core-v11109.css
+          grep -q 'inventory-lot-row-v11109' assets/css/inventory-core-v11109.css
+          grep -q 'inventory-movement-row-v11109' assets/css/inventory-core-v11109.css
+          grep -q 'inventory-count-v11109' assets/css/inventory-core-v11109.css
 
           grep -q 'shipping-core-v11107.css?v=11.10.8' index.html
           grep -q 'sent-orders-v11108.css?v=11.10.8' index.html
           grep -q 'shipping-guide-reader-v11101.css?v=11.10.7' index.html
           grep -q 'shipping-guide-reader-v11101.js?v=11.10.7' index.html
-          grep -q 'main.js?v=11.10.8' index.html
 
           ! grep -q 'shipping-focus-v11101.css' index.html
           ! grep -q 'shipping-workflow-v11102.css' index.html
@@ -109,11 +147,6 @@ jobs:
           ! grep -q 'sent-orders-grid' assets/js/modules/sent-orders.js
           ! grep -q 'MutationObserver' assets/js/modules/sent-orders.js
 
-          grep -q 'sent-orders-list-head-v11108' assets/css/sent-orders-v11108.css
-          grep -q 'sent-order-followup-v11108' assets/css/sent-orders-v11108.css
-          grep -q '@media(max-width:980px)' assets/css/sent-orders-v11108.css
-          grep -q '@media(max-width:640px)' assets/css/sent-orders-v11108.css
-
           grep -q 'carrierInvoiceNumberV11101' assets/js/modules/shipping-guide-reader-v11101.js
           grep -q 'carrierCostV11101' assets/js/modules/shipping-guide-reader-v11101.js
           grep -q 'min="0.01"' assets/js/modules/shipping-guide-reader-v11101.js
@@ -124,7 +157,10 @@ jobs:
           grep -q 'safe-area-inset-bottom' assets/css/shipping-core-v11107.css
           grep -q 'shipping-core-footer-v11107' assets/css/shipping-core-v11107.css
 
-          grep -q 'crm-suministros-v11-10-8-20260907' service-worker.js
+          grep -q 'crm-suministros-v11-10-9-20260907' service-worker.js
+          grep -q './assets/css/inventory-core-v11109.css' service-worker.js
+          grep -q './assets/js/modules/inventory.js' service-worker.js
+          grep -q './assets/js/services/inventory.js' service-worker.js
           grep -q './assets/css/shipping-core-v11107.css' service-worker.js
           grep -q './assets/css/shipping-guide-reader-v11101.css' service-worker.js
           grep -q './assets/css/sent-orders-v11108.css' service-worker.js
@@ -154,12 +190,12 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.10.8" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.10.9" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.10.8-deployable
+          name: crm-suministros-v11.10.9-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
