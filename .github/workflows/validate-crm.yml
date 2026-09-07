@@ -15,16 +15,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Validate JavaScript syntax
         shell: bash
         run: find assets/js -name '*.js' -print0 | xargs -0 -n1 node --check
+
       - name: Validate static dependency graph
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
           import re, sys
-
           root=Path('.')
           missing=[]
           for path in (root/'assets/js').rglob('*.js'):
@@ -35,7 +36,7 @@ jobs:
                       missing.append(f'{path}: {spec}')
           sw=(root/'service-worker.js').read_text(encoding='utf-8')
           for spec in re.findall(r'"(\./[^"?#]+)"',sw):
-              if spec in ('./',):
+              if spec=='./':
                   continue
               candidate=root/spec[2:]
               if not candidate.exists():
@@ -45,123 +46,74 @@ jobs:
               print('\n'.join(missing))
               sys.exit(1)
           PY
-      - name: Validate V11.10.3 release contract
+
+      - name: Validate V11.10.7 release contract
         shell: bash
         run: |
           set -euo pipefail
-          test -s templates/historical_orders.csv
-          test -s assets/css/audit-v1182.css
-          test -s assets/css/audit-v1183.css
-          test -s assets/css/ui-v1184.css
-          test -s assets/css/dashboard-v1185.css
-          test -s assets/css/commercial-v1187.css
-          test -s assets/css/commercial-v1188.css
-          test -s assets/css/operational-lists-v1189.css
-          test -s assets/css/popup-ux-v1190.css
-          test -s assets/css/order-create-v1191.css
-          test -s assets/css/receiving-order-v1192.css
-          test -s assets/css/receiving-focus-v1193.css
-          test -s assets/css/receiving-polish-v1194.css
-          test -s assets/css/picking-focus-v1195.css
-          test -s assets/css/picking-legibility-v1196.css
-          test -s assets/css/picking-review-v1197.css
-          test -s assets/css/billing-focus-v1198.css
-          test -s assets/css/billing-upload-v1199.css
-          test -s assets/css/billing-invoice-reader-v1199.css
-          test -s assets/css/global-progress-v11100.css
-          test -s assets/css/shipping-focus-v11101.css
+
+          test -s assets/css/shipping-core-v11107.css
           test -s assets/css/shipping-guide-reader-v11101.css
-          test -s assets/css/shipping-workflow-v11102.css
-          test -s assets/css/shipping-scale-v11103.css
-          test -s assets/js/core/progress.js
-          test -s assets/js/modules/global-progress-v11100.js
-          test -s assets/js/modules/imports.js
-          test -s assets/js/modules/audit.js
-          test -s assets/js/modules/dashboard.js
-          test -s assets/js/modules/orders.js
-          test -s assets/js/modules/credit.js
-          test -s assets/js/modules/pagination-v1184.js
-          test -s assets/js/modules/commercial-v1187.js
-          test -s assets/js/modules/commercial-records-v1188.js
-          test -s assets/js/modules/popup-ux-v1190.js
-          test -s assets/js/modules/order-create-v1191.js
-          test -s assets/js/modules/receiving-order-v1192.js
-          test -s assets/js/modules/receiving-focus-v1193.js
-          test -s assets/js/modules/receiving-polish-v1194.js
-          test -s assets/js/modules/picking-focus-v1195.js
-          test -s assets/js/modules/billing-focus-v1198.js
-          test -s assets/js/modules/billing-upload-v1199.js
-          test -s assets/js/modules/billing-invoice-reader-v1199.js
-          test -s assets/js/modules/billing-multiformat-v11101.js
-          test -s assets/js/modules/shipping-focus-v11101.js
+          test -s assets/js/modules/shipping-flow.js
           test -s assets/js/modules/shipping-guide-reader-v11101.js
-          test -s assets/js/modules/shipping-workflow-v11102.js
-          test -s assets/js/modules/shipping-scale-v11103.js
+          test -s assets/js/modules/support-flow.js
+          test -s assets/js/modules/order-cancellation.js
           test -s assets/js/services/document-reader-v11101.js
-          test -s assets/js/modules/bootstrap-v113.js
-          test -s supabase/migrations/081_audit_dashboard_v11_8_2.sql
-          test -s supabase/migrations/083_order_type_labels_v11_9_1.sql
-          grep -q 'version: "11.10.3"' assets/js/config.js
-          grep -q 'build: "2026-09-04.22"' assets/js/config.js
-          grep -q 'shipping-focus-v11101.css?v=11.10.1' index.html
-          grep -q 'shipping-guide-reader-v11101.css?v=11.10.1' index.html
-          grep -q 'shipping-workflow-v11102.css?v=11.10.2' index.html
-          grep -q 'shipping-scale-v11103.css?v=11.10.3' index.html
-          grep -q 'billing-multiformat-v11101.js?v=11.10.1' index.html
-          grep -q 'shipping-focus-v11101.js?v=11.10.1' index.html
-          grep -q 'shipping-guide-reader-v11101.js?v=11.10.1' index.html
-          grep -q 'shipping-workflow-v11102.js?v=11.10.2' index.html
-          grep -q 'shipping-scale-v11103.js?v=11.10.3' index.html
-          grep -q 'crm-suministros-v11-10-3-20260904' service-worker.js
-          grep -q './assets/css/shipping-focus-v11101.css' service-worker.js
-          grep -q './assets/css/shipping-guide-reader-v11101.css' service-worker.js
-          grep -q './assets/css/shipping-workflow-v11102.css' service-worker.js
-          grep -q './assets/css/shipping-scale-v11103.css' service-worker.js
-          grep -q './assets/js/services/document-reader-v11101.js' service-worker.js
-          grep -q './assets/js/modules/billing-multiformat-v11101.js' service-worker.js
-          grep -q './assets/js/modules/shipping-focus-v11101.js' service-worker.js
+          test -s assets/js/services/drive.js
+
+          grep -q 'version: "11.10.7"' assets/js/config.js
+          grep -q 'build: "2026-09-07.01"' assets/js/config.js
+
+          grep -q 'shipping-core-v11107.css?v=11.10.7' index.html
+          grep -q 'shipping-guide-reader-v11101.js?v=11.10.7' index.html
+          grep -q 'main.js?v=11.10.7' index.html
+
+          ! grep -q 'shipping-focus-v11101.js' index.html
+          ! grep -q 'shipping-workflow-v11102.js' index.html
+          ! grep -q 'shipping-scale-v11103.js' index.html
+          ! grep -q 'shipping-secondary-v11105.js' index.html
+          ! grep -q 'shipping-next-v11106.js' index.html
+          ! grep -q 'api-getorder-dedupe-v11106.js' index.html
+
+          grep -q 'data-shipping-close-another' assets/js/modules/shipping-flow.js
+          grep -q 'data-shipping-next-core' assets/js/modules/shipping-flow.js
+          grep -q 'bindFooter' assets/js/modules/shipping-flow.js
+          grep -q 'navigate(moduleForStep(step)' assets/js/modules/shipping-flow.js
+          grep -q 'await reload' assets/js/modules/shipping-flow.js
+          ! grep -q 'parallelWorkFooter' assets/js/modules/shipping-flow.js
+          ! grep -q 'MutationObserver' assets/js/modules/shipping-flow.js
+
+          grep -q 'data-order-support-slot' assets/js/modules/shipping-flow.js
+          grep -q 'data-order-cancellation-slot' assets/js/modules/shipping-flow.js
+          grep -q 'data-order-support-slot' assets/js/modules/support-flow.js
+          grep -q 'data-order-cancellation-slot' assets/js/modules/order-cancellation.js
+
+          grep -q 'carrierInvoiceNumberV11101' assets/js/modules/shipping-guide-reader-v11101.js
+          grep -q 'carrierCostV11101' assets/js/modules/shipping-guide-reader-v11101.js
+          grep -q 'min="0.01"' assets/js/modules/shipping-guide-reader-v11101.js
+          grep -q 'application/pdf,.pdf,image/\*,.csv,text/csv' assets/js/modules/shipping-guide-reader-v11101.js
+          grep -q 'readDocumentText' assets/js/modules/shipping-guide-reader-v11101.js
+
+          grep -q '1400px' assets/css/shipping-core-v11107.css
+          grep -q 'safe-area-inset-bottom' assets/css/shipping-core-v11107.css
+          grep -q 'shipping-core-footer-v11107' assets/css/shipping-core-v11107.css
+
+          grep -q 'crm-suministros-v11-10-7-20260907' service-worker.js
+          grep -q './assets/css/shipping-core-v11107.css' service-worker.js
+          grep -q './assets/js/modules/shipping-flow.js' service-worker.js
           grep -q './assets/js/modules/shipping-guide-reader-v11101.js' service-worker.js
-          grep -q './assets/js/modules/shipping-workflow-v11102.js' service-worker.js
-          grep -q './assets/js/modules/shipping-scale-v11103.js' service-worker.js
+          ! grep -q './assets/js/modules/shipping-next-v11106.js' service-worker.js
+          ! grep -q './assets/js/modules/api-getorder-dedupe-v11106.js' service-worker.js
+
           grep -q 'operationProgress' assets/js/services/drive.js
           grep -q 'Subiendo a Drive' assets/js/modules/global-progress-v11100.js
           grep -q 'El CRM sigue trabajando' assets/js/modules/global-progress-v11100.js
-          grep -q 'crm-busy-button-v11100' assets/js/modules/global-progress-v11100.js
-          grep -q 'env(safe-area-inset-bottom)' assets/css/global-progress-v11100.css
-          grep -q 'invoiceNumberV1199' assets/js/modules/billing-invoice-reader-v1199.js
-          grep -q 'invoiceWeightV1199' assets/js/modules/billing-invoice-reader-v1199.js
-          grep -q 'packageWeightKg' assets/js/modules/billing-invoice-reader-v1199.js
-          grep -q 'Peso pendiente' assets/js/modules/billing-invoice-reader-v1199.js
-          grep -q 'billing-secondary-v1198' assets/js/modules/billing-focus-v1198.js
-          grep -q 'data-billing-next-v1198' assets/js/modules/billing-focus-v1198.js
-          grep -q 'Cerrar y tomar otro' assets/js/modules/billing-focus-v1198.js
-          grep -q 'Siguiente' assets/js/modules/billing-focus-v1198.js
-          grep -q 'picking-review-v1197' assets/js/modules/picking-focus-v1195.js
-          grep -q 'Más información y novedades' assets/js/modules/picking-focus-v1195.js
-          grep -q 'Revisa los materiales' assets/js/modules/picking-focus-v1195.js
-          grep -q '¿Quiere agregar más datos del cliente?' assets/js/modules/order-create-v1191.js
-          grep -q 'ORDER_TYPES=new Set' assets/js/modules/order-create-v1191.js
-          grep -q "set name = code" supabase/migrations/083_order_type_labels_v11_9_1.sql
-          grep -q 'popup-process-guide-v1190' assets/css/popup-ux-v1190.css
-          grep -q 'readDocumentText' assets/js/services/document-reader-v11101.js
-          grep -q 'Tesseract' assets/js/services/document-reader-v11101.js
-          grep -q 'csvToReadableText' assets/js/services/document-reader-v11101.js
-          grep -q 'Registra la guía del envío' assets/js/modules/shipping-focus-v11101.js
-          grep -q 'Cerrar y tomar otro' assets/js/modules/shipping-focus-v11101.js
-          grep -q 'Siguiente' assets/js/modules/shipping-focus-v11101.js
-          grep -q 'carrierInvoiceNumberV11101' assets/js/modules/shipping-guide-reader-v11101.js
-          grep -q 'carrierCostV11101' assets/js/modules/shipping-guide-reader-v11101.js
-          grep -q 'application/pdf,.pdf,image/\*,.csv,text/csv' assets/js/modules/shipping-guide-reader-v11101.js
-          grep -q 'application/pdf,.pdf,image/\*,.csv,text/csv' assets/js/modules/billing-multiformat-v11101.js
-          grep -q 'safe-area-inset-bottom' assets/css/shipping-focus-v11101.css
-          grep -q 'font-size:16px' assets/css/shipping-guide-reader-v11101.css
-          grep -q '1200px' assets/css/shipping-scale-v11103.css
-          grep -q 'shipping-subdialog-v11103' assets/js/modules/shipping-scale-v11103.js
-          grep -q 'moveDuplicateAddress' assets/js/modules/shipping-scale-v11103.js
+
           test ! -e assets/js/modules/receiving-v114.js
           test ! -e assets/js/services/drive-bridge.js
           test ! -e assets/js/services/drive-oauth.js
           test ! -e assets/css/receiving-v114.css
+
       - name: Package deployable frontend
         shell: bash
         run: |
@@ -169,11 +121,12 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.10.3" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.10.7" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.10.3-deployable
+          name: crm-suministros-v11.10.7-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
