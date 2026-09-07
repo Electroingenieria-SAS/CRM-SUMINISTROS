@@ -1,11 +1,13 @@
-/* CRM Suministros V11.10.6 · navegación robusta de Despachos
-   Usa delegación sobre #modal-root para que Siguiente siga funcionando aunque
-   otras capas reorganicen o reemplacen nodos del footer. */
+/* CRM Suministros V11.10.6 · navegación robusta de Despachos */
+import {navigate} from "../core/router.js";
+import {toast} from "../core/ui.js";
+import {moduleForStep} from "./active-work.js";
 
 let observer=null;
 let scheduled=false;
 
 const NEXT_SELECTOR='[data-shipping-next-v11102],[data-shipping-next],.shipping-next-v11101';
+const TAKE_ANOTHER_SELECTOR='[data-take-another]';
 
 function isShippingModal(node){
   return node?.closest?.('.shipping-process-modal.shipping-workflow-v11102')||null;
@@ -36,17 +38,25 @@ function resolveTarget(modal){
 
 function syncModal(modal){
   const next=modal.querySelector(NEXT_SELECTOR);
-  if(!next)return;
+  if(next){
+    const target=resolveTarget(modal);
+    const blocked=modal.classList.contains('order-blocked-by-issue');
+    const enabled=Boolean(target&&!blocked);
 
-  const target=resolveTarget(modal);
-  const blocked=modal.classList.contains('order-blocked-by-issue');
-  const enabled=Boolean(target&&!blocked);
+    if(next.disabled===enabled)next.disabled=!enabled;
+    const aria=enabled?'false':'true';
+    if(next.getAttribute('aria-disabled')!==aria)next.setAttribute('aria-disabled',aria);
+    const title=enabled?'Continuar con el paso actual':'Completa o resuelve la condición pendiente antes de continuar';
+    if(next.title!==title)next.title=title;
+    next.dataset.shippingNextGuardV11106='1';
+  }
 
-  if(next.disabled===enabled)next.disabled=!enabled;
-  const aria=enabled?'false':'true';
-  if(next.getAttribute('aria-disabled')!==aria)next.setAttribute('aria-disabled',aria);
-  next.title=enabled?'Continuar con el paso actual':'Completa o resuelve la condición pendiente antes de continuar';
-  next.dataset.shippingNextGuardV11106='1';
+  const takeAnother=modal.querySelector(TAKE_ANOTHER_SELECTOR);
+  if(takeAnother){
+    takeAnother.disabled=false;
+    takeAnother.setAttribute('aria-disabled','false');
+    takeAnother.dataset.shippingTakeAnotherGuardV11106='1';
+  }
 }
 
 function syncAll(){
@@ -79,13 +89,7 @@ function highlightTask(modal){
   setTimeout(()=>focus.classList.remove('shipping-next-highlight-v11102'),850);
 }
 
-function onClick(event){
-  const button=event.target?.closest?.(NEXT_SELECTOR);
-  if(!button)return;
-  const modal=isShippingModal(button);
-  if(!modal)return;
-
-  // Interceptamos antes de listeners ligados a nodos que pudieron ser clonados.
+function handleNext(event,button,modal){
   event.preventDefault();
   event.stopImmediatePropagation();
 
@@ -105,16 +109,39 @@ function onClick(event){
   button.setAttribute('aria-disabled','true');
   button.classList.add('crm-busy-button-v11100');
 
-  // El botón real conserva la lógica de negocio original de shipping-flow.js.
+  // Conserva la lógica de negocio original de shipping-flow.js.
   target.click();
 
-  // Si el flujo no rerenderiza inmediatamente (por ejemplo, abre un subpopup),
-  // devolvemos el control al botón Siguiente sin interferir con la operación.
   setTimeout(()=>{
     if(!button.isConnected)return;
     button.classList.remove('crm-busy-button-v11100');
     syncModal(modal);
-  },500);
+  },650);
+}
+
+function handleTakeAnother(event,button,modal){
+  event.preventDefault();
+  event.stopImmediatePropagation();
+
+  const step=button.dataset.takeAnother||modal.dataset.shippingRouteV11102||'';
+  document.querySelector('#modal-root')?.replaceChildren();
+  navigate(moduleForStep(step),{step,assignment:'ALL'});
+  toast('El pedido anterior continúa en Mis pedidos activos. Puedes tomar otro sin perder el avance.','success',6000);
+}
+
+function onClick(event){
+  const next=event.target?.closest?.(NEXT_SELECTOR);
+  if(next){
+    const modal=isShippingModal(next);
+    if(modal)handleNext(event,next,modal);
+    return;
+  }
+
+  const takeAnother=event.target?.closest?.(TAKE_ANOTHER_SELECTOR);
+  if(takeAnother){
+    const modal=isShippingModal(takeAnother);
+    if(modal)handleTakeAnother(event,takeAnother,modal);
+  }
 }
 
 function install(){
