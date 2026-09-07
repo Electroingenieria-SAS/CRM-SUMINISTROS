@@ -67,7 +67,7 @@ function enhanceUserRows(root){
     const cells=row.querySelectorAll("td");
     const status=String(cells[2]?.textContent||"");
     const auth=String(cells[3]?.textContent||"");
-    if(!/activ/i.test(status)||!/vinculada/i.test(auth))return;
+    if(/inactiv/i.test(status)||!/activ/i.test(status)||!/vinculada/i.test(auth))return;
     const profileId=edit.dataset.editUser;
     if(!profileId)return;
     const label=String(cells[0]?.querySelector("strong")?.textContent||"usuario").trim();
