@@ -47,11 +47,12 @@ jobs:
               sys.exit(1)
           PY
 
-      - name: Validate V11.11.0 release contract
+      - name: Validate V11.12.0 release contract
         shell: bash
         run: |
           set -euo pipefail
 
+          # Inventario V11.11.0: contrato de regresión retenido.
           test -s assets/css/inventory-core-v11110.css
           test -s assets/css/inventory-scan-v116.css
           test -s assets/js/modules/inventory.js
@@ -60,6 +61,7 @@ jobs:
           test -s supabase/migrations/084_inventory_traceability_v11_10_9.sql
           test ! -e assets/css/inventory-core-v11109.css
 
+          # Shipping: contrato de regresión retenido.
           test -s assets/css/shipping-core-v11107.css
           test -s assets/css/shipping-guide-reader-v11101.css
           test -s assets/css/sent-orders-v11108.css
@@ -71,14 +73,39 @@ jobs:
           test -s assets/js/services/document-reader-v11101.js
           test -s assets/js/services/drive.js
 
-          grep -q 'version: "11.11.0"' assets/js/config.js
-          grep -q 'build: "2026-09-07.04"' assets/js/config.js
+          # Flujo y tiempos V11.12.0.
+          test -s assets/css/flow-times-core-v11120.css
+          test -s assets/js/modules/vsm.js
+          test -s supabase/migrations/085_flow_times_analytics_v11_12_0.sql
+
+          # Identidad global de release. Las versiones internas de módulos previos se conservan.
+          grep -q 'version: "11.12.0"' assets/js/config.js
+          grep -q 'build: "2026-09-07.05"' assets/js/config.js
           grep -q 'inventory-core-v11110.css?v=11.11.0' index.html
           grep -q 'inventory-scan-v116.css?v=11.11.0' index.html
           grep -q 'inventory-scan-bootstrap-v116.js?v=11.11.0' index.html
-          grep -q 'main.js?v=11.11.0' index.html
+          grep -q 'flow-times-core-v11120.css?v=11.12.0' index.html
+          grep -q 'main.js?v=11.12.0' index.html
           ! grep -q 'inventory-core-v11109.css' index.html
 
+          # Contrato funcional de Flujo y tiempos.
+          grep -q 'Flujo y tiempos V11.12.0' assets/js/modules/vsm.js
+          grep -q 'flowEfficiencyPct' assets/js/modules/vsm.js
+          grep -q 'atRisk' assets/js/modules/vsm.js
+          grep -q 'slowestOrders' assets/js/modules/vsm.js
+          grep -q 'flow-map-v11120' assets/js/modules/vsm.js
+          grep -q 'flow-verification-v11120' assets/js/modules/vsm.js
+          grep -q 'Flujo y tiempos V11.12.0' assets/css/flow-times-core-v11120.css
+          grep -q '.flow-summary-v11120' assets/css/flow-times-core-v11120.css
+          grep -q '.flow-map-v11120' assets/css/flow-times-core-v11120.css
+          grep -q '.flow-node-v11120' assets/css/flow-times-core-v11120.css
+          grep -q 'erp_x_vsm' supabase/migrations/085_flow_times_analytics_v11_12_0.sql
+          grep -q 'flowEfficiencyPct' supabase/migrations/085_flow_times_analytics_v11_12_0.sql
+          grep -q "can_access_module('vsm','read')" supabase/migrations/085_flow_times_analytics_v11_12_0.sql
+          grep -q "revoke execute on function public.erp_x_vsm(date,date) from public,anon" supabase/migrations/085_flow_times_analytics_v11_12_0.sql
+          grep -q "grant execute on function public.erp_x_vsm(date,date) to authenticated" supabase/migrations/085_flow_times_analytics_v11_12_0.sql
+
+          # Inventario: regresiones funcionales y visuales.
           grep -q 'api.inventoryFiltered' assets/js/modules/inventory.js
           grep -q 'inventory-list-head-v11109' assets/js/modules/inventory.js
           grep -q 'data-inventory-detail' assets/js/modules/inventory.js
@@ -115,6 +142,7 @@ jobs:
           grep -q '@media(max-width:680px)' assets/css/inventory-core-v11110.css
           grep -q 'prefers-reduced-motion' assets/css/inventory-core-v11110.css
 
+          # Shipping: versiones y ausencia de capas obsoletas.
           grep -q 'shipping-core-v11107.css?v=11.10.8' index.html
           grep -q 'sent-orders-v11108.css?v=11.10.8' index.html
           grep -q 'shipping-guide-reader-v11101.css?v=11.10.7' index.html
@@ -167,7 +195,11 @@ jobs:
           grep -q 'safe-area-inset-bottom' assets/css/shipping-core-v11107.css
           grep -q 'shipping-core-footer-v11107' assets/css/shipping-core-v11107.css
 
-          grep -q 'crm-suministros-v11-11-0-20260907' service-worker.js
+          # PWA V11.12.0 y precache completo del nuevo módulo.
+          grep -q 'previous-cache: crm-suministros-v11-11-0-20260907' service-worker.js
+          grep -q 'crm-suministros-v11-12-0-20260907' service-worker.js
+          grep -q './assets/css/flow-times-core-v11120.css' service-worker.js
+          grep -q './assets/js/modules/vsm.js' service-worker.js
           grep -q './assets/css/inventory-core-v11110.css' service-worker.js
           ! grep -q './assets/css/inventory-core-v11109.css' service-worker.js
           grep -q './assets/js/modules/inventory.js' service-worker.js
@@ -201,12 +233,12 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.11.0" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.12.0" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.11.0-deployable
+          name: crm-suministros-v11.12.0-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
