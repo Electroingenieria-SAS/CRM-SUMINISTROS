@@ -1,0 +1,119 @@
+name: Validate CRM Suministros V11.14.0 Analytics
+
+on:
+  push:
+    branches: [analytics-enterprise-v11-14-0]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-analytics:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate JavaScript syntax
+        shell: bash
+        run: find assets/js -name '*.js' -print0 | xargs -0 -n1 node --check
+
+      - name: Validate static dependency graph
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re, sys
+          root=Path('.')
+          missing=[]
+          for path in (root/'assets/js').rglob('*.js'):
+              text=path.read_text(encoding='utf-8')
+              for spec in re.findall(r'(?:from\s+|import\s*\()\s*["\'](\.{1,2}/[^"\']+)["\']',text):
+                  candidate=(path.parent/spec).resolve()
+                  if not candidate.exists(): missing.append(f'{path}: {spec}')
+          sw=(root/'service-worker.js').read_text(encoding='utf-8')
+          for spec in re.findall(r'"(\./[^"?#]+)"',sw):
+              if spec=='./': continue
+              candidate=root/spec[2:]
+              if not candidate.exists(): missing.append(f'service-worker.js: {spec}')
+          if missing:
+              print('Referencias estáticas inexistentes:')
+              print('\n'.join(missing));sys.exit(1)
+          PY
+
+      - name: Validate V11.14.0 release contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s assets/css/reports-enterprise-v11140.css
+          test -s assets/js/modules/reports-enterprise-v11140.js
+          test -s assets/js/modules/reports.js
+          test -s supabase/migrations/088_reports_analytics_core_v11_14_0.sql
+          test -s supabase/migrations/089_reports_explorer_export_views_v11_14_0.sql
+          test -s supabase/migrations/090_reports_analytics_indexes_v11_14_0.sql
+
+          grep -q 'version: "11.14.0"' assets/js/config.js
+          grep -q 'build: "2026-09-07.07"' assets/js/config.js
+          grep -q 'reports-enterprise-v11140.css?v=11.14.0' index.html
+          grep -q 'main.js?v=11.14.0' index.html
+          grep -q 'reports-enterprise-v11140.js' assets/js/modules/reports.js
+
+          grep -q 'Intelligence Center' assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'Resumen ejecutivo' assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'Operación y SLA' assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'Logística e inventario' assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'Explorador BI' assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'Calidad del dato' assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'Vistas guardadas' assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'erp_x_reports_analytics' assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'erp_x_reports_explore' assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'erp_x_reports_export' assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'erp_x_reports_views' assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'XLSX.writeFile' assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'window.print' assets/js/modules/reports-enterprise-v11140.js
+          grep -q '5000' assets/js/modules/reports-enterprise-v11140.js
+
+          grep -q 'report_saved_views' supabase/migrations/088_reports_analytics_core_v11_14_0.sql
+          grep -q "can_access_module('reports','read')" supabase/migrations/088_reports_analytics_core_v11_14_0.sql
+          grep -q 'erp_x_reports_analytics' supabase/migrations/088_reports_analytics_core_v11_14_0.sql
+          grep -q 'security invoker' supabase/migrations/088_reports_analytics_core_v11_14_0.sql
+          grep -q 'erp_x_reports_explore' supabase/migrations/089_reports_explorer_export_views_v11_14_0.sql
+          grep -q 'erp_x_reports_export' supabase/migrations/089_reports_explorer_export_views_v11_14_0.sql
+          grep -q 'erp_x_reports_views' supabase/migrations/089_reports_explorer_export_views_v11_14_0.sql
+          grep -q 'Dataset no permitido' supabase/migrations/089_reports_explorer_export_views_v11_14_0.sql
+          grep -q '5000' supabase/migrations/089_reports_explorer_export_views_v11_14_0.sql
+          grep -q 'idx_reports_work_org_started_v11140' supabase/migrations/090_reports_analytics_indexes_v11_14_0.sql
+
+          grep -q 'previous-cache: crm-suministros-v11-13-0-20260907' service-worker.js
+          grep -q 'crm-suministros-v11-14-0-20260907' service-worker.js
+          grep -q './assets/css/reports-enterprise-v11140.css' service-worker.js
+          grep -q './assets/js/modules/reports-enterprise-v11140.js' service-worker.js
+          grep -q './assets/js/modules/reports.js' service-worker.js
+
+          # Regression contracts retained.
+          test -s assets/css/inventory-core-v11110.css
+          test -s assets/css/shipping-core-v11107.css
+          test -s assets/css/flow-times-core-v11120.css
+          test -s assets/css/flow-performance-v11130.css
+          test -s supabase/migrations/084_inventory_traceability_v11_10_9.sql
+          test -s supabase/migrations/085_flow_times_analytics_v11_12_0.sql
+          test -s supabase/migrations/086_people_performance_analytics_v11_13_0.sql
+          test -s supabase/migrations/087_people_analytics_profile_selector_v11_13_0.sql
+
+      - name: Package deployable frontend
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist-deployable
+          cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
+          cp -R assets templates dist-deployable/
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.14.0" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+
+      - name: Preserve deployable frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: crm-suministros-v11.14.0-analytics-deployable
+          path: dist-deployable/
+          if-no-files-found: error
+          retention-days: 90
