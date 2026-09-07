@@ -1,6 +1,6 @@
 import {api} from "../services/api.js";
-import {fmt,statusBadge,priorityBadge} from "../core/format.js";
-import {modal,toast,loading,empty,paginationHtml} from "../core/ui.js";
+import {fmt,statusBadge} from "../core/format.js";
+import {modal,toast} from "../core/ui.js";
 import {uploadOrderFile} from "../services/drive.js";
 import {state,hasRole} from "../core/state.js";
 import {navigate} from "../core/router.js";
@@ -90,7 +90,6 @@ function bindFooter(host,data,{onNext,refreshLists}={}){
 function workflowHeader(data,stage,delivery=null){
   const profile=profileFor(data.order);
   const place=destination(delivery,data.order);
-  const stageNo=stage==="TAKE"?1:stage==="CLOSURE"?3:2;
   const title=stage==="TAKE"?`Preparar ${profile.label.toLowerCase()}`:stage==="GUIDE"?profile.guideTitle:profile.closureTitle;
   const copy=stage==="TAKE"?"Empieza con lo esencial. La información detallada y las novedades quedan abajo, fuera del área principal.":stage==="GUIDE"?profile.guideCopy:"Adjunta la evidencia final requerida para completar el proceso.";
   const facts=stage==="GUIDE"&&delivery?[
@@ -146,7 +145,7 @@ function renderDispatch(host,data,{reload,refreshLists}){
   if(!started){
     const taskHtml=`<div class="shipping-core-task-head-v11107"><div><span class="shipping-core-task-kicker-v11107">PASO 1</span><h4>${fmt.escape(profile.takeTitle)}</h4><p>${fmt.escape(profile.takeCopy)}</p></div><span class="shipping-core-step-badge-v11107">Paso 1 de 3</span></div>${destinationCard(place,profile.destination)}<button type="button" class="btn btn-primary shipping-core-primary-v11107" data-take-shipping>${fmt.escape(profile.takeCta)}</button>`;
     shell(host,data,`${workflowHeader(data,"TAKE")}${workspace(data,"TAKE",taskHtml,place)}`);
-    const take=async button=>{
+    const take=async()=>{
       disableCoreActions(host,true);
       try{
         let current=data,available=actionSet(current);
@@ -156,7 +155,7 @@ function renderDispatch(host,data,{reload,refreshLists}){
         toast("Pedido tomado. Continúa con la guía o soporte.","success",5000);refreshLists?.();await reload?.();
       }catch(error){disableCoreActions(host,false);throw error}
     };
-    host.querySelector("[data-take-shipping]")?.addEventListener("click",event=>take(event.currentTarget).catch(error=>toast(error.message,"error",7000)));
+    host.querySelector("[data-take-shipping]")?.addEventListener("click",()=>take().catch(error=>toast(error.message,"error",7000)));
     bindFooter(host,data,{refreshLists,onNext:take});
     return;
   }
@@ -256,17 +255,6 @@ function renderCommercialViewer(host,data,{refreshLists}={}){
 export function openNoDeliveryReport(order,{onSaved}={}){
   if(!canReportNoDelivery())return toast("Solo Ventas o Superadministración pueden registrar una no entrega.","error",7000);
   modal({title:"Reportar no entrega a Logística",confirmLabel:"Enviar reporte",size:"wide",body:`<div class="shipping-dialog-intro danger"><strong>${fmt.escape(order.orderNumber||order.order_number||"Pedido")}</strong><p>Se generará un Reporte bloqueante para Logística. El pedido no continuará hasta que Logística lo solucione y cierre.</p></div><div class="field"><label>Motivo de no entrega *</label><textarea class="control" name="reason" required autofocus placeholder="Explica por qué el cliente no recibió el pedido"></textarea></div><div class="field"><label>Acción solicitada</label><select class="control" name="requestedAction"><option value="CONTACT_CLIENT">Contactar al cliente</option><option value="REPROGRAM">Reprogramar entrega</option><option value="RETURN">Retornar mercancía</option><option value="REVIEW">Revisar con Logística</option></select></div>`,onConfirm:async dialog=>{const reason=dialog.querySelector('[name="reason"]').value.trim(),requestedAction=dialog.querySelector('[name="requestedAction"]').value;await api.reportShippingNoDelivery(order.id,{reason,requestedAction});toast("Reporte de no entrega enviado a Logística.","success",6500);onSaved?.();}});
-}
-
-export async function renderSentOrdersPanel(target,{search="",page=1,onOpen}={}){
-  target.innerHTML=loading("Consultando pedidos enviados…");
-  try{
-    const data=await api.shippingSentOrders(search,page,30),rows=data.items||[];
-    target.innerHTML=rows.length?`<div class="sent-orders-grid">${rows.map(row=>`<article class="sent-order-card ${row.hasNoDelivery?"novelty":""}"><header><div><span>${fmt.escape(row.orderNumber)}</span><h4>${fmt.escape(row.clientName)}</h4></div>${priorityBadge(row.priority)}</header><div class="sent-order-route"><strong>${fmt.escape(fmt.route(row.route))}</strong>${statusBadge(row.deliveryStatus||row.status)}</div><dl><div><dt>Guía</dt><dd>${fmt.escape(row.trackingNumber||"Sin guía")}</dd></div><div><dt>Municipio</dt><dd>${fmt.escape(row.municipality||"—")}</dd></div><div><dt>Enviado</dt><dd>${fmt.date(row.dispatchedAt)}</dd></div><div><dt>Responsable</dt><dd>${fmt.escape(row.assigneeName||"—")}</dd></div></dl><footer>${row.hasNoDelivery?'<span class="sent-order-alert">Reporte enviado a Logística</span>':row.canReportNoDelivery?`<button class="btn btn-danger btn-compact" data-no-delivery="${fmt.escape(row.id)}">Reportar no entrega</button>`:'<span class="sent-order-closed">Entrega finalizada</span>'}<button class="btn btn-ghost btn-compact" data-open-sent="${fmt.escape(row.id)}">Ver pedido</button></footer></article>`).join("")}</div>${paginationHtml(data.pagination)}`:empty("No hay pedidos enviados","Los pedidos aparecerán cuando Logística los pase a cierre.");
-    target.querySelectorAll("[data-no-delivery]").forEach(button=>button.onclick=()=>{const row=rows.find(item=>item.id===button.dataset.noDelivery);if(row)openNoDeliveryReport(row,{onSaved:()=>renderSentOrdersPanel(target,{search,page,onOpen})})});
-    target.querySelectorAll("[data-open-sent]").forEach(button=>button.onclick=()=>onOpen?.(button.dataset.openSent));
-    target.querySelectorAll("[data-page]").forEach(button=>button.onclick=()=>renderSentOrdersPanel(target,{search,page:Number(button.dataset.page),onOpen}));
-  }catch(error){target.innerHTML=`<div class="module-error"><strong>No fue posible consultar los pedidos enviados</strong><p>${fmt.escape(error.message)}</p></div>`}
 }
 
 function guideSummary(delivery,file){
