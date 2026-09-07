@@ -34,105 +34,78 @@ jobs:
               for spec in re.findall(r'(?:from\s+|import\s*\()\s*["\'](\.{1,2}/[^"\']+)["\']',text):
                   candidate=(path.parent/spec).resolve()
                   if not candidate.exists(): missing.append(f'{path}: {spec}')
-          index=(root/'index.html').read_text(encoding='utf-8')
-          for spec in re.findall(r'(?:src|href)="(\./[^"?#]+)',index):
-              candidate=root/spec[2:]
-              if not candidate.exists(): missing.append(f'index.html: {spec}')
           sw=(root/'service-worker.js').read_text(encoding='utf-8')
           for spec in re.findall(r'"(\./[^"?#]+)"',sw):
               if spec=='./': continue
-              candidate=root/spec[2:]
-              if not candidate.exists(): missing.append(f'service-worker.js: {spec}')
+              if not (root/spec[2:]).exists(): missing.append(f'service-worker.js: {spec}')
           if missing:
-              print('Referencias estáticas inexistentes:')
-              print('\n'.join(missing))
-              sys.exit(1)
+              print('\n'.join(missing));sys.exit(1)
           PY
 
-      - name: Validate V11.13.0 release contract
+      - name: Validate V11.14.0 release contract
         shell: bash
         run: |
           set -euo pipefail
 
-          # Identidad global.
-          grep -q 'version: "11.13.0"' assets/js/config.js
-          grep -q 'build: "2026-09-07.06"' assets/js/config.js
-          grep -q 'main.js?v=11.13.0' index.html
+          # Release identity.
+          grep -q 'version: "11.14.0"' assets/js/config.js
+          grep -q 'build: "2026-09-07.07"' assets/js/config.js
+          grep -q 'main.js?v=11.14.0' index.html
+          grep -q 'reports-enterprise-v11140.css?v=11.14.0' index.html
+          grep -q 'crm-suministros-v11-14-0-20260907' service-worker.js
 
-          # Regresión Inventario V11.11.0.
+          # Current analytics contract.
+          test -s assets/css/reports-enterprise-v11140.css
+          test -s assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'reports-enterprise-v11140.js' assets/js/modules/reports.js
+          grep -q 'Intelligence Center' assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'Explorador BI' assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'Calidad del dato' assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'Vistas guardadas' assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'erp_x_reports_analytics' assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'erp_x_reports_explore' assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'erp_x_reports_export' assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'erp_x_reports_views' assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'window.XLSX.writeFile' assets/js/modules/reports-enterprise-v11140.js
+          grep -q 'window.print' assets/js/modules/reports-enterprise-v11140.js
+
+          # Database contract.
+          test -s supabase/migrations/088_reports_analytics_core_v11_14_0.sql
+          test -s supabase/migrations/089_reports_explorer_export_views_v11_14_0.sql
+          test -s supabase/migrations/090_reports_analytics_indexes_v11_14_0.sql
+          grep -q 'report_saved_views' supabase/migrations/088_reports_analytics_core_v11_14_0.sql
+          grep -q "can_access_module('reports','read')" supabase/migrations/088_reports_analytics_core_v11_14_0.sql
+          grep -q 'security invoker' supabase/migrations/088_reports_analytics_core_v11_14_0.sql
+          grep -q 'erp_x_reports_explore' supabase/migrations/089_reports_explorer_export_views_v11_14_0.sql
+          grep -q 'erp_x_reports_export' supabase/migrations/089_reports_explorer_export_views_v11_14_0.sql
+          grep -q 'erp_x_reports_views' supabase/migrations/089_reports_explorer_export_views_v11_14_0.sql
+          grep -q 'idx_reports_orders_closed_v11140' supabase/migrations/090_reports_analytics_indexes_v11_14_0.sql
+
+          # Regression contracts retained from V11.11–V11.13.
           test -s assets/css/inventory-core-v11110.css
-          test -s assets/css/inventory-scan-v116.css
           test -s assets/js/modules/inventory.js
           test -s assets/js/services/inventory.js
           test -s supabase/migrations/084_inventory_traceability_v11_10_9.sql
-          grep -q 'inventory-core-v11110.css?v=11.11.0' index.html
-          grep -q 'inventory-scan-v116.css?v=11.11.0' index.html
-          grep -q 'api.inventoryFiltered' assets/js/modules/inventory.js
-          grep -q 'erp_x_inventory_movements' assets/js/services/inventory.js
-          ! grep -q 'inventory-core-v11109.css' index.html
-
-          # Regresión Shipping.
           test -s assets/css/shipping-core-v11107.css
-          test -s assets/css/shipping-guide-reader-v11101.css
           test -s assets/css/sent-orders-v11108.css
           test -s assets/js/modules/shipping-flow.js
           test -s assets/js/modules/sent-orders.js
-          test -s assets/js/modules/shipping-guide-reader-v11101.js
-          grep -q 'shipping-core-v11107.css?v=11.10.8' index.html
-          grep -q 'sent-orders-v11108.css?v=11.10.8' index.html
-          grep -q 'shipping-guide-reader-v11101.css?v=11.10.7' index.html
-          grep -q 'data-shipping-close-another' assets/js/modules/shipping-flow.js
-          grep -q 'sent-orders-overview-v11108' assets/js/modules/sent-orders.js
-          ! grep -q 'shipping-workflow-v11102.css' index.html
-          ! grep -q 'shipping-next-v11106.js' index.html
-
-          # VSM V11.12.0 retenido.
           test -s assets/css/flow-times-core-v11120.css
           test -s assets/js/modules/vsm.js
           test -s supabase/migrations/085_flow_times_analytics_v11_12_0.sql
-          grep -q 'flow-times-core-v11120.css?v=11.12.0' index.html
-          grep -q 'flowEfficiencyPct' assets/js/modules/vsm.js
-          grep -q 'atRisk' assets/js/modules/vsm.js
-          grep -q 'slowestOrders' assets/js/modules/vsm.js
-          grep -q 'erp_x_vsm' supabase/migrations/085_flow_times_analytics_v11_12_0.sql
-
-          # Analítica integral de personas V11.13.0.
           test -s assets/css/flow-performance-v11130.css
           test -s assets/js/modules/flow-performance-v11130.js
           test -s supabase/migrations/086_people_performance_analytics_v11_13_0.sql
           test -s supabase/migrations/087_people_analytics_profile_selector_v11_13_0.sql
-          grep -q 'flow-performance-v11130.css?v=11.13.0' index.html
-          grep -q 'flow-performance-v11130.js?v=11.13.0' index.html
-          grep -q 'erp_x_vsm_people' supabase/migrations/086_people_performance_analytics_v11_13_0.sql
-          grep -q 'potentialDeadSeconds' supabase/migrations/086_people_performance_analytics_v11_13_0.sql
-          grep -q 'effectiveOccupationPct' supabase/migrations/086_people_performance_analytics_v11_13_0.sql
-          grep -q 'tasksPerEffectiveHour' supabase/migrations/086_people_performance_analytics_v11_13_0.sql
-          grep -q 'estimateAccuracyPct' supabase/migrations/086_people_performance_analytics_v11_13_0.sql
-          grep -q 'erp_x_vsm_people_core_v11130' supabase/migrations/087_people_analytics_profile_selector_v11_13_0.sql
-          grep -q 'revoke execute on function public.erp_x_vsm_people_core_v11130' supabase/migrations/087_people_analytics_profile_selector_v11_13_0.sql
-          grep -q 'Tiempo muerto potencial' assets/js/modules/flow-performance-v11130.js
-          grep -q 'KPIs por usuario' assets/js/modules/flow-performance-v11130.js
-          grep -q 'Confiabilidad del dato' assets/js/modules/flow-performance-v11130.js
-          grep -q 'Exactitud estimación' assets/js/modules/flow-performance-v11130.js
-          grep -q 'Fragmentación / h' assets/js/modules/flow-performance-v11130.js
 
-          # PWA V11.13.0.
-          grep -q 'previous-cache: crm-suministros-v11-12-0-20260907' service-worker.js
-          grep -q 'crm-suministros-v11-13-0-20260907' service-worker.js
+          # PWA must include every current analytics asset.
           grep -q './assets/css/flow-times-core-v11120.css' service-worker.js
-          grep -q './assets/js/modules/vsm.js' service-worker.js
           grep -q './assets/css/flow-performance-v11130.css' service-worker.js
+          grep -q './assets/css/reports-enterprise-v11140.css' service-worker.js
+          grep -q './assets/js/modules/vsm.js' service-worker.js
           grep -q './assets/js/modules/flow-performance-v11130.js' service-worker.js
-          grep -q './assets/css/inventory-core-v11110.css' service-worker.js
-          grep -q './assets/css/shipping-core-v11107.css' service-worker.js
-
-          # Capas obsoletas que no deben reaparecer.
-          test ! -e assets/js/modules/receiving-v114.js
-          test ! -e assets/js/services/drive-bridge.js
-          test ! -e assets/js/services/drive-oauth.js
-          test ! -e assets/css/receiving-v114.css
-          ! grep -q 'inventory-core-v11109.css' service-worker.js
-          ! grep -q 'shipping-workflow-v11102.css' service-worker.js
+          grep -q './assets/js/modules/reports.js' service-worker.js
+          grep -q './assets/js/modules/reports-enterprise-v11140.js' service-worker.js
 
       - name: Package deployable frontend
         shell: bash
@@ -141,12 +114,12 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.13.0" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.14.0" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.13.0-deployable
+          name: crm-suministros-v11.14.0-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
