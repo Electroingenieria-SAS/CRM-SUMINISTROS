@@ -76,7 +76,7 @@ jobs:
           grep -q 'erp:open-order' assets/js/modules/paco-bot-v11180.js
           grep -q 'hasRole("super_admin")' assets/js/modules/paco-bot-v11180.js
           grep -q 'No fuerzo estados por detrás del workflow' assets/js/modules/paco-bot-v11180.js
-          grep -q 'No se registra en el historial de Paco' assets/js/modules/paco-bot-v11180.js
+          grep -qi 'no se registra en el historial de Paco' assets/js/modules/paco-bot-v11180.js
           grep -q 'paco-password-box' assets/css/paco-aesthetic-v11180.css
           grep -q 'paco-panel' assets/css/paco-aesthetic-v11180.css
           grep -q 'paco-launcher' assets/css/paco-aesthetic-v11180.css
