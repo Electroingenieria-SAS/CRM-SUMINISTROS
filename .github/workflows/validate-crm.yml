@@ -40,19 +40,54 @@ jobs:
               print('\n'.join(missing));sys.exit(1)
           PY
 
-      - name: Validate V11.16.0 release contract
+      - name: Validate V11.17.0 release contract
         shell: bash
         run: |
           set -euo pipefail
 
           # Release identity.
-          grep -q 'version: "11.16.0"' assets/js/config.js
-          grep -q 'build: "2026-09-07.10"' assets/js/config.js
-          grep -q 'main.js?v=11.16.0' index.html
-          grep -q 'admin-center-v11160.css?v=11.16.0' index.html
-          grep -q 'crm-suministros-v11-16-0-20260907-10' service-worker.js
+          grep -q 'version: "11.17.0"' assets/js/config.js
+          grep -q 'build: "2026-09-07.11"' assets/js/config.js
+          grep -q 'main.js?v=11.17.0' index.html
+          grep -q 'cutting-center-v11170.css?v=11.17.0' index.html
+          grep -q 'crm-suministros-v11-17-0-20260907-11' service-worker.js
 
-          # Administration V11.16.0 contract.
+          # Corte V11.17.0 is a visual-only rebuild over the proven operational engine.
+          test -s assets/css/cutting-center-v11170.css
+          test -s assets/js/modules/cutting-flow.js
+          grep -q 'cutting-page-head' assets/css/cutting-center-v11170.css
+          grep -q 'cutting-group-row' assets/css/cutting-center-v11170.css
+          grep -q 'cutting-guided-modal' assets/css/cutting-center-v11170.css
+          grep -q 'cut-step-rail' assets/css/cutting-center-v11170.css
+          grep -q 'cut-primary-action' assets/css/cutting-center-v11170.css
+          grep -q 'cut-origin-picker' assets/css/cutting-center-v11170.css
+          grep -q 'cut-plan-focus' assets/css/cutting-center-v11170.css
+          grep -q 'cut-state-screen' assets/css/cutting-center-v11170.css
+          grep -q 'cutting-order-notice' assets/css/cutting-center-v11170.css
+          grep -q 'modal-task-panel' assets/css/cutting-center-v11170.css
+          grep -q 'focus-visible' assets/css/cutting-center-v11170.css
+          grep -q 'prefers-reduced-motion' assets/css/cutting-center-v11170.css
+          grep -q '@media(max-width:760px)' assets/css/cutting-center-v11170.css
+
+          # Functional engine must remain present and connected to the same API contract.
+          grep -q 'api.cuttingWork' assets/js/modules/cutting-flow.js
+          grep -q 'api.cuttingActiveExecution' assets/js/modules/cutting-flow.js
+          grep -q 'api.cuttingGroup' assets/js/modules/cutting-flow.js
+          grep -q 'api.cuttingStart' assets/js/modules/cutting-flow.js
+          grep -q 'api.cuttingPause' assets/js/modules/cutting-flow.js
+          grep -q 'api.cuttingResume' assets/js/modules/cutting-flow.js
+          grep -q 'api.cuttingOriginSearch' assets/js/modules/cutting-flow.js
+          grep -q 'api.cuttingExecutionPlan' assets/js/modules/cutting-flow.js
+          grep -q 'api.executeCutGroup' assets/js/modules/cutting-flow.js
+          grep -q 'api.cuttingRegisterEvidence' assets/js/modules/cutting-flow.js
+          grep -q 'api.cuttingFinalize' assets/js/modules/cutting-flow.js
+          grep -q 'uploadOrderFile' assets/js/modules/cutting-flow.js
+          grep -q 'data-cut-step="1"' assets/js/modules/cutting-flow.js
+          grep -q 'data-cut-step="2"' assets/js/modules/cutting-flow.js
+          grep -q 'data-cut-step="3"' assets/js/modules/cutting-flow.js
+          grep -q 'Foto final' assets/js/modules/cutting-flow.js
+
+          # Administration V11.16.0 contract remains mandatory.
           test -s assets/css/admin-center-v11160.css
           test -s assets/js/modules/admin-center-v11160.js
           test -s supabase/migrations/092_admin_control_center_v11_16_0.sql
@@ -128,6 +163,8 @@ jobs:
           test -s supabase/migrations/087_people_analytics_profile_selector_v11_13_0.sql
 
           # PWA contains current controlled modules.
+          grep -q './assets/css/cutting-center-v11170.css' service-worker.js
+          grep -q './assets/js/modules/cutting-flow.js' service-worker.js
           grep -q './assets/css/history-center-v11150.css' service-worker.js
           grep -q './assets/css/admin-center-v11160.css' service-worker.js
           grep -q './assets/js/modules/history-center-v11150.js' service-worker.js
@@ -137,6 +174,9 @@ jobs:
           grep -q './assets/js/modules/vsm.js' service-worker.js
           grep -q './assets/js/services/supabase.js' service-worker.js
 
+          # Vercel deployment hold: no Git branch may auto-deploy before visual review.
+          grep -q '"deploymentEnabled": false' vercel.json
+
       - name: Package deployable frontend
         shell: bash
         run: |
@@ -144,12 +184,12 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.16.0" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.17.0" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.16.0-deployable
+          name: crm-suministros-v11.17.0-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
