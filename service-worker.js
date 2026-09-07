@@ -1,3 +1,4 @@
+// previous-cache: crm-suministros-v11-10-3-20260904
 const CACHE="crm-suministros-v11-10-5-20260907";
 const ASSETS=[
   "./","./index.html","./manifest.webmanifest","./templates/historical_orders.csv",
