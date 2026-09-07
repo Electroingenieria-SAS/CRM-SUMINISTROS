@@ -1,8 +1,8 @@
-// previous-cache: crm-suministros-v11-10-7-20260907
-const CACHE="crm-suministros-v11-10-8-20260907";
+// previous-cache: crm-suministros-v11-10-8-20260907
+const CACHE="crm-suministros-v11-10-9-20260907";
 const ASSETS=[
   "./","./index.html","./manifest.webmanifest","./templates/historical_orders.csv",
-  "./assets/css/app.css","./assets/css/operational-v112.css","./assets/css/guides-v113.css","./assets/css/workforce-taxonomy-v113.css","./assets/css/receiving-v115.css","./assets/css/receiving-guide-v115.css","./assets/css/inventory-scan-v116.css","./assets/css/v118.css","./assets/css/audit-v1182.css","./assets/css/audit-v1183.css","./assets/css/ui-v1184.css","./assets/css/dashboard-v1185.css","./assets/css/commercial-v1187.css","./assets/css/commercial-v1188.css","./assets/css/operational-lists-v1189.css","./assets/css/popup-ux-v1190.css","./assets/css/order-create-v1191.css","./assets/css/receiving-order-v1192.css","./assets/css/receiving-focus-v1193.css","./assets/css/receiving-polish-v1194.css","./assets/css/picking-focus-v1195.css","./assets/css/picking-legibility-v1196.css","./assets/css/picking-review-v1197.css","./assets/css/billing-focus-v1198.css","./assets/css/billing-upload-v1199.css","./assets/css/billing-invoice-reader-v1199.css","./assets/css/global-progress-v11100.css","./assets/css/shipping-guide-reader-v11101.css","./assets/css/shipping-core-v11107.css","./assets/css/sent-orders-v11108.css",
+  "./assets/css/app.css","./assets/css/operational-v112.css","./assets/css/guides-v113.css","./assets/css/workforce-taxonomy-v113.css","./assets/css/receiving-v115.css","./assets/css/receiving-guide-v115.css","./assets/css/inventory-scan-v116.css","./assets/css/inventory-core-v11109.css","./assets/css/v118.css","./assets/css/audit-v1182.css","./assets/css/audit-v1183.css","./assets/css/ui-v1184.css","./assets/css/dashboard-v1185.css","./assets/css/commercial-v1187.css","./assets/css/commercial-v1188.css","./assets/css/operational-lists-v1189.css","./assets/css/popup-ux-v1190.css","./assets/css/order-create-v1191.css","./assets/css/receiving-order-v1192.css","./assets/css/receiving-focus-v1193.css","./assets/css/receiving-polish-v1194.css","./assets/css/picking-focus-v1195.css","./assets/css/picking-legibility-v1196.css","./assets/css/picking-review-v1197.css","./assets/css/billing-focus-v1198.css","./assets/css/billing-upload-v1199.css","./assets/css/billing-invoice-reader-v1199.css","./assets/css/global-progress-v11100.css","./assets/css/shipping-guide-reader-v11101.css","./assets/css/shipping-core-v11107.css","./assets/css/sent-orders-v11108.css",
   "./assets/img/logo-electroingenieria.png","./assets/img/iso-electroingenieria.png",
   "./assets/js/main.js","./assets/js/config.js","./assets/js/core/icons.js","./assets/js/core/layout.js","./assets/js/core/format.js","./assets/js/core/ui.js","./assets/js/core/progress.js",
   "./assets/js/modules/active-work.js","./assets/js/modules/work-clock.js","./assets/js/modules/workforce.js","./assets/js/modules/dashboard.js",
@@ -12,7 +12,7 @@ const ASSETS=[
   "./assets/js/modules/order-cancellation.js","./assets/js/modules/support-flow.js","./assets/js/modules/imports.js",
   "./assets/js/modules/receiving-order.js","./assets/js/modules/financial-flow.js","./assets/js/modules/picking-flow.js",
   "./assets/js/modules/cutting-flow.js","./assets/js/modules/shipping-flow.js","./assets/js/modules/queue.js",
-  "./assets/js/modules/orders.js","./assets/js/modules/credit.js","./assets/js/modules/inventory.js","./assets/js/modules/audit.js","./assets/js/services/api.js",
+  "./assets/js/modules/orders.js","./assets/js/modules/credit.js","./assets/js/modules/inventory.js","./assets/js/modules/audit.js","./assets/js/services/api.js","./assets/js/services/inventory.js",
   "./assets/js/services/supabase.js","./assets/js/services/materials.js","./assets/js/services/drive.js",
   "./assets/js/services/location.js","./assets/js/services/pdf-order-reader.js","./assets/js/services/document-reader-v11101.js"
 ];
