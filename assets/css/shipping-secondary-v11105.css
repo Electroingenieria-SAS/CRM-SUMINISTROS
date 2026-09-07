@@ -1,0 +1,246 @@
+/* CRM Suministros V11.10.5 · Orden visual de información secundaria en Despachos */
+
+.shipping-secondary-organized-v11105{
+  overflow:hidden!important;
+  border:1px solid #d5e1ec!important;
+  border-radius:16px!important;
+  background:#fff!important;
+  box-shadow:0 8px 22px rgba(13,50,84,.035)!important;
+}
+.shipping-secondary-organized-v11105>summary{
+  min-height:64px!important;
+  padding:16px 18px!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  grid-template-rows:auto auto!important;
+  gap:3px 14px!important;
+  align-items:center!important;
+  background:#fff!important;
+  color:#123c61!important;
+  font-size:14px!important;
+  font-weight:900!important;
+}
+.shipping-secondary-organized-v11105>summary span{grid-column:1!important;grid-row:1!important}
+.shipping-secondary-organized-v11105>summary small{
+  grid-column:1!important;
+  grid-row:2!important;
+  margin:0!important;
+  color:#7a8c9e!important;
+  font-size:10.8px!important;
+  font-weight:500!important;
+  line-height:1.35!important;
+}
+.shipping-secondary-organized-v11105>summary:after{
+  grid-column:2!important;
+  grid-row:1/3!important;
+  align-self:center!important;
+  margin:0!important;
+  color:#176dba!important;
+  font-size:20px!important;
+}
+
+.shipping-secondary-layout-v11105{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:14px!important;
+  padding:0 14px 14px!important;
+}
+.shipping-secondary-section-v11105{
+  min-width:0;
+  padding:15px!important;
+  border:1px solid #dce6ef!important;
+  border-radius:14px!important;
+  background:#fff!important;
+  box-shadow:0 4px 14px rgba(17,57,91,.028)!important;
+}
+.shipping-secondary-section-head-v11105{
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:space-between!important;
+  gap:12px!important;
+  margin:0 0 13px!important;
+  padding:0 0 11px!important;
+  border-bottom:1px solid #e3ebf2!important;
+}
+.shipping-secondary-section-head-v11105 div{min-width:0}
+.shipping-secondary-section-head-v11105 span{
+  display:block!important;
+  color:#173d63!important;
+  font-size:12px!important;
+  font-weight:900!important;
+  letter-spacing:.055em!important;
+  text-transform:uppercase!important;
+}
+.shipping-secondary-section-head-v11105 small{
+  display:block!important;
+  margin-top:3px!important;
+  color:#74879a!important;
+  font-size:10.8px!important;
+  line-height:1.4!important;
+  font-weight:500!important;
+}
+
+/* Dirección / resumen */
+.shipping-secondary-info-v11105{
+  background:linear-gradient(145deg,#f9fcff 0%,#f4f9fe 100%)!important;
+  border-color:#d3e2ef!important;
+}
+.shipping-secondary-info-v11105 .shipping-sales-address{
+  margin:0!important;
+  padding:15px 16px!important;
+  border:1px solid #cfe0ee!important;
+  border-left:4px solid #1479df!important;
+  border-radius:12px!important;
+  background:#fff!important;
+  box-shadow:none!important;
+}
+.shipping-secondary-info-v11105 .shipping-sales-address header{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  gap:8px 12px!important;
+  align-items:start!important;
+}
+.shipping-secondary-info-v11105 .shipping-sales-address header span,
+.shipping-secondary-info-v11105 .shipping-sales-address header small{
+  color:#1768ad!important;
+  font-size:10px!important;
+  font-weight:900!important;
+  letter-spacing:.055em!important;
+  text-transform:uppercase!important;
+}
+.shipping-secondary-info-v11105 .shipping-sales-address header strong{
+  color:#173b5f!important;
+  font-size:14.5px!important;
+  line-height:1.3!important;
+  text-align:right!important;
+}
+.shipping-secondary-info-v11105 .shipping-sales-address>p{
+  margin:8px 0 0!important;
+  color:#173b5f!important;
+  font-size:13.5px!important;
+  font-weight:800!important;
+  line-height:1.4!important;
+}
+.shipping-secondary-info-v11105 .shipping-sales-address>small,
+.shipping-secondary-info-v11105 .shipping-sales-address .muted{
+  display:block!important;
+  margin-top:8px!important;
+  color:#718497!important;
+  font-size:10.8px!important;
+  line-height:1.5!important;
+}
+.shipping-secondary-info-v11105 .shipping-overview-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:9px!important;
+  margin:0!important;
+}
+
+/* Trazabilidad */
+.shipping-secondary-trace-v11105{
+  background:#fff!important;
+}
+.shipping-secondary-trace-v11105 .order-support-zone{
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.shipping-secondary-trace-v11105 .order-support-zone>header,
+.shipping-secondary-trace-v11105 .order-support-zone>.support-zone-head{
+  margin:0 0 12px!important;
+  padding:0!important;
+  border:0!important;
+}
+.shipping-secondary-trace-v11105 .order-support-zone [class*="support-actions"],
+.shipping-secondary-trace-v11105 .order-support-zone .actions,
+.shipping-secondary-trace-v11105 .order-support-zone>div:last-child{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:10px!important;
+  align-items:stretch!important;
+}
+.shipping-secondary-trace-v11105 .order-support-zone .btn{
+  width:100%!important;
+  min-height:46px!important;
+  justify-content:center!important;
+  margin:0!important;
+  padding:0 14px!important;
+  border-radius:11px!important;
+  font-size:12px!important;
+  font-weight:900!important;
+}
+
+/* Excepciones */
+.shipping-secondary-exception-v11105{
+  border-color:#ead4d8!important;
+  background:#fffafb!important;
+}
+.shipping-secondary-exception-v11105 .shipping-secondary-section-head-v11105{
+  border-bottom-color:#f0dde0!important;
+}
+.shipping-secondary-exception-v11105 .shipping-secondary-section-head-v11105 span{color:#8f2636!important}
+.shipping-secondary-exception-v11105 .shipping-secondary-actions-v11102{
+  display:flex!important;
+  justify-content:flex-end!important;
+  gap:10px!important;
+  padding:0!important;
+  margin:0!important;
+}
+.shipping-secondary-exception-v11105 [data-request-order-cancellation],
+.shipping-secondary-exception-v11105 .shipping-cancellation-secondary-v11102{
+  min-height:44px!important;
+  margin:0!important;
+  padding:0 16px!important;
+  border-radius:10px!important;
+  font-size:11.5px!important;
+  font-weight:900!important;
+}
+.shipping-secondary-exception-v11105 .shipping-closure-callout,
+.shipping-secondary-exception-v11105 .shipping-system-action-v11102{
+  margin:0 0 10px!important;
+}
+
+/* Información completa */
+.shipping-secondary-detail-v11105{
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.shipping-secondary-detail-v11105 .simple-details{
+  margin:0!important;
+  border:1px solid #dce6ef!important;
+  border-radius:12px!important;
+  background:#fff!important;
+  overflow:hidden!important;
+}
+.shipping-secondary-detail-v11105 .simple-details>summary{
+  min-height:46px!important;
+  display:flex!important;
+  align-items:center!important;
+  padding:12px 14px!important;
+  color:#173d62!important;
+  font-size:11.5px!important;
+  font-weight:850!important;
+}
+.shipping-secondary-detail-v11105 .simple-details[open]>summary{
+  border-bottom:1px solid #e2eaf1!important;
+  background:#f8fbfd!important;
+}
+
+@media(max-width:900px){
+  .shipping-secondary-layout-v11105{gap:11px!important;padding:0 11px 11px!important}
+  .shipping-secondary-section-v11105{padding:13px!important}
+  .shipping-secondary-trace-v11105 .order-support-zone [class*="support-actions"],
+  .shipping-secondary-trace-v11105 .order-support-zone .actions,
+  .shipping-secondary-trace-v11105 .order-support-zone>div:last-child{grid-template-columns:1fr!important}
+  .shipping-secondary-exception-v11105 .shipping-secondary-actions-v11102{display:grid!important;grid-template-columns:1fr!important}
+  .shipping-secondary-exception-v11105 [data-request-order-cancellation]{width:100%!important}
+}
+
+@media(max-width:520px){
+  .shipping-secondary-info-v11105 .shipping-sales-address header{grid-template-columns:1fr!important}
+  .shipping-secondary-info-v11105 .shipping-sales-address header strong{text-align:left!important}
+  .shipping-secondary-info-v11105 .shipping-overview-grid{grid-template-columns:1fr!important}
+}
