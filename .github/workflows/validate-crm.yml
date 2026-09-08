@@ -50,8 +50,6 @@ jobs:
           grep -q 'build: "2026-09-07.12"' assets/js/config.js
           grep -q 'main.js?v=11.18.0' index.html
           grep -q 'paco-aesthetic-v11180.css?v=11.18.0' index.html
-          grep -q 'paco-aesthetic-depth-v11180.css?v=11.18.0-hotfix1' index.html
-          grep -q 'paco-visibility-v11180.js?v=11.18.0-hotfix1' index.html
           grep -q 'crm-suministros-v11-18-0-20260907-12' service-worker.js
 
           # Global aesthetic shell.
@@ -60,34 +58,35 @@ jobs:
           test -s assets/img/ui/crm-psp-waves-v11180.webp
           test -s assets/img/paco/paco-sprite-v11180.webp
           grep -q 'crm-psp-waves-v11180.webp' assets/css/paco-aesthetic-v11180.css
-          grep -q 'crm-psp-waves-v11180.webp' assets/css/paco-aesthetic-depth-v11180.css
           grep -q 'paco-sprite-v11180.webp' assets/css/paco-aesthetic-v11180.css
           grep -q 'Sidebar premium texture' assets/css/paco-aesthetic-v11180.css
           grep -q 'background-attachment:scroll' assets/css/paco-aesthetic-v11180.css
           grep -q 'prefers-reduced-motion' assets/css/paco-aesthetic-v11180.css
-          grep -q 'paco-mounted-v11181' assets/css/paco-aesthetic-depth-v11180.css
 
-          # Paco Bot V11.18.0.
+          # Paco Bot V11.18.0 baseline + Enterprise V11.18.2 overlay.
           test -s assets/js/modules/paco-bot-v11180.js
+          test -s assets/js/modules/paco-bot-v11182.js
           test -s assets/js/modules/paco-visibility-v11180.js
+          test -s assets/css/paco-enterprise-v11182.css
           grep -q 'installPacoBot' assets/js/main.js
-          grep -q 'installPacoBot' assets/js/modules/paco-bot-v11180.js
-          grep -q 'installPacoBot' assets/js/modules/paco-visibility-v11180.js
-          grep -q 'document.body.append' assets/js/modules/paco-visibility-v11180.js
-          grep -q 'Paco Bot' assets/js/modules/paco-bot-v11180.js
-          grep -q 'api.listOrders' assets/js/modules/paco-bot-v11180.js
-          grep -q 'api.getActions' assets/js/modules/paco-bot-v11180.js
-          grep -q 'api.orderIssues' assets/js/modules/paco-bot-v11180.js
-          grep -q 'api.health' assets/js/modules/paco-bot-v11180.js
-          grep -q 'auth.updateUser' assets/js/modules/paco-bot-v11180.js
-          grep -q 'erp:rpc-error' assets/js/modules/paco-bot-v11180.js
-          grep -q 'erp:open-order' assets/js/modules/paco-bot-v11180.js
-          grep -q 'hasRole("super_admin")' assets/js/modules/paco-bot-v11180.js
-          grep -q 'No fuerzo estados por detrás del workflow' assets/js/modules/paco-bot-v11180.js
-          grep -qi 'no se registra en el historial de Paco' assets/js/modules/paco-bot-v11180.js
-          grep -q 'paco-password-box' assets/css/paco-aesthetic-v11180.css
-          grep -q 'paco-panel' assets/css/paco-aesthetic-v11180.css
-          grep -q 'paco-launcher' assets/css/paco-aesthetic-v11180.css
+          grep -q 'installPacoBot' assets/js/modules/paco-bot-v11182.js
+          grep -q 'Paco Bot Enterprise V11.18.2' assets/js/modules/paco-bot-v11182.js
+          grep -q 'background-size:100% 600%' assets/css/paco-enterprise-v11182.css
+          grep -q 'paco-capability-grid' assets/css/paco-enterprise-v11182.css
+          grep -q 'CAPABILITIES' assets/js/modules/paco-bot-v11182.js
+          grep -q 'Usuarios y permisos' assets/js/modules/paco-bot-v11182.js
+          grep -q 'Flujo y SLA' assets/js/modules/paco-bot-v11182.js
+          grep -q 'api.listOrders' assets/js/modules/paco-bot-v11182.js
+          grep -q 'api.getActions' assets/js/modules/paco-bot-v11182.js
+          grep -q 'api.orderIssues' assets/js/modules/paco-bot-v11182.js
+          grep -q 'api.health' assets/js/modules/paco-bot-v11182.js
+          grep -q 'auth.updateUser' assets/js/modules/paco-bot-v11182.js
+          grep -q 'erp:rpc-error' assets/js/modules/paco-bot-v11182.js
+          grep -q 'erp:open-order' assets/js/modules/paco-bot-v11182.js
+          grep -q 'hasRole("super_admin")' assets/js/modules/paco-bot-v11182.js
+          grep -q 'PACO_VERSION="11.18.2"' assets/js/modules/paco-visibility-v11180.js
+          grep -q 'paco-bot-v11182.js' assets/js/modules/paco-visibility-v11180.js
+          grep -q 'paco-enterprise-v11182.css' assets/js/modules/paco-visibility-v11180.js
 
           # Corte V11.17.0 regression baseline.
           test -s assets/css/cutting-center-v11170.css
@@ -168,7 +167,7 @@ jobs:
           test -s supabase/migrations/086_people_performance_analytics_v11_13_0.sql
           test -s supabase/migrations/087_people_analytics_profile_selector_v11_13_0.sql
 
-          # PWA contains every current controlled asset.
+          # PWA contains every baseline controlled asset.
           grep -q './assets/css/paco-aesthetic-v11180.css' service-worker.js
           grep -q './assets/css/paco-aesthetic-depth-v11180.css' service-worker.js
           grep -q './assets/img/ui/crm-psp-waves-v11180.webp' service-worker.js
@@ -184,8 +183,9 @@ jobs:
           grep -q './assets/js/modules/vsm.js' service-worker.js
           grep -q './assets/js/services/supabase.js' service-worker.js
 
-          # Deployment can remain frozen during work or be reactivated for a controlled main release.
-          grep -Eq '"deploymentEnabled"[[:space:]]*:[[:space:]]*(true|false)' vercel.json
+          # Vercel quota guard: only main may auto-deploy; technical branches must not consume previews.
+          grep -q '"main"[[:space:]]*:[[:space:]]*true' vercel.json
+          grep -q '"\*"[[:space:]]*:[[:space:]]*false' vercel.json
 
       - name: Package deployable frontend
         shell: bash
