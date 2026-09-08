@@ -1,0 +1,364 @@
+/* CRM Suministros · Paco Bot Enterprise V11.19.2
+   Wide conversational workspace. Height contract preserved from V11.19.1.
+   Closed state shows Paco; open state leaves only the lightning companion button. */
+
+#paco-bot.paco-visual-v11192{
+  --paco-roll-distance-v11192:654px;
+  --paco-panel-width-v11192:640px;
+  --paco-launcher-size-v11192:68px;
+  --paco-panel-gap-v11192:14px;
+  right:18px!important;
+  bottom:20px!important;
+  z-index:2147483000!important;
+  overflow:visible!important;
+}
+
+/* Real image assets remain canonical. */
+#paco-bot.paco-visual-v11192 .paco-face,
+#paco-bot.paco-visual-v11192 img.paco-face{
+  display:block!important;
+  background:none!important;
+  background-image:none!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  overflow:visible!important;
+  opacity:1;
+  visibility:visible!important;
+}
+
+/* ---------------------------------------------------------
+   Closed launcher: Paco face. Open launcher: lightning only.
+   --------------------------------------------------------- */
+#paco-bot.paco-visual-v11192 .paco-launcher{
+  position:relative!important;
+  z-index:50!important;
+  width:var(--paco-launcher-size-v11192)!important;
+  height:var(--paco-launcher-size-v11192)!important;
+  min-width:var(--paco-launcher-size-v11192)!important;
+  min-height:var(--paco-launcher-size-v11192)!important;
+  padding:0!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:50%!important;
+  overflow:visible!important;
+  border:1px solid rgba(60,139,218,.72)!important;
+  background:linear-gradient(145deg,#fff 0%,#edf7ff 62%,#e3f2ff 100%)!important;
+  box-shadow:0 15px 34px rgba(5,42,81,.22),0 0 0 5px rgba(255,255,255,.80),inset 0 1px 0 #fff!important;
+  transform-origin:50% 50%!important;
+  transition:transform .78s cubic-bezier(.16,.86,.2,1),box-shadow .28s ease,background .28s ease,border-color .28s ease!important;
+  will-change:transform;
+}
+#paco-bot.paco-visual-v11192 .paco-launcher:before{
+  content:""!important;
+  position:absolute!important;
+  inset:5px!important;
+  border-radius:50%!important;
+  background:radial-gradient(circle at 34% 20%,rgba(255,217,57,.23),transparent 46%),radial-gradient(circle at 72% 80%,rgba(26,132,231,.18),transparent 55%)!important;
+  opacity:1;
+  transition:opacity .22s ease!important;
+  pointer-events:none!important;
+}
+#paco-bot.paco-visual-v11192 .paco-launcher:after{
+  content:"⚡"!important;
+  position:absolute!important;
+  right:-7px!important;
+  bottom:-6px!important;
+  z-index:8!important;
+  width:25px!important;
+  height:25px!important;
+  display:grid!important;
+  place-items:center!important;
+  border:3px solid #fff!important;
+  border-radius:50%!important;
+  color:#063e79!important;
+  background:linear-gradient(145deg,#ffd746,#f6b91d)!important;
+  box-shadow:0 6px 14px rgba(4,55,103,.22)!important;
+  font-size:13px!important;
+  line-height:1!important;
+  transition:right .24s ease,bottom .24s ease,width .24s ease,height .24s ease,font-size .24s ease,transform .24s ease,box-shadow .24s ease!important;
+}
+#paco-bot.paco-visual-v11192 .paco-launcher .paco-face{
+  position:relative!important;
+  z-index:3!important;
+  width:59px!important;
+  height:59px!important;
+  margin:0!important;
+  opacity:1!important;
+  transform:scale(1) rotate(0deg);
+  transition:opacity .18s ease .42s,transform .26s ease .38s!important;
+  filter:drop-shadow(0 6px 9px rgba(18,48,77,.17))!important;
+  pointer-events:none!important;
+}
+#paco-bot.paco-visual-v11192 .paco-launcher-dot{
+  width:12px!important;
+  height:12px!important;
+  top:0!important;
+  right:0!important;
+  z-index:10!important;
+  border-width:3px!important;
+  transition:opacity .18s ease!important;
+}
+#paco-bot.paco-visual-v11192 .paco-launcher-label{display:none!important}
+#paco-bot.paco-visual-v11192 .paco-launcher:hover{
+  transform:translateY(-3px) scale(1.04)!important;
+  box-shadow:0 20px 42px rgba(5,42,81,.27),0 0 0 6px rgba(31,130,224,.08),inset 0 1px 0 #fff!important;
+}
+
+/* Rolling cue from closed launcher toward lower-left panel edge. */
+#paco-bot.paco-visual-v11192:before{
+  content:"";
+  position:absolute;
+  z-index:1;
+  right:34px;
+  bottom:33px;
+  width:max(0px,calc(var(--paco-roll-distance-v11192) - 24px));
+  height:2px;
+  border-top:2px dashed rgba(26,124,219,.34);
+  transform-origin:right center;
+  opacity:0;
+  pointer-events:none;
+}
+#paco-bot.paco-opening-v11192:before{animation:pacoTrailV11192 .78s ease both}
+@keyframes pacoTrailV11192{
+  0%{opacity:0;transform:scaleX(.03)}
+  22%{opacity:.72}
+  76%{opacity:.28;transform:scaleX(1)}
+  100%{opacity:0;transform:scaleX(1)}
+}
+
+#paco-bot.paco-opening-v11192 .paco-launcher,
+#paco-bot.paco-open-v11192 .paco-launcher{
+  transform:translateX(calc(-1 * var(--paco-roll-distance-v11192))) rotate(-720deg)!important;
+}
+#paco-bot.paco-open-v11192 .paco-launcher{
+  border-color:transparent!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#paco-bot.paco-open-v11192 .paco-launcher:before{opacity:0!important}
+#paco-bot.paco-open-v11192 .paco-launcher .paco-face{
+  opacity:0!important;
+  transform:scale(.18) rotate(-22deg)!important;
+}
+#paco-bot.paco-open-v11192 .paco-launcher-dot{opacity:0!important}
+#paco-bot.paco-open-v11192 .paco-launcher:after{
+  right:10px!important;
+  bottom:10px!important;
+  width:48px!important;
+  height:48px!important;
+  border-width:4px!important;
+  font-size:21px!important;
+  transform:rotate(720deg)!important;
+  box-shadow:0 12px 27px rgba(4,55,103,.25),0 0 0 5px rgba(255,255,255,.74)!important;
+  animation:pacoBoltV11192 2.35s ease-in-out .8s infinite;
+}
+#paco-bot.paco-open-v11192 .paco-launcher:hover{
+  transform:translateX(calc(-1 * var(--paco-roll-distance-v11192))) translateY(-3px) rotate(-720deg) scale(1.04)!important;
+}
+@keyframes pacoBoltV11192{
+  0%,100%{filter:brightness(1);box-shadow:0 12px 27px rgba(4,55,103,.25),0 0 0 5px rgba(255,255,255,.74)}
+  50%{filter:brightness(1.08);box-shadow:0 15px 32px rgba(4,55,103,.30),0 0 0 8px rgba(246,190,34,.10)}
+}
+
+/* ---------------------------------------------------------
+   Wider panel. HEIGHT IS INTENTIONALLY UNCHANGED FROM V11.19.1.
+   --------------------------------------------------------- */
+#paco-bot.paco-visual-v11192 .paco-panel{
+  position:absolute!important;
+  right:0!important;
+  bottom:0!important;
+  width:min(var(--paco-panel-width-v11192),calc(100vw - 32px))!important;
+  height:min(760px,calc(100dvh - 42px))!important;
+  max-height:calc(100dvh - 42px)!important;
+  min-height:min(620px,calc(100dvh - 42px))!important;
+  display:flex!important;
+  flex-direction:column!important;
+  border-radius:25px!important;
+  border:1px solid rgba(127,170,210,.72)!important;
+  background:rgba(255,255,255,.99)!important;
+  box-shadow:0 30px 78px rgba(5,34,65,.22),0 8px 25px rgba(5,34,65,.10)!important;
+  opacity:0;
+  transform:translateY(18px) scale(.985);
+  transform-origin:100% 100%;
+  transition:opacity .27s ease .12s,transform .38s cubic-bezier(.18,.84,.2,1) .07s!important;
+  overflow:hidden!important;
+}
+#paco-bot.paco-open-v11192 .paco-panel{opacity:1!important;transform:translateY(0) scale(1)!important}
+
+/* Header: wider composition keeps Paco Bot on one line. */
+#paco-bot.paco-visual-v11192 .paco-head{
+  flex:0 0 auto!important;
+  grid-template-columns:68px minmax(0,1fr) 42px!important;
+  gap:14px!important;
+  min-height:104px!important;
+  padding:15px 17px 14px 18px!important;
+  border-bottom:3px solid #f3bd2f!important;
+  background:linear-gradient(128deg,#073767 0%,#07549b 57%,#147bcf 100%)!important;
+}
+#paco-bot.paco-visual-v11192 .paco-head .paco-face{width:66px!important;height:66px!important;filter:drop-shadow(0 7px 10px rgba(0,0,0,.18))!important}
+#paco-bot.paco-visual-v11192 .paco-head-copy{min-width:0!important}
+#paco-bot.paco-visual-v11192 .paco-head-copy span{font-size:10px!important;letter-spacing:.135em!important}
+#paco-bot.paco-visual-v11192 .paco-head-copy strong{font-size:27px!important;line-height:1.02!important;white-space:nowrap!important}
+#paco-bot.paco-visual-v11192 .paco-head-copy small{font-size:13px!important;margin-top:3px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#paco-bot.paco-visual-v11192 .paco-close{width:40px!important;height:40px!important;border-radius:12px!important;font-size:21px!important}
+
+/* Context toolbar now has enough horizontal room. */
+#paco-bot.paco-visual-v11192 .paco-context{
+  flex:0 0 auto!important;
+  min-height:49px!important;
+  padding:8px 12px 8px 14px!important;
+  gap:8px!important;
+  font-size:12px!important;
+  background:#fbfdff!important;
+}
+#paco-bot.paco-visual-v11192 .paco-context>div{min-width:0!important;flex:1 1 auto!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+#paco-bot.paco-visual-v11192 .paco-context strong{font-size:12px!important}
+#paco-bot.paco-visual-v11192 .paco-context-button,
+#paco-bot.paco-visual-v11192 .paco-tools-toggle{
+  min-height:32px!important;
+  padding:6px 10px!important;
+  border-radius:10px!important;
+  font-size:10.5px!important;
+  white-space:nowrap!important;
+}
+#paco-bot.paco-visual-v11192 .paco-tools-toggle{
+  margin-left:auto!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  border:1px solid #d4e2ef!important;
+  background:linear-gradient(180deg,#fff,#f2f8fd)!important;
+  color:#0a5ba9!important;
+  font-weight:900!important;
+  cursor:pointer!important;
+}
+#paco-bot.paco-visual-v11192 .paco-tools-toggle .bolt{color:#e5a400;font-size:13px}
+
+/* Conversation surface: preserve legibility, use width instead of compressing copy. */
+#paco-bot.paco-visual-v11192 .paco-messages{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  gap:13px!important;
+  padding:17px 18px 19px!important;
+  overflow:auto!important;
+  overscroll-behavior:contain!important;
+  scrollbar-width:thin!important;
+  background:linear-gradient(180deg,#f9fcff 0%,#f5f9fd 100%)!important;
+}
+#paco-bot.paco-visual-v11192 .paco-message{max-width:94%!important;gap:10px!important}
+#paco-bot.paco-visual-v11192 .paco-message.user{margin-left:auto!important}
+#paco-bot.paco-visual-v11192 .paco-mini-face{width:38px!important;height:38px!important;flex:0 0 38px!important;margin-top:2px!important}
+#paco-bot.paco-visual-v11192 .paco-bubble{padding:13px 15px!important;font-size:14px!important;line-height:1.6!important;border-radius:17px 17px 17px 6px!important}
+#paco-bot.paco-visual-v11192 .paco-message.welcome .paco-bubble{padding:15px 16px!important}
+#paco-bot.paco-visual-v11192 .paco-welcome-title{font-size:16.5px!important;margin-bottom:5px!important}
+#paco-bot.paco-visual-v11192 .paco-welcome-question{font-size:14px!important;margin-top:9px!important}
+
+/* Use the new horizontal room instead of producing tall narrow cards. */
+#paco-bot.paco-visual-v11192 .paco-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;margin-top:11px!important}
+#paco-bot.paco-visual-v11192 .paco-action{min-height:58px!important;padding:9px 11px!important;grid-template-columns:34px minmax(0,1fr) auto!important;gap:9px!important;border-radius:13px!important}
+#paco-bot.paco-visual-v11192 .paco-action-icon{width:32px!important;height:32px!important;border-radius:10px!important;font-size:15px!important}
+#paco-bot.paco-visual-v11192 .paco-action-copy b{font-size:12px!important;line-height:1.25!important}
+#paco-bot.paco-visual-v11192 .paco-action-copy small{font-size:10px!important;line-height:1.35!important}
+#paco-bot.paco-visual-v11192 .paco-capability-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;margin-top:10px!important}
+#paco-bot.paco-visual-v11192 .paco-capability{min-height:78px!important;padding:10px!important;border-radius:13px!important}
+#paco-bot.paco-visual-v11192 .paco-capability b{font-size:11.5px!important}
+#paco-bot.paco-visual-v11192 .paco-capability small{font-size:9.8px!important;line-height:1.38!important}
+
+/* Quick actions wrap on wide layouts; compact widths keep horizontal scroll. */
+#paco-bot.paco-visual-v11192 .paco-quick{
+  flex:0 0 auto!important;
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:6px!important;
+  padding:8px 11px!important;
+  overflow:visible!important;
+  border-top:1px solid #e7eef5!important;
+  background:rgba(252,254,255,.98)!important;
+}
+#paco-bot.paco-visual-v11192 .paco-quick button{min-height:34px!important;padding:7px 11px!important;font-size:10.5px!important;flex:0 0 auto!important}
+#paco-bot.paco-visual-v11192 .paco-composer{flex:0 0 auto!important;display:grid!important;grid-template-columns:minmax(0,1fr) 54px!important;gap:9px!important;padding:10px 11px!important;background:#fff!important}
+#paco-bot.paco-visual-v11192 .paco-composer textarea{min-height:51px!important;max-height:120px!important;padding:13px!important;font-size:13.5px!important;line-height:1.45!important;border-radius:13px!important;resize:none!important}
+#paco-bot.paco-visual-v11192 .paco-send{width:54px!important;height:51px!important;border-radius:13px!important;font-size:20px!important}
+#paco-bot.paco-visual-v11192 .paco-safe-note{flex:0 0 auto!important;padding:0 11px 9px!important;font-size:9.5px!important;background:#fff!important}
+
+/* Existing Command Center, now benefiting from the wider shell. */
+#paco-bot .paco-command-center-v11191{
+  position:absolute;z-index:30;left:14px;right:14px;bottom:76px;max-height:min(510px,68%);
+  display:flex;flex-direction:column;overflow:hidden;border:1px solid #c9dced;border-radius:18px;
+  background:rgba(252,254,255,.985);box-shadow:0 24px 58px rgba(5,34,65,.24),0 6px 18px rgba(5,34,65,.10);
+  backdrop-filter:blur(16px) saturate(1.08);opacity:0;transform:translateY(10px) scale(.985);pointer-events:none;
+  transition:opacity .2s ease,transform .24s cubic-bezier(.2,.82,.2,1);
+}
+#paco-bot .paco-command-center-v11191.is-open{opacity:1;transform:none;pointer-events:auto}
+#paco-bot .paco-tools-head{display:flex;align-items:center;gap:9px;padding:12px 13px;border-bottom:1px solid #e0eaf3;background:linear-gradient(180deg,#fff,#f5f9fd)}
+#paco-bot .paco-tools-head-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:11px;background:linear-gradient(145deg,#ffd845,#f1b318);color:#073a70;font-size:17px;box-shadow:0 6px 13px rgba(145,104,5,.16)}
+#paco-bot .paco-tools-head-copy{min-width:0;flex:1}
+#paco-bot .paco-tools-head-copy strong{display:block;color:#0a3764;font-size:13px}
+#paco-bot .paco-tools-head-copy small{display:block;color:#6a7f92;font-size:9.5px;margin-top:2px}
+#paco-bot .paco-tools-close{width:34px;height:34px;border:1px solid #d5e2ed;border-radius:10px;background:#fff;color:#49657e;font-size:17px;cursor:pointer}
+#paco-bot .paco-tools-body{min-height:0;overflow:auto;padding:10px 11px 12px;scrollbar-width:thin}
+#paco-bot .paco-tools-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#paco-bot .paco-tool-card{min-width:0;min-height:64px;display:grid;grid-template-columns:32px minmax(0,1fr);align-items:center;gap:8px;padding:8px 9px;border:1px solid #d9e5ef;border-radius:12px;background:#fff;color:#143d66;text-align:left;cursor:pointer;box-shadow:0 3px 9px rgba(20,58,91,.035)}
+#paco-bot .paco-tool-card:hover{border-color:#8eb9df;background:#f5faff;box-shadow:0 6px 14px rgba(20,76,129,.08)}
+#paco-bot .paco-tool-icon{width:32px;height:32px;display:grid;place-items:center;border-radius:9px;background:#edf6ff;color:#0b67bf;font-size:15px;font-weight:900}
+#paco-bot .paco-tool-card strong{display:block;font-size:10.5px;line-height:1.2}
+#paco-bot .paco-tool-card small{display:block;margin-top:2px;color:#708398;font-size:8.8px;line-height:1.3}
+#paco-bot .paco-tools-result{margin-top:9px;padding:10px;border:1px solid #dbe7f1;border-radius:12px;background:#f8fbfe;color:#274969;font-size:10.5px;line-height:1.45}
+#paco-bot .paco-tools-result[hidden]{display:none!important}
+#paco-bot .paco-tools-result-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}
+#paco-bot .paco-tools-result-head strong{font-size:11.5px;color:#0a3764}
+#paco-bot .paco-tools-result-list{display:grid;gap:5px}
+#paco-bot .paco-tools-result-row{display:grid;grid-template-columns:minmax(100px,.42fr) minmax(0,1fr);gap:8px;padding:5px 0;border-bottom:1px solid #e7eef5}
+#paco-bot .paco-tools-result-row:last-child{border-bottom:0}
+#paco-bot .paco-tools-result-row span:first-child{color:#74869a;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.035em}
+#paco-bot .paco-tools-result-row b{min-width:0;overflow-wrap:anywhere;color:#173f67;font-size:10.5px}
+#paco-bot .paco-tools-result-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+#paco-bot .paco-tools-result-actions button{min-height:31px;padding:6px 9px;border:1px solid #cbddeb;border-radius:9px;background:#fff;color:#0b5eaf;font:inherit;font-size:9.5px;font-weight:900;cursor:pointer}
+#paco-bot .paco-tools-loading{display:flex;align-items:center;gap:7px;color:#687e93;font-size:10px}
+#paco-bot .paco-tools-loading:before{content:"";width:14px;height:14px;border:2px solid #cfe1f1;border-top-color:#1479ce;border-radius:50%;animation:pacoToolSpinV11192 .75s linear infinite}
+@keyframes pacoToolSpinV11192{to{transform:rotate(360deg)}}
+
+/* Old/short PC screens: height policy intentionally identical to V11.19.1. */
+@media(max-height:700px) and (min-width:761px){
+  #paco-bot.paco-visual-v11192 .paco-panel{height:calc(100dvh - 28px)!important;max-height:calc(100dvh - 28px)!important;min-height:0!important}
+  #paco-bot.paco-visual-v11192{bottom:14px!important}
+  #paco-bot.paco-visual-v11192 .paco-head{min-height:88px!important;padding-block:11px!important}
+  #paco-bot.paco-visual-v11192 .paco-head .paco-face{width:58px!important;height:58px!important}
+}
+
+/* Compact browser windows: use nearly all available width, never the old 128px reservation. */
+@media(max-width:760px){
+  #paco-bot.paco-visual-v11192{
+    right:max(10px,var(--rf-safe-right,0px))!important;
+    bottom:calc(var(--rf-dock-height,0px) + 12px)!important;
+    --paco-launcher-size-v11192:62px;
+  }
+  #paco-bot.paco-visual-v11192 .paco-launcher .paco-face{width:54px!important;height:54px!important}
+  #paco-bot.paco-visual-v11192 .paco-panel{
+    position:fixed!important;
+    inset:max(10px,var(--rf-safe-top,0px)) max(10px,var(--rf-safe-right,0px)) calc(var(--rf-dock-height,0px) + 84px) max(10px,var(--rf-safe-left,0px))!important;
+    width:auto!important;height:auto!important;min-height:0!important;max-height:none!important;border-radius:20px!important;
+  }
+  #paco-bot.paco-visual-v11192 .paco-head{grid-template-columns:56px minmax(0,1fr) 38px!important;min-height:86px!important;padding:12px 13px!important}
+  #paco-bot.paco-visual-v11192 .paco-head .paco-face{width:54px!important;height:54px!important}
+  #paco-bot.paco-visual-v11192 .paco-head-copy strong{font-size:23px!important}
+  #paco-bot.paco-visual-v11192 .paco-context{flex-wrap:wrap!important}
+  #paco-bot.paco-visual-v11192 .paco-context>div{flex:1 1 180px!important}
+  #paco-bot.paco-visual-v11192 .paco-actions,#paco-bot.paco-visual-v11192 .paco-capability-grid{grid-template-columns:1fr!important}
+  #paco-bot.paco-visual-v11192 .paco-quick{flex-wrap:nowrap!important;overflow-x:auto!important;white-space:nowrap!important;scrollbar-width:none!important}
+  #paco-bot.paco-visual-v11192 .paco-quick::-webkit-scrollbar{display:none}
+  #paco-bot .paco-command-center-v11191{position:fixed;left:max(10px,var(--rf-safe-left,0px));right:max(10px,var(--rf-safe-right,0px));bottom:calc(var(--rf-dock-height,0px) + 90px);max-height:min(520px,66dvh)}
+}
+
+@media(max-width:480px){
+  #paco-bot .paco-tools-grid{grid-template-columns:1fr}
+  #paco-bot.paco-visual-v11192 .paco-context-button{display:none!important}
+  #paco-bot.paco-visual-v11192 .paco-tools-toggle{margin-left:auto!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  #paco-bot.paco-visual-v11192 .paco-launcher,#paco-bot.paco-visual-v11192 .paco-panel,#paco-bot .paco-command-center-v11191{transition:none!important;animation:none!important}
+  #paco-bot.paco-opening-v11192:before{display:none!important}
+  #paco-bot.paco-opening-v11192 .paco-launcher,#paco-bot.paco-open-v11192 .paco-launcher{transform:translateX(calc(-1 * var(--paco-roll-distance-v11192)))!important}
+  #paco-bot.paco-open-v11192 .paco-launcher:after{animation:none!important;transform:none!important}
+}
