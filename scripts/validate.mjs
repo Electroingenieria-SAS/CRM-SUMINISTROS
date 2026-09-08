@@ -31,6 +31,9 @@ const coreCss=read("assets/css/core-shell.css");
 const experienceCss=read("assets/css/experience.css");
 const jsFiles=walk(path.join(root,"assets/js")).filter(file=>file.endsWith(".js"));
 const jsRuntime=jsFiles.map(file=>fs.readFileSync(file,"utf8")).join("\n");
+const normalizedJsRuntime=jsRuntime
+  .replace(/\bArray\s*\.\s*from\s*\(/g,"Array_from(")
+  .replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
 check(version==="11.21.0","CONFIG.version debe ser 11.21.0.");
 check(build==="2026-09-08.10","CONFIG.build debe ser 2026-09-08.10.");
@@ -75,7 +78,7 @@ for(const moduleName of enhancementModules){
 
 const bannedRuntime=/\b(QA_BOT|erp_x_qa_|erp_x_run_qa_|erp_x_sandbox_|sandboxMode|manualSandbox|TEST-QA-|erp-e2e-bot)\b/i;
 check(!bannedRuntime.test(jsRuntime),"El frontend productivo conserva referencias QA/Sandbox.");
-check(!/\.from\s*\(/.test(jsRuntime),"El navegador no debe acceder a tablas directamente; use RPC.");
+check(!/\.from\s*\(/.test(normalizedJsRuntime),"El navegador no debe acceder a tablas directamente; use RPC.");
 
 check(migration.includes("erp_supply.confirm_picking_round_core"),"Migración 094 no consolida Picking.");
 check(migration.includes("erp_supply.execute_cut_group_core"),"Migración 094 no consolida Corte agrupado.");
