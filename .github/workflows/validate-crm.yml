@@ -26,7 +26,23 @@ jobs:
         run: node --experimental-vm-modules scripts/link-check.mjs
 
       - name: Security contract
-        run: node scripts/security-check.mjs
+        id: security
+        continue-on-error: true
+        shell: bash
+        run: node scripts/security-check.mjs 2>&1 | tee security-check.log
+
+      - name: Preserve security diagnostics
+        if: steps.security.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-check-diagnostics
+          path: security-check.log
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Enforce security contract
+        if: steps.security.outcome == 'failure'
+        run: exit 1
 
       - name: Canonical architecture contract
         run: node scripts/validate.mjs
@@ -47,7 +63,6 @@ jobs:
             grep -q "./assets/css/${css}.css" service-worker.js
           done
 
-          # The canonical bundles must still contain the critical visual contracts.
           grep -q 'Fuente consolidada: app.css' assets/css/core-shell.css
           grep -q 'Fuente consolidada: inventory-core-v11110.css' assets/css/operations.css
           grep -q 'Fuente consolidada: shipping-core-v11107.css' assets/css/operations.css
@@ -57,7 +72,6 @@ jobs:
           grep -q 'Fuente consolidada: responsive-foundation-v11190.css' assets/css/experience.css
           grep -q 'Fuente consolidada: paco-assistant-v11200.css' assets/css/experience.css
 
-          # One runtime owner and one deployment path.
           test "$(grep -c '<script type="module" src="./assets/js/' index.html)" -eq 1
           grep -q 'import "./main.js";' assets/js/app-entry.js
           test "$(find .github/workflows -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \) | wc -l)" -eq 1
@@ -65,14 +79,12 @@ jobs:
           grep -q '"\*"[[:space:]]*:[[:space:]]*false' vercel.json
           test -s .vercelignore
 
-          # Supabase V11.21: stable public contracts + private versionless cores.
           test -s supabase/migrations/094_architecture_core_cleanup_v11_21_0.sql
           for core in confirm_picking_round_core execute_cut_group_core resolve_cut_requirement_core work_my_day_core vsm_people_core; do
             grep -q "erp_supply.${core}" supabase/migrations/094_architecture_core_cleanup_v11_21_0.sql
           done
           grep -q "crm-suministros-v11-21-0-20260908-10" service-worker.js
 
-          # Critical modules remain present after cleanup.
           for file in \
             assets/js/modules/inventory.js \
             assets/js/modules/shipping-flow.js \
