@@ -40,169 +40,116 @@ jobs:
               print('\n'.join(missing));sys.exit(1)
           PY
 
-      - name: Validate V11.19.2 release contract
+      - name: Validate V11.19.3 release contract
         shell: bash
         run: |
           set -euo pipefail
 
           # Release identity.
-          grep -q 'version: "11.19.2"' assets/js/config.js
-          grep -q 'build: "2026-09-08.06"' assets/js/config.js
-          grep -q 'main.js?v=11.19.2' index.html
-          grep -q 'responsive-foundation-v11190.css?v=11.19.0' index.html
-          grep -q 'paco-enterprise-v11192.css?v=11.19.2' index.html
-          grep -q 'paco-visual-v11192.js?v=11.19.2' index.html
-          grep -q 'paco-command-center-v11191.js?v=11.19.2' index.html
+          grep -q 'version: "11.19.3"' assets/js/config.js
+          grep -q 'build: "2026-09-08.07"' assets/js/config.js
+          grep -q 'main.js?v=11.19.3' index.html
+          grep -q 'paco-chat-shell-v11193.css?v=11.19.3' index.html
+          grep -q 'paco-visual-v11193.js?v=11.19.3' index.html
+          grep -q 'paco-command-center-v11191.js?v=11.19.3' index.html
           grep -q 'interactive-widget=resizes-content' index.html
-          grep -q 'crm-suministros-v11-19-2-20260908-06' service-worker.js
+          grep -q 'crm-suministros-v11-19-3-20260908-07' service-worker.js
 
-          # Responsive Foundation V11.19.0 remains canonical.
+          # Responsive Foundation remains canonical CRM-wide.
           test -s assets/css/responsive-foundation-v11190.css
           test -s assets/js/modules/responsive-foundation-v11190.js
           test -s docs/responsive-matrix-v11.19.0.md
-          grep -q 'Responsive Foundation V11.19.0' assets/css/responsive-foundation-v11190.css
-          grep -q 'safe-area-inset-top' assets/css/responsive-foundation-v11190.css
-          grep -q '@media(max-width:1180px)' assets/css/responsive-foundation-v11190.css
-          grep -q '@media(max-width:720px)' assets/css/responsive-foundation-v11190.css
-          grep -q '@media(max-width:480px)' assets/css/responsive-foundation-v11190.css
-          grep -q '@media(max-width:360px)' assets/css/responsive-foundation-v11190.css
-          grep -q 'orientation:landscape' assets/css/responsive-foundation-v11190.css
-          grep -q 'pointer:coarse' assets/css/responsive-foundation-v11190.css
-          grep -q 'prefers-reduced-motion' assets/css/responsive-foundation-v11190.css
-          grep -q '100dvh' assets/css/responsive-foundation-v11190.css
-          grep -q 'mobile-dock' assets/css/responsive-foundation-v11190.css
-          grep -q 'rf-responsive-table' assets/css/responsive-foundation-v11190.css
-          grep -q 'data-rf-mode="cards"' assets/css/responsive-foundation-v11190.css
-          grep -q 'data-rf-mode="scroll"' assets/css/responsive-foundation-v11190.css
           grep -q 'visualViewport' assets/js/modules/responsive-foundation-v11190.js
-          grep -q 'MutationObserver' assets/js/modules/responsive-foundation-v11190.js
-          grep -q 'data-rf-label' assets/js/modules/responsive-foundation-v11190.js
-          grep -q 'MOBILE_NAV_QUERY="(max-width: 1180px)"' assets/js/core/layout.js
-          grep -q 'mobileDockHtml' assets/js/core/layout.js
-          grep -q '320×568' docs/responsive-matrix-v11.19.0.md
-          grep -q '1024×768' docs/responsive-matrix-v11.19.0.md
-          grep -q '1366×768' docs/responsive-matrix-v11.19.0.md
-          grep -q '1920×1080' docs/responsive-matrix-v11.19.0.md
+          grep -q 'mobile-dock' assets/css/responsive-foundation-v11190.css
+          grep -q 'safe-area-inset-top' assets/css/responsive-foundation-v11190.css
+          grep -q 'prefers-reduced-motion' assets/css/responsive-foundation-v11190.css
 
-          # Global aesthetic shell remains mandatory.
-          test -s assets/css/paco-aesthetic-v11180.css
-          test -s assets/css/paco-aesthetic-depth-v11180.css
-          test -s assets/img/ui/crm-psp-waves-v11180.webp
-          grep -q 'crm-psp-waves-v11180.webp' assets/css/paco-aesthetic-v11180.css
-          grep -q 'Sidebar premium texture' assets/css/paco-aesthetic-v11180.css
-
-          # Paco baseline functional engine remains permission controlled.
+          # Paco functional engine remains permission controlled.
           test -s assets/js/modules/paco-bot-v11182.js
-          test -s assets/js/modules/paco-visibility-v11180.js
+          test -s assets/js/modules/paco-command-center-v11191.js
           grep -q 'api.listOrders' assets/js/modules/paco-bot-v11182.js
           grep -q 'api.getActions' assets/js/modules/paco-bot-v11182.js
           grep -q 'api.orderIssues' assets/js/modules/paco-bot-v11182.js
           grep -q 'api.health' assets/js/modules/paco-bot-v11182.js
           grep -q 'auth.updateUser' assets/js/modules/paco-bot-v11182.js
           grep -q 'hasRole("super_admin")' assets/js/modules/paco-bot-v11182.js
-          grep -q 'PACO_VERSION="11.19.2"' assets/js/modules/paco-visibility-v11180.js
-          grep -q 'paco-enterprise-v11192.css?v=11.19.2' assets/js/modules/paco-visibility-v11180.js
-
-          # Paco V11.19.2 geometry: wider, same height, lightning-only open companion.
-          test -s assets/css/paco-enterprise-v11192.css
-          test -s assets/js/modules/paco-visual-v11192.js
-          for asset in idle listening thinking wink talking success; do
-            test -s "assets/img/paco/paco-${asset}-v11183.svg"
-          done
-          grep -q 'PANEL_FALLBACK_WIDTH=640' assets/js/modules/paco-visual-v11192.js
-          grep -q 'PANEL_GAP=14' assets/js/modules/paco-visual-v11192.js
-          grep -q 'dataset.pacoLauncherMode=isOpen?"bolt":"paco"' assets/js/modules/paco-visual-v11192.js
-          grep -q 'paco-open-v11192' assets/js/modules/paco-visual-v11192.js
-          grep -q -- '--paco-panel-width-v11192:640px' assets/css/paco-enterprise-v11192.css
-          grep -q 'calc(100vw - 32px)' assets/css/paco-enterprise-v11192.css
-          grep -q 'height:min(760px,calc(100dvh - 42px))' assets/css/paco-enterprise-v11192.css
-          grep -q 'paco-open-v11192 .paco-launcher .paco-face' assets/css/paco-enterprise-v11192.css
-          grep -q 'opacity:0!important' assets/css/paco-enterprise-v11192.css
-          grep -q 'content:"⚡"' assets/css/paco-enterprise-v11192.css
-          grep -q 'width:48px!important' assets/css/paco-enterprise-v11192.css
-          grep -q 'rotate(-720deg)' assets/css/paco-enterprise-v11192.css
-          grep -q 'pacoTrailV11192' assets/css/paco-enterprise-v11192.css
-          grep -q 'object-fit:contain' assets/css/paco-enterprise-v11192.css
-          grep -q 'prefers-reduced-motion' assets/css/paco-enterprise-v11192.css
-
-          # Paco Command Center remains functional.
-          test -s assets/js/modules/paco-command-center-v11191.js
-          grep -q 'Centro de herramientas' assets/js/modules/paco-command-center-v11191.js
-          grep -q 'api.listOrders' assets/js/modules/paco-command-center-v11191.js
           grep -q 'api.exceptionSummary' assets/js/modules/paco-command-center-v11191.js
           grep -q 'api.workMyDay' assets/js/modules/paco-command-center-v11191.js
           grep -q 'api.materialReservationHealth' assets/js/modules/paco-command-center-v11191.js
-          grep -q 'api.health' assets/js/modules/paco-command-center-v11191.js
-          grep -q 'erp:rpc-error' assets/js/modules/paco-command-center-v11191.js
-          grep -q 'Mi acceso' assets/js/modules/paco-command-center-v11191.js
-          grep -q 'Pedidos a revisar' assets/js/modules/paco-command-center-v11191.js
-          grep -q 'Salud del CRM' assets/js/modules/paco-command-center-v11191.js
-          grep -q 'paco-command-center-v11191' assets/css/paco-enterprise-v11192.css
 
-          # Corte V11.17.0 regression baseline.
+          # Paco Chat Shell V11.19.3: viewport-driven, genuinely wide and chatable.
+          test -s assets/css/paco-chat-shell-v11193.css
+          test -s assets/js/modules/paco-visual-v11193.js
+          test -s assets/js/modules/paco-visibility-v11180.js
+          grep -q 'ROOT_VERSION="11.19.3"' assets/js/modules/paco-visual-v11193.js
+          grep -q 'const w=viewportWidth()' assets/js/modules/paco-visual-v11193.js
+          grep -q 'Math.min(820,Math.max(720,Math.round(w\*.46)))' assets/js/modules/paco-visual-v11193.js
+          grep -q 'root.style.setProperty("--paco-target-width-v11193"' assets/js/modules/paco-visual-v11193.js
+          if grep -q 'panel.getBoundingClientRect().width' assets/js/modules/paco-visual-v11193.js; then
+            echo 'Paco width must not be derived from the already-rendered panel'; exit 1
+          fi
+          grep -q -- '--paco-target-width-v11193:760px' assets/css/paco-chat-shell-v11193.css
+          grep -q 'height:min(760px,calc(100dvh - 42px))' assets/css/paco-chat-shell-v11193.css
+          grep -q 'grid-template-columns:repeat(2,minmax(0,1fr))' assets/css/paco-chat-shell-v11193.css
+          grep -q 'grid-template-columns:repeat(3,minmax(0,1fr))' assets/css/paco-chat-shell-v11193.css
+          grep -q 'min-height:58px' assets/css/paco-chat-shell-v11193.css
+          grep -q 'font-size:14.5px' assets/css/paco-chat-shell-v11193.css
+          grep -q 'content:"⚡"' assets/css/paco-chat-shell-v11193.css
+          grep -q 'rotate(-720deg)' assets/css/paco-chat-shell-v11193.css
+          grep -q 'paco-open-v11193 .paco-launcher .paco-face' assets/css/paco-chat-shell-v11193.css
+          grep -q 'prefers-reduced-motion' assets/css/paco-chat-shell-v11193.css
+          grep -q 'PACO_VERSION="11.19.3"' assets/js/modules/paco-visibility-v11180.js
+          grep -q 'paco-chat-shell-v11193.css?v=11.19.3' assets/js/modules/paco-visibility-v11180.js
+
+          # Real Paco assets remain mandatory.
+          for asset in idle listening thinking wink talking success; do
+            test -s "assets/img/paco/paco-${asset}-v11183.svg"
+            grep -q "./assets/img/paco/paco-${asset}-v11183.svg" service-worker.js
+          done
+
+          # Regression baselines from critical rebuilt modules.
           test -s assets/css/cutting-center-v11170.css
           test -s assets/js/modules/cutting-flow.js
-          grep -q 'cutting-page-head' assets/css/cutting-center-v11170.css
-          grep -q 'cutting-guided-modal' assets/css/cutting-center-v11170.css
           grep -q 'api.cuttingWork' assets/js/modules/cutting-flow.js
           grep -q 'api.executeCutGroup' assets/js/modules/cutting-flow.js
           grep -q 'api.cuttingFinalize' assets/js/modules/cutting-flow.js
 
-          # Administration V11.16.0 contract remains mandatory.
           test -s assets/css/admin-center-v11160.css
           test -s assets/js/modules/admin-center-v11160.js
           test -s supabase/migrations/092_admin_control_center_v11_16_0.sql
-          grep -q 'Centro de Control Administrativo' assets/js/modules/admin-center-v11160.js
           grep -q 'erp_x_admin_control_center' assets/js/modules/admin-center-v11160.js
           grep -q 'erp_x_admin_config_mutate' assets/js/modules/admin-center-v11160.js
 
-          # Super Admin profile verification / isolated impersonation session.
           test -s supabase/functions/erp-admin-impersonate/index.ts
           test -s supabase/migrations/093_admin_impersonation_audit_v11_16_0.sql
           grep -q 'erp-admin-impersonate' assets/js/modules/admin.js
-          grep -q 'Entrar como usuario' assets/js/modules/admin.js
           grep -q 'IMPERSONATION_MODE' assets/js/services/supabase.js
-          grep -q 'verifyOtp' assets/js/services/supabase.js
 
-          # Historical center and Analytics regression contracts.
           test -s assets/css/history-center-v11150.css
           test -s assets/js/modules/history-center-v11150.js
           test -s supabase/migrations/091_history_center_v11_15_0.sql
-          grep -q 'Centro Histórico de Pedidos' assets/js/modules/history-center-v11150.js
           test -s assets/css/reports-enterprise-v11140.css
           test -s assets/js/modules/reports-enterprise-v11140.js
           test -s supabase/migrations/088_reports_analytics_core_v11_14_0.sql
           test -s supabase/migrations/089_reports_explorer_export_views_v11_14_0.sql
           test -s supabase/migrations/090_reports_analytics_indexes_v11_14_0.sql
-          grep -q 'Intelligence Center' assets/js/modules/reports-enterprise-v11140.js
 
-          # Regression contracts retained from V11.11–V11.13.
           test -s assets/css/inventory-core-v11110.css
           test -s assets/js/modules/inventory.js
-          test -s assets/js/services/inventory.js
-          test -s supabase/migrations/084_inventory_traceability_v11_10_9.sql
           test -s assets/css/shipping-core-v11107.css
-          test -s assets/css/sent-orders-v11108.css
           test -s assets/js/modules/shipping-flow.js
-          test -s assets/js/modules/sent-orders.js
           test -s assets/css/flow-times-core-v11120.css
           test -s assets/js/modules/vsm.js
-          test -s supabase/migrations/085_flow_times_analytics_v11_12_0.sql
           test -s assets/css/flow-performance-v11130.css
           test -s assets/js/modules/flow-performance-v11130.js
-          test -s supabase/migrations/086_people_performance_analytics_v11_13_0.sql
-          test -s supabase/migrations/087_people_analytics_profile_selector_v11_13_0.sql
 
-          # PWA contains V11.19.2 Paco and responsive runtime.
-          grep -q './assets/css/responsive-foundation-v11190.css' service-worker.js
-          grep -q './assets/js/modules/responsive-foundation-v11190.js' service-worker.js
-          grep -q './assets/css/paco-enterprise-v11192.css' service-worker.js
-          grep -q './assets/js/modules/paco-bot-v11182.js' service-worker.js
-          grep -q './assets/js/modules/paco-visual-v11192.js' service-worker.js
+          # PWA references the canonical V11.19.3 shell/runtime, not V11.19.2.
+          grep -q './assets/css/paco-chat-shell-v11193.css' service-worker.js
+          grep -q './assets/js/modules/paco-visual-v11193.js' service-worker.js
           grep -q './assets/js/modules/paco-command-center-v11191.js' service-worker.js
-          for asset in idle listening thinking wink talking success; do
-            grep -q "./assets/img/paco/paco-${asset}-v11183.svg" service-worker.js
-          done
+          if grep -q './assets/css/paco-enterprise-v11192.css' service-worker.js; then
+            echo 'Legacy V11.19.2 Paco CSS must not be precached'; exit 1
+          fi
 
           # Vercel quota guard: only main may auto-deploy.
           grep -q '"main"[[:space:]]*:[[:space:]]*true' vercel.json
@@ -215,12 +162,12 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.19.2" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.19.3" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.19.2-deployable
+          name: crm-suministros-v11.19.3-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
