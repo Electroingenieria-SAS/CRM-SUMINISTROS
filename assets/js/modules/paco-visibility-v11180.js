@@ -1,16 +1,19 @@
 import {state} from "../core/state.js";
 import {installPacoBot} from "./paco-bot-v11182.js";
 
-/* CRM Suministros · Paco visibility guard V11.18.3
-   Keeps Paco attached to document.body and hands rendering to the real-image visual layer. */
+/* CRM Suministros · Paco visibility guard V11.19.1
+   Keeps Paco attached to document.body and guarantees the canonical Enterprise stylesheet. */
 
-const PACO_VERSION="11.18.3";
-const PACO_STYLE="./assets/css/paco-enterprise-v11183.css?v=11.18.3";
+const PACO_VERSION="11.19.1";
+const PACO_STYLE="./assets/css/paco-enterprise-v11191.css?v=11.19.1";
 let scheduled=false;
 let observer=null;
 
 function ensureStyle(){
-  if(document.querySelector('link[data-paco-enterprise="11.18.3"]'))return;
+  document.querySelectorAll('link[data-paco-enterprise]').forEach(link=>{
+    if(link.dataset.pacoEnterprise!==PACO_VERSION)link.remove();
+  });
+  if(document.querySelector(`link[data-paco-enterprise="${PACO_VERSION}"]`))return;
   const link=document.createElement("link");
   link.rel="stylesheet";
   link.href=PACO_STYLE;
@@ -34,15 +37,15 @@ function ensurePaco(){
   if(root.parentElement!==document.body)document.body.append(root);
   root.hidden=false;
   root.removeAttribute("aria-hidden");
-  root.classList.remove("paco-mounted-v11182");
-  root.classList.add("paco-mounted-v11183");
+  root.classList.remove("paco-mounted-v11182","paco-mounted-v11183");
+  root.classList.add("paco-mounted-v11191");
   const launcher=root.querySelector("[data-paco-toggle]");
   if(launcher){
     launcher.hidden=false;
     launcher.removeAttribute("aria-hidden");
     launcher.setAttribute("tabindex","0");
   }
-  window.dispatchEvent(new CustomEvent("paco:mounted-v11183",{detail:{root}}));
+  window.dispatchEvent(new CustomEvent("paco:mounted-v11191",{detail:{root,version:PACO_VERSION}}));
 }
 
 function scheduleEnsure(){

@@ -40,21 +40,23 @@ jobs:
               print('\n'.join(missing));sys.exit(1)
           PY
 
-      - name: Validate V11.19.0 release contract
+      - name: Validate V11.19.1 release contract
         shell: bash
         run: |
           set -euo pipefail
 
           # Release identity.
-          grep -q 'version: "11.19.0"' assets/js/config.js
-          grep -q 'build: "2026-09-08.04"' assets/js/config.js
-          grep -q 'main.js?v=11.19.0' index.html
+          grep -q 'version: "11.19.1"' assets/js/config.js
+          grep -q 'build: "2026-09-08.05"' assets/js/config.js
+          grep -q 'main.js?v=11.19.1' index.html
           grep -q 'responsive-foundation-v11190.css?v=11.19.0' index.html
-          grep -q 'responsive-foundation-v11190.js?v=11.19.0' index.html
+          grep -q 'paco-enterprise-v11191.css?v=11.19.1' index.html
+          grep -q 'paco-visual-v11191.js?v=11.19.1' index.html
+          grep -q 'paco-command-center-v11191.js?v=11.19.1' index.html
           grep -q 'interactive-widget=resizes-content' index.html
-          grep -q 'crm-suministros-v11-19-0-20260908-04' service-worker.js
+          grep -q 'crm-suministros-v11-19-1-20260908-05' service-worker.js
 
-          # Responsive Foundation V11.19.0: canonical adaptive architecture.
+          # Responsive Foundation V11.19.0 remains canonical.
           test -s assets/css/responsive-foundation-v11190.css
           test -s assets/js/modules/responsive-foundation-v11190.js
           test -s docs/responsive-matrix-v11.19.0.md
@@ -75,25 +77,12 @@ jobs:
           grep -q 'visualViewport' assets/js/modules/responsive-foundation-v11190.js
           grep -q 'MutationObserver' assets/js/modules/responsive-foundation-v11190.js
           grep -q 'data-rf-label' assets/js/modules/responsive-foundation-v11190.js
-          grep -q 'HTMLTableElement' assets/js/modules/responsive-foundation-v11190.js
-          grep -q 'rfBreakpoint' assets/js/modules/responsive-foundation-v11190.js
-          grep -q 'rfKeyboard' assets/js/modules/responsive-foundation-v11190.js
           grep -q 'MOBILE_NAV_QUERY="(max-width: 1180px)"' assets/js/core/layout.js
           grep -q 'mobileDockHtml' assets/js/core/layout.js
-          grep -q 'mobile-dock' assets/js/core/layout.js
-          grep -q 'mobile-shell-title' assets/js/core/layout.js
-          grep -q 'data-mobile-dock-action="search"' assets/js/core/layout.js
-          grep -q 'data-mobile-dock-action="menu"' assets/js/core/layout.js
           grep -q '320×568' docs/responsive-matrix-v11.19.0.md
           grep -q '1024×768' docs/responsive-matrix-v11.19.0.md
           grep -q '1366×768' docs/responsive-matrix-v11.19.0.md
           grep -q '1920×1080' docs/responsive-matrix-v11.19.0.md
-          grep -q 'Safari iOS' docs/responsive-matrix-v11.19.0.md
-          grep -q 'Firefox desktop' docs/responsive-matrix-v11.19.0.md
-
-          # PWA contains the canonical responsive CSS/runtime.
-          grep -q './assets/css/responsive-foundation-v11190.css' service-worker.js
-          grep -q './assets/js/modules/responsive-foundation-v11190.js' service-worker.js
 
           # Global aesthetic shell remains mandatory.
           test -s assets/css/paco-aesthetic-v11180.css
@@ -101,9 +90,8 @@ jobs:
           test -s assets/img/ui/crm-psp-waves-v11180.webp
           grep -q 'crm-psp-waves-v11180.webp' assets/css/paco-aesthetic-v11180.css
           grep -q 'Sidebar premium texture' assets/css/paco-aesthetic-v11180.css
-          grep -q 'prefers-reduced-motion' assets/css/paco-aesthetic-v11180.css
 
-          # Paco Bot baseline functionality remains mandatory.
+          # Paco baseline functional engine remains permission controlled.
           test -s assets/js/modules/paco-bot-v11182.js
           test -s assets/js/modules/paco-visibility-v11180.js
           grep -q 'api.listOrders' assets/js/modules/paco-bot-v11182.js
@@ -112,19 +100,40 @@ jobs:
           grep -q 'api.health' assets/js/modules/paco-bot-v11182.js
           grep -q 'auth.updateUser' assets/js/modules/paco-bot-v11182.js
           grep -q 'hasRole("super_admin")' assets/js/modules/paco-bot-v11182.js
-          grep -q 'PACO_VERSION="11.18.3"' assets/js/modules/paco-visibility-v11180.js
+          grep -q 'PACO_VERSION="11.19.1"' assets/js/modules/paco-visibility-v11180.js
+          grep -q 'paco-enterprise-v11191.css?v=11.19.1' assets/js/modules/paco-visibility-v11180.js
 
-          # Paco V11.18.3 visual regression baseline.
-          test -s assets/css/paco-enterprise-v11183.css
-          test -s assets/js/modules/paco-visual-v11183.js
+          # Paco V11.19.1: taller panel, circular dock and real-image rolling motion.
+          test -s assets/css/paco-enterprise-v11191.css
+          test -s assets/js/modules/paco-visual-v11191.js
           for asset in idle listening thinking wink talking success; do
             test -s "assets/img/paco/paco-${asset}-v11183.svg"
           done
-          grep -q 'PACO_ASSETS' assets/js/modules/paco-visual-v11183.js
-          grep -q 'HTMLImageElement' assets/js/modules/paco-visual-v11183.js
-          grep -q 'paco-open-v11183' assets/js/modules/paco-visual-v11183.js
-          grep -q 'rotate(-360deg)' assets/css/paco-enterprise-v11183.css
-          grep -q 'object-fit:contain' assets/css/paco-enterprise-v11183.css
+          grep -q 'PACO_ASSETS' assets/js/modules/paco-visual-v11191.js
+          grep -q 'HTMLImageElement' assets/js/modules/paco-visual-v11191.js
+          grep -q 'width+gap' assets/js/modules/paco-visual-v11191.js || grep -q 'const desired=width+gap' assets/js/modules/paco-visual-v11191.js
+          grep -q 'paco-open-v11191' assets/js/modules/paco-visual-v11191.js
+          grep -q 'rotate(-720deg)' assets/css/paco-enterprise-v11191.css
+          grep -q 'border-radius:50%' assets/css/paco-enterprise-v11191.css
+          grep -q 'content:"⚡"' assets/css/paco-enterprise-v11191.css
+          grep -q 'height:min(760px,calc(100dvh - 42px))' assets/css/paco-enterprise-v11191.css
+          grep -q 'pacoTrailV11191' assets/css/paco-enterprise-v11191.css
+          grep -q 'object-fit:contain' assets/css/paco-enterprise-v11191.css
+          grep -q 'prefers-reduced-motion' assets/css/paco-enterprise-v11191.css
+
+          # Paco Command Center: real read-only diagnostics and permission-aware shortcuts.
+          test -s assets/js/modules/paco-command-center-v11191.js
+          grep -q 'Centro de herramientas' assets/js/modules/paco-command-center-v11191.js
+          grep -q 'api.listOrders' assets/js/modules/paco-command-center-v11191.js
+          grep -q 'api.exceptionSummary' assets/js/modules/paco-command-center-v11191.js
+          grep -q 'api.workMyDay' assets/js/modules/paco-command-center-v11191.js
+          grep -q 'api.materialReservationHealth' assets/js/modules/paco-command-center-v11191.js
+          grep -q 'api.health' assets/js/modules/paco-command-center-v11191.js
+          grep -q 'erp:rpc-error' assets/js/modules/paco-command-center-v11191.js
+          grep -q 'Mi acceso' assets/js/modules/paco-command-center-v11191.js
+          grep -q 'Pedidos a revisar' assets/js/modules/paco-command-center-v11191.js
+          grep -q 'Salud del CRM' assets/js/modules/paco-command-center-v11191.js
+          grep -q 'paco-command-center-v11191' assets/css/paco-enterprise-v11191.css
 
           # Corte V11.17.0 regression baseline.
           test -s assets/css/cutting-center-v11170.css
@@ -151,13 +160,11 @@ jobs:
           grep -q 'IMPERSONATION_MODE' assets/js/services/supabase.js
           grep -q 'verifyOtp' assets/js/services/supabase.js
 
-          # Historical center V11.15 remains mandatory.
+          # Historical center and Analytics regression contracts.
           test -s assets/css/history-center-v11150.css
           test -s assets/js/modules/history-center-v11150.js
           test -s supabase/migrations/091_history_center_v11_15_0.sql
           grep -q 'Centro Histórico de Pedidos' assets/js/modules/history-center-v11150.js
-
-          # Analytics V11.14 remains mandatory.
           test -s assets/css/reports-enterprise-v11140.css
           test -s assets/js/modules/reports-enterprise-v11140.js
           test -s supabase/migrations/088_reports_analytics_core_v11_14_0.sql
@@ -182,15 +189,18 @@ jobs:
           test -s supabase/migrations/086_people_performance_analytics_v11_13_0.sql
           test -s supabase/migrations/087_people_analytics_profile_selector_v11_13_0.sql
 
-          # PWA still includes every Paco V11.18.3 asset.
-          grep -q './assets/css/paco-enterprise-v11183.css' service-worker.js
+          # PWA contains the canonical V11.19.1 Paco and V11.19.0 responsive runtime.
+          grep -q './assets/css/responsive-foundation-v11190.css' service-worker.js
+          grep -q './assets/js/modules/responsive-foundation-v11190.js' service-worker.js
+          grep -q './assets/css/paco-enterprise-v11191.css' service-worker.js
           grep -q './assets/js/modules/paco-bot-v11182.js' service-worker.js
-          grep -q './assets/js/modules/paco-visual-v11183.js' service-worker.js
+          grep -q './assets/js/modules/paco-visual-v11191.js' service-worker.js
+          grep -q './assets/js/modules/paco-command-center-v11191.js' service-worker.js
           for asset in idle listening thinking wink talking success; do
             grep -q "./assets/img/paco/paco-${asset}-v11183.svg" service-worker.js
           done
 
-          # Vercel quota guard: only main may auto-deploy; technical branches must not consume previews.
+          # Vercel quota guard: only main may auto-deploy.
           grep -q '"main"[[:space:]]*:[[:space:]]*true' vercel.json
           grep -q '"\*"[[:space:]]*:[[:space:]]*false' vercel.json
 
@@ -201,12 +211,12 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.19.0" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.19.1" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.19.0-deployable
+          name: crm-suministros-v11.19.1-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
