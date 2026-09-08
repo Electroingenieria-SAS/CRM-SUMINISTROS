@@ -1,0 +1,213 @@
+/* CRM Suministros · V11.18.0 visual refinement
+   Deeper / brighter PSP atmosphere + Paco visibility hardening.
+   Loaded after paco-aesthetic-v11180.css so it only refines the global shell. */
+
+:root{
+  --crm-psp-base:#fbfcfe;
+  --crm-psp-cool:#f3f7fb;
+  --crm-psp-line:rgba(119,151,183,.12);
+  --crm-psp-panel:rgba(255,255,255,.90);
+  --crm-psp-shadow:0 18px 48px rgba(17,52,88,.075),0 3px 12px rgba(17,52,88,.035);
+}
+
+/* ---------- Brighter, deeper and softer workspace ---------- */
+html,
+body{
+  background:var(--crm-psp-base)!important;
+}
+
+.shell{
+  background:transparent!important;
+}
+
+.main{
+  position:relative;
+  isolation:isolate;
+  overflow:clip;
+  background:
+    radial-gradient(ellipse at 14% 8%,rgba(255,255,255,.98) 0 16%,rgba(255,255,255,.44) 42%,transparent 66%),
+    radial-gradient(ellipse at 88% 18%,rgba(255,255,255,.92) 0 13%,rgba(240,246,252,.34) 46%,transparent 70%),
+    linear-gradient(180deg,#fbfdff 0%,#f6f9fc 45%,#f9fbfd 100%)!important;
+}
+
+/* The wave is isolated in its own blurred layer so cards remain crisp. */
+.main:before{
+  content:""!important;
+  position:fixed!important;
+  z-index:0!important;
+  top:var(--shell-height)!important;
+  right:-2.5vw!important;
+  bottom:-3vh!important;
+  left:calc(var(--sidebar) - 2.5vw)!important;
+  pointer-events:none!important;
+  opacity:.82!important;
+  background:
+    url("../img/ui/crm-psp-waves-v11180.webp") center 52%/116% auto no-repeat!important;
+  filter:blur(9px) brightness(1.075) contrast(.94) saturate(.72)!important;
+  transform:scale(1.035)!important;
+  transform-origin:center center!important;
+}
+
+/* Second haze layer adds depth without making the UI grey. */
+.main:after{
+  content:"";
+  position:fixed;
+  z-index:0;
+  top:var(--shell-height);
+  right:0;
+  bottom:0;
+  left:var(--sidebar);
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse at 34% 22%,rgba(255,255,255,.68),transparent 38%),
+    radial-gradient(ellipse at 77% 72%,rgba(231,239,248,.22),transparent 42%),
+    linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.08) 48%,rgba(255,255,255,.30));
+  backdrop-filter:blur(.35px);
+}
+
+.main>.mobile-search-panel,
+.main>.content{
+  position:relative;
+  z-index:1;
+}
+
+.content{
+  background:transparent!important;
+}
+
+/* Keep operational surfaces crisp while letting the atmosphere breathe around them. */
+.content>.card,
+.content>.page-head,
+.content>.guided-workspace,
+.content>.guided-workspace-v11120,
+.content>.bi-panel-v11140,
+.content>.history-panel-v11150,
+.content>.admin-panel-v11160,
+.content .card,
+.content .panel{
+  border-color:rgba(126,155,184,.15);
+  box-shadow:var(--crm-psp-shadow);
+}
+
+/* ---------- Sidebar: quiet premium micro-texture ---------- */
+.sidebar{
+  background:
+    radial-gradient(circle at 9% 5%,rgba(80,163,234,.23),transparent 24%),
+    radial-gradient(circle at 102% 32%,rgba(65,131,194,.18),transparent 35%),
+    linear-gradient(180deg,#07325e 0%,#062747 42%,#041a31 100%)!important;
+  box-shadow:14px 0 40px rgba(4,28,54,.16),inset -1px 0 0 rgba(255,255,255,.055)!important;
+}
+
+.sidebar:before{
+  opacity:.31!important;
+  background:
+    radial-gradient(ellipse at 30% 18%,rgba(255,255,255,.055),transparent 34%),
+    repeating-linear-gradient(116deg,rgba(255,255,255,.018) 0 1px,transparent 1px 7px),
+    repeating-linear-gradient(24deg,rgba(77,157,226,.018) 0 1px,transparent 1px 11px)!important;
+  mix-blend-mode:screen;
+}
+
+.sidebar:after{
+  top:-9%!important;
+  right:-54%!important;
+  width:128%!important;
+  height:66%!important;
+  border-color:rgba(255,255,255,.085)!important;
+  box-shadow:
+    0 0 0 34px rgba(255,255,255,.013),
+    0 0 0 68px rgba(79,159,227,.012),
+    0 0 0 104px rgba(255,255,255,.007)!important;
+}
+
+.nav-item{
+  border:1px solid transparent;
+}
+
+.nav-item:hover{
+  border-color:rgba(133,193,242,.09);
+  background:linear-gradient(90deg,rgba(55,135,207,.23),rgba(22,82,139,.10))!important;
+}
+
+.nav-item.active{
+  border-color:rgba(153,207,251,.15);
+  background:linear-gradient(112deg,rgba(28,120,208,.68),rgba(8,64,120,.50))!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.10)!important;
+}
+
+/* ---------- Paco: guaranteed above the CRM shell ---------- */
+#paco-bot.paco-root{
+  z-index:2147482000!important;
+  display:block;
+  visibility:visible;
+  opacity:1;
+  isolation:isolate;
+  pointer-events:none;
+}
+
+#paco-bot.paco-root[hidden]{
+  display:none!important;
+}
+
+#paco-bot.paco-root>*{
+  pointer-events:auto;
+}
+
+#paco-bot .paco-launcher{
+  display:grid!important;
+  visibility:visible!important;
+  opacity:1!important;
+  min-width:74px;
+  min-height:74px;
+  box-shadow:
+    0 20px 44px rgba(7,46,88,.22),
+    0 0 0 6px rgba(255,255,255,.68),
+    inset 0 1px 0 #fff!important;
+}
+
+#paco-bot .paco-panel{
+  z-index:2;
+  box-shadow:0 32px 82px rgba(4,31,61,.25),0 10px 30px rgba(4,31,61,.12)!important;
+}
+
+#paco-bot.paco-mounted-v11181 .paco-launcher{
+  animation:pacoMountV11181 .34s cubic-bezier(.2,.8,.2,1) both;
+}
+
+@keyframes pacoMountV11181{
+  from{opacity:0;transform:translateY(10px) scale(.92)}
+  to{opacity:1;transform:none}
+}
+
+@media(max-width:960px){
+  .main:before,
+  .main:after{
+    left:0!important;
+  }
+  .main:before{
+    background-size:auto 102%!important;
+    opacity:.74!important;
+    filter:blur(8px) brightness(1.08) contrast(.94) saturate(.68)!important;
+  }
+}
+
+@media(max-width:640px){
+  #paco-bot.paco-root{
+    right:14px!important;
+    bottom:14px!important;
+  }
+  #paco-bot .paco-launcher{
+    width:66px!important;
+    height:66px!important;
+    min-width:66px!important;
+    min-height:66px!important;
+    border-radius:21px!important;
+  }
+  #paco-bot .paco-launcher .paco-face{
+    width:52px!important;
+    height:52px!important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  #paco-bot.paco-mounted-v11181 .paco-launcher{animation:none!important}
+}
