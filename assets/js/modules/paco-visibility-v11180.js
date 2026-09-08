@@ -1,11 +1,11 @@
 import {state} from "../core/state.js";
 import {installPacoBot} from "./paco-bot-v11182.js";
 
-/* CRM Suministros · Paco visibility guard V11.19.2
-   Keeps Paco attached to document.body and guarantees the canonical Enterprise stylesheet. */
+/* CRM Suministros · Paco visibility guard V11.19.3
+   Keeps Paco attached to document.body and guarantees one canonical chat shell stylesheet. */
 
-const PACO_VERSION="11.19.2";
-const PACO_STYLE="./assets/css/paco-enterprise-v11192.css?v=11.19.2";
+const PACO_VERSION="11.19.3";
+const PACO_STYLE="./assets/css/paco-chat-shell-v11193.css?v=11.19.3";
 let scheduled=false;
 let observer=null;
 
@@ -26,10 +26,7 @@ function ensurePaco(){
   if(!state.profile||!document.querySelector(".shell"))return;
   ensureStyle();
   let root=document.querySelector("#paco-bot");
-  if(root&&root.dataset.pacoVersion!==PACO_VERSION){
-    root.remove();
-    root=null;
-  }
+  if(root&&root.dataset.pacoVersion!==PACO_VERSION){root.remove();root=null}
   installPacoBot();
   root=document.querySelector("#paco-bot");
   if(!root)return;
@@ -37,23 +34,18 @@ function ensurePaco(){
   if(root.parentElement!==document.body)document.body.append(root);
   root.hidden=false;
   root.removeAttribute("aria-hidden");
-  root.classList.remove("paco-mounted-v11182","paco-mounted-v11183","paco-mounted-v11191");
-  root.classList.add("paco-mounted-v11192");
+  [...root.classList].forEach(cls=>{if(/^paco-mounted-v/.test(cls))root.classList.remove(cls)});
+  root.classList.add("paco-mounted-v11193","paco-shell-v11193");
   const launcher=root.querySelector("[data-paco-toggle]");
   if(launcher){
     launcher.hidden=false;
     launcher.removeAttribute("aria-hidden");
     launcher.setAttribute("tabindex","0");
   }
-  window.dispatchEvent(new CustomEvent("paco:mounted-v11192",{detail:{root,version:PACO_VERSION}}));
+  window.dispatchEvent(new CustomEvent("paco:mounted-v11193",{detail:{root,version:PACO_VERSION}}));
 }
 
-function scheduleEnsure(){
-  if(scheduled)return;
-  scheduled=true;
-  requestAnimationFrame(ensurePaco);
-}
-
+function scheduleEnsure(){if(scheduled)return;scheduled=true;requestAnimationFrame(ensurePaco)}
 function bootGuard(){
   scheduleEnsure();
   if(observer)return;
