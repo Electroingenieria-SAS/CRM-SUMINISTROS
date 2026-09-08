@@ -16,174 +16,93 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate JavaScript syntax
-        shell: bash
-        run: find assets/js -name '*.js' -print0 | xargs -0 -n1 node --check
-
-      - name: Validate static dependency graph
+      - name: JavaScript syntax
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
-          from pathlib import Path
-          import re,sys
-          root=Path('.')
-          missing=[]
-          for path in (root/'assets/js').rglob('*.js'):
-              text=path.read_text(encoding='utf-8')
-              for spec in re.findall(r'(?:from\s+|import\s*\()\s*["\'](\.{1,2}/[^"\']+)["\']',text):
-                  if not (path.parent/spec).resolve().exists(): missing.append(f'{path}: {spec}')
-          sw=(root/'service-worker.js').read_text(encoding='utf-8')
-          for spec in re.findall(r'"(\./[^"?#]+)"',sw):
-              if spec!='./' and not (root/spec[2:]).exists(): missing.append(f'service-worker.js: {spec}')
-          if missing:
-              print('\n'.join(missing));sys.exit(1)
-          PY
+          find assets/js scripts -type f \( -name '*.js' -o -name '*.mjs' \) -print0 | xargs -0 -n1 node --check
 
-      - name: Validate V11.20.0 release contract
+      - name: ES module dependency graph
+        run: node --experimental-vm-modules scripts/link-check.mjs
+
+      - name: Security contract
+        run: node scripts/security-check.mjs
+
+      - name: Canonical architecture contract
+        run: node scripts/validate.mjs
+
+      - name: Release invariants
         shell: bash
         run: |
           set -euo pipefail
+          grep -q 'version: "11.21.0"' assets/js/config.js
+          grep -q 'build: "2026-09-08.10"' assets/js/config.js
+          grep -q '"version": "11.21.0"' package.json
+          grep -q 'app-entry.js?v=11.21.0' index.html
+          test "$(grep -c '<link rel="stylesheet" href="./assets/css/' index.html)" -eq 4
+          test "$(find assets/css -maxdepth 1 -type f -name '*.css' | wc -l)" -eq 4
 
-          # Release identity.
-          grep -q 'version: "11.20.0"' assets/js/config.js
-          grep -q 'build: "2026-09-08.09"' assets/js/config.js
-          grep -q 'main.js?v=11.20.0' index.html
-          grep -q 'paco-assistant-v11200.css?v=11.20.0' index.html
-          grep -q 'interactive-widget=resizes-content' index.html
-          grep -q 'crm-suministros-v11-20-0-20260908-09' service-worker.js
-
-          # Responsive Foundation remains canonical CRM-wide.
-          test -s assets/css/responsive-foundation-v11190.css
-          test -s assets/js/modules/responsive-foundation-v11190.js
-          test -s docs/responsive-matrix-v11.19.0.md
-          grep -q 'visualViewport' assets/js/modules/responsive-foundation-v11190.js
-          grep -q 'mobile-dock' assets/css/responsive-foundation-v11190.css
-          grep -q 'safe-area-inset-top' assets/css/responsive-foundation-v11190.css
-          grep -q 'prefers-reduced-motion' assets/css/responsive-foundation-v11190.css
-
-          # Paco V11.20.0 is a single-owner subsystem.
-          test -s assets/js/modules/paco-assistant-v11200.js
-          test -s assets/css/paco-assistant-v11200.css
-          test -s docs/paco-audit-v11.20.0.md
-          grep -q 'installPacoAssistant} from "./modules/paco-assistant-v11200.js"' assets/js/main.js
-          grep -q 'installPacoAssistant();' assets/js/main.js
-          if grep -q 'paco-bot-v1118' assets/js/main.js; then echo 'Legacy Paco engine imported by main'; exit 1; fi
-          if grep -Eq 'new[[:space:]]+MutationObserver|MutationObserver[[:space:]]*\(' assets/js/modules/paco-assistant-v11200.js; then echo 'Canonical Paco must not instantiate DOM repair observers'; exit 1; fi
-          if grep -q 'paco-visibility-v11180.js' index.html; then echo 'Legacy visibility guard still loaded'; exit 1; fi
-          if grep -Eq 'paco-visual-v111(83|91|92|93|94)\.js' index.html; then echo 'Legacy visual runtime still loaded'; exit 1; fi
-          if grep -q 'paco-command-center-v11191.js' index.html; then echo 'Legacy command-center layer still loaded'; exit 1; fi
-          if grep -q 'paco-chat-shell-v11193.css' index.html; then echo 'Legacy Paco shell CSS still loaded'; exit 1; fi
-
-          # State and hit-testing contract: closed panel does not exist in layout/pointer tree.
-          grep -Fq '#paco-bot.paco2-root[hidden]{display:none!important}' assets/css/paco-assistant-v11200.css
-          grep -Fq '#paco-bot.paco2-root .paco2-panel{display:none!important}' assets/css/paco-assistant-v11200.css
-          grep -Fq '#paco-bot.paco2-root.is-open .paco2-panel{display:flex!important}' assets/css/paco-assistant-v11200.css
-          grep -q 'function isOpen(){return Boolean(paco.root?.classList.contains("is-open"))}' assets/js/modules/paco-assistant-v11200.js
-          grep -q 'function setOpen(open)' assets/js/modules/paco-assistant-v11200.js
-          grep -q 'root.querySelector("\[data-paco2-toggle\]")?.addEventListener("click",toggleOpen)' assets/js/modules/paco-assistant-v11200.js
-
-          # Real Paco image assets are rendered directly, not converted after mount.
-          for asset in idle listening thinking wink talking success; do
-            test -s "assets/img/paco/paco-${asset}-v11183.svg"
-            grep -q "./assets/img/paco/paco-${asset}-v11183.svg" assets/js/modules/paco-assistant-v11200.js
-            grep -q "./assets/img/paco/paco-${asset}-v11183.svg" service-worker.js
-          done
-          grep -q '<img class="paco2-launcher-face"' assets/js/modules/paco-assistant-v11200.js
-          grep -q '<img class="paco2-head-face"' assets/js/modules/paco-assistant-v11200.js
-
-          # Functional coverage merged into the canonical assistant.
-          grep -q 'api.listOrders' assets/js/modules/paco-assistant-v11200.js
-          grep -q 'api.getOrder' assets/js/modules/paco-assistant-v11200.js
-          grep -q 'api.getActions' assets/js/modules/paco-assistant-v11200.js
-          grep -q 'api.orderIssues' assets/js/modules/paco-assistant-v11200.js
-          grep -q 'api.exceptionSummary' assets/js/modules/paco-assistant-v11200.js
-          grep -q 'api.workMyDay' assets/js/modules/paco-assistant-v11200.js
-          grep -q 'api.materialReservationHealth' assets/js/modules/paco-assistant-v11200.js
-          grep -q 'api.health' assets/js/modules/paco-assistant-v11200.js
-          grep -q 'auth.updateUser' assets/js/modules/paco-assistant-v11200.js
-          grep -q 'hasRole("super_admin")' assets/js/modules/paco-assistant-v11200.js
-          grep -q 'window.addEventListener("paco:open"' assets/js/modules/paco-assistant-v11200.js
-          grep -q 'erp:open-order' assets/js/modules/paco-assistant-v11200.js
-
-          # UX / responsive contract.
-          grep -q -- '--paco2-width:clamp(720px,46vw,820px)' assets/css/paco-assistant-v11200.css
-          grep -q 'font-size:14.5px' assets/css/paco-assistant-v11200.css
-          grep -q '@media(max-width:720px)' assets/css/paco-assistant-v11200.css
-          grep -q '@media(max-width:480px)' assets/css/paco-assistant-v11200.css
-          grep -q 'safe-area-inset-right' assets/css/paco-assistant-v11200.css
-          grep -q 'prefers-reduced-motion' assets/css/paco-assistant-v11200.css
-          grep -q 'rotate(-720deg)' assets/css/paco-assistant-v11200.css
-          grep -q 'paco2-launcher-bolt' assets/css/paco-assistant-v11200.css
-
-          # PWA contains only the canonical Paco runtime.
-          grep -q './assets/css/paco-assistant-v11200.css' service-worker.js
-          grep -q './assets/js/modules/paco-assistant-v11200.js' service-worker.js
-          for legacy in paco-chat-shell-v11193.css paco-bot-v11180.js paco-bot-v11182.js paco-visibility-v11180.js paco-visual-v11194.js paco-command-center-v11191.js; do
-            if grep -q "$legacy" service-worker.js; then echo "Legacy Paco runtime precached: $legacy"; exit 1; fi
+          for css in core-shell operations analytics experience; do
+            test -s "assets/css/${css}.css"
+            grep -q "./assets/css/${css}.css" service-worker.js
           done
 
-          # New namespace cannot be overridden by historical Paco CSS.
-          python - <<'PY'
-          from pathlib import Path
-          offenders=[]
-          for p in Path('assets/css').glob('*.css'):
-              if p.name=='paco-assistant-v11200.css': continue
-              if 'paco2-' in p.read_text(encoding='utf-8'):
-                  offenders.append(str(p))
-          if offenders:
-              raise SystemExit('Legacy CSS touches Paco V11.20 namespace: '+', '.join(offenders))
-          PY
+          # The canonical bundles must still contain the critical visual contracts.
+          grep -q 'Fuente consolidada: app.css' assets/css/core-shell.css
+          grep -q 'Fuente consolidada: inventory-core-v11110.css' assets/css/operations.css
+          grep -q 'Fuente consolidada: shipping-core-v11107.css' assets/css/operations.css
+          grep -q 'Fuente consolidada: flow-times-core-v11120.css' assets/css/analytics.css
+          grep -q 'Fuente consolidada: reports-enterprise-v11140.css' assets/css/analytics.css
+          grep -q 'Fuente consolidada: admin-center-v11160.css' assets/css/analytics.css
+          grep -q 'Fuente consolidada: responsive-foundation-v11190.css' assets/css/experience.css
+          grep -q 'Fuente consolidada: paco-assistant-v11200.css' assets/css/experience.css
 
-          # Regression baselines from critical rebuilt modules.
-          test -s assets/css/cutting-center-v11170.css
-          test -s assets/js/modules/cutting-flow.js
-          grep -q 'api.cuttingWork' assets/js/modules/cutting-flow.js
-          grep -q 'api.executeCutGroup' assets/js/modules/cutting-flow.js
-          grep -q 'api.cuttingFinalize' assets/js/modules/cutting-flow.js
-
-          test -s assets/css/admin-center-v11160.css
-          test -s assets/js/modules/admin-center-v11160.js
-          test -s supabase/migrations/092_admin_control_center_v11_16_0.sql
-          grep -q 'erp_x_admin_control_center' assets/js/modules/admin-center-v11160.js
-          grep -q 'erp_x_admin_config_mutate' assets/js/modules/admin-center-v11160.js
-
-          test -s supabase/functions/erp-admin-impersonate/index.ts
-          test -s supabase/migrations/093_admin_impersonation_audit_v11_16_0.sql
-          grep -q 'erp-admin-impersonate' assets/js/modules/admin.js
-          grep -q 'IMPERSONATION_MODE' assets/js/services/supabase.js
-
-          test -s assets/css/history-center-v11150.css
-          test -s assets/js/modules/history-center-v11150.js
-          test -s supabase/migrations/091_history_center_v11_15_0.sql
-          test -s assets/css/reports-enterprise-v11140.css
-          test -s assets/js/modules/reports-enterprise-v11140.js
-          test -s assets/css/inventory-core-v11110.css
-          test -s assets/js/modules/inventory.js
-          test -s assets/css/shipping-core-v11107.css
-          test -s assets/js/modules/shipping-flow.js
-          test -s assets/css/flow-times-core-v11120.css
-          test -s assets/js/modules/vsm.js
-          test -s assets/css/flow-performance-v11130.css
-          test -s assets/js/modules/flow-performance-v11130.js
-
-          # Vercel quota guard: only main may auto-deploy.
+          # One runtime owner and one deployment path.
+          test "$(grep -c '<script type="module" src="./assets/js/' index.html)" -eq 1
+          grep -q 'import "./main.js";' assets/js/app-entry.js
+          test "$(find .github/workflows -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \) | wc -l)" -eq 1
           grep -q '"main"[[:space:]]*:[[:space:]]*true' vercel.json
           grep -q '"\*"[[:space:]]*:[[:space:]]*false' vercel.json
+          test -s .vercelignore
+
+          # Supabase V11.21: stable public contracts + private versionless cores.
+          test -s supabase/migrations/094_architecture_core_cleanup_v11_21_0.sql
+          for core in confirm_picking_round_core execute_cut_group_core resolve_cut_requirement_core work_my_day_core vsm_people_core; do
+            grep -q "erp_supply.${core}" supabase/migrations/094_architecture_core_cleanup_v11_21_0.sql
+          done
+          grep -q "crm-suministros-v11-21-0-20260908-10" service-worker.js
+
+          # Critical modules remain present after cleanup.
+          for file in \
+            assets/js/modules/inventory.js \
+            assets/js/modules/shipping-flow.js \
+            assets/js/modules/cutting-flow.js \
+            assets/js/modules/vsm.js \
+            assets/js/modules/reports-enterprise-v11140.js \
+            assets/js/modules/history-center-v11150.js \
+            assets/js/modules/admin.js \
+            assets/js/modules/paco-assistant-v11200.js; do
+            test -s "$file"
+          done
 
       - name: Package deployable frontend
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p dist-deployable
-          cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
+          cp index.html 404.html manifest.webmanifest service-worker.js vercel.json dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.20.0" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' \
+            "commit=${GITHUB_SHA}" \
+            "version=11.21.0" \
+            "build=2026-09-08.10" \
+            "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.20.0-deployable
+          name: crm-suministros-v11.21.0-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
