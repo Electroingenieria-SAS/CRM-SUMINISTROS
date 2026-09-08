@@ -5,8 +5,9 @@ import {icon} from "./icons.js";
 import {navigate} from "./router.js";
 import {signOut} from "../services/supabase.js";
 
-const MOBILE_NAV_QUERY="(max-width: 960px)";
+const MOBILE_NAV_QUERY="(max-width: 1180px)";
 let previousFocus=null;
+let shellAbortController=null;
 
 export function renderLogin(error=""){
   document.documentElement.classList.remove("nav-drawer-open");
@@ -52,6 +53,15 @@ function navHtml(){return NAV_GROUPS.map(group=>{
   return `<div class="nav-group"><div class="nav-group-title">${fmt.escape(group.label)}</div>${items.map(i=>`<button class="nav-item ${state.currentModule===i.id?"active":""}" data-nav="${i.id}"><span class="nav-icon">${icon(i.icon)}</span><span class="nav-label">${fmt.escape(i.label)}</span>${icon("chevron","nav-arrow")}</button>`).join("")}</div>`;
 }).join("")}
 
+function mobileDockHtml(){
+  const readable=NAV_GROUPS.flatMap(group=>group.items).filter(item=>allowed(item.id));
+  const chosen=[];
+  for(const id of ["dashboard","orders"]){const item=readable.find(row=>row.id===id);if(item)chosen.push(item)}
+  for(const item of readable){if(chosen.length>=2)break;if(!chosen.some(row=>row.id===item.id))chosen.push(item)}
+  const primary=chosen.map(item=>`<button type="button" data-mobile-dock-nav="${item.id}" aria-label="${fmt.escape(item.label)}"><span class="mobile-dock-icon">${icon(item.icon)}</span><span class="mobile-dock-label">${fmt.escape(item.id==="dashboard"?"Inicio":item.id==="orders"?"Pedidos":item.label)}</span></button>`).join("");
+  return `<nav class="mobile-dock" id="mobile-dock" aria-label="Navegación rápida móvil">${primary}<button type="button" data-mobile-dock-action="search" aria-label="Buscar en CRM"><span class="mobile-dock-icon">${icon("search")}</span><span class="mobile-dock-label">Buscar</span></button><button type="button" data-mobile-dock-action="menu" aria-label="Abrir todos los módulos"><span class="mobile-dock-icon">${icon("menu")}</span><span class="mobile-dock-label">Más</span></button></nav>`;
+}
+
 export function renderShell(){
   const p=state.profile||{};
   const quickOrder=allowed("sales")?`<button class="btn btn-create shell-new-order" id="quick-order"><span>Nuevo pedido</span></button>`:"";
@@ -61,6 +71,7 @@ export function renderShell(){
         <button class="icon-btn mobile-menu" id="menu-toggle" type="button" aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false">${icon("menu")}</button>
         <span class="shell-brand-mark"><img src="./assets/img/iso-electroingenieria.png" alt=""></span>
         <span class="shell-brand-copy"><strong>CRM Suministros</strong><small>Electroingeniería S.A.S.</small></span>
+        <strong class="mobile-shell-title" id="mobile-shell-title">Centro de operaciones</strong>
       </div>
       <div class="shell-context" aria-live="polite">
         <div class="shell-breadcrumb"><span>CRM</span><b>›</b><span id="top-section">Operación</span></div>
@@ -87,6 +98,7 @@ export function renderShell(){
       <div class="mobile-search-panel" id="mobile-search-panel" hidden><label>${icon("search")}<input id="mobile-global-search" class="control" placeholder="Buscar pedido, cliente o referencia…" aria-label="Búsqueda global móvil"></label></div>
       <div class="content" id="page-content"></div>
     </main>
+    ${mobileDockHtml()}
   </div>`;
   bindShell();
   syncSidebar(false,{restoreFocus:false});
@@ -145,6 +157,10 @@ function bindShell(){
     closeMobileSidebar({restoreFocus:false});
     navigate(b.dataset.nav);
   });
+  document.querySelectorAll("[data-mobile-dock-nav]").forEach(button=>button.addEventListener("click",()=>{
+    closeMobileSidebar({restoreFocus:false});
+    navigate(button.dataset.mobileDockNav);
+  },{signal:shellSignal}));
   document.querySelector("#logout").onclick=()=>signOut();
   document.querySelector("#menu-toggle")?.addEventListener("click",()=>syncSidebar(!state.sidebarOpen));
   document.querySelector("#sidebar-close")?.addEventListener("click",()=>syncSidebar(false));
@@ -153,7 +169,7 @@ function bindShell(){
   document.querySelector("#quick-order")?.addEventListener("click",()=>{closeMobileSidebar({restoreFocus:false});navigate("sales",{create:"1"})});
   const runSearch=input=>{const value=input?.value?.trim();if(value)navigate("orders",{search:value})};
   const search=document.querySelector("#global-search");if(search)search.onkeydown=e=>{if(e.key==="Enter")runSearch(search)};
-  const mobileSearch=document.querySelector("#mobile-global-search");if(mobileSearch)mobileSearch.onkeydown=e=>{if(e.key==="Enter"){runSearch(mobileSearch);toggleMobileSearch(false)}};
+  const mobileSearch=document.querySelector("#mobile-global-search");
   const mobileSearchPanel=document.querySelector("#mobile-search-panel");
   const mobileSearchToggle=document.querySelector("#mobile-search-toggle");
   const toggleMobileSearch=open=>{
@@ -163,7 +179,10 @@ function bindShell(){
     mobileSearchToggle.setAttribute("aria-label",open?"Cerrar búsqueda":"Abrir búsqueda");
     if(open)requestAnimationFrame(()=>mobileSearch?.focus());
   };
+  if(mobileSearch)mobileSearch.onkeydown=e=>{if(e.key==="Enter"){runSearch(mobileSearch);toggleMobileSearch(false)}};
   mobileSearchToggle?.addEventListener("click",()=>toggleMobileSearch(mobileSearchPanel?.hidden!==true?false:true));
+  document.querySelector('[data-mobile-dock-action="search"]')?.addEventListener("click",()=>toggleMobileSearch(true),{signal:shellSignal});
+  document.querySelector('[data-mobile-dock-action="menu"]')?.addEventListener("click",()=>syncSidebar(true),{signal:shellSignal});
 
   document.addEventListener("keydown",event=>{
     if(event.key==="Escape"&&state.sidebarOpen&&isMobileNavigation()){event.preventDefault();syncSidebar(false);return}
@@ -172,21 +191,21 @@ function bindShell(){
   },{signal:shellSignal});
 
   const media=window.matchMedia(MOBILE_NAV_QUERY);
-  const onViewportChange=()=>{
-    if(!media.matches)syncSidebar(false,{restoreFocus:false});
-    else syncSidebar(false,{restoreFocus:false});
-  };
+  const onViewportChange=()=>syncSidebar(false,{restoreFocus:false});
   if(media.addEventListener)media.addEventListener("change",onViewportChange,{signal:shellSignal});
   else media.addListener?.(onViewportChange);
 }
-
-let shellAbortController=null;
 
 export function updateShell(moduleId,title,subtitle=""){
   state.currentModule=moduleId;
   closeMobileSidebar({restoreFocus:false});
   document.querySelectorAll("[data-nav]").forEach(b=>b.classList.toggle("active",b.dataset.nav===moduleId));
-  const h=document.querySelector("#top-title"),s=document.querySelector("#top-subtitle"),section=document.querySelector("#top-section");
-  if(h)h.textContent=title;if(s)s.textContent=subtitle;
+  document.querySelectorAll("[data-mobile-dock-nav]").forEach(button=>{
+    const active=button.dataset.mobileDockNav===moduleId;
+    button.classList.toggle("active",active);
+    if(active)button.setAttribute("aria-current","page");else button.removeAttribute("aria-current");
+  });
+  const h=document.querySelector("#top-title"),s=document.querySelector("#top-subtitle"),section=document.querySelector("#top-section"),mobileTitle=document.querySelector("#mobile-shell-title");
+  if(h)h.textContent=title;if(s)s.textContent=subtitle;if(mobileTitle)mobileTitle.textContent=title;
   if(section){const group=NAV_GROUPS.find(g=>g.items.some(i=>i.id===moduleId));section.textContent=group?.label||"Operación"}
 }
