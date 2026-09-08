@@ -101,8 +101,6 @@ core, removed = re.subn(r"\.guided-action-grid\{[^{}]*\}", "", core)
 if removed < 3:
     raise SystemExit(f"guided action grid: expected >=3 historical declarations, got {removed}")
 
-# Remove the final grouped mobile declaration so guided-action-grid has exactly
-# one responsive owner after this reconstruction.
 old_group = ".grid-kpi,.grid-2,.grid-3,.guided-action-grid,.queue-grid{grid-template-columns:1fr}"
 new_group = ".grid-kpi,.grid-2,.grid-3,.queue-grid{grid-template-columns:1fr}"
 if core.count(old_group) != 1:
@@ -199,7 +197,6 @@ core = core.replace(
 )
 core_path.write_text(core, encoding="utf-8")
 
-
 config = Path("assets/js/config.js")
 text = config.read_text(encoding="utf-8")
 text = text.replace('version: "11.21.0"', 'version: "11.21.1"', 1)
@@ -245,6 +242,14 @@ if checks not in text:
         raise SystemExit("CI responsive anchor missing")
     text = text.replace(anchor, anchor + checks, 1)
 ci.write_text(text, encoding="utf-8")
+
+validator = Path("scripts/validate.mjs")
+text = validator.read_text(encoding="utf-8")
+text = text.replace('check(version==="11.21.0","CONFIG.version debe ser 11.21.0.");', 'check(version==="11.21.1","CONFIG.version debe ser 11.21.1.");', 1)
+text = text.replace('check(build==="2026-09-08.10","CONFIG.build debe ser 2026-09-08.10.");', 'check(build==="2026-09-08.11","CONFIG.build debe ser 2026-09-08.11.");', 1)
+text = text.replace('check(sw.includes("crm-suministros-v11-21-0-20260908-10"),"Cache PWA no corresponde a V11.21.0.");', 'check(sw.includes("crm-suministros-v11-21-1-20260908-11"),"Cache PWA no corresponde a V11.21.1.");', 1)
+text = text.replace('PWA V11.21 coherente.', 'PWA V11.21.1 coherente.', 1)
+validator.write_text(text, encoding="utf-8")
 
 Path(".github/workflows/apply-responsive-rebuild-v11211.yml").unlink()
 Path("scripts/apply-responsive-rebuild-v11211.py").unlink()
