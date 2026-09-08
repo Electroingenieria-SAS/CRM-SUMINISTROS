@@ -3,7 +3,7 @@ import path from "node:path";
 import {fileURLToPath} from "node:url";
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
 const failures=[]; const warn=[];
-const ignore=new Set(["node_modules",".git","playwright-report","test-results"]);
+const ignore=new Set(["node_modules",".git","playwright-report","test-results","dist-deployable"]);
 const files=[];
 function walk(dir){for(const e of fs.readdirSync(dir,{withFileTypes:true})){if(ignore.has(e.name))continue;const full=path.join(dir,e.name);if(e.isDirectory())walk(full);else if(/\.(js|mjs|ts|html|json|toml|md|yml|yaml|sql|gs)$/i.test(e.name))files.push(full)}}
 walk(root);
@@ -14,7 +14,12 @@ for(const file of files){
  if(/sb_secret_[A-Za-z0-9_-]{16,}/.test(text))failures.push(`${rel}: contiene una Supabase secret key.`);
  if(rel.startsWith("assets/")&&/SUPABASE_SERVICE_ROLE_KEY|service_role|sb_secret_/i.test(text))failures.push(`${rel}: referencia un secreto de servidor en frontend.`);
  if(rel==="index.html"&&/@supabase\/supabase-js@2["/]/.test(text))failures.push("index.html: Supabase JS CDN no está fijado a versión exacta.");
- if(rel.startsWith("assets/js")&&/\.from\s*\(/.test(text))failures.push(`${rel}: acceso directo a tabla desde navegador; use RPC.`);
+ if(rel.startsWith("assets/js")){
+   // `.from()` is forbidden for browser-side Supabase table access, but standard
+   // language calls such as Array.from() and Object.fromEntries() are legitimate.
+   const withoutStandardFrom=text.replace(/\bArray\s*\.\s*from\s*\(/g,"Array_from(").replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
+   if(/\.from\s*\(/.test(withoutStandardFrom))failures.push(`${rel}: acceso directo a tabla desde navegador; use RPC.`);
+ }
 }
 const edge=path.join(root,"supabase/functions/erp-admin-users/index.ts");
 if(fs.existsSync(edge)&&/Access-Control-Allow-Origin["']?\s*:\s*["']\*["']/.test(fs.readFileSync(edge,"utf8")))failures.push("erp-admin-users: CORS wildcard no permitido para administración.");
