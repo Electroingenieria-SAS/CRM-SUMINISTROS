@@ -36,7 +36,7 @@ const normalizedJsRuntime=jsRuntime
   .replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
 check(version==="11.21.1","CONFIG.version debe ser 11.21.1.");
-check(build==="2026-09-08.11","CONFIG.build debe ser 2026-09-08.11.");
+check(build==="2026-09-08.12","CONFIG.build debe ser 2026-09-08.12.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar app-entry.js con la versión vigente.");
 check((index.match(/<script\s+type="module"\s+src="\.\/assets\/js\//g)||[]).length===1,"index.html debe tener un único entrypoint ES Module local.");
@@ -62,7 +62,8 @@ for(const asset of swRefs){if(asset!=="./")check(exists(asset.slice(2)),`Asset i
 check(new Set(swRefs).size===swRefs.length,"service-worker.js contiene assets duplicados en APP_SHELL.");
 for(const cssPath of canonicalCss)check(sw.includes(`./${cssPath}`),`PWA no precachea ${cssPath}.`);
 check(!/assets\/css\/(?!core-shell|operations|analytics|experience)[^"']+\.css/.test(sw),"PWA conserva hojas CSS históricas.");
-check(sw.includes("crm-suministros-v11-21-1-20260908-11"),"Cache PWA no corresponde a V11.21.1.");
+check(sw.includes('// previous-cache: crm-suministros-v11-21-0-20260908-10'),"previous-cache PWA debe apuntar a V11.21.0.");
+check(sw.includes('const CACHE="crm-suministros-v11-21-1-20260908-12";'),"CACHE activo PWA no corresponde a V11.21.1 build 12.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados ignorando query string.");
 check(sw.includes('event.request.mode==="navigate"'),"Service Worker debe conservar fallback exclusivo para navegación.");
 
@@ -109,4 +110,4 @@ console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
 console.log("- 4 familias CSS canónicas; 0 hojas versionadas paralelas.");
 console.log("- 5 núcleos Supabase privados/versionless detrás de contratos públicos estables.");
-console.log("- CI única, Vercel solo desde main y PWA V11.21.1 coherente.");
+console.log("- CI única, Vercel solo desde main y PWA V11.21.1 build 12 coherente.");
