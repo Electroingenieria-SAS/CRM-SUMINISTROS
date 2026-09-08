@@ -1,0 +1,11 @@
+# CRM Suministros · deploy only the static production runtime.
+.github/
+docs/
+google-apps-script/
+scripts/
+sql/
+supabase/
+tests/
+*.md
+*.log
+.DS_Store
