@@ -55,9 +55,11 @@ check((coreCss.match(/:root\{/g)||[]).length===1,"core-shell.css debe conservar 
 check(coreCss.includes('font-family:"Century Gothic"'),"La tipografía institucional no está aplicada en core-shell.css.");
 check(experienceCss.includes('.paco2-panel{display:none!important}')&&experienceCss.includes('.is-open .paco2-panel{display:flex!important}'),"El contrato visual de Paco no sobrevivió a la consolidación.");
 
-const swRefs=[...sw.matchAll(/"(\.\/[^"?#]+)"/g)].map(m=>m[1]);
+const appShellBody=sw.match(/const APP_SHELL=\[([\s\S]*?)\];/)?.[1]||"";
+check(Boolean(appShellBody),"service-worker.js debe declarar APP_SHELL.");
+const swRefs=[...appShellBody.matchAll(/"(\.\/[^"?#]+)"/g)].map(m=>m[1]);
 for(const asset of swRefs){if(asset!=="./")check(exists(asset.slice(2)),`Asset inexistente precacheado: ${asset}`)}
-check(new Set(swRefs).size===swRefs.length,"service-worker.js contiene assets duplicados.");
+check(new Set(swRefs).size===swRefs.length,"service-worker.js contiene assets duplicados en APP_SHELL.");
 for(const cssPath of canonicalCss)check(sw.includes(`./${cssPath}`),`PWA no precachea ${cssPath}.`);
 check(!/assets\/css\/(?!core-shell|operations|analytics|experience)[^"']+\.css/.test(sw),"PWA conserva hojas CSS históricas.");
 check(sw.includes("crm-suministros-v11-21-0-20260908-10"),"Cache PWA no corresponde a V11.21.0.");
