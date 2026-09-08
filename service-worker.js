@@ -1,5 +1,5 @@
-// previous-cache: crm-suministros-v11-21-1-20260908-11
-const CACHE="crm-suministros-v11-21-0-20260908-10";
+// previous-cache: crm-suministros-v11-21-0-20260908-10
+const CACHE="crm-suministros-v11-21-1-20260908-12";
 
 // Only the deterministic application shell is precached. JavaScript dependencies are
 // cached automatically as the canonical app-entry import graph requests them.
