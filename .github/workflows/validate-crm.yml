@@ -51,10 +51,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'version: "11.21.0"' assets/js/config.js
-          grep -q 'build: "2026-09-08.10"' assets/js/config.js
-          grep -q '"version": "11.21.0"' package.json
-          grep -q 'app-entry.js?v=11.21.0' index.html
+          grep -q 'version: "11.21.1"' assets/js/config.js
+          grep -q 'build: "2026-09-08.11"' assets/js/config.js
+          grep -q '"version": "11.21.1"' package.json
+          grep -q 'app-entry.js?v=11.21.1' index.html
           test "$(grep -c '<link rel="stylesheet" href="./assets/css/' index.html)" -eq 4
           test "$(find assets/css -maxdepth 1 -type f -name '*.css' | wc -l)" -eq 4
 
@@ -71,6 +71,9 @@ jobs:
           grep -q 'Fuente consolidada: admin-center-v11160.css' assets/css/analytics.css
           grep -q 'Fuente consolidada: responsive-foundation-v11190.css' assets/css/experience.css
           grep -q 'Fuente consolidada: paco-assistant-v11200.css' assets/css/experience.css
+          grep -q 'grid-template-columns:repeat(auto-fit,minmax(340px,1fr))' assets/css/core-shell.css
+          grep -q 'grid-template-columns:minmax(0,1fr) auto' assets/css/operations.css
+          grep -q 'max-width:1120px' assets/css/operations.css
 
           test "$(grep -c '<script type="module" src="./assets/js/' index.html)" -eq 1
           grep -q 'import "./main.js";' assets/js/app-entry.js
@@ -83,7 +86,7 @@ jobs:
           for core in confirm_picking_round_core execute_cut_group_core resolve_cut_requirement_core work_my_day_core vsm_people_core; do
             grep -q "erp_supply.${core}" supabase/migrations/094_architecture_core_cleanup_v11_21_0.sql
           done
-          grep -q "crm-suministros-v11-21-0-20260908-10" service-worker.js
+          grep -q "crm-suministros-v11-21-1-20260908-11" service-worker.js
 
           for file in \
             assets/js/modules/inventory.js \
@@ -106,15 +109,15 @@ jobs:
           cp -R assets templates dist-deployable/
           printf '%s\n' \
             "commit=${GITHUB_SHA}" \
-            "version=11.21.0" \
-            "build=2026-09-08.10" \
+            "version=11.21.1" \
+            "build=2026-09-08.11" \
             "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.21.0-deployable
+          name: crm-suministros-v11.21.1-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90

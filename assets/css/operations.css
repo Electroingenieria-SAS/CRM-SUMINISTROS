@@ -1,4 +1,4 @@
-/* CRM Suministros V11.21.0 · Familia CSS canónica
+/* CRM Suministros V11.21.1 · Familia CSS canónica
    Generada por concatenación determinista. El orden interno replica exactamente
    la cascada de Production anterior para evitar regresiones visuales. */
 
@@ -30,29 +30,37 @@
 
 .inventory-page-head-v11109{
   position:relative;
-  align-items:flex-start;
-  gap:24px;
-  margin-bottom:14px;
-  padding:2px 2px 0;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:start;
+  column-gap:clamp(28px,3vw,56px);
+  row-gap:18px;
+  margin-bottom:18px;
+  padding:24px 26px 22px 30px;
 }
-.inventory-page-head-v11109>div:first-child{max-width:900px}
+.inventory-page-head-v11109>div:first-child{
+  width:100%;
+  min-width:0;
+  max-width:none;
+}
 .inventory-page-head-v11109 h2{
-  margin:0 0 5px;
+  margin:0 0 7px;
   color:#173b63;
-  font-size:clamp(24px,2.1vw,31px);
+  font-size:clamp(27px,2.15vw,35px);
   line-height:1.08;
   letter-spacing:-.04em;
 }
 .inventory-page-head-v11109 p{
-  max-width:850px;
+  width:100%;
+  max-width:1120px;
   margin:0;
   color:#65778c;
-  font-size:13px;
+  font-size:13.5px;
   line-height:1.58;
 }
 .inventory-kicker-v11109{
   display:block;
-  margin-bottom:6px;
+  margin-bottom:7px;
   color:#0d5aa8;
   font-size:10.5px;
   font-weight:950;
@@ -60,10 +68,12 @@
   text-transform:uppercase;
 }
 .inventory-page-actions-v11109{
+  align-self:start;
   display:flex;
-  gap:8px;
-  flex-wrap:wrap;
   justify-content:flex-end;
+  gap:9px;
+  max-width:520px;
+  flex-wrap:wrap;
 }
 .inventory-page-actions-v11109 .btn{
   min-height:44px;
@@ -71,6 +81,19 @@
   border-radius:10px;
   font-size:11.5px;
   font-weight:850;
+}
+@media(max-width:1180px){
+  .inventory-page-head-v11109{grid-template-columns:1fr;}
+  .inventory-page-actions-v11109{width:100%;max-width:none;justify-content:flex-start;}
+}
+@media(max-width:720px){
+  .inventory-page-head-v11109{padding:18px 16px 16px 19px;row-gap:14px;}
+  .inventory-page-head-v11109 p{font-size:13px;line-height:1.52;}
+  .inventory-page-actions-v11109{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));}
+  .inventory-page-actions-v11109 .btn{width:100%;min-width:0;white-space:normal;}
+}
+@media(max-width:480px){
+  .inventory-page-actions-v11109{grid-template-columns:1fr;}
 }
 
 .inventory-source-bar-v11109{
