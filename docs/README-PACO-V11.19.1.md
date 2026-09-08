@@ -1,0 +1,1 @@
+Paco Bot V11.19.1: panel alto, launcher circular con rayo, rodado al lado izquierdo y Command Center permission-aware.
