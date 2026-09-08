@@ -98,8 +98,16 @@ operations_path.write_text(operations, encoding="utf-8")
 core_path = Path("assets/css/core-shell.css")
 core = core_path.read_text(encoding="utf-8")
 core, removed = re.subn(r"\.guided-action-grid\{[^{}]*\}", "", core)
-if removed < 4:
-    raise SystemExit(f"guided action grid: expected >=4 historical declarations, got {removed}")
+if removed < 3:
+    raise SystemExit(f"guided action grid: expected >=3 historical declarations, got {removed}")
+
+# Remove the final grouped mobile declaration so guided-action-grid has exactly
+# one responsive owner after this reconstruction.
+old_group = ".grid-kpi,.grid-2,.grid-3,.guided-action-grid,.queue-grid{grid-template-columns:1fr}"
+new_group = ".grid-kpi,.grid-2,.grid-3,.queue-grid{grid-template-columns:1fr}"
+if core.count(old_group) != 1:
+    raise SystemExit(f"guided grouped mobile owner: expected 1, got {core.count(old_group)}")
+core = core.replace(old_group, new_group, 1)
 
 new_grid = (
     ".guided-action-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));"
