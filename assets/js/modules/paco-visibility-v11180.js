@@ -1,11 +1,11 @@
 import {state} from "../core/state.js";
 import {installPacoBot} from "./paco-bot-v11182.js";
 
-/* CRM Suministros · Paco visibility guard V11.19.1
+/* CRM Suministros · Paco visibility guard V11.19.2
    Keeps Paco attached to document.body and guarantees the canonical Enterprise stylesheet. */
 
-const PACO_VERSION="11.19.1";
-const PACO_STYLE="./assets/css/paco-enterprise-v11191.css?v=11.19.1";
+const PACO_VERSION="11.19.2";
+const PACO_STYLE="./assets/css/paco-enterprise-v11192.css?v=11.19.2";
 let scheduled=false;
 let observer=null;
 
@@ -37,15 +37,15 @@ function ensurePaco(){
   if(root.parentElement!==document.body)document.body.append(root);
   root.hidden=false;
   root.removeAttribute("aria-hidden");
-  root.classList.remove("paco-mounted-v11182","paco-mounted-v11183");
-  root.classList.add("paco-mounted-v11191");
+  root.classList.remove("paco-mounted-v11182","paco-mounted-v11183","paco-mounted-v11191");
+  root.classList.add("paco-mounted-v11192");
   const launcher=root.querySelector("[data-paco-toggle]");
   if(launcher){
     launcher.hidden=false;
     launcher.removeAttribute("aria-hidden");
     launcher.setAttribute("tabindex","0");
   }
-  window.dispatchEvent(new CustomEvent("paco:mounted-v11191",{detail:{root,version:PACO_VERSION}}));
+  window.dispatchEvent(new CustomEvent("paco:mounted-v11192",{detail:{root,version:PACO_VERSION}}));
 }
 
 function scheduleEnsure(){
