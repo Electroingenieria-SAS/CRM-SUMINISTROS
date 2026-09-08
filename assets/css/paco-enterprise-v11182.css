@@ -1,0 +1,221 @@
+/* CRM Suministros · Paco Bot Enterprise V11.18.2
+   Premium assistant shell, larger typography, structured capability hub and corrected vertical Paco sprite. */
+:root{
+  --paco2-navy:#07294f;
+  --paco2-blue:#086bd8;
+  --paco2-blue-2:#0b79ea;
+  --paco2-yellow:#f3bd2f;
+  --paco2-ink:#173553;
+  --paco2-muted:#657d95;
+  --paco2-line:#d9e5f0;
+  --paco2-soft:#f5f9fd;
+  --paco2-panel:rgba(255,255,255,.985);
+  --paco2-shadow:0 34px 95px rgba(5,33,64,.22),0 10px 32px rgba(5,33,64,.12);
+}
+
+/* The supplied six-frame asset is a vertical strip. The previous horizontal treatment cropped the helmet corner. */
+.paco-face{
+  --paco-frame-y:0%;
+  background-image:url("../img/paco/paco-sprite-v11180.webp")!important;
+  background-size:100% 600%!important;
+  background-position:center var(--paco-frame-y)!important;
+  background-repeat:no-repeat!important;
+  background-color:transparent!important;
+}
+.paco-face.is-idle{--paco-frame-y:0%}
+.paco-face.is-listening{--paco-frame-y:20%}
+.paco-face.is-wink{--paco-frame-y:40%}
+.paco-face.is-thinking{--paco-frame-y:60%}
+.paco-face.is-talking{--paco-frame-y:80%}
+.paco-face.is-success{--paco-frame-y:100%}
+
+#paco-bot.paco-root{
+  right:26px!important;
+  bottom:24px!important;
+  z-index:2147482000!important;
+  font-size:16px;
+  color:var(--paco2-ink);
+}
+
+#paco-bot .paco-launcher{
+  width:88px!important;
+  height:88px!important;
+  border-radius:28px!important;
+  border:1px solid rgba(118,164,207,.64)!important;
+  background:linear-gradient(145deg,#fff 0%,#f5faff 68%,#edf6ff 100%)!important;
+  box-shadow:0 22px 48px rgba(5,39,76,.22),0 0 0 7px rgba(255,255,255,.72),inset 0 1px 0 #fff!important;
+}
+#paco-bot .paco-launcher:before{
+  inset:8px!important;
+  border-radius:23px!important;
+  background:radial-gradient(circle at 48% 20%,rgba(255,207,35,.20),transparent 54%),radial-gradient(circle at 75% 82%,rgba(34,132,224,.10),transparent 55%)!important;
+}
+#paco-bot .paco-launcher .paco-face{
+  width:72px!important;
+  height:72px!important;
+  border-radius:22px!important;
+  filter:drop-shadow(0 7px 9px rgba(34,40,45,.17))!important;
+}
+#paco-bot .paco-launcher-dot{
+  width:16px!important;height:16px!important;right:5px!important;top:5px!important;border-width:3px!important;
+}
+#paco-bot .paco-launcher-label{
+  right:80px!important;bottom:21px!important;padding:10px 13px!important;border-radius:12px!important;
+  font-size:12px!important;box-shadow:0 10px 26px rgba(7,37,69,.14)!important;
+}
+
+#paco-bot .paco-panel{
+  right:0!important;
+  bottom:108px!important;
+  width:min(620px,calc(100vw - 42px))!important;
+  height:min(790px,calc(100dvh - 138px))!important;
+  border:1px solid rgba(154,184,211,.82)!important;
+  border-radius:28px!important;
+  background:var(--paco2-panel)!important;
+  box-shadow:var(--paco2-shadow)!important;
+  backdrop-filter:blur(22px) saturate(1.03)!important;
+}
+
+#paco-bot .paco-head{
+  grid-template-columns:82px minmax(0,1fr) auto!important;
+  gap:18px!important;
+  min-height:132px!important;
+  padding:20px 20px 18px 22px!important;
+  border-bottom:4px solid var(--paco2-yellow)!important;
+  background:
+    radial-gradient(circle at 84% -25%,rgba(37,139,233,.55),transparent 45%),
+    radial-gradient(circle at 8% 110%,rgba(14,99,187,.28),transparent 36%),
+    linear-gradient(118deg,#061f3f 0%,#094b8d 60%,#0874df 100%)!important;
+}
+#paco-bot .paco-head:before{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:rgba(255,255,255,.14);pointer-events:none;
+}
+#paco-bot .paco-head:after{
+  left:96px!important;right:-70px!important;bottom:-42px!important;height:74px!important;border-color:rgba(255,255,255,.11)!important;
+}
+#paco-bot .paco-head .paco-face{
+  width:78px!important;height:78px!important;border-radius:24px!important;filter:drop-shadow(0 9px 12px rgba(0,0,0,.22))!important;
+}
+#paco-bot .paco-head-copy{gap:3px!important}
+#paco-bot .paco-head-copy span{font-size:11px!important;letter-spacing:.14em!important;color:#ffd84d!important}
+#paco-bot .paco-head-copy strong{font-size:30px!important;line-height:1.02!important;letter-spacing:-.035em!important;color:#fff!important}
+#paco-bot .paco-head-copy small{font-size:14px!important;line-height:1.35!important;color:#c9dff4!important}
+#paco-bot .paco-close{
+  width:44px!important;height:44px!important;border-radius:13px!important;font-size:23px!important;
+  background:rgba(255,255,255,.075)!important;
+}
+
+#paco-bot .paco-context{
+  min-height:54px!important;padding:11px 20px!important;gap:11px!important;
+  font-size:13px!important;background:linear-gradient(180deg,#fff,#f8fbfe)!important;
+}
+#paco-bot .paco-context>span:first-child{width:11px!important;height:11px!important;box-shadow:0 0 0 5px rgba(32,168,115,.10)!important}
+#paco-bot .paco-context strong{font-size:13px;color:#0d5cac!important}
+#paco-bot .paco-context-button{
+  margin-left:auto;min-height:34px;padding:6px 11px;border:1px solid #b9d3ea;border-radius:10px;background:#f3f8fd;color:#165a98;font:inherit;font-size:12px;font-weight:800;cursor:pointer;
+}
+#paco-bot .paco-context-button:hover{background:#eaf4fe;border-color:#8ebae0}
+
+#paco-bot .paco-messages{
+  gap:15px!important;padding:18px 20px!important;
+  background:linear-gradient(180deg,rgba(249,252,255,.92),rgba(245,249,253,.98))!important;
+}
+#paco-bot .paco-message{gap:11px!important;max-width:96%!important}
+#paco-bot .paco-message.assistant{align-items:flex-start!important}
+#paco-bot .paco-mini-face{flex:0 0 42px!important;width:42px!important;height:42px!important;border-radius:14px!important;margin-top:3px}
+#paco-bot .paco-bubble{
+  padding:14px 16px!important;border-radius:18px 18px 18px 6px!important;
+  border-color:#d8e5f0!important;color:#2c4965!important;font-size:14px!important;line-height:1.62!important;
+  box-shadow:0 5px 15px rgba(16,42,70,.055)!important;
+}
+#paco-bot .paco-message.user .paco-bubble{border-radius:18px 18px 6px 18px!important}
+#paco-bot .paco-message.welcome{max-width:100%!important}
+#paco-bot .paco-message.welcome .paco-bubble{width:100%;padding:17px 18px!important}
+#paco-bot .paco-message-text strong{color:#143f6b}
+
+#paco-bot .paco-welcome-title{display:block;margin-bottom:5px;color:#102f50;font-size:17px;font-weight:900}
+#paco-bot .paco-welcome-question{display:block;margin-top:11px;color:#173f68;font-size:15px;font-weight:800}
+
+#paco-bot .paco-section-title{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;margin:3px 0 0;padding:0 2px;color:#183a5d;
+}
+#paco-bot .paco-section-title strong{font-size:15px}
+#paco-bot .paco-section-title button{border:0;background:transparent;color:#086bd8;font:inherit;font-size:12px;font-weight:850;cursor:pointer}
+
+#paco-bot .paco-actions{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;margin-top:13px!important;
+}
+#paco-bot .paco-action{
+  position:relative;display:grid!important;grid-template-columns:36px minmax(0,1fr) auto!important;gap:9px!important;align-items:center!important;
+  min-height:58px!important;padding:9px 11px!important;border-radius:13px!important;
+  background:linear-gradient(180deg,#fff,#f3f8fd)!important;color:#164d7d!important;font-size:12px!important;font-weight:850!important;text-align:left!important;
+}
+#paco-bot .paco-action.primary{border-color:#0a68cf!important;background:linear-gradient(135deg,#0b7bea,#0866cb)!important;color:#fff!important;box-shadow:0 8px 18px rgba(8,102,203,.18)}
+#paco-bot .paco-action.warning{grid-column:1/-1;border-color:#e7be54!important;background:linear-gradient(180deg,#fffaf0,#fff3cf)!important;color:#775300!important}
+#paco-bot .paco-action-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:rgba(10,104,207,.09);font-size:17px;line-height:1}
+#paco-bot .paco-action.primary .paco-action-icon{background:rgba(255,255,255,.15)}
+#paco-bot .paco-action-copy{min-width:0;display:grid;gap:1px}
+#paco-bot .paco-action-copy b{font-size:12px;line-height:1.25;color:inherit}
+#paco-bot .paco-action-copy small{font-size:10px;line-height:1.3;color:#7890a6;font-weight:650}
+#paco-bot .paco-action.primary .paco-action-copy small{color:rgba(255,255,255,.77)}
+#paco-bot .paco-action-arrow{font-size:18px;opacity:.72}
+
+#paco-bot .paco-capability-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
+#paco-bot .paco-capability{
+  display:grid;grid-template-columns:38px minmax(0,1fr);gap:10px;align-items:start;min-height:86px;padding:12px;border:1px solid #d8e5f0;border-radius:14px;background:linear-gradient(180deg,#fff,#f5f9fd);cursor:pointer;text-align:left;color:#214b72;
+}
+#paco-bot .paco-capability:hover{border-color:#9cc5e7;background:#edf6fe;transform:translateY(-1px)}
+#paco-bot .paco-capability-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:#e9f4ff;font-size:18px}
+#paco-bot .paco-capability b{display:block;font-size:12px;color:#163e66;margin-bottom:3px}
+#paco-bot .paco-capability small{display:block;font-size:10px;line-height:1.42;color:#71879b}
+
+#paco-bot .paco-steps{gap:8px!important;margin-top:12px!important}
+#paco-bot .paco-step{grid-template-columns:30px minmax(0,1fr)!important;gap:10px!important;padding:10px 11px!important;border-radius:11px!important}
+#paco-bot .paco-step>span{width:28px!important;height:28px!important;border-radius:9px!important;font-size:11px!important}
+#paco-bot .paco-step strong{font-size:12px!important}
+#paco-bot .paco-step small{font-size:11px!important;line-height:1.45!important}
+
+#paco-bot .paco-order-card,#paco-bot .paco-system-card{gap:7px!important;margin-top:11px!important;padding:12px 13px!important;border-radius:12px!important}
+#paco-bot .paco-order-card small,#paco-bot .paco-system-card small{font-size:10px!important}
+#paco-bot .paco-order-card b,#paco-bot .paco-system-card b{font-size:11px!important}
+#paco-bot .paco-alert{gap:4px!important;margin-top:10px!important;padding:11px 12px!important;border-radius:11px!important}
+#paco-bot .paco-alert strong{font-size:12px!important}#paco-bot .paco-alert span{font-size:11px!important;line-height:1.45}
+
+#paco-bot .paco-password-box{gap:10px!important;margin-top:12px!important;padding:13px!important;border-radius:13px!important}
+#paco-bot .paco-password-box label{gap:5px!important;font-size:11px!important}
+#paco-bot .paco-password-box input{min-height:43px!important;padding:9px 11px!important;font-size:13px!important}
+#paco-bot .paco-password-box small{font-size:10px!important}
+
+#paco-bot .paco-quick{
+  gap:8px!important;padding:10px 14px!important;border-top:1px solid #e3ebf3!important;background:rgba(255,255,255,.98)!important;
+}
+#paco-bot .paco-quick button{min-height:36px!important;padding:7px 12px!important;border-radius:999px!important;font-size:11px!important}
+
+#paco-bot .paco-composer{
+  grid-template-columns:minmax(0,1fr) auto!important;gap:9px!important;padding:12px 14px 14px!important;background:#fff!important;
+}
+#paco-bot .paco-composer textarea{
+  min-height:54px!important;max-height:140px!important;padding:14px 14px!important;border-radius:13px!important;font-size:13px!important;line-height:1.45!important;
+}
+#paco-bot .paco-send{width:54px!important;height:54px!important;border-radius:13px!important;font-size:20px!important}
+#paco-bot .paco-safe-note{display:flex;align-items:center;justify-content:center;gap:6px;padding:0 14px 11px;background:#fff;color:#8191a1;font-size:10px}
+
+@media(max-width:760px){
+  #paco-bot.paco-root{right:14px!important;bottom:14px!important}
+  #paco-bot .paco-panel{position:fixed!important;inset:8px!important;width:auto!important;height:auto!important;max-height:none!important;border-radius:22px!important}
+  #paco-bot .paco-head{grid-template-columns:66px minmax(0,1fr) auto!important;min-height:112px!important;padding:16px!important}
+  #paco-bot .paco-head .paco-face{width:62px!important;height:62px!important}
+  #paco-bot .paco-head-copy strong{font-size:24px!important}
+  #paco-bot .paco-actions,#paco-bot .paco-capability-grid{grid-template-columns:1fr!important}
+  #paco-bot .paco-action.warning{grid-column:auto}
+}
+@media(max-width:480px){
+  #paco-bot .paco-panel{inset:0!important;border-radius:0!important}
+  #paco-bot .paco-messages{padding:14px!important}
+  #paco-bot .paco-bubble{font-size:13px!important}
+  #paco-bot .paco-context{padding:10px 13px!important}
+  #paco-bot .paco-context-button{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  #paco-bot .paco-capability{transition:none!important;transform:none!important}
+}
