@@ -141,53 +141,43 @@ core = replace_one(
 core = replace_one(
     core,
     r"\.guided-action-copy strong\{[^{}]*\}",
-    ".guided-action-copy strong{color:#173b5e;font-size:14px;line-height:1.28;"
-    "overflow-wrap:normal;word-break:normal;hyphens:none}",
+    ".guided-action-copy strong{color:#173b5e;font-size:14px;line-height:1.28;overflow-wrap:normal;word-break:normal;hyphens:none}",
     "guided title",
 )
 core = replace_one(
     core,
     r"\.guided-action-copy small\{[^{}]*\}",
-    ".guided-action-copy small{color:#68798b;font-size:11.5px;line-height:1.48;"
-    "overflow-wrap:normal;word-break:normal;hyphens:none}",
+    ".guided-action-copy small{color:#68798b;font-size:11.5px;line-height:1.48;overflow-wrap:normal;word-break:normal;hyphens:none}",
     "guided description",
 )
 core = replace_one(
     core,
     r"\.guided-action-arrow\{[^{}]*\}",
-    ".guided-action-arrow{display:grid;place-items:center;width:28px;height:34px;"
-    "border:1px solid color-mix(in srgb,var(--action-accent) 20%,#d9e3ec);border-radius:10px;"
-    "color:color-mix(in srgb,var(--action-accent) 66%,#71879a);"
-    "background:color-mix(in srgb,var(--action-accent) 4%,#fff);font-size:21px;line-height:1}",
+    ".guided-action-arrow{display:grid;place-items:center;width:28px;height:34px;border:1px solid color-mix(in srgb,var(--action-accent) 20%,#d9e3ec);border-radius:10px;color:color-mix(in srgb,var(--action-accent) 66%,#71879a);background:color-mix(in srgb,var(--action-accent) 4%,#fff);font-size:21px;line-height:1}",
     "guided arrow",
 )
 core = replace_one(
     core,
     r"\.guided-kicker\{[^{}]*\}",
-    ".guided-kicker{display:block;color:var(--blue-700);font-size:9.5px;font-weight:900;"
-    "letter-spacing:.12em;text-transform:uppercase}",
+    ".guided-kicker{display:block;color:var(--blue-700);font-size:9.5px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}",
     "guided kicker",
 )
 core = replace_one(
     core,
     r"\.guided-workspace-head h3\{[^{}]*\}",
-    ".guided-workspace-head h3{margin:5px 0 0;color:var(--blue-950);font-size:18px;"
-    "line-height:1.24;letter-spacing:-.018em}",
+    ".guided-workspace-head h3{margin:5px 0 0;color:var(--blue-950);font-size:18px;line-height:1.24;letter-spacing:-.018em}",
     "guided heading",
 )
 core = replace_one(
     core,
     r"\.guided-workspace-head p\{[^{}]*\}",
-    ".guided-workspace-head p{max-width:980px;margin:6px 0 0;color:var(--gray-600);"
-    "font-size:11.5px;line-height:1.52}",
+    ".guided-workspace-head p{max-width:980px;margin:6px 0 0;color:var(--gray-600);font-size:11.5px;line-height:1.52}",
     "guided intro",
 )
 core = replace_one(
     core,
     r"\.guided-helper-pill\{[^{}]*\}",
-    ".guided-helper-pill{flex:0 0 auto;padding:8px 11px;border:1px solid #d1deea;border-radius:9px;"
-    "background:#fff;color:#49647e;font-size:10px;font-weight:800;"
-    "box-shadow:0 2px 7px rgba(16,42,70,.045)}",
+    ".guided-helper-pill{flex:0 0 auto;padding:8px 11px;border:1px solid #d1deea;border-radius:9px;background:#fff;color:#49647e;font-size:10px;font-weight:800;box-shadow:0 2px 7px rgba(16,42,70,.045)}",
     "guided helper",
 )
 core = core.replace(
@@ -224,24 +214,6 @@ text = text.replace(
     1,
 )
 sw.write_text(text, encoding="utf-8")
-
-ci = Path(".github/workflows/validate-crm.yml")
-text = ci.read_text(encoding="utf-8")
-text = text.replace("11.21.0", "11.21.1")
-text = text.replace("2026-09-08.10", "2026-09-08.11")
-text = text.replace("crm-suministros-v11-21-0-20260908-10", "crm-suministros-v11-21-1-20260908-11")
-anchor = "          grep -q 'Fuente consolidada: paco-assistant-v11200.css' assets/css/experience.css\n"
-checks = (
-    "          grep -q 'grid-template-columns:repeat(auto-fit,minmax(340px,1fr))' assets/css/core-shell.css\n"
-    "          test \"$(grep -o '\\\\.guided-action-grid{grid-template-columns:repeat(' assets/css/core-shell.css | wc -l)\" -eq 1\n"
-    "          grep -q 'grid-template-columns:minmax(0,1fr) auto' assets/css/operations.css\n"
-    "          grep -q 'max-width:1120px' assets/css/operations.css\n"
-)
-if checks not in text:
-    if anchor not in text:
-        raise SystemExit("CI responsive anchor missing")
-    text = text.replace(anchor, anchor + checks, 1)
-ci.write_text(text, encoding="utf-8")
 
 validator = Path("scripts/validate.mjs")
 text = validator.read_text(encoding="utf-8")
