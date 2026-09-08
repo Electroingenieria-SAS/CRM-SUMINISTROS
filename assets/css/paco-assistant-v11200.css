@@ -1,0 +1,292 @@
+/* CRM Suministros · Paco Assistant V11.20.0
+   Isolated namespace. This is the only stylesheet allowed to control Paco Assistant geometry/state. */
+
+#paco-bot.paco2-root{
+  --paco2-width:clamp(720px,46vw,820px);
+  --paco2-height:min(760px,calc(100dvh - 40px));
+  --paco2-launcher:68px;
+  --paco2-gap:16px;
+  position:fixed!important;
+  z-index:2147483000!important;
+  right:max(20px,env(safe-area-inset-right,0px))!important;
+  bottom:max(20px,env(safe-area-inset-bottom,0px))!important;
+  width:var(--paco2-launcher)!important;
+  height:var(--paco2-launcher)!important;
+  overflow:visible!important;
+  pointer-events:none!important;
+  isolation:isolate!important;
+  font-family:"Century Gothic","Aptos","Segoe UI",Arial,sans-serif!important;
+  color:#173a5c;
+}
+#paco-bot.paco2-root[hidden]{display:none!important}
+#paco-bot.paco2-root *{box-sizing:border-box}
+
+/* Closed state is physically absent from hit testing. No opacity-only hidden panel. */
+#paco-bot.paco2-root .paco2-panel{display:none!important}
+#paco-bot.paco2-root.is-open .paco2-panel{display:flex!important}
+
+#paco-bot.paco2-root .paco2-launcher{
+  position:absolute!important;
+  z-index:4!important;
+  right:0!important;
+  bottom:0!important;
+  width:var(--paco2-launcher)!important;
+  height:var(--paco2-launcher)!important;
+  min-width:var(--paco2-launcher)!important;
+  min-height:var(--paco2-launcher)!important;
+  margin:0!important;
+  padding:3px!important;
+  display:grid!important;
+  place-items:center!important;
+  border:1px solid rgba(71,143,211,.70)!important;
+  border-radius:50%!important;
+  background:linear-gradient(145deg,#fff,#eef7ff 68%,#e5f2fd)!important;
+  box-shadow:0 16px 38px rgba(5,42,81,.22),0 0 0 5px rgba(255,255,255,.84),inset 0 1px 0 #fff!important;
+  cursor:pointer!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  transform-origin:center!important;
+  transition:transform .72s cubic-bezier(.16,.86,.2,1),box-shadow .22s ease,background .22s ease!important;
+  will-change:transform;
+}
+#paco-bot.paco2-root .paco2-launcher:hover{box-shadow:0 20px 46px rgba(5,42,81,.29),0 0 0 7px rgba(29,130,224,.09),inset 0 1px 0 #fff!important}
+#paco-bot.paco2-root .paco2-launcher:focus-visible{outline:3px solid rgba(22,126,221,.34)!important;outline-offset:5px!important}
+#paco-bot.paco2-root .paco2-launcher-face{width:59px!important;height:59px!important;display:block!important;object-fit:contain!important;filter:drop-shadow(0 6px 9px rgba(18,48,77,.17));pointer-events:none!important;transition:opacity .18s ease .3s,transform .24s ease .28s!important}
+#paco-bot.paco2-root .paco2-launcher-dot{position:absolute!important;z-index:6!important;top:0!important;right:0!important;width:12px!important;height:12px!important;border:3px solid #fff!important;border-radius:50%!important;background:#18a875!important;box-shadow:0 2px 7px rgba(10,81,57,.25)!important;pointer-events:none!important}
+#paco-bot.paco2-root.has-alert .paco2-launcher-dot{background:#e19516!important}
+#paco-bot.paco2-root .paco2-launcher-bolt{position:absolute!important;inset:0!important;display:grid!important;place-items:center!important;font-size:0!important;opacity:0!important;color:#073d78!important;pointer-events:none!important;transition:opacity .18s ease .36s,font-size .18s ease .36s!important}
+
+/* Open: Paco rolls to the viewer's left and becomes a lightning companion. */
+#paco-bot.paco2-root.is-open .paco2-launcher{
+  transform:translateX(calc(-1 * (var(--paco2-width) + var(--paco2-gap)))) rotate(-720deg)!important;
+  width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important;
+  border-color:#f5c22d!important;
+  background:linear-gradient(145deg,#fff8d7,#ffd64a)!important;
+  box-shadow:0 13px 30px rgba(4,55,103,.25),0 0 0 5px rgba(255,255,255,.86)!important;
+}
+#paco-bot.paco2-root.is-open .paco2-launcher-face{opacity:0!important;transform:scale(.15) rotate(-18deg)!important}
+#paco-bot.paco2-root.is-open .paco2-launcher-dot{opacity:0!important}
+#paco-bot.paco2-root.is-open .paco2-launcher-bolt{opacity:1!important;font-size:23px!important;animation:paco2Bolt 2.5s ease-in-out .75s infinite!important}
+@keyframes paco2Bolt{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.08);filter:brightness(1.07)}}
+
+#paco-bot.paco2-root .paco2-panel{
+  position:absolute!important;
+  z-index:2!important;
+  right:0!important;
+  bottom:0!important;
+  width:var(--paco2-width)!important;
+  height:var(--paco2-height)!important;
+  max-width:calc(100vw - 120px)!important;
+  max-height:calc(100dvh - 40px)!important;
+  min-height:min(620px,calc(100dvh - 40px))!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+  border:1px solid rgba(119,166,208,.72)!important;
+  border-radius:26px!important;
+  background:rgba(255,255,255,.994)!important;
+  box-shadow:0 34px 86px rgba(4,31,62,.25),0 10px 30px rgba(5,34,65,.11)!important;
+  pointer-events:auto!important;
+  transform-origin:100% 100%!important;
+  animation:paco2PanelIn .34s cubic-bezier(.18,.84,.2,1) both!important;
+}
+@keyframes paco2PanelIn{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:none}}
+
+#paco-bot.paco2-root .paco2-head{
+  flex:0 0 auto!important;
+  min-height:108px!important;
+  display:grid!important;
+  grid-template-columns:70px minmax(0,1fr) 44px!important;
+  align-items:center!important;
+  gap:15px!important;
+  padding:16px 18px 15px 20px!important;
+  border-bottom:3px solid #f4bd2d!important;
+  background:linear-gradient(126deg,#073767 0%,#07559d 56%,#177ed1 100%)!important;
+  color:#fff!important;
+}
+#paco-bot.paco2-root .paco2-head-face{width:68px!important;height:68px!important;object-fit:contain!important;filter:drop-shadow(0 7px 10px rgba(0,0,0,.17))!important}
+#paco-bot.paco2-root .paco2-head-copy{min-width:0!important}
+#paco-bot.paco2-root .paco2-head-copy>span{display:block!important;color:#ffd74a!important;font-size:10px!important;line-height:1.2!important;font-weight:900!important;letter-spacing:.145em!important;text-transform:uppercase!important}
+#paco-bot.paco2-root .paco2-head-copy>strong{display:block!important;margin-top:4px!important;color:#fff!important;font-size:29px!important;line-height:1!important;font-weight:900!important}
+#paco-bot.paco2-root .paco2-head-copy>small{display:block!important;margin-top:5px!important;overflow:hidden!important;color:#dcecff!important;font-size:13px!important;white-space:nowrap!important;text-overflow:ellipsis!important}
+#paco-bot.paco2-root .paco2-close{width:42px!important;height:42px!important;display:grid!important;place-items:center!important;border:1px solid rgba(255,255,255,.28)!important;border-radius:13px!important;background:rgba(255,255,255,.08)!important;color:#fff!important;font-size:22px!important;cursor:pointer!important}
+#paco-bot.paco2-root .paco2-close:hover{background:rgba(255,255,255,.17)!important}
+
+#paco-bot.paco2-root .paco2-context{
+  flex:0 0 auto!important;
+  min-height:52px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:9px!important;
+  padding:9px 14px!important;
+  border-bottom:1px solid #e4edf5!important;
+  background:#fbfdff!important;
+  color:#60778e!important;
+  font-size:12.5px!important;
+}
+#paco-bot.paco2-root .paco2-online{width:10px!important;height:10px!important;flex:0 0 10px!important;border-radius:50%!important;background:#22b987!important;box-shadow:0 0 0 5px rgba(34,185,135,.10)!important}
+#paco-bot.paco2-root .paco2-context>div{min-width:0!important;flex:1 1 auto!important;overflow:hidden!important;white-space:nowrap!important;text-overflow:ellipsis!important}
+#paco-bot.paco2-root .paco2-context strong{color:#0a579f!important}
+#paco-bot.paco2-root .paco2-context-btn,#paco-bot.paco2-root .paco2-tools-btn{min-height:35px!important;padding:7px 11px!important;border:1px solid #cfddea!important;border-radius:11px!important;background:#fff!important;color:#0b5fae!important;font:inherit!important;font-size:11px!important;font-weight:850!important;white-space:nowrap!important;cursor:pointer!important}
+#paco-bot.paco2-root .paco2-tools-btn{display:inline-flex!important;align-items:center!important;gap:5px!important;background:linear-gradient(180deg,#fff,#f2f8fd)!important}
+
+#paco-bot.paco2-root .paco2-tools{
+  display:none!important;
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow:auto!important;
+  padding:15px 17px 18px!important;
+  background:linear-gradient(180deg,#f8fbff,#f3f8fc)!important;
+}
+#paco-bot.paco2-root.is-tools-open .paco2-tools{display:block!important}
+#paco-bot.paco2-root.is-tools-open .paco2-messages,#paco-bot.paco2-root.is-tools-open .paco2-quick{display:none!important}
+#paco-bot.paco2-root .paco2-tools-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;margin-bottom:13px!important;padding:3px 2px 11px!important;border-bottom:1px solid #dbe6ef!important}
+#paco-bot.paco2-root .paco2-tools-head strong{display:block!important;color:#123e66!important;font-size:16px!important}
+#paco-bot.paco2-root .paco2-tools-head small{display:block!important;margin-top:3px!important;color:#75899b!important;font-size:11px!important}
+#paco-bot.paco2-root .paco2-tools-head button{width:36px!important;height:36px!important;border:1px solid #d1dfe9!important;border-radius:10px!important;background:#fff!important;color:#55728e!important;font-size:19px!important;cursor:pointer!important}
+#paco-bot.paco2-root .paco2-tools-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
+#paco-bot.paco2-root .paco2-tool{min-width:0!important;min-height:92px!important;display:grid!important;grid-template-columns:36px minmax(0,1fr)!important;align-items:start!important;gap:9px!important;padding:13px!important;border:1px solid #d5e3ed!important;border-radius:15px!important;background:#fff!important;color:#173f64!important;text-align:left!important;cursor:pointer!important;transition:transform .17s ease,border-color .17s ease,box-shadow .17s ease!important}
+#paco-bot.paco2-root .paco2-tool:hover{transform:translateY(-2px)!important;border-color:#8db8dd!important;box-shadow:0 8px 18px rgba(20,76,129,.08)!important}
+#paco-bot.paco2-root .paco2-tool>span{width:34px!important;height:34px!important;display:grid!important;place-items:center!important;border-radius:11px!important;background:#edf6ff!important;color:#0866bb!important;font-size:17px!important}
+#paco-bot.paco2-root .paco2-tool strong{display:block!important;font-size:12px!important;line-height:1.25!important}
+#paco-bot.paco2-root .paco2-tool small{display:block!important;margin-top:5px!important;color:#72879a!important;font-size:10px!important;line-height:1.4!important}
+#paco-bot.paco2-root .paco2-tools-result{margin-top:13px!important;padding:14px!important;border:1px solid #d5e2ec!important;border-radius:15px!important;background:#fff!important}
+#paco-bot.paco2-root .paco2-tools-result[hidden]{display:none!important}
+#paco-bot.paco2-root .paco2-tool-result-head{margin-bottom:10px!important;color:#123d64!important;font-size:14px!important}
+#paco-bot.paco2-root .paco2-tool-result-list{display:grid!important;gap:7px!important}
+#paco-bot.paco2-root .paco2-tool-result-list>div{display:grid!important;grid-template-columns:minmax(120px,.8fr) minmax(0,1.5fr)!important;gap:10px!important;padding:8px 9px!important;border-radius:9px!important;background:#f6f9fc!important}
+#paco-bot.paco2-root .paco2-tool-result-list span{color:#718598!important;font-size:10.5px!important}
+#paco-bot.paco2-root .paco2-tool-result-list b{color:#274b6c!important;font-size:11px!important;overflow-wrap:anywhere!important}
+#paco-bot.paco2-root .paco2-tool-result-actions{display:flex!important;flex-wrap:wrap!important;gap:7px!important;margin-top:11px!important}
+#paco-bot.paco2-root .paco2-tool-result-actions button{min-height:35px!important;padding:7px 11px!important;border:1px solid #bcd2e4!important;border-radius:10px!important;background:#f7fbff!important;color:#0b5fae!important;font-size:10.5px!important;font-weight:800!important;cursor:pointer!important}
+#paco-bot.paco2-root .paco2-tool-loading{padding:14px!important;color:#5c758c!important;font-size:12px!important;text-align:center!important}
+
+#paco-bot.paco2-root .paco2-messages{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:14px!important;
+  padding:20px 22px 22px!important;
+  overflow:auto!important;
+  overscroll-behavior:contain!important;
+  scrollbar-width:thin!important;
+  scrollbar-color:#9bb6ce transparent!important;
+  background:linear-gradient(180deg,#f9fcff,#f4f8fc)!important;
+}
+#paco-bot.paco2-root .paco2-message{max-width:88%!important;display:flex!important;align-items:flex-start!important;gap:11px!important}
+#paco-bot.paco2-root .paco2-message.user{margin-left:auto!important;max-width:82%!important}
+#paco-bot.paco2-root .paco2-mini{width:40px!important;height:40px!important;flex:0 0 40px!important;object-fit:contain!important;margin-top:2px!important}
+#paco-bot.paco2-root .paco2-bubble{min-width:0!important;padding:14px 16px!important;border:1px solid #d8e5ef!important;border-radius:18px 18px 18px 7px!important;background:#fff!important;color:#173a5c!important;box-shadow:0 5px 15px rgba(28,69,105,.045)!important;font-size:14.5px!important;line-height:1.62!important;overflow-wrap:anywhere!important}
+#paco-bot.paco2-root .paco2-message.user .paco2-bubble{border-color:transparent!important;border-radius:18px 18px 7px 18px!important;background:linear-gradient(145deg,#075bab,#137bd1)!important;color:#fff!important}
+#paco-bot.paco2-root .paco2-message.welcome{max-width:95%!important}
+#paco-bot.paco2-root .paco2-welcome-title{display:block!important;margin-bottom:7px!important;color:#10395f!important;font-size:17px!important;font-weight:900!important}
+#paco-bot.paco2-root .paco2-welcome-question{display:block!important;margin-top:10px!important;color:#244c70!important;font-size:14.5px!important;font-weight:800!important}
+#paco-bot.paco2-root .paco2-text{white-space:pre-wrap!important;overflow-wrap:anywhere!important}
+#paco-bot.paco2-root .paco2-steps{display:grid!important;gap:8px!important;margin-top:12px!important}
+#paco-bot.paco2-root .paco2-step{display:grid!important;grid-template-columns:28px minmax(0,1fr)!important;gap:9px!important;padding:9px 10px!important;border-radius:11px!important;background:#f5f9fc!important}
+#paco-bot.paco2-root .paco2-step>span{width:27px!important;height:27px!important;display:grid!important;place-items:center!important;border-radius:8px!important;background:#e6f2fd!important;color:#0b63b6!important;font-size:10px!important;font-weight:900!important}
+#paco-bot.paco2-root .paco2-step strong{display:block!important;color:#294b6c!important;font-size:12px!important}
+#paco-bot.paco2-root .paco2-step small{display:block!important;margin-top:2px!important;color:#74889a!important;font-size:11px!important;line-height:1.45!important}
+#paco-bot.paco2-root .paco2-data-card{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;margin-top:12px!important;padding:11px!important;border:1px solid #d8e5ef!important;border-left:4px solid #0b65c7!important;border-radius:12px!important;background:#f8fbfe!important}
+#paco-bot.paco2-root .paco2-data-card>div{min-width:0!important}
+#paco-bot.paco2-root .paco2-data-card small{display:block!important;color:#788b9c!important;font-size:10px!important}
+#paco-bot.paco2-root .paco2-data-card b{display:block!important;margin-top:3px!important;color:#244a6d!important;font-size:11.5px!important;overflow-wrap:anywhere!important}
+#paco-bot.paco2-root .paco2-alert{display:grid!important;gap:4px!important;margin-top:11px!important;padding:10px 11px!important;border:1px solid #efd38e!important;border-radius:11px!important;background:#fff9e9!important;color:#755613!important;font-size:11px!important}
+
+#paco-bot.paco2-root .paco2-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin-top:13px!important}
+#paco-bot.paco2-root .paco2-action{min-width:0!important;min-height:68px!important;display:grid!important;grid-template-columns:38px minmax(0,1fr) auto!important;align-items:center!important;gap:10px!important;padding:10px 12px!important;border:1px solid #d5e3ee!important;border-radius:14px!important;background:#fff!important;color:#143f67!important;text-align:left!important;cursor:pointer!important;transition:transform .17s ease,border-color .17s ease,box-shadow .17s ease!important}
+#paco-bot.paco2-root .paco2-action:hover{transform:translateY(-1px)!important;border-color:#8bb8df!important;box-shadow:0 8px 18px rgba(20,76,129,.08)!important}
+#paco-bot.paco2-root .paco2-action.primary{border-color:#0b68c4!important;background:linear-gradient(145deg,#0868c8,#0d7bd5)!important;color:#fff!important}
+#paco-bot.paco2-root .paco2-action.warning{border-color:#edc65a!important;background:#fff9e5!important;color:#7a5700!important}
+#paco-bot.paco2-root .paco2-action-icon{width:36px!important;height:36px!important;display:grid!important;place-items:center!important;border-radius:11px!important;background:#edf5fc!important;color:#0b61b1!important;font-size:16px!important}
+#paco-bot.paco2-root .paco2-action.primary .paco2-action-icon{background:rgba(255,255,255,.16)!important;color:#fff!important}
+#paco-bot.paco2-root .paco2-action-copy b{display:block!important;font-size:11.5px!important;line-height:1.25!important}
+#paco-bot.paco2-root .paco2-action-copy small{display:block!important;margin-top:4px!important;color:#71879a!important;font-size:9.8px!important;line-height:1.35!important}
+#paco-bot.paco2-root .paco2-action.primary .paco2-action-copy small{color:#ddecfb!important}
+#paco-bot.paco2-root .paco2-action-arrow{font-size:18px!important}
+
+#paco-bot.paco2-root .paco2-cap-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;margin-top:12px!important}
+#paco-bot.paco2-root .paco2-cap{min-width:0!important;display:grid!important;grid-template-columns:34px minmax(0,1fr)!important;gap:8px!important;padding:10px!important;border:1px solid #d7e4ee!important;border-radius:12px!important;background:#fafdff!important;color:#1b456a!important;text-align:left!important;cursor:pointer!important}
+#paco-bot.paco2-root .paco2-cap>span{width:32px!important;height:32px!important;display:grid!important;place-items:center!important;border-radius:10px!important;background:#eaf4fd!important;color:#0865b8!important}
+#paco-bot.paco2-root .paco2-cap b{display:block!important;font-size:11px!important}
+#paco-bot.paco2-root .paco2-cap small{display:block!important;margin-top:3px!important;color:#73879a!important;font-size:9.5px!important;line-height:1.35!important}
+
+#paco-bot.paco2-root .paco2-password{display:grid!important;grid-template-columns:1fr 1fr!important;gap:9px!important;margin-top:12px!important;padding:12px!important;border:1px solid #d6e3ed!important;border-radius:12px!important;background:#f8fbfe!important}
+#paco-bot.paco2-root .paco2-password label{display:grid!important;gap:4px!important;color:#49647c!important;font-size:10px!important;font-weight:800!important}
+#paco-bot.paco2-root .paco2-password input{width:100%!important;min-height:40px!important;padding:8px 10px!important;border:1px solid #cbdce9!important;border-radius:9px!important;background:#fff!important;font-size:14px!important}
+#paco-bot.paco2-root .paco2-password>small{grid-column:1/-1!important;color:#75899a!important;font-size:9.5px!important}
+#paco-bot.paco2-root .paco2-password>button{grid-column:1/-1!important;min-height:40px!important;border:0!important;border-radius:10px!important;background:#0b68c4!important;color:#fff!important;font-size:11px!important;font-weight:850!important;cursor:pointer!important}
+
+#paco-bot.paco2-root .paco2-typing{display:flex!important;gap:5px!important;align-items:center!important;height:22px!important}
+#paco-bot.paco2-root .paco2-typing i{width:7px!important;height:7px!important;border-radius:50%!important;background:#4c8fc9!important;animation:paco2Typing .9s ease-in-out infinite!important}
+#paco-bot.paco2-root .paco2-typing i:nth-child(2){animation-delay:.12s!important}#paco-bot.paco2-root .paco2-typing i:nth-child(3){animation-delay:.24s!important}
+@keyframes paco2Typing{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(-4px);opacity:1}}
+
+#paco-bot.paco2-root .paco2-quick{flex:0 0 auto!important;display:flex!important;gap:7px!important;padding:10px 14px!important;overflow-x:auto!important;border-top:1px solid #e4edf5!important;background:#fbfdff!important;scrollbar-width:none!important}
+#paco-bot.paco2-root .paco2-quick::-webkit-scrollbar{display:none!important}
+#paco-bot.paco2-root .paco2-quick button{flex:0 0 auto!important;min-height:34px!important;padding:7px 11px!important;border:1px solid #cfdeea!important;border-radius:999px!important;background:#fff!important;color:#315978!important;font-size:10px!important;font-weight:750!important;white-space:nowrap!important;cursor:pointer!important}
+#paco-bot.paco2-root .paco2-composer{flex:0 0 auto!important;display:grid!important;grid-template-columns:minmax(0,1fr) 56px!important;gap:9px!important;padding:12px 14px 8px!important;border-top:1px solid #e0eaf2!important;background:#fff!important}
+#paco-bot.paco2-root .paco2-composer textarea{width:100%!important;height:54px!important;min-height:54px!important;max-height:112px!important;resize:none!important;padding:15px 15px!important;border:1px solid #b9d1e5!important;border-radius:14px!important;outline:0!important;background:#fbfdff!important;color:#183c5d!important;font:inherit!important;font-size:14px!important;line-height:1.45!important}
+#paco-bot.paco2-root .paco2-composer textarea:focus{border-color:#1b82da!important;box-shadow:0 0 0 3px rgba(27,130,218,.11)!important;background:#fff!important}
+#paco-bot.paco2-root .paco2-send{width:56px!important;height:54px!important;border:0!important;border-radius:14px!important;background:linear-gradient(145deg,#0870d1,#126fc0)!important;color:#fff!important;font-size:25px!important;font-weight:900!important;cursor:pointer!important;box-shadow:0 8px 18px rgba(7,91,167,.20)!important}
+#paco-bot.paco2-root .paco2-send:disabled{opacity:.55!important;cursor:wait!important}
+#paco-bot.paco2-root .paco2-safe-note{flex:0 0 auto!important;padding:0 16px 11px!important;background:#fff!important;color:#73889a!important;font-size:9.5px!important;text-align:center!important}
+
+@media(max-width:1180px){
+  #paco-bot.paco2-root{--paco2-width:min(680px,calc(100vw - 100px));--paco2-height:min(740px,calc(100dvh - 32px));right:16px!important;bottom:16px!important}
+  #paco-bot.paco2-root .paco2-tools-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:900px){
+  #paco-bot.paco2-root{--paco2-width:min(640px,calc(100vw - 82px));--paco2-height:min(720px,calc(100dvh - 24px));right:12px!important;bottom:12px!important}
+  #paco-bot.paco2-root .paco2-head{min-height:98px!important;grid-template-columns:62px minmax(0,1fr) 42px!important;padding:14px 15px!important}
+  #paco-bot.paco2-root .paco2-head-face{width:60px!important;height:60px!important}
+}
+@media(max-width:720px){
+  #paco-bot.paco2-root{
+    --paco2-launcher:62px;
+    --paco2-width:calc(100vw - 16px);
+    --paco2-height:calc(100dvh - max(16px,env(safe-area-inset-top,0px)) - max(82px,calc(var(--rf-dock-height,0px) + 10px)));
+    right:max(8px,env(safe-area-inset-right,0px))!important;
+    bottom:max(76px,calc(var(--rf-dock-height,0px) + 8px))!important;
+  }
+  #paco-bot.paco2-root.is-open .paco2-launcher{transform:translateX(calc(-1 * (var(--paco2-width) - 54px))) rotate(-720deg)!important;width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important}
+  #paco-bot.paco2-root .paco2-panel{max-width:var(--paco2-width)!important;max-height:var(--paco2-height)!important;min-height:0!important;border-radius:20px!important}
+  #paco-bot.paco2-root .paco2-head{min-height:88px!important;grid-template-columns:52px minmax(0,1fr) 40px!important;gap:10px!important;padding:12px 13px!important}
+  #paco-bot.paco2-root .paco2-head-face{width:50px!important;height:50px!important}
+  #paco-bot.paco2-root .paco2-head-copy>strong{font-size:23px!important}
+  #paco-bot.paco2-root .paco2-head-copy>small{font-size:11px!important}
+  #paco-bot.paco2-root .paco2-context{min-height:49px!important;padding:8px 10px!important;font-size:11px!important}
+  #paco-bot.paco2-root .paco2-context-btn{display:none!important}
+  #paco-bot.paco2-root .paco2-tools-btn{font-size:10px!important;padding-inline:9px!important}
+  #paco-bot.paco2-root .paco2-messages{padding:14px 12px 16px!important;gap:12px!important}
+  #paco-bot.paco2-root .paco2-message{max-width:96%!important}
+  #paco-bot.paco2-root .paco2-message.user{max-width:91%!important}
+  #paco-bot.paco2-root .paco2-mini{width:34px!important;height:34px!important;flex-basis:34px!important}
+  #paco-bot.paco2-root .paco2-bubble{padding:12px 13px!important;font-size:14px!important;line-height:1.55!important}
+  #paco-bot.paco2-root .paco2-actions,#paco-bot.paco2-root .paco2-cap-grid,#paco-bot.paco2-root .paco2-data-card{grid-template-columns:1fr!important}
+  #paco-bot.paco2-root .paco2-action{min-height:60px!important}
+  #paco-bot.paco2-root .paco2-tools{padding:12px!important}
+  #paco-bot.paco2-root .paco2-tools-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  #paco-bot.paco2-root .paco2-tool{min-height:86px!important;padding:10px!important}
+  #paco-bot.paco2-root .paco2-composer{grid-template-columns:minmax(0,1fr) 52px!important;padding:10px 10px 7px!important}
+  #paco-bot.paco2-root .paco2-composer textarea{height:52px!important;min-height:52px!important;padding:14px 12px!important;font-size:16px!important}
+  #paco-bot.paco2-root .paco2-send{width:52px!important;height:52px!important}
+  #paco-bot.paco2-root .paco2-safe-note{padding:0 10px 8px!important;font-size:8.8px!important}
+}
+@media(max-width:480px){
+  #paco-bot.paco2-root .paco2-tools-grid{grid-template-columns:1fr!important}
+  #paco-bot.paco2-root .paco2-tool{min-height:72px!important;grid-template-columns:34px minmax(0,1fr)!important}
+  #paco-bot.paco2-root .paco2-quick{padding:8px 9px!important}
+  #paco-bot.paco2-root .paco2-step{grid-template-columns:25px minmax(0,1fr)!important;padding:8px!important}
+  #paco-bot.paco2-root .paco2-password{grid-template-columns:1fr!important}
+  #paco-bot.paco2-root .paco2-password>small,#paco-bot.paco2-root .paco2-password>button{grid-column:auto!important}
+}
+@media(max-height:720px) and (min-width:721px){
+  #paco-bot.paco2-root{--paco2-height:calc(100dvh - 24px);bottom:12px!important}
+  #paco-bot.paco2-root .paco2-head{min-height:88px!important;padding-block:11px!important}
+  #paco-bot.paco2-root .paco2-head-face{width:56px!important;height:56px!important}
+  #paco-bot.paco2-root .paco2-context{min-height:46px!important;padding-block:7px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #paco-bot.paco2-root *,#paco-bot.paco2-root *:before,#paco-bot.paco2-root *:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
