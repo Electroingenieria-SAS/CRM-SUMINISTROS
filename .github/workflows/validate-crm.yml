@@ -40,20 +40,20 @@ jobs:
               print('\n'.join(missing));sys.exit(1)
           PY
 
-      - name: Validate V11.19.3 release contract
+      - name: Validate V11.19.4 release contract
         shell: bash
         run: |
           set -euo pipefail
 
           # Release identity.
-          grep -q 'version: "11.19.3"' assets/js/config.js
-          grep -q 'build: "2026-09-08.07"' assets/js/config.js
-          grep -q 'main.js?v=11.19.3' index.html
-          grep -q 'paco-chat-shell-v11193.css?v=11.19.3' index.html
-          grep -q 'paco-visual-v11193.js?v=11.19.3' index.html
-          grep -q 'paco-command-center-v11191.js?v=11.19.3' index.html
+          grep -q 'version: "11.19.4"' assets/js/config.js
+          grep -q 'build: "2026-09-08.08"' assets/js/config.js
+          grep -q 'main.js?v=11.19.4' index.html
+          grep -q 'paco-chat-shell-v11193.css?v=11.19.4' index.html
+          grep -q 'paco-visual-v11194.js?v=11.19.4' index.html
+          grep -q 'paco-command-center-v11191.js?v=11.19.4' index.html
           grep -q 'interactive-widget=resizes-content' index.html
-          grep -q 'crm-suministros-v11-19-3-20260908-07' service-worker.js
+          grep -q 'crm-suministros-v11-19-4-20260908-08' service-worker.js
 
           # Responsive Foundation remains canonical CRM-wide.
           test -s assets/css/responsive-foundation-v11190.css
@@ -64,7 +64,11 @@ jobs:
           grep -q 'safe-area-inset-top' assets/css/responsive-foundation-v11190.css
           grep -q 'prefers-reduced-motion' assets/css/responsive-foundation-v11190.css
 
-          # Paco functional engine remains permission controlled.
+          # Paco Enterprise engine is canonical from bootstrap; no legacy V11.18.0 engine in main.
+          grep -q 'installPacoBot} from "./modules/paco-bot-v11182.js"' assets/js/main.js
+          if grep -q 'installPacoBot} from "./modules/paco-bot-v11180.js"' assets/js/main.js; then
+            echo 'Legacy Paco V11.18.0 engine must not bootstrap the CRM'; exit 1
+          fi
           test -s assets/js/modules/paco-bot-v11182.js
           test -s assets/js/modules/paco-command-center-v11191.js
           grep -q 'api.listOrders' assets/js/modules/paco-bot-v11182.js
@@ -77,15 +81,15 @@ jobs:
           grep -q 'api.workMyDay' assets/js/modules/paco-command-center-v11191.js
           grep -q 'api.materialReservationHealth' assets/js/modules/paco-command-center-v11191.js
 
-          # Paco Chat Shell V11.19.3: viewport-driven, genuinely wide and chatable.
+          # Paco Chat Shell remains wide and chatable.
           test -s assets/css/paco-chat-shell-v11193.css
-          test -s assets/js/modules/paco-visual-v11193.js
+          test -s assets/js/modules/paco-visual-v11194.js
           test -s assets/js/modules/paco-visibility-v11180.js
-          grep -q 'ROOT_VERSION="11.19.3"' assets/js/modules/paco-visual-v11193.js
-          grep -q 'const w=viewportWidth()' assets/js/modules/paco-visual-v11193.js
-          grep -q 'Math.min(820,Math.max(720,Math.round(w\*.46)))' assets/js/modules/paco-visual-v11193.js
-          grep -q 'root.style.setProperty("--paco-target-width-v11193"' assets/js/modules/paco-visual-v11193.js
-          if grep -q 'panel.getBoundingClientRect().width' assets/js/modules/paco-visual-v11193.js; then
+          grep -q 'ROOT_VERSION="11.19.4"' assets/js/modules/paco-visual-v11194.js
+          grep -q 'const w=viewportWidth()' assets/js/modules/paco-visual-v11194.js
+          grep -q 'Math.min(820,Math.max(720,Math.round(w\*.46)))' assets/js/modules/paco-visual-v11194.js
+          grep -q 'root.style.setProperty("--paco-target-width-v11193"' assets/js/modules/paco-visual-v11194.js
+          if grep -q 'panel.getBoundingClientRect().width' assets/js/modules/paco-visual-v11194.js; then
             echo 'Paco width must not be derived from the already-rendered panel'; exit 1
           fi
           grep -q -- '--paco-target-width-v11193:760px' assets/css/paco-chat-shell-v11193.css
@@ -98,8 +102,17 @@ jobs:
           grep -q 'rotate(-720deg)' assets/css/paco-chat-shell-v11193.css
           grep -q 'paco-open-v11193 .paco-launcher .paco-face' assets/css/paco-chat-shell-v11193.css
           grep -q 'prefers-reduced-motion' assets/css/paco-chat-shell-v11193.css
-          grep -q 'PACO_VERSION="11.19.3"' assets/js/modules/paco-visibility-v11180.js
-          grep -q 'paco-chat-shell-v11193.css?v=11.19.3' assets/js/modules/paco-visibility-v11180.js
+
+          # V11.19.4 launcher fix: DOM hidden is source of truth and the capture controller owns one click.
+          grep -q 'function panelOpen(root)' assets/js/modules/paco-visual-v11194.js
+          grep -q 'Boolean(panel&&!panel.hidden)' assets/js/modules/paco-visual-v11194.js
+          grep -q 'event.stopImmediatePropagation()' assets/js/modules/paco-visual-v11194.js
+          grep -q 'window.dispatchEvent(new CustomEvent("paco:open"' assets/js/modules/paco-visual-v11194.js
+          grep -q 'queueMicrotask(()=>{if(!panelOpen(root))forceDomOpen(root)})' assets/js/modules/paco-visual-v11194.js
+          grep -q 'requestEngineClose(root)' assets/js/modules/paco-visual-v11194.js
+          grep -q 'PACO_VERSION="11.19.4"' assets/js/modules/paco-visibility-v11180.js
+          grep -q 'paco-chat-shell-v11193.css?v=11.19.4' assets/js/modules/paco-visibility-v11180.js
+          grep -q 'root.dataset.pacoEngine="v11182"' assets/js/modules/paco-visibility-v11180.js
 
           # Real Paco assets remain mandatory.
           for asset in idle listening thinking wink talking success; do
@@ -143,10 +156,13 @@ jobs:
           test -s assets/css/flow-performance-v11130.css
           test -s assets/js/modules/flow-performance-v11130.js
 
-          # PWA references the canonical V11.19.3 shell/runtime, not V11.19.2.
+          # PWA references the canonical V11.19.4 runtime.
           grep -q './assets/css/paco-chat-shell-v11193.css' service-worker.js
-          grep -q './assets/js/modules/paco-visual-v11193.js' service-worker.js
+          grep -q './assets/js/modules/paco-visual-v11194.js' service-worker.js
           grep -q './assets/js/modules/paco-command-center-v11191.js' service-worker.js
+          if grep -q './assets/js/modules/paco-visual-v11193.js' service-worker.js; then
+            echo 'Legacy V11.19.3 visual runtime must not be precached'; exit 1
+          fi
           if grep -q './assets/css/paco-enterprise-v11192.css' service-worker.js; then
             echo 'Legacy V11.19.2 Paco CSS must not be precached'; exit 1
           fi
@@ -162,12 +178,12 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.19.3" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.19.4" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.19.3-deployable
+          name: crm-suministros-v11.19.4-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
