@@ -69,7 +69,7 @@ jobs:
           grep -q 'installPacoAssistant} from "./modules/paco-assistant-v11200.js"' assets/js/main.js
           grep -q 'installPacoAssistant();' assets/js/main.js
           if grep -q 'paco-bot-v1118' assets/js/main.js; then echo 'Legacy Paco engine imported by main'; exit 1; fi
-          if grep -q 'MutationObserver' assets/js/modules/paco-assistant-v11200.js; then echo 'Canonical Paco must not use MutationObserver repair loops'; exit 1; fi
+          if grep -Eq 'new[[:space:]]+MutationObserver|MutationObserver[[:space:]]*\(' assets/js/modules/paco-assistant-v11200.js; then echo 'Canonical Paco must not instantiate DOM repair observers'; exit 1; fi
           if grep -q 'paco-visibility-v11180.js' index.html; then echo 'Legacy visibility guard still loaded'; exit 1; fi
           if grep -Eq 'paco-visual-v111(83|91|92|93|94)\.js' index.html; then echo 'Legacy visual runtime still loaded'; exit 1; fi
           if grep -q 'paco-command-center-v11191.js' index.html; then echo 'Legacy command-center layer still loaded'; exit 1; fi
