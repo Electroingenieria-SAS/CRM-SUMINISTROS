@@ -31,10 +31,7 @@ function breakpoint(width){
   return"desktop";
 }
 
-function inputMode(){
-  return window.matchMedia?.("(pointer: coarse)").matches||navigator.maxTouchPoints>0?"touch":"mouse";
-}
-
+function inputMode(){return window.matchMedia?.("(pointer: coarse)").matches||navigator.maxTouchPoints>0?"touch":"mouse"}
 function orientation(){return innerWidth>=innerHeight?"landscape":"portrait"}
 function heightClass(){return innerHeight<=650?"short":"normal"}
 
@@ -59,9 +56,7 @@ function viewportMetrics(){
   }
 }
 
-function cleanLabel(value){
-  return String(value||"").replace(/\s+/g," ").trim().replace(/[:：]+$/g,"");
-}
+function cleanLabel(value){return String(value||"").replace(/\s+/g," ").trim().replace(/[:：]+$/g,"")}
 
 function nearestTableLabel(table){
   const caption=cleanLabel(table.querySelector("caption")?.textContent);
@@ -117,7 +112,7 @@ function normalizeTable(table){
     for(const row of body.rows){
       [...row.cells].forEach((cell,index)=>{
         const label=headers[index]||`Campo ${index+1}`;
-        if(cell.dataset.rfLabel!==label)cell.dataset.rfLabel=label;
+        if(cell.getAttribute("data-rf-label")!==label)cell.setAttribute("data-rf-label",label);
       });
     }
   }
@@ -134,10 +129,7 @@ function normalizeTables(scope=document){
   scope.querySelectorAll?.("table").forEach(normalizeTable);
 }
 
-function normalize(scope=document){
-  normalizeScrollStrips(scope);
-  normalizeTables(scope);
-}
+function normalize(scope=document){normalizeScrollStrips(scope);normalizeTables(scope)}
 
 function scheduleNormalize(){
   if(scheduled)return;
