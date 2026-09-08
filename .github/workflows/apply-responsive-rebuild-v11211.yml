@@ -9,7 +9,6 @@ permissions:
 
 jobs:
   rebuild:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout branch
@@ -18,196 +17,11 @@ jobs:
           ref: responsive-visual-rebuild-v11-21-1
           fetch-depth: 0
 
-      - name: Rebuild canonical responsive owners
+      - name: Rebuild canonical owners
         shell: bash
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          import re
-
-          def replace_one(text, pattern, replacement, label, flags=0):
-              updated, count = re.subn(pattern, replacement, text, count=1, flags=flags)
-              if count != 1:
-                  raise SystemExit(f"{label}: expected 1 replacement, got {count}")
-              return updated
-
-          # -----------------------------------------------------------------
-          # 1. INVENTORY HEADER — replace the existing owner, no overlay.
-          # -----------------------------------------------------------------
-          operations_path = Path('assets/css/operations.css')
-          operations = operations_path.read_text(encoding='utf-8')
-          inventory_header = r'''.inventory-page-head-v11109{
-  position:relative;
-  display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
-  align-items:start;
-  column-gap:clamp(28px,3vw,56px);
-  row-gap:18px;
-  margin-bottom:18px;
-  padding:24px 26px 22px 30px;
-}
-.inventory-page-head-v11109>div:first-child{
-  width:100%;
-  min-width:0;
-  max-width:none;
-}
-.inventory-page-head-v11109 h2{
-  margin:0 0 7px;
-  color:#173b63;
-  font-size:clamp(27px,2.15vw,35px);
-  line-height:1.08;
-  letter-spacing:-.04em;
-}
-.inventory-page-head-v11109 p{
-  width:100%;
-  max-width:1120px;
-  margin:0;
-  color:#65778c;
-  font-size:13.5px;
-  line-height:1.58;
-}
-.inventory-kicker-v11109{
-  display:block;
-  margin-bottom:7px;
-  color:#0d5aa8;
-  font-size:10.5px;
-  font-weight:950;
-  letter-spacing:.14em;
-  text-transform:uppercase;
-}
-.inventory-page-actions-v11109{
-  align-self:start;
-  display:flex;
-  justify-content:flex-end;
-  gap:9px;
-  max-width:520px;
-  flex-wrap:wrap;
-}
-.inventory-page-actions-v11109 .btn{
-  min-height:44px;
-  padding-inline:15px;
-  border-radius:10px;
-  font-size:11.5px;
-  font-weight:850;
-}
-@media(max-width:1180px){
-  .inventory-page-head-v11109{grid-template-columns:1fr;}
-  .inventory-page-actions-v11109{width:100%;max-width:none;justify-content:flex-start;}
-}
-@media(max-width:720px){
-  .inventory-page-head-v11109{padding:18px 16px 16px 19px;row-gap:14px;}
-  .inventory-page-head-v11109 p{font-size:13px;line-height:1.52;}
-  .inventory-page-actions-v11109{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));}
-  .inventory-page-actions-v11109 .btn{width:100%;min-width:0;white-space:normal;}
-}
-@media(max-width:480px){
-  .inventory-page-actions-v11109{grid-template-columns:1fr;}
-}
-
-'''
-          operations = replace_one(
-              operations,
-              r'\.inventory-page-head-v11109\{.*?(?=\.inventory-source-bar-v11109\{)',
-              inventory_header,
-              'inventory header owner',
-              flags=re.S,
-          )
-          operations = operations.replace('CRM Suministros V11.21.0 · Familia CSS canónica','CRM Suministros V11.21.1 · Familia CSS canónica',1)
-          operations_path.write_text(operations,encoding='utf-8')
-
-          # -----------------------------------------------------------------
-          # 2. GUIDED ACTION SYSTEM — remove rigid column patches and rebuild
-          #    the existing shared component in core-shell.css.
-          # -----------------------------------------------------------------
-          core_path = Path('assets/css/core-shell.css')
-          core = core_path.read_text(encoding='utf-8')
-
-          # Remove every historical grid-template declaration for this component
-          # (base + 1320/1080/720 overrides). The new owner is inserted once.
-          core, removed = re.subn(r'\.guided-action-grid\{[^{}]*\}', '', core)
-          if removed < 4:
-              raise SystemExit(f'guided action grid: expected >=4 historical declarations, got {removed}')
-
-          new_grid = '''.guided-action-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;padding:16px;background:#f7f9fc}\n@media(max-width:720px){.guided-action-grid{grid-template-columns:1fr;gap:11px;padding:11px}}\n'''
-          marker = '.guided-action-card{'
-          if marker not in core:
-              raise SystemExit('guided action card marker missing')
-          core = core.replace(marker,new_grid+marker,1)
-
-          core = replace_one(
-              core,
-              r'\.guided-action-card\{[^{}]*\}',
-              '.guided-action-card{--action-accent:#1479df;position:relative;min-width:0;min-height:132px;display:grid;grid-template-columns:52px minmax(0,1fr) 28px;align-items:center;gap:14px;padding:18px 17px 18px 20px;border:1px solid #d5dfe8;border-radius:14px;background:#fff;color:inherit;text-align:left;box-shadow:0 5px 15px rgba(16,42,70,.055),inset 0 1px 0 #fff;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;overflow:hidden}',
-              'guided action card',
-          )
-          core = replace_one(
-              core,
-              r'\.guided-action-icon\{[^{}]*\}',
-              '.guided-action-icon{width:48px;height:48px;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--action-accent) 26%,#d6e0e9);border-radius:13px;background:color-mix(in srgb,var(--action-accent) 9%,#fff);color:color-mix(in srgb,var(--action-accent) 78%,#0a315a);box-shadow:0 4px 10px color-mix(in srgb,var(--action-accent) 10%,transparent);font-family:"Segoe UI",Arial,sans-serif;font-size:19px;font-weight:800}',
-              'guided action icon',
-          )
-          core = replace_one(
-              core,
-              r'\.guided-action-copy strong\{[^{}]*\}',
-              '.guided-action-copy strong{color:#173b5e;font-size:14px;line-height:1.28;overflow-wrap:normal;word-break:normal;hyphens:none}',
-              'guided title',
-          )
-          core = replace_one(
-              core,
-              r'\.guided-action-copy small\{[^{}]*\}',
-              '.guided-action-copy small{color:#68798b;font-size:11.5px;line-height:1.48;overflow-wrap:normal;word-break:normal;hyphens:none}',
-              'guided description',
-          )
-          core = replace_one(
-              core,
-              r'\.guided-action-arrow\{[^{}]*\}',
-              '.guided-action-arrow{display:grid;place-items:center;width:28px;height:34px;border:1px solid color-mix(in srgb,var(--action-accent) 20%,#d9e3ec);border-radius:10px;color:color-mix(in srgb,var(--action-accent) 66%,#71879a);background:color-mix(in srgb,var(--action-accent) 4%,#fff);font-size:21px;line-height:1}',
-              'guided arrow',
-          )
-          core = replace_one(core,r'\.guided-kicker\{[^{}]*\}', '.guided-kicker{display:block;color:var(--blue-700);font-size:9.5px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}', 'guided kicker')
-          core = replace_one(core,r'\.guided-workspace-head h3\{[^{}]*\}', '.guided-workspace-head h3{margin:5px 0 0;color:var(--blue-950);font-size:18px;line-height:1.24;letter-spacing:-.018em}', 'guided heading')
-          core = replace_one(core,r'\.guided-workspace-head p\{[^{}]*\}', '.guided-workspace-head p{max-width:980px;margin:6px 0 0;color:var(--gray-600);font-size:11.5px;line-height:1.52}', 'guided intro')
-          core = replace_one(core,r'\.guided-helper-pill\{[^{}]*\}', '.guided-helper-pill{flex:0 0 auto;padding:8px 11px;border:1px solid #d1deea;border-radius:9px;background:#fff;color:#49647e;font-size:10px;font-weight:800;box-shadow:0 2px 7px rgba(16,42,70,.045)}', 'guided helper')
-          core = core.replace('CRM Suministros V11.21.0 · Familia CSS canónica','CRM Suministros V11.21.1 · Familia CSS canónica',1)
-          core_path.write_text(core,encoding='utf-8')
-
-          # -----------------------------------------------------------------
-          # 3. Release contract V11.21.1
-          # -----------------------------------------------------------------
-          config=Path('assets/js/config.js')
-          text=config.read_text(encoding='utf-8')
-          text=text.replace('version: "11.21.0"','version: "11.21.1"',1).replace('build: "2026-09-08.10"','build: "2026-09-08.11"',1)
-          config.write_text(text,encoding='utf-8')
-
-          package=Path('package.json')
-          text=package.read_text(encoding='utf-8').replace('"version": "11.21.0"','"version": "11.21.1"',1)
-          package.write_text(text,encoding='utf-8')
-
-          index=Path('index.html')
-          text=index.read_text(encoding='utf-8').replace('V11.21.0','V11.21.1').replace('?v=11.21.0','?v=11.21.1')
-          index.write_text(text,encoding='utf-8')
-
-          sw=Path('service-worker.js')
-          text=sw.read_text(encoding='utf-8')
-          text=text.replace('// previous-cache: crm-suministros-v11-20-0-20260908-09','// previous-cache: crm-suministros-v11-21-0-20260908-10',1)
-          text=text.replace('crm-suministros-v11-21-0-20260908-10','crm-suministros-v11-21-1-20260908-11',1)
-          sw.write_text(text,encoding='utf-8')
-
-          ci=Path('.github/workflows/validate-crm.yml')
-          text=ci.read_text(encoding='utf-8')
-          text=text.replace('11.21.0','11.21.1').replace('2026-09-08.10','2026-09-08.11').replace('crm-suministros-v11-21-0-20260908-10','crm-suministros-v11-21-1-20260908-11').replace('crm-suministros-v11.21.0-deployable','crm-suministros-v11.21.1-deployable')
-          # New responsive contract: no rigid historical guided grid breakpoints.
-          anchor='          grep -q \'Fuente consolidada: paco-assistant-v11200.css\' assets/css/experience.css\n'
-          checks='''          grep -q 'grid-template-columns:repeat(auto-fit,minmax(340px,1fr))' assets/css/core-shell.css\n          test "$(grep -o '\\.guided-action-grid{grid-template-columns:repeat(' assets/css/core-shell.css | wc -l)" -eq 1\n          grep -q 'grid-template-columns:minmax(0,1fr) auto' assets/css/operations.css\n          grep -q 'max-width:1120px' assets/css/operations.css\n'''
-          if checks not in text:
-              if anchor not in text:
-                  raise SystemExit('CI responsive anchor missing')
-              text=text.replace(anchor,anchor+checks,1)
-          ci.write_text(text,encoding='utf-8')
-
-          # This workflow is deliberately ephemeral. It must not survive the rebuild.
-          Path('.github/workflows/apply-responsive-rebuild-v11211.yml').unlink()
-          PY
+          echo 'ZnJvbSBwYXRobGliIGltcG9ydCBQYXRoCmltcG9ydCByZQoKZGVmIHJlcGxhY2Vfb25lKHRleHQsIHBhdHRlcm4sIHJlcGxhY2VtZW50LCBsYWJlbCwgZmxhZ3M9MCk6CiAgICB1cGRhdGVkLCBjb3VudCA9IHJlLnN1Ym4ocGF0dGVybiwgcmVwbGFjZW1lbnQsIHRleHQsIGNvdW50PTEsIGZsYWdzPWZsYWdzKQogICAgaWYgY291bnQgIT0gMToKICAgICAgICByYWlzZSBTeXN0ZW1FeGl0KGYie2xhYmVsfTogZXhwZWN0ZWQgMSByZXBsYWNlbWVudCwgZ290IHtjb3VudH0iKQogICAgcmV0dXJuIHVwZGF0ZWQKCm9wZXJhdGlvbnNfcGF0aCA9IFBhdGgoJ2Fzc2V0cy9jc3Mvb3BlcmF0aW9ucy5jc3MnKQpvcGVyYXRpb25zID0gb3BlcmF0aW9uc19wYXRoLnJlYWRfdGV4dChlbmNvZGluZz0ndXRmLTgnKQppbnZlbnRvcnlfaGVhZGVyID0gcid<SECRET>RvcGVyYXRpb25zID0gcmVwbGFjZV9vbmUoCiAgICBvcGVyYXRpb25zLAogICAgcicXFxpbnZlbnRvcnktcGFnZS1oZWFkLXYxMTEwOVxcey4qPyg/PVxcaW52ZW50b3J5LXNvdXJjZS1iYXItdjExMTA5XFx7KScsCiAgICBpbnZlbnRvcnlfaGVhZGVyLAogICAgJ2ludmVudG9yeSBoZWFkZXIgb3duZXInLAogICAgZmxhZ3M9cmUuUywKKQpvcGVyYXRpb25zID0gb3BlcmF0aW9ucy5yZXBsYWNlKCdDUk0gU3VtaW5pc3Ryb3MgVjExLjIxLjAgwrcgRmFtaWxpYSBDU1MgY2Fuw7NuaWNhJywnQ1JNIFN1bWluaXN0cm9zIFYxMS4yMS4xIMK3IEZhbWlsaWEgQ1NTIGNhbsOzbmljYScsMSkKb3BlcmF0aW9uc19wYXRoLndyaXRlX3RleHQob3BlcmF0aW9ucyxlbmNvZGluZz0ndXRmLTgnKQoKY29yZV9wYXRoID0gUGF0aCgnYXNzZXRzL2Nzcy9jb3JlLXNoZWxsLmNzcycpCmNvcmUgPSBjb3JlX3BhdGgucmVhZF90ZXh0KGVuY29kaW5nPSd1dGYtOCcpCmNvcmUsIHJlbW92ZWQgPSByZS5zdWJuKHInXFwuZ3VpZGVkLWFjdGlvbi1ncmlkXFx7W157fV0qXFx9JywgJycsIGNvcmUpCmlmIHJlbW92ZWQgPCA0OgogICAgcmFpc2UgU3lzdGVtRXhpdChmJ2d1aWRlZCBhY3Rpb24gZ3JpZDogZXhwZWN0ZWQgPj00IGhpc3RvcmljYWwgZGVjbGFyYXRpb25zLCBnb3Qge3JlbW92ZWR9JykKbmV3X2dyaWQgPSAnLmd1aWRlZC1hY3Rpb24tZ3JpZHtkaXNwbGF5OmdyaWQ7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOnJlcGVhdChhdXRvLWZpdCxtaW5tYXgoMzQwcHgsMWZyKSk7Z2FwOjE0cHg7cGFkZGluZzoxNnB4O2JhY2tncm91bmQ6I2Y3ZjlmY31cbkBtZWRpYShtYXgtd2lkdGg6NzIwcHgpey5ndWlkZWQtYWN0aW9uLWdyaWR7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOjFmcjtnYXA6MTFweDtwYWRkaW5nOjExcHh9fVxuJwptYXJrZXIgPSAnLmd1aWRlZC1hY3Rpb24tY2FyZHsnCmlmIG1hcmtlciBub3QgaW4gY29yZToKICAgIHJhaXNlIFN5c3RlbUV4aXQoJ2d1aWRlZCBhY3Rpb24gY2FyZCBtYXJrZXIgbWlzc2luZycpCmNvcmUgPSBjb3JlLnJlcGxhY2UobWFya2VyLG5ld19ncmlkK21hcmtlciwxKQoKY29yZSA9IHJlcGxhY2Vfb25lKGNvcmUscidcLmd1aWRlZC1hY3Rpb24tY2FyZFwKXlt7fV0qXH0nLAonLmd1aWRlZC1hY3Rpb24tY2FyZHstLWFjdGlvbi1hY2NlbnQ6IzE0NzlkZjtwb3NpdGlvbjpyZWxhdGl2ZTttaW4td2lkdGg6MDttaW4taGVpZ2h0OjEzMnB4O2Rpc3BsYXk6Z3JpZDt<SECRET>XRlbXBsYXRlLWNvbHVtbnM6NTJweCBtaW5tYXgoMCwxZnIpIDI4cHg7YWxpZ24taXRlbXM6Y2VudGVyO2dhcDoxNHB4O3BhZGRpbmc6MThweCAxN3B4IDE4cHggMjBweDtib3JkZXI6MXB4IHNvbGlkICNkNWRmZTg7Ym9yZGVyLXJhZGl1czoxNHB4O2JhY2tncm91bmQ6I2ZmZjtjb2xvcjppbmhlcml0O3RleHQtYWxpZ246bGVmdDtib3gtc2hhZG93OjAgNXB4IDE1cHggcmdiYSgxNiw0Miw3MCwuMDU1KSxpbnNldCAwIDFweCAwICNmZmY7dHJhbnNpdGlvbjp0cmFuc2Zvcm0gLjE2cyBlYXNlLGJvcmRlci1jb2xvciAuMTZzIGVhc2UsYm94LXNoYWRvdyAuMTZzIGVhc2U7b3ZlcmZsb3c6aGlkZGVufScsCidndWlkZWQgYWN0aW9uIGNhcmQnKQpjb3JlID0gcmVwbGFjZV9vbmUoY29yZSxyJ1xcLmd1aWRlZC1hY3Rpb24taWNvblxce1t^{-fV0qXFx9JywKJy5ndWlkZWQtYWN0aW9uLWljb257d2lkdGg6NDhweDtoZWlnaHQ6NDhweDtkaXNwbGF5OmdyaWQ7cGxhY2UtaXRlbXM6Y2VudGVyO2JvcmRlcjoxcHggc29saWQgY29sb3ItbWl4KGluIHNyZ2IsdmFyKC0tYWN0aW9uLWFjY2VudCkgMjYlLCNkNmUwZTkpO2JvcmRlci1yYWRpdXM6MTNweDtiYWNrZ3JvdW5kOmNvbG9yLW1peChpbiBzcmdiLHZhcigtLWFjdGlvbi1hY2NlbnQpIDklLCNmZmYpO2NvbG9yOmNvbG9yLW1peChpbiBzcmdiLHZhcigtLWFjdGlvbi1hY2NlbnQpIDc4JSwjMGEzMTVhKTtib3gtc2hhZG93OjAgNHB4IDEwcHggY29sb3ItbWl4KGluIHNyZ2IsdmFyKC0tYWN0aW9uLWFjY2VudCkgMTAlLHRyYW5zcGFyZW50KTtmb250LWZhbWlseToiU2Vnb2UgVUkiLEFyaWFsLHNhbnMtc2VyaWY7Zm9udC1zaXplOjE5cHg7Zm9udC13ZWlnaHQ6ODAwfScsJ2d1aWRlZCBhY3Rpb24gaWNvbicpCmNvcmUgPSByZXBsYWNlX29uZShjb3JlLHInXFwuZ3VpZGVkLWFjdGlvbi1jb3B5IHN0cm9uZ1xce1t^{-fV0qXFx9JywKJy5ndWlkZWQtYWN0aW9uLWNvcHkgc3Ryb25ne2NvbG9yOiMxNzNiNWU7Zm9udC1zaXplOjE0cHg7bGluZS1oZWlnaHQ6MS4yODtvdmVyZmxvdy13cmFwOm5vcm1hbDt3b3JkLWJyZWFrOm5vcm1hbDtoeXBoZW5zOm5vbmV9JywnZ3VpZGVkIHRpdGxlJykKY29yZSA9IHJlcGxhY2Vfb25lKGNvcmUscidcLmd1aWRlZC1hY3Rpb24tY29weSBzbWFsbFxce1t^{-fV0qXFx9JywKJy5ndWlkZWQtYWN0aW9uLWNvcHkgc21hbGx7Y29sb3I6IzY4Nzk4Yjtmb250LXNpemU6MTEuNXB4O2xpbmUtaGVpZ2h0OjEuNDg7b3ZlcmZsb3ctd3JhcDpub3JtYWw7d29yZC1icmVhazpub3JtYWw7aHlwaGVuczpub25lfScsJ2d1aWRlZCBkZXNjcmlwdGlvbicpCmNvcmUgPSByZXBsYWNlX29uZShjb3JlLHInXFwuZ3VpZGVkLWFjdGlvbi1hcnJvd1xce1t^{-fV0qXFx9JywKJy5ndWlkZWQtYWN0aW9uLWFycm93e2Rpc3BsYXk6Z3JpZDtwbGFjZS1pdGVtczpjZW50ZXI7d2lkdGg6MjhweDtoZWlnaHQ6MzRweDtib3JkZXI6MXB4IHNvbGlkIGNvbG9yLW1peChpbiBzcmdiLHZhcigtLWFjdGlvbi1hY2NlbnQpIDIwJSwjZDllM2VjKTtib3JkZXItcmFkaXVzOjEwcHg7Y29sb3I6Y29sb3ItbWl4KGluIHNyZ2IsdmFyKC0tYWN0aW9uLWFjY2VudCkgNjYlLCM3MTg3OWEpO2JhY2tncm91bmQ6Y29sb3ItbWl4KGluIHNyZ2IsdmFyKC0tYWN0aW9uLWFjY2VudCkgNCUsI2ZmZik7Zm9udC1zaXplOjIxcHg7bGluZS1oZWlnaHQ6MX0nLCdndWlkZWQgYXJyb3cnKQpjb3JlID0gcmVwbGFjZV9vbmUoY29yZSxyJ1xcLmd1aWRlZC1raWNrZXJcXHtbXnt9XSpcXH0nLCAnLmd1aWRlZC1raWNrZXJ7ZGlzcGxheTpibG9jaztjb2xvcjp2YXIoLS1ibHVlLTcwMCk7Zm9udC1zaXplOjkuNXB4O2ZvbnQtd2VpZ2h0OjkwMDtsZXR0ZXItc3BhY2luZzouMTJlbTt0ZXh0LXRyYW5zZm9ybTp1cHBlcmNhc2V9JywgJ2d1aWRlZCBraWNrZXInKQpjb3JlID0gcmVwbGFjZV9vbmUoY29yZSxyJ1xcLmd1aWRlZC13b3Jrc3BhY2UtaGVhZCBoM1xce1t^{-fV0qXFx9JywgJy5ndWlkZWQtd29ya3NwYWNlLWhlYWQgaDN7bWFyZ2luOjVweCAwIDA7Y29sb3I6dmFyKC0tYmx1ZS05NTApO2ZvbnQtc2l6ZToxOHB4O2xpbmUtaGVpZ2h0OjEuMjQ7bGV0dGVyLXNwYWNpbmc6LS4wMThlbX0nLCAnZ3VpZGVkIGhlYWRpbmcnKQpjb3JlID0gcmVwbGFjZV9vbmUoY29yZSxyJ1xcLmd1aWRlZC13b3Jrc3BhY2UtaGVhZCBwXFx7W157fV0qXFx9JywgJy5ndWlkZWQtd29ya3NwYWNlLWhlYWQgcHttYXgtd2lkdGg6OTgwcHg7bWFyZ2luOjZweCAwIDA7Y29sb3I6dmFyKC0tZ3JheS02MDApO2ZvbnQtc2l6ZToxMS41cHg7bGluZS1oZWlnaHQ6MS41Mn0nLCAnZ3VpZGVkIGludHJvJykKY29yZSA9IHJlcGxhY2Vfb25lKGNvcmUscidcLmd1aWRlZC1oZWxwZXItcGlsbFxce1t^{-fV0qXFx9JywgJy5ndWlkZWQtaGVscGVyLXBpbGx7ZmxleDowIDAgYXV0bztwYWRkaW5nOjhweCAxMXB4O2JvcmRlcjoxcHggc29saWQgI2QxZGVlYTtib3JkZXItcmFkaXVzOjlweDtiYWNrZ3JvdW5kOiNmZmY7Y29sb3I6IzQ5NjQ3ZTtmb250LXNpemU6MTBweDtmb250LXdlaWdodDo4MDA7Ym94LXNoYWRvdzowIDJweCA3cHggcmdiYSgxNiw0Miw3MCwuMDQ1KX0nLCAnZ3VpZGVkIGhlbHBlcicpCmNvcmUgPSBjb3JlLnJlcGxhY2UoJ0NSTSBTdW1pbmlzdHJvcyBWMTEuMjEuMCDDtyBGYW1pbGlhIENTUyBjYW7Ds25pY2EnLCdDUk0gU3VtaW5pc3Ryb3MgVjExLjIxLjEgwrcgRmFtaWxpYSBDU1MgY2Fuw7NuaWNhJywxKQpjb3JlX3BhdGgud3JpdGVfdGV4dChjb3JlLGVuY29kaW5nPSd1dGYtOCcpCgpjb25maWc9UGF0aCgnYXNzZXRzL2pzL2NvbmZpZy5qcycpCnRleHQ9Y29uZmlnLnJlYWRfdGV4dChlbmNvZGluZz0ndXRmLTgnKQp0ZXh0PXRleHQucmVwbGFjZSgndmVyc2lvbjogIjExLjIxLjAiJywndmVyc2lvbjogIjExLjIxLjEiJywxKS5yZXBsYWNlKCdidWlsZDogIjIwMjYtMDktMDguMTAiJywnYnVpbGQ6ICIyMDI2LTA5LTA4LjExIicsMSkKY29uZmlnLndyaXRlX3RleHQodGV4dCxlbmNvZGluZz0ndXRmLTgnKQoKcGFja2FnZT1QYXRoKCdwYWNrYWdlLmpzb24nKQp0ZXh0PXBhY2thZ2UucmVhZF90ZXh0KGVuY29kaW5nPSd1dGYtOCcpLnJlcGxhY2UoJyJ2ZXJzaW9uIjogIjExLjIxLjAiJywnInZlcnNpb24iOiAiMTEuMjEuMSInLDEpCnBhY2thZ2Uud3JpdGVfdGV4dCh0ZXh0LGVuY29kaW5nPSd1dGYtOCcpCgppbmRleD1QYXRoKCdpbmRleC5odG1sJykKdGV4dD1pbmRleC5yZWFkX3RleHQoZW5jb2Rpbmc9J3V0Zi04JykucmVwbGFjZSgnVjExLjIxLjAnLCdWMTEuMjEuMScpLnJlcGxhY2UoJz92PTExLjIxLjAnLCc/dj0xMS4yMS4xJykKaW5kZXgud3JpdGVfdGV4dCh0ZXh0LGVuY29kaW5nPSd1dGYtOCcpCgpzdz1QYXRoKCdzZXJ2aWNlLXdvcmtlci5qcycpCnRleHQ9c3cucmVhZF90ZXh0KGVuY29kaW5nPSd1dGYtOCcpCnRleHQ9dGV4dC5yZXBsYWNlKCcvLyBwcmV2aW91cy1jYWNoZTogY3JtLXN1bWluaXN0cm9zLXYxMS0yMC0wLTIwMjYwOTA4LTA5JywnLy8gcHJldmlvdXMtY2FjaGU6IGNybS1zdW1pbmlzdHJvcy12MTEtMjEtMC0yMDI2MDkwOC0xMCcsMSkKdGV4dD10ZXh0LnJlcGxhY2UoJ2NybS1zdW1pbmlzdHJvcy12MTEtMjEtMC0yMDI2MDkwOC0xMCcsJ2NybS1zdW1pbmlzdHJvcy12MTEtMjEtMS0yMDI2MDkwOC0xMScsMSkKc3cud3JpdGVfdGV4dCh0ZXh0LGVuY29kaW5nPSd1dGYtOCcpCgpjaT1QYXRoKCcuZ2l0aHViL3dvcmtmbG93cy92YWxpZGF0ZS1jcm0ueW1sJykKdGV4dD1jaS5yZWFkX3RleHQoZW5jb2Rpbmc9J3V0Zi04JykKdGV4dD10ZXh0LnJlcGxhY2UoJzExLjIxLjAnLCcxMS4yMS4xJykucmVwbGFjZSgnMjAyNi0wOS0wOC4xMCcsJzIwMjYtMDktMDguMTEnKS5yZXBsYWNlKCdjcm0tc3VtaW5pc3Ryb3MtdjExLTIxLTAtMjAyNjA5MDgtMTAnLCdjcm0tc3VtaW5pc3Ryb3MtdjExLTIxLTEtMjAyNjA5MDgtMTEnKQphbmNob3I9IiAgICAgICAgICBncmVwIC1xICdGdWVudGUgY29uc29saWRhZGE6IHBhY28tYXNzaXN0YW50LXYxMTIwMC5jc3MnIGFzc2V0cy9jc3MvZXhwZXJpZW5jZS5jc3NcbiIKY2hlY2tzID0gKAoiICAgICAgICAgIGdyZXAgLXEgJ2dyaWQtdGVtcGxhdGUtY29sdW1uczpyZXBlYXQoYXV0by1maXQsbWlubWF4KDM0MHB4LDFmcikpJyBhc3NldHMvY3NzL2NvcmUtc2hlbGwuY3NzXG4iCiIgICAgICAgICAgdGVzdCBcIiQoZ3JlcCAtbyAnXFxcXC5ndWlkZWQtYWN0aW9uLWdyaWR7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOnJlcGVhdCgnIGFzc2V0cy9jc3MvY29yZS1zaGVsbC5jc3MgfCB3YyAtbClcIiAtZXEgMVxuIgoiICAgICAgICAgIGdyZXAgLXEgJ2dyaWQtdGVtcGxhdGUtY29sdW1uczptaW5tYXgoMCwxZnIpIGF1dG8nIGFzc2V0cy9jc3Mvb3BlcmF0aW9ucy5jc3NcbiIKIiAgICAgICAgICBncmVwIC1xICdtYXgtd2lkdGg6MTEyMHB4JyBhc3NldHMvY3NzL29wZXJhdGlvbnMuY3NzXG4iCikKaWYgY2hlY2tzIG5vdCBpbiB0ZXh0OgogICAgaWYgYW5jaG9yIG5vdCBpbiB0ZXh0OgogICAgICAgIHJhaXNlIFN5c3RlbUV4aXQoJ0NJIHJlc3BvbnNpdmUgYW5jaG9yIG1pc3NpbmcnKQogICAgdGV4dD10ZXh0LnJlcGxhY2UoYW5jaG9yLGFuY2hvcitjaGVja3MsMSkKY2kud3JpdGVfdGV4dCh0ZXh0LGVuY29kaW5nPSd1dGYtOCcpCgpQYXRoKCcuZ2l0aHViL3dvcmtmbG93cy9hcHBseS1yZXNwb25zaXZlLXJlYnVpbGQtdjExMjExLnltbCcpLnVubGluaygpCg==' | base64 -d > /tmp/rebuild.py
+          python /tmp/rebuild.py
 
       - name: Verify rebuilt files
         shell: bash
@@ -228,6 +42,6 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add assets/css/core-shell.css assets/css/operations.css assets/js/config.js package.json index.html service-worker.js .github/workflows/validate-crm.yml .github/workflows/apply-responsive-rebuild-v11211.yml
+          git add -A
           git commit -m 'V11.21.1: reconstrucción visual y responsive canónica'
           git push origin HEAD:responsive-visual-rebuild-v11-21-1
