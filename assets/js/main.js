@@ -19,7 +19,7 @@ import {renderReports} from "./modules/reports.js";
 import {renderCutting} from "./modules/cutting-flow.js";
 import {initActiveWork,moduleForStep} from "./modules/active-work.js";
 import {installSupportFlow} from "./modules/support-flow.js";
-import {installPacoBot} from "./modules/paco-bot-v11180.js";
+import {installPacoBot} from "./modules/paco-bot-v11182.js";
 import {renderWorkforce} from "./modules/workforce.js";
 import {initWorkClock} from "./modules/work-clock.js";
 import {installOperationalV112,enhanceOperationalDashboard,enhanceWorkforce} from "./modules/operational-v112.js";
