@@ -23,6 +23,7 @@ const config=read("assets/js/config.js");
 const version=config.match(/version:\s*"([^"]+)"/)?.[1]||"";
 const build=config.match(/build:\s*"([^"]+)"/)?.[1]||"";
 const index=read("index.html");
+const entry=read("assets/js/app-entry.js");
 const main=read("assets/js/main.js");
 const sw=read("service-worker.js");
 const vercel=read("vercel.json");
@@ -33,12 +34,14 @@ const jsRuntime=jsFiles.map(file=>fs.readFileSync(file,"utf8")).join("\n");
 check(/^\d+\.\d+\.\d+$/.test(version),"CONFIG.version debe usar SemVer x.y.z.");
 check(/^\d{4}-\d{2}-\d{2}\.\d{2}$/.test(build),"CONFIG.build debe usar YYYY-MM-DD.NN.");
 check(packageJson.version===version,"package.json y CONFIG.version deben coincidir.");
-check(index.includes(`main.js?v=${version}`),"index.html debe cargar main.js con la versión vigente.");
+check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar app-entry.js con la versión vigente.");
 check((index.match(/<script\s+type="module"\s+src="\.\/assets\/js\//g)||[]).length===1,"index.html debe tener un único entrypoint ES Module local.");
-check(!index.includes("paco-sprite-v11180.webp"),"index.html conserva el sprite legado de Paco.");
+check(entry.includes('import "./main.js";'),"app-entry.js debe terminar en el núcleo main.js.");
 
 const cssRefs=[...index.matchAll(/href="\.\/([^"?#]+)(?:\?[^"#]*)?"/g)].map(m=>m[1]).filter(value=>value.endsWith(".css"));
 for(const cssRef of cssRefs)check(exists(cssRef),`CSS inexistente referenciado por index.html: ${cssRef}`);
+const cssVersions=[...index.matchAll(/href="\.\/assets\/css\/[^"?]+\?v=([^"]+)"/g)].map(m=>m[1]);
+check(cssVersions.length===cssRefs.length&&cssVersions.every(item=>item===version),"Todas las hojas CSS deben usar la versión única del release.");
 const scriptRefs=[...index.matchAll(/src="\.\/([^"?#]+)(?:\?[^"#]*)?"/g)].map(m=>m[1]);
 for(const scriptRef of scriptRefs)check(exists(scriptRef),`Script inexistente referenciado por index.html: ${scriptRef}`);
 
@@ -50,8 +53,9 @@ for(const asset of swRefs){
 check(new Set(swRefs).size===swRefs.length,"service-worker.js contiene assets duplicados en precache.");
 const cacheVersion=version.replaceAll(".","-");
 check(sw.includes(`crm-suministros-v${cacheVersion}-`),"Cache PWA no corresponde a CONFIG.version.");
-check(!sw.includes("paco-sprite-v11180.webp"),"Service Worker conserva sprite legado de Paco.");
+check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados desde el cache sin depender del query string.");
 check(sw.includes('event.request.mode==="navigate"'),"Service Worker debe conservar fallback exclusivo para navegación.");
+check(!sw.includes("paco-sprite-v11180.webp"),"Service Worker conserva sprite legado de Paco.");
 
 const enhancementModules=[
   "responsive-foundation-v11190.js","global-progress-v11100.js","bootstrap-v113.js","inventory-scan-bootstrap-v116.js",
@@ -61,7 +65,7 @@ const enhancementModules=[
   "shipping-guide-reader-v11101.js","flow-performance-v11130.js"
 ];
 for(const moduleName of enhancementModules){
-  check(main.includes(`./modules/${moduleName}`),`main.js no gobierna ${moduleName}.`);
+  check(entry.includes(`./modules/${moduleName}`),`app-entry.js no gobierna ${moduleName}.`);
   check(!index.includes(`/modules/${moduleName}`),`index.html todavía carga ${moduleName} como entrypoint paralelo.`);
 }
 
@@ -96,7 +100,6 @@ for(const old of obsolete)check(!exists(old),`Artefacto obsoleto reapareció: ${
 
 const workflows=walk(path.join(root,".github/workflows")).filter(file=>/\.ya?ml$/i.test(file)).map(rel);
 check(workflows.length===1&&workflows[0]===".github/workflows/validate-crm.yml","Debe existir una sola CI canónica: validate-crm.yml.");
-
 check(vercel.includes('"main": true')&&vercel.includes('"*": false'),"Vercel debe desplegar automáticamente solo main.");
 check(exists(".vercelignore"),"Falta .vercelignore para excluir fuentes no desplegables.");
 check(exists("supabase/migrations/094_architecture_core_cleanup_v11_21_0.sql"),"Falta la migración canónica de arquitectura V11.21.0.");
@@ -112,6 +115,7 @@ check(css.includes('font-family:"Century Gothic"'),"La tipografía institucional
 check(exists("assets/js/modules/inventory.js")&&exists("assets/js/modules/shipping-flow.js")&&exists("assets/js/modules/cutting-flow.js"),"Falta un módulo operativo crítico.");
 check(exists("assets/js/modules/vsm.js")&&exists("assets/js/modules/reports-enterprise-v11140.js")&&exists("assets/js/modules/history-center-v11150.js"),"Falta un módulo analítico crítico.");
 check(exists("supabase/functions/erp-admin-users/index.ts")&&exists("supabase/functions/erp-admin-impersonate/index.ts"),"Falta una Edge Function administrativa activa.");
+check(main.includes('installPacoAssistant();')&&main.includes('initRouter('),"main.js debe conservar el arranque de asistente y router.");
 
 if(failures.length){
   console.error(`VALIDACIÓN CRM ${version||"SIN VERSIÓN"} FALLÓ`);
