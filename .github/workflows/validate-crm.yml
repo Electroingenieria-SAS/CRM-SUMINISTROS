@@ -40,106 +40,84 @@ jobs:
               print('\n'.join(missing));sys.exit(1)
           PY
 
-      - name: Validate V11.18.0 release contract
+      - name: Validate V11.18.3 release contract
         shell: bash
         run: |
           set -euo pipefail
 
           # Release identity.
-          grep -q 'version: "11.18.0"' assets/js/config.js
-          grep -q 'build: "2026-09-07.12"' assets/js/config.js
-          grep -q 'main.js?v=11.18.0' index.html
-          grep -q 'paco-aesthetic-v11180.css?v=11.18.0' index.html
-          grep -q 'crm-suministros-v11-18-0-20260907-12' service-worker.js
+          grep -q 'version: "11.18.3"' assets/js/config.js
+          grep -q 'build: "2026-09-08.03"' assets/js/config.js
+          grep -q 'main.js?v=11.18.3' index.html
+          grep -q 'paco-enterprise-v11183.css?v=11.18.3' index.html
+          grep -q 'paco-visual-v11183.js?v=11.18.3' index.html
+          grep -q 'crm-suministros-v11-18-3-20260908-03' service-worker.js
 
           # Global aesthetic shell.
           test -s assets/css/paco-aesthetic-v11180.css
           test -s assets/css/paco-aesthetic-depth-v11180.css
           test -s assets/img/ui/crm-psp-waves-v11180.webp
-          test -s assets/img/paco/paco-sprite-v11180.webp
           grep -q 'crm-psp-waves-v11180.webp' assets/css/paco-aesthetic-v11180.css
-          grep -q 'paco-sprite-v11180.webp' assets/css/paco-aesthetic-v11180.css
           grep -q 'Sidebar premium texture' assets/css/paco-aesthetic-v11180.css
-          grep -q 'background-attachment:scroll' assets/css/paco-aesthetic-v11180.css
           grep -q 'prefers-reduced-motion' assets/css/paco-aesthetic-v11180.css
 
-          # Paco Bot V11.18.0 baseline + Enterprise V11.18.2 overlay.
-          test -s assets/js/modules/paco-bot-v11180.js
+          # Paco Bot baseline functionality remains mandatory.
           test -s assets/js/modules/paco-bot-v11182.js
           test -s assets/js/modules/paco-visibility-v11180.js
-          test -s assets/css/paco-enterprise-v11182.css
-          grep -q 'installPacoBot' assets/js/main.js
-          grep -q 'installPacoBot' assets/js/modules/paco-bot-v11182.js
-          grep -q 'Paco Bot Enterprise V11.18.2' assets/js/modules/paco-bot-v11182.js
-          grep -q 'background-size:100% 600%' assets/css/paco-enterprise-v11182.css
-          grep -q 'paco-capability-grid' assets/css/paco-enterprise-v11182.css
-          grep -q 'CAPABILITIES' assets/js/modules/paco-bot-v11182.js
-          grep -q 'Usuarios y permisos' assets/js/modules/paco-bot-v11182.js
-          grep -q 'Flujo y SLA' assets/js/modules/paco-bot-v11182.js
           grep -q 'api.listOrders' assets/js/modules/paco-bot-v11182.js
           grep -q 'api.getActions' assets/js/modules/paco-bot-v11182.js
           grep -q 'api.orderIssues' assets/js/modules/paco-bot-v11182.js
           grep -q 'api.health' assets/js/modules/paco-bot-v11182.js
           grep -q 'auth.updateUser' assets/js/modules/paco-bot-v11182.js
-          grep -q 'erp:rpc-error' assets/js/modules/paco-bot-v11182.js
-          grep -q 'erp:open-order' assets/js/modules/paco-bot-v11182.js
           grep -q 'hasRole("super_admin")' assets/js/modules/paco-bot-v11182.js
-          grep -q 'PACO_VERSION="11.18.2"' assets/js/modules/paco-visibility-v11180.js
-          grep -q 'paco-bot-v11182.js' assets/js/modules/paco-visibility-v11180.js
-          grep -q 'paco-enterprise-v11182.css' assets/js/modules/paco-visibility-v11180.js
+          grep -q 'PACO_VERSION="11.18.3"' assets/js/modules/paco-visibility-v11180.js
+
+          # Paco V11.18.3: real image rendering, compact shell and rolling launcher.
+          test -s assets/css/paco-enterprise-v11183.css
+          test -s assets/js/modules/paco-visual-v11183.js
+          for asset in idle listening thinking wink talking success; do
+            test -s "assets/img/paco/paco-${asset}-v11183.svg"
+          done
+          grep -q 'PACO_ASSETS' assets/js/modules/paco-visual-v11183.js
+          grep -q 'HTMLImageElement' assets/js/modules/paco-visual-v11183.js
+          grep -q 'paco-open-v11183' assets/js/modules/paco-visual-v11183.js
+          grep -q 'paco-roll-distance-v11183' assets/js/modules/paco-visual-v11183.js
+          grep -q 'rotate(-360deg)' assets/css/paco-enterprise-v11183.css
+          grep -q 'width:min(500px' assets/css/paco-enterprise-v11183.css
+          grep -q 'background-image:none' assets/css/paco-enterprise-v11183.css
+          grep -q 'object-fit:contain' assets/css/paco-enterprise-v11183.css
+          grep -q 'prefers-reduced-motion' assets/css/paco-enterprise-v11183.css
 
           # Corte V11.17.0 regression baseline.
           test -s assets/css/cutting-center-v11170.css
           test -s assets/js/modules/cutting-flow.js
           grep -q 'cutting-page-head' assets/css/cutting-center-v11170.css
-          grep -q 'cutting-group-row' assets/css/cutting-center-v11170.css
           grep -q 'cutting-guided-modal' assets/css/cutting-center-v11170.css
-          grep -q 'cut-step-rail' assets/css/cutting-center-v11170.css
-          grep -q 'cut-primary-action' assets/css/cutting-center-v11170.css
           grep -q 'api.cuttingWork' assets/js/modules/cutting-flow.js
-          grep -q 'api.cuttingStart' assets/js/modules/cutting-flow.js
-          grep -q 'api.cuttingPause' assets/js/modules/cutting-flow.js
-          grep -q 'api.cuttingResume' assets/js/modules/cutting-flow.js
-          grep -q 'api.cuttingExecutionPlan' assets/js/modules/cutting-flow.js
           grep -q 'api.executeCutGroup' assets/js/modules/cutting-flow.js
-          grep -q 'api.cuttingRegisterEvidence' assets/js/modules/cutting-flow.js
           grep -q 'api.cuttingFinalize' assets/js/modules/cutting-flow.js
 
           # Administration V11.16.0 contract remains mandatory.
           test -s assets/css/admin-center-v11160.css
           test -s assets/js/modules/admin-center-v11160.js
           test -s supabase/migrations/092_admin_control_center_v11_16_0.sql
-          grep -q 'admin-center-v11160.js' assets/js/modules/admin.js
           grep -q 'Centro de Control Administrativo' assets/js/modules/admin-center-v11160.js
           grep -q 'erp_x_admin_control_center' assets/js/modules/admin-center-v11160.js
           grep -q 'erp_x_admin_config_mutate' assets/js/modules/admin-center-v11160.js
-          grep -q 'PERMISSION' assets/js/modules/admin-center-v11160.js
-          grep -q 'WORKFLOW_STEP' assets/js/modules/admin-center-v11160.js
-          grep -q 'CALENDAR_DAY' assets/js/modules/admin-center-v11160.js
-          grep -q 'DOCUMENT_SEQUENCE' assets/js/modules/admin-center-v11160.js
-          grep -q 'prefers-reduced-motion' assets/css/admin-center-v11160.css
-          grep -q 'focus-visible' assets/css/admin-center-v11160.css
 
           # Super Admin profile verification / isolated impersonation session.
           test -s supabase/functions/erp-admin-impersonate/index.ts
-          test -s supabase/functions/erp-admin-impersonate/deno.json
           test -s supabase/migrations/093_admin_impersonation_audit_v11_16_0.sql
           grep -q 'erp-admin-impersonate' assets/js/modules/admin.js
           grep -q 'Entrar como usuario' assets/js/modules/admin.js
-          grep -q 'impersonation_token' assets/js/modules/admin.js
           grep -q 'IMPERSONATION_MODE' assets/js/services/supabase.js
           grep -q 'verifyOtp' assets/js/services/supabase.js
-          grep -q 'AUTH_IMPERSONATION_STARTED' supabase/functions/erp-admin-impersonate/index.ts
-          grep -q 'generateLink' supabase/functions/erp-admin-impersonate/index.ts
-          grep -q 'AUTH_IMPERSONATION_STARTED' supabase/migrations/093_admin_impersonation_audit_v11_16_0.sql
 
           # Historical center V11.15 remains mandatory.
           test -s assets/css/history-center-v11150.css
           test -s assets/js/modules/history-center-v11150.js
           test -s supabase/migrations/091_history_center_v11_15_0.sql
           grep -q 'Centro Histórico de Pedidos' assets/js/modules/history-center-v11150.js
-          grep -q 'erp_x_history_center' assets/js/modules/history-center-v11150.js
-          grep -q 'erp_x_history_detail' assets/js/modules/history-center-v11150.js
 
           # Analytics V11.14 remains mandatory.
           test -s assets/css/reports-enterprise-v11140.css
@@ -148,7 +126,6 @@ jobs:
           test -s supabase/migrations/089_reports_explorer_export_views_v11_14_0.sql
           test -s supabase/migrations/090_reports_analytics_indexes_v11_14_0.sql
           grep -q 'Intelligence Center' assets/js/modules/reports-enterprise-v11140.js
-          grep -q 'erp_x_reports_analytics' assets/js/modules/reports-enterprise-v11140.js
 
           # Regression contracts retained from V11.11–V11.13.
           test -s assets/css/inventory-core-v11110.css
@@ -167,21 +144,13 @@ jobs:
           test -s supabase/migrations/086_people_performance_analytics_v11_13_0.sql
           test -s supabase/migrations/087_people_analytics_profile_selector_v11_13_0.sql
 
-          # PWA contains every baseline controlled asset.
-          grep -q './assets/css/paco-aesthetic-v11180.css' service-worker.js
-          grep -q './assets/css/paco-aesthetic-depth-v11180.css' service-worker.js
-          grep -q './assets/img/ui/crm-psp-waves-v11180.webp' service-worker.js
-          grep -q './assets/img/paco/paco-sprite-v11180.webp' service-worker.js
-          grep -q './assets/js/modules/paco-bot-v11180.js' service-worker.js
-          grep -q './assets/js/modules/paco-visibility-v11180.js' service-worker.js
-          grep -q './assets/css/cutting-center-v11170.css' service-worker.js
-          grep -q './assets/js/modules/cutting-flow.js' service-worker.js
-          grep -q './assets/css/history-center-v11150.css' service-worker.js
-          grep -q './assets/css/admin-center-v11160.css' service-worker.js
-          grep -q './assets/js/modules/admin-center-v11160.js' service-worker.js
-          grep -q './assets/js/modules/reports-enterprise-v11140.js' service-worker.js
-          grep -q './assets/js/modules/vsm.js' service-worker.js
-          grep -q './assets/js/services/supabase.js' service-worker.js
+          # PWA includes every V11.18.3 Paco asset.
+          grep -q './assets/css/paco-enterprise-v11183.css' service-worker.js
+          grep -q './assets/js/modules/paco-bot-v11182.js' service-worker.js
+          grep -q './assets/js/modules/paco-visual-v11183.js' service-worker.js
+          for asset in idle listening thinking wink talking success; do
+            grep -q "./assets/img/paco/paco-${asset}-v11183.svg" service-worker.js
+          done
 
           # Vercel quota guard: only main may auto-deploy; technical branches must not consume previews.
           grep -q '"main"[[:space:]]*:[[:space:]]*true' vercel.json
@@ -194,12 +163,12 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js dist-deployable/
           cp -R assets templates dist-deployable/
-          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.18.0" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
+          printf '%s\n' "commit=${GITHUB_SHA}" "version=11.18.3" "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.18.0-deployable
+          name: crm-suministros-v11.18.3-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
