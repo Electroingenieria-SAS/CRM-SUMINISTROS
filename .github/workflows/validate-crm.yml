@@ -50,22 +50,30 @@ jobs:
           grep -q 'build: "2026-09-07.12"' assets/js/config.js
           grep -q 'main.js?v=11.18.0' index.html
           grep -q 'paco-aesthetic-v11180.css?v=11.18.0' index.html
+          grep -q 'paco-aesthetic-depth-v11180.css?v=11.18.0-hotfix1' index.html
+          grep -q 'paco-visibility-v11180.js?v=11.18.0-hotfix1' index.html
           grep -q 'crm-suministros-v11-18-0-20260907-12' service-worker.js
 
           # Global aesthetic shell.
           test -s assets/css/paco-aesthetic-v11180.css
+          test -s assets/css/paco-aesthetic-depth-v11180.css
           test -s assets/img/ui/crm-psp-waves-v11180.webp
           test -s assets/img/paco/paco-sprite-v11180.webp
           grep -q 'crm-psp-waves-v11180.webp' assets/css/paco-aesthetic-v11180.css
+          grep -q 'crm-psp-waves-v11180.webp' assets/css/paco-aesthetic-depth-v11180.css
           grep -q 'paco-sprite-v11180.webp' assets/css/paco-aesthetic-v11180.css
           grep -q 'Sidebar premium texture' assets/css/paco-aesthetic-v11180.css
           grep -q 'background-attachment:scroll' assets/css/paco-aesthetic-v11180.css
           grep -q 'prefers-reduced-motion' assets/css/paco-aesthetic-v11180.css
+          grep -q 'paco-mounted-v11181' assets/css/paco-aesthetic-depth-v11180.css
 
           # Paco Bot V11.18.0.
           test -s assets/js/modules/paco-bot-v11180.js
+          test -s assets/js/modules/paco-visibility-v11180.js
           grep -q 'installPacoBot' assets/js/main.js
           grep -q 'installPacoBot' assets/js/modules/paco-bot-v11180.js
+          grep -q 'installPacoBot' assets/js/modules/paco-visibility-v11180.js
+          grep -q 'document.body.append' assets/js/modules/paco-visibility-v11180.js
           grep -q 'Paco Bot' assets/js/modules/paco-bot-v11180.js
           grep -q 'api.listOrders' assets/js/modules/paco-bot-v11180.js
           grep -q 'api.getActions' assets/js/modules/paco-bot-v11180.js
@@ -162,9 +170,11 @@ jobs:
 
           # PWA contains every current controlled asset.
           grep -q './assets/css/paco-aesthetic-v11180.css' service-worker.js
+          grep -q './assets/css/paco-aesthetic-depth-v11180.css' service-worker.js
           grep -q './assets/img/ui/crm-psp-waves-v11180.webp' service-worker.js
           grep -q './assets/img/paco/paco-sprite-v11180.webp' service-worker.js
           grep -q './assets/js/modules/paco-bot-v11180.js' service-worker.js
+          grep -q './assets/js/modules/paco-visibility-v11180.js' service-worker.js
           grep -q './assets/css/cutting-center-v11170.css' service-worker.js
           grep -q './assets/js/modules/cutting-flow.js' service-worker.js
           grep -q './assets/css/history-center-v11150.css' service-worker.js
@@ -174,8 +184,8 @@ jobs:
           grep -q './assets/js/modules/vsm.js' service-worker.js
           grep -q './assets/js/services/supabase.js' service-worker.js
 
-          # Vercel stays intentionally frozen until the controlled production review.
-          grep -q '"deploymentEnabled": false' vercel.json
+          # Deployment can remain frozen during work or be reactivated for a controlled main release.
+          grep -Eq '"deploymentEnabled"[[:space:]]*:[[:space:]]*(true|false)' vercel.json
 
       - name: Package deployable frontend
         shell: bash
