@@ -1,0 +1,233 @@
+name: Apply responsive rebuild V11.21.1
+
+on:
+  push:
+    branches: [responsive-visual-rebuild-v11-21-1]
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: responsive-visual-rebuild-v11-21-1
+          fetch-depth: 0
+
+      - name: Rebuild canonical responsive owners
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          def replace_one(text, pattern, replacement, label, flags=0):
+              updated, count = re.subn(pattern, replacement, text, count=1, flags=flags)
+              if count != 1:
+                  raise SystemExit(f"{label}: expected 1 replacement, got {count}")
+              return updated
+
+          # -----------------------------------------------------------------
+          # 1. INVENTORY HEADER — replace the existing owner, no overlay.
+          # -----------------------------------------------------------------
+          operations_path = Path('assets/css/operations.css')
+          operations = operations_path.read_text(encoding='utf-8')
+          inventory_header = r'''.inventory-page-head-v11109{
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:start;
+  column-gap:clamp(28px,3vw,56px);
+  row-gap:18px;
+  margin-bottom:18px;
+  padding:24px 26px 22px 30px;
+}
+.inventory-page-head-v11109>div:first-child{
+  width:100%;
+  min-width:0;
+  max-width:none;
+}
+.inventory-page-head-v11109 h2{
+  margin:0 0 7px;
+  color:#173b63;
+  font-size:clamp(27px,2.15vw,35px);
+  line-height:1.08;
+  letter-spacing:-.04em;
+}
+.inventory-page-head-v11109 p{
+  width:100%;
+  max-width:1120px;
+  margin:0;
+  color:#65778c;
+  font-size:13.5px;
+  line-height:1.58;
+}
+.inventory-kicker-v11109{
+  display:block;
+  margin-bottom:7px;
+  color:#0d5aa8;
+  font-size:10.5px;
+  font-weight:950;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.inventory-page-actions-v11109{
+  align-self:start;
+  display:flex;
+  justify-content:flex-end;
+  gap:9px;
+  max-width:520px;
+  flex-wrap:wrap;
+}
+.inventory-page-actions-v11109 .btn{
+  min-height:44px;
+  padding-inline:15px;
+  border-radius:10px;
+  font-size:11.5px;
+  font-weight:850;
+}
+@media(max-width:1180px){
+  .inventory-page-head-v11109{grid-template-columns:1fr;}
+  .inventory-page-actions-v11109{width:100%;max-width:none;justify-content:flex-start;}
+}
+@media(max-width:720px){
+  .inventory-page-head-v11109{padding:18px 16px 16px 19px;row-gap:14px;}
+  .inventory-page-head-v11109 p{font-size:13px;line-height:1.52;}
+  .inventory-page-actions-v11109{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));}
+  .inventory-page-actions-v11109 .btn{width:100%;min-width:0;white-space:normal;}
+}
+@media(max-width:480px){
+  .inventory-page-actions-v11109{grid-template-columns:1fr;}
+}
+
+'''
+          operations = replace_one(
+              operations,
+              r'\.inventory-page-head-v11109\{.*?(?=\.inventory-source-bar-v11109\{)',
+              inventory_header,
+              'inventory header owner',
+              flags=re.S,
+          )
+          operations = operations.replace('CRM Suministros V11.21.0 · Familia CSS canónica','CRM Suministros V11.21.1 · Familia CSS canónica',1)
+          operations_path.write_text(operations,encoding='utf-8')
+
+          # -----------------------------------------------------------------
+          # 2. GUIDED ACTION SYSTEM — remove rigid column patches and rebuild
+          #    the existing shared component in core-shell.css.
+          # -----------------------------------------------------------------
+          core_path = Path('assets/css/core-shell.css')
+          core = core_path.read_text(encoding='utf-8')
+
+          # Remove every historical grid-template declaration for this component
+          # (base + 1320/1080/720 overrides). The new owner is inserted once.
+          core, removed = re.subn(r'\.guided-action-grid\{[^{}]*\}', '', core)
+          if removed < 4:
+              raise SystemExit(f'guided action grid: expected >=4 historical declarations, got {removed}')
+
+          new_grid = '''.guided-action-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;padding:16px;background:#f7f9fc}\n@media(max-width:720px){.guided-action-grid{grid-template-columns:1fr;gap:11px;padding:11px}}\n'''
+          marker = '.guided-action-card{'
+          if marker not in core:
+              raise SystemExit('guided action card marker missing')
+          core = core.replace(marker,new_grid+marker,1)
+
+          core = replace_one(
+              core,
+              r'\.guided-action-card\{[^{}]*\}',
+              '.guided-action-card{--action-accent:#1479df;position:relative;min-width:0;min-height:132px;display:grid;grid-template-columns:52px minmax(0,1fr) 28px;align-items:center;gap:14px;padding:18px 17px 18px 20px;border:1px solid #d5dfe8;border-radius:14px;background:#fff;color:inherit;text-align:left;box-shadow:0 5px 15px rgba(16,42,70,.055),inset 0 1px 0 #fff;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;overflow:hidden}',
+              'guided action card',
+          )
+          core = replace_one(
+              core,
+              r'\.guided-action-icon\{[^{}]*\}',
+              '.guided-action-icon{width:48px;height:48px;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--action-accent) 26%,#d6e0e9);border-radius:13px;background:color-mix(in srgb,var(--action-accent) 9%,#fff);color:color-mix(in srgb,var(--action-accent) 78%,#0a315a);box-shadow:0 4px 10px color-mix(in srgb,var(--action-accent) 10%,transparent);font-family:"Segoe UI",Arial,sans-serif;font-size:19px;font-weight:800}',
+              'guided action icon',
+          )
+          core = replace_one(
+              core,
+              r'\.guided-action-copy strong\{[^{}]*\}',
+              '.guided-action-copy strong{color:#173b5e;font-size:14px;line-height:1.28;overflow-wrap:normal;word-break:normal;hyphens:none}',
+              'guided title',
+          )
+          core = replace_one(
+              core,
+              r'\.guided-action-copy small\{[^{}]*\}',
+              '.guided-action-copy small{color:#68798b;font-size:11.5px;line-height:1.48;overflow-wrap:normal;word-break:normal;hyphens:none}',
+              'guided description',
+          )
+          core = replace_one(
+              core,
+              r'\.guided-action-arrow\{[^{}]*\}',
+              '.guided-action-arrow{display:grid;place-items:center;width:28px;height:34px;border:1px solid color-mix(in srgb,var(--action-accent) 20%,#d9e3ec);border-radius:10px;color:color-mix(in srgb,var(--action-accent) 66%,#71879a);background:color-mix(in srgb,var(--action-accent) 4%,#fff);font-size:21px;line-height:1}',
+              'guided arrow',
+          )
+          core = replace_one(core,r'\.guided-kicker\{[^{}]*\}', '.guided-kicker{display:block;color:var(--blue-700);font-size:9.5px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}', 'guided kicker')
+          core = replace_one(core,r'\.guided-workspace-head h3\{[^{}]*\}', '.guided-workspace-head h3{margin:5px 0 0;color:var(--blue-950);font-size:18px;line-height:1.24;letter-spacing:-.018em}', 'guided heading')
+          core = replace_one(core,r'\.guided-workspace-head p\{[^{}]*\}', '.guided-workspace-head p{max-width:980px;margin:6px 0 0;color:var(--gray-600);font-size:11.5px;line-height:1.52}', 'guided intro')
+          core = replace_one(core,r'\.guided-helper-pill\{[^{}]*\}', '.guided-helper-pill{flex:0 0 auto;padding:8px 11px;border:1px solid #d1deea;border-radius:9px;background:#fff;color:#49647e;font-size:10px;font-weight:800;box-shadow:0 2px 7px rgba(16,42,70,.045)}', 'guided helper')
+          core = core.replace('CRM Suministros V11.21.0 · Familia CSS canónica','CRM Suministros V11.21.1 · Familia CSS canónica',1)
+          core_path.write_text(core,encoding='utf-8')
+
+          # -----------------------------------------------------------------
+          # 3. Release contract V11.21.1
+          # -----------------------------------------------------------------
+          config=Path('assets/js/config.js')
+          text=config.read_text(encoding='utf-8')
+          text=text.replace('version: "11.21.0"','version: "11.21.1"',1).replace('build: "2026-09-08.10"','build: "2026-09-08.11"',1)
+          config.write_text(text,encoding='utf-8')
+
+          package=Path('package.json')
+          text=package.read_text(encoding='utf-8').replace('"version": "11.21.0"','"version": "11.21.1"',1)
+          package.write_text(text,encoding='utf-8')
+
+          index=Path('index.html')
+          text=index.read_text(encoding='utf-8').replace('V11.21.0','V11.21.1').replace('?v=11.21.0','?v=11.21.1')
+          index.write_text(text,encoding='utf-8')
+
+          sw=Path('service-worker.js')
+          text=sw.read_text(encoding='utf-8')
+          text=text.replace('// previous-cache: crm-suministros-v11-20-0-20260908-09','// previous-cache: crm-suministros-v11-21-0-20260908-10',1)
+          text=text.replace('crm-suministros-v11-21-0-20260908-10','crm-suministros-v11-21-1-20260908-11',1)
+          sw.write_text(text,encoding='utf-8')
+
+          ci=Path('.github/workflows/validate-crm.yml')
+          text=ci.read_text(encoding='utf-8')
+          text=text.replace('11.21.0','11.21.1').replace('2026-09-08.10','2026-09-08.11').replace('crm-suministros-v11-21-0-20260908-10','crm-suministros-v11-21-1-20260908-11').replace('crm-suministros-v11.21.0-deployable','crm-suministros-v11.21.1-deployable')
+          # New responsive contract: no rigid historical guided grid breakpoints.
+          anchor='          grep -q \'Fuente consolidada: paco-assistant-v11200.css\' assets/css/experience.css\n'
+          checks='''          grep -q 'grid-template-columns:repeat(auto-fit,minmax(340px,1fr))' assets/css/core-shell.css\n          test "$(grep -o '\\.guided-action-grid{grid-template-columns:repeat(' assets/css/core-shell.css | wc -l)" -eq 1\n          grep -q 'grid-template-columns:minmax(0,1fr) auto' assets/css/operations.css\n          grep -q 'max-width:1120px' assets/css/operations.css\n'''
+          if checks not in text:
+              if anchor not in text:
+                  raise SystemExit('CI responsive anchor missing')
+              text=text.replace(anchor,anchor+checks,1)
+          ci.write_text(text,encoding='utf-8')
+
+          # This workflow is deliberately ephemeral. It must not survive the rebuild.
+          Path('.github/workflows/apply-responsive-rebuild-v11211.yml').unlink()
+          PY
+
+      - name: Verify rebuilt files
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check assets/js/config.js
+          node --experimental-vm-modules scripts/link-check.mjs
+          node scripts/validate.mjs
+          grep -q 'grid-template-columns:repeat(auto-fit,minmax(340px,1fr))' assets/css/core-shell.css
+          grep -q 'max-width:1120px' assets/css/operations.css
+          grep -q 'version: "11.21.1"' assets/js/config.js
+          grep -q 'crm-suministros-v11-21-1-20260908-11' service-worker.js
+          test "$(find .github/workflows -maxdepth 1 -type f -name '*.yml' | wc -l)" -eq 1
+
+      - name: Commit rebuilt canonical owners
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/css/core-shell.css assets/css/operations.css assets/js/config.js package.json index.html service-worker.js .github/workflows/validate-crm.yml .github/workflows/apply-responsive-rebuild-v11211.yml
+          git commit -m 'V11.21.1: reconstrucción visual y responsive canónica'
+          git push origin HEAD:responsive-visual-rebuild-v11-21-1
