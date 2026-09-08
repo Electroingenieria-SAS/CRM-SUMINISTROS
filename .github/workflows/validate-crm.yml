@@ -52,7 +52,7 @@ jobs:
         run: |
           set -euo pipefail
           grep -q 'version: "11.21.1"' assets/js/config.js
-          grep -q 'build: "2026-09-08.11"' assets/js/config.js
+          grep -q 'build: "2026-09-08.12"' assets/js/config.js
           grep -q '"version": "11.21.1"' package.json
           grep -q 'app-entry.js?v=11.21.1' index.html
           test "$(grep -c '<link rel="stylesheet" href="./assets/css/' index.html)" -eq 4
@@ -86,7 +86,8 @@ jobs:
           for core in confirm_picking_round_core execute_cut_group_core resolve_cut_requirement_core work_my_day_core vsm_people_core; do
             grep -q "erp_supply.${core}" supabase/migrations/094_architecture_core_cleanup_v11_21_0.sql
           done
-          grep -q "crm-suministros-v11-21-1-20260908-11" service-worker.js
+          grep -Fxq '// previous-cache: crm-suministros-v11-21-0-20260908-10' service-worker.js
+          grep -Fxq 'const CACHE="crm-suministros-v11-21-1-20260908-12";' service-worker.js
 
           for file in \
             assets/js/modules/inventory.js \
@@ -110,14 +111,14 @@ jobs:
           printf '%s\n' \
             "commit=${GITHUB_SHA}" \
             "version=11.21.1" \
-            "build=2026-09-08.11" \
+            "build=2026-09-08.12" \
             "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.21.1-deployable
+          name: crm-suministros-v11.21.1-build12-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
