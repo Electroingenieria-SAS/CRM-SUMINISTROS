@@ -14,6 +14,7 @@ export async function renderInventoryHome(root,{onNavigate}={}){
   const actions=[];
   if(a.operator){
     actions.push(card("CAPTURA","Registrar conteo","Busca, escanea, cuenta o mide una referencia. El sistema detecta si es programada, exprés o metraje.","capture","Abrir captura"));
+    actions.push(card("CONTEO EXPRÉS","Conteo no programado","Busca una referencia que no esté en la jornada y regístrala sin consultar saldos. Si ya está programada, se usa el plan para evitar duplicidad.","capture","Iniciar exprés"));
     actions.push(card("JORNADA","Mi jornada","Trabaja la cola diaria en orden, con reconteos priorizados y sin ver saldos esperados.","count","Ver jornada"));
     actions.push(card("IDENTIFICACIÓN","Etiquetas y stickers","Imprime o exporta QR + CODE128 por lote/carreto, sin cantidades impresas.","labels","Gestionar etiquetas"));
   }
@@ -21,7 +22,7 @@ export async function renderInventoryHome(root,{onNavigate}={}){
     actions.push(card("PLANIFICACIÓN","Plan de conteos","Consulta pendientes del día, Pareto, prioridad, lotes y cobertura anual.","plan","Ver plan"));
     actions.push(card("CONTROL","Revisión y aprobación","Compara sistema vs. conteo, revisa impacto y decide aprobar, recontar o rechazar.","review","Ir a revisión"));
     actions.push(card("TRAZABILIDAD","Historial de conteos","Consulta todos los reportes y decisiones; exporta el histórico para auditoría.","history","Abrir historial"));
-    actions.push(card("EXISTENCIAS","Stock y ubicaciones","Consulta físico, disponible, reservas, bloqueos, lotes, etiquetas y sincronización Siesa.","stock","Consultar stock"));
+    actions.push(card("EXISTENCIAS","Stock y ubicaciones","Consulta físico, disponible, reservas, bloqueos, lotes y sincronización Siesa.","stock","Consultar stock"));
     actions.push(card("KARDEX","Movimientos","Busca una referencia y revisa entradas, salidas, ajustes y trazabilidad por fecha/ubicación.","ledger","Ver movimientos"));
     actions.push(card("ANÁLISIS","Inteligencia","Pareto, criticidad, brechas Siesa/CRM, exactitud, cobertura y referencias estrella.","control","Abrir inteligencia"));
   }
