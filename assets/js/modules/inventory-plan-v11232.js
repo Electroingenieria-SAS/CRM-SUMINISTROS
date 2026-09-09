@@ -1,32 +1,51 @@
 import {inventoryCountCenter} from "../services/inventory.js";
 import {fmt} from "../core/format.js";
 import {state} from "../core/state.js";
-import {empty,toast} from "../core/ui.js";
+import {empty,modal,toast} from "../core/ui.js";
+import {inventoryEnterpriseRow,inventoryKpi,inventoryListHeader,inventoryParetoCards,inventoryToolbar,bindListFilter} from "./inventory-ui-v11240.js";
 
 const esc=v=>fmt.escape(v??"");
 const pct=v=>v==null?"Sin base":`${fmt.number(v,1)}%`;
 const localDay=()=>new Intl.DateTimeFormat("en-CA",{timeZone:state.organization?.timezone||"America/Bogota",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
-const metric=(label,value,detail,tone="neutral",raw=false)=>`<article class="inventory-summary-item-v11109 ${tone}"><span></span><div><strong>${raw?esc(value):fmt.number(value)}</strong><b>${esc(label)}</b><small>${esc(detail)}</small></div></article>`;
 
 export async function renderInventoryPlan(root){
   const data=await inventoryCountCenter(localDay());
   if(!data.access?.controller){root.innerHTML=empty("Acceso restringido","Esta vista corresponde al control de la programación de inventario.");return}
   const c=data.control||{},s=c.summary||{},r=c.reports||{},q=c.dataQuality||{},plan=c.plan||[],bands=c.bands||[];
-  root.innerHTML=`<section class="page-head inventory-page-head-v11109"><div><span class="inventory-kicker-v11109">PLAN DE CONTABILIZACIÓN</span><h2>Jornada de inventario · ${esc(localDay())}</h2><p>Aquí ves qué falta por contar, qué ya fue reportado y por qué el motor priorizó cada referencia. La captura física sigue siendo exclusiva del auxiliar.</p></div><div class="page-actions"><button class="btn btn-primary" id="plan-refresh">Actualizar</button></div></section>
+  const warehouses=[...new Set(plan.flatMap(x=>x.warehouses||[]).filter(Boolean))].sort();
+  root.innerHTML=`<section class="page-head inventory-page-head-v11109"><div><span class="inventory-kicker-v11109">PLAN DE CONTABILIZACIÓN</span><h2>Jornada de inventario · ${esc(localDay())}</h2><p>Controla la carga del día sin intervenir la captura física. El auxiliar cuenta; el sistema compara; Control decide.</p></div><div class="page-actions"><button class="btn btn-primary" id="plan-refresh">Actualizar</button></div></section>
   <section class="inventory-source-bar-v11109"><div class="inventory-source-main-v11109"><span>↻</span><div><strong>Pareto operativo activo</strong><small>ABC Siesa + costo + rotación + consumo + señales CRM · selección determinística sin repetición anual.</small></div></div><div class="inventory-source-stats-v11109"><span><b>${fmt.number(q.siesaAbcCoveragePct||0,1)}%</b> ABC Siesa</span><span><b>${fmt.number(q.crmMovementEvents365||0)}</b> movimientos</span><span><b>${fmt.number(q.crmDemandOrders365||0)}</b> pedidos señal</span></div></section>
-  <section class="inventory-summary-v11109">${metric("Meta hoy",s.targetToday||0,"Referencias objetivo","info")}${metric("Contadas hoy",s.countedToday||0,`${s.submittedToday||0} actualmente en revisión`,s.countedToday?"success":"neutral")}${metric("Pendientes hoy",s.remainingToday||0,"Cola restante de la jornada",s.remainingToday?"warning":"success")}${metric("En revisión",r.pending||0,"Reportes esperando decisión",r.pending?"warning":"neutral")}${metric("Reconteos",s.recountPending||r.recounts||0,"Prioridad operativa",(s.recountPending||r.recounts)?"warning":"neutral")}${metric("Pendientes anuales",s.pendingYear||0,`${s.countedYear||0} contabilizadas en el año`,"neutral")}${metric("Cobertura anual",pct(s.coveragePct),`${s.countedYear||0} de ${s.totalMaterials||0}`,"info",true)}${metric("Exactitud",pct(s.exactnessPct),s.exactnessPct==null?"Aún sin base aprobada":`${s.differenceEvents||0} diferencias registradas`,s.exactnessPct>=95?"success":"neutral",true)}</section>
-  ${paretoPanel(bands)}
-  <section class="inventory-results-v11109"><header class="inventory-results-head-v11109"><div><span>COLA DE HOY</span><strong>Referencias pendientes por contabilizar</strong><small>${plan.length} referencia(s) aún por capturar</small></div></header><div>${plan.length?plan.map(planRow).join(""):empty("Jornada al día","No quedan referencias programadas por contar para hoy.")}</div></section>
-  <section class="card card-pad"><strong>Lectura correcta de los estados</strong><p><b>Pendiente hoy</b> significa que el auxiliar todavía no ha enviado el conteo. <b>En revisión</b> significa que ya contó y el sistema comparó, pero aún no se ha aprobado. <b>Reconteo</b> requiere una nueva captura. <b>Aplicado</b> ya afectó el inventario mediante el flujo de aprobación.</p></section>`;
+  <section class="inventory-summary-v11109">${inventoryKpi("Pendientes hoy",s.remainingToday||0,`Meta ${s.targetToday||0}`,{tone:s.remainingToday?"warning":"success"})}${inventoryKpi("Contadas hoy",s.countedToday||0,`${s.submittedToday||0} en revisión`,{tone:s.countedToday?"success":"neutral"})}${inventoryKpi("En revisión",r.pending||0,"Esperando decisión",{tone:r.pending?"warning":"neutral"})}${inventoryKpi("Reconteos",s.recountPending||r.recounts||0,"Prioridad operativa",{tone:(s.recountPending||r.recounts)?"warning":"neutral"})}${inventoryKpi("Cobertura anual",pct(s.coveragePct),`${s.countedYear||0} de ${s.totalMaterials||0}`,{tone:"info",raw:true})}</section>
+  <section class="inventory-results-v11109">${inventoryListHeader({eyebrow:"PARETO ADAPTATIVO",title:"Distribución de criticidad",detail:"La prioridad es visible para Control, nunca para la captura ciega"})}${inventoryParetoCards(bands)}</section>
+  <section class="inventory-results-v11109">${inventoryListHeader({eyebrow:"COLA DE HOY",title:"Referencias pendientes por contabilizar",detail:"Lista operativa compacta y filtrable"})}<div class="card-pad">${inventoryToolbar({title:"Plan diario",detail:"Busca o filtra sin alterar la programación",searchId:"plan-q",filters:[{id:"plan-type",allLabel:"Todos los tipos",options:[{value:"CUTTABLE",label:"Metraje"},{value:"STANDARD",label:"Conteo"}]},{id:"plan-band",allLabel:"Todas las bandas",options:["A+","A","B","C","D","E"].map(x=>({value:x,label:`Pareto ${x}`}))},{id:"plan-wh",allLabel:"Todas las bodegas",options:warehouses.map(x=>({value:x,label:x}))}]})}<small id="plan-visible-count"></small></div><div id="plan-list"></div></section>
+  <section class="card card-pad"><strong>Estados del flujo</strong><p><b>Pendiente</b>: aún no capturado. <b>En revisión</b>: ya reportado por el auxiliar. <b>Reconteo</b>: requiere nueva captura. <b>Aplicado</b>: aprobado e incorporado al inventario.</p></section>`;
+  const render=row=>planRow(row);
+  bindListFilter(root,{rows:plan,render,searchId:"plan-q",hostId:"plan-list",countId:"plan-visible-count",filters:[{id:"plan-type",key:"type",get:x=>x.itemType},{id:"plan-band",key:"band",get:x=>x.paretoBand},{id:"plan-wh",key:"wh",get:x=>(x.warehouses||[])[0]||""}]});
   root.querySelector("#plan-refresh").onclick=()=>renderInventoryPlan(root).catch(e=>toast(e.message,"error",7000));
-}
-
-function paretoPanel(rows){
-  return `<section class="inventory-results-v11109"><header class="inventory-results-head-v11109"><div><span>PARETO ADAPTATIVO</span><strong>Distribución completa de criticidad</strong><small>Las bandas más altas reciben mayor frecuencia y prioridad de revisión.</small></div></header><section class="inventory-summary-v11109">${rows.map(row=>metric(`Banda ${row.band}`,row.materials||0,`${row.pending||0} pendientes · score ${fmt.number(row.avgScore||0,1)}`,row.band==="A+"||row.band==="A"?"danger":row.band==="B"?"warning":"neutral")).join("")}</section></section>`;
+  root.querySelectorAll("[data-plan-detail]").forEach(btn=>btn.onclick=()=>openPlanDetail(plan.find(x=>x.itemId===btn.dataset.planDetail)));
 }
 
 function planRow(item){
-  const cable=item.itemType==="CUTTABLE";
-  const high=item.paretoBand==="A+"||item.paretoBand==="A";
-  return `<article class="inventory-row-v11109"><div class="inventory-material-cell-v11109"><div class="inventory-reference-line-v11109"><strong>${esc(item.reference)}</strong><span class="inventory-stock-state-v11109 ${high?"warning":"available"}">${cable?"METRAJE":"CONTEO"}</span></div><h3>${esc(item.description)}</h3><p>${esc((item.warehouses||[]).join(" · ")||"Sin bodega")}</p></div><div class="inventory-trace-cell-v11109"><small>Pareto / prioridad</small><strong>${esc(item.paretoBand||"—")} · score ${fmt.number(item.businessScore||0,1)}</strong><span>ABC rot. ${esc(item.abcTurns||"—")} · costo ${esc(item.abcCost||"—")}</span></div><div class="inventory-qty-cell-v11109"><small>Lotes / carretos</small><strong>${fmt.number(item.lotCount||item.lots?.length||0)}</strong><span>${cable?"Medición individual":"Conteo por ubicación"}</span></div><div class="inventory-qty-cell-v11109"><small>Último conteo</small><strong>${item.lastCountAt?fmt.day(item.lastCountAt):"Nunca"}</strong><span>${item.lastCountAt?`${fmt.number(item.daysSinceCount||0)} día(s)`:"Pendiente anual"}</span></div><div class="inventory-row-actions-v11109"><span class="inventory-readonly-v11109">Pendiente del auxiliar</span></div></article>`;
+  const cable=item.itemType==="CUTTABLE",high=item.paretoBand==="A+"||item.paretoBand==="A";
+  return inventoryEnterpriseRow({
+    eyebrow:cable?"METRAJE":"CONTEO",
+    reference:item.reference,
+    description:item.description,
+    subline:(item.warehouses||[]).join(" · ")||"Sin bodega",
+    meta:[
+      {label:"Prioridad",value:`${item.paretoBand||"—"} · ${fmt.number(item.businessScore||0,1)}`,detail:`ABC rot. ${item.abcTurns||"—"} · costo ${item.abcCost||"—"}`},
+      {label:cable?"Carretos / lotes":"Lotes / ubicaciones",value:fmt.number(item.lotCount||item.lots?.length||0),detail:cable?"Medición individual":"Conteo físico"},
+      {label:"Último conteo",value:item.lastCountAt?fmt.day(item.lastCountAt):"Nunca",detail:item.lastCountAt?`${fmt.number(item.daysSinceCount||0)} día(s)`:"Pendiente anual"},
+      {label:"Unidad",value:item.unit||"—",detail:cable?"Control por metraje":"Control por cantidad"}
+    ],
+    statusLabel:"Pendiente",
+    statusDetail:"Asignado al auxiliar",
+    statusTone:high?"standalone":"linked",
+    actions:`<button class="btn btn-ghost" data-plan-detail="${esc(item.itemId)}">Ver ubicaciones</button>`
+  });
+}
+
+function openPlanDetail(item){
+  if(!item)return;const lots=item.lots||[];
+  modal({title:`Plan · ${item.reference}`,size:"wide",confirmLabel:"Cerrar",body:`<section class="inventory-count-v11109"><header><span>${item.itemType==="CUTTABLE"?"METRAJE PROGRAMADO":"CONTEO PROGRAMADO"}</span><strong>${esc(item.reference)}</strong><p>${esc(item.description)}</p></header><section class="v115-detail-grid"><article><small>Pareto</small><strong>${esc(item.paretoBand||"—")} · ${fmt.number(item.businessScore||0,1)}</strong><span>Prioridad de control</span></article><article><small>Lotes</small><strong>${fmt.number(lots.length)}</strong><span>Todos deben capturarse</span></article><article><small>Último conteo</small><strong>${item.lastCountAt?fmt.day(item.lastCountAt):"Nunca"}</strong><span>${item.lastCountAt?`${fmt.number(item.daysSinceCount||0)} día(s)`:"Pendiente anual"}</span></article></section><section class="v115-goods-list">${lots.map((lot,i)=>inventoryEnterpriseRow({eyebrow:`UBICACIÓN ${i+1}`,reference:lot.variantLabel||lot.lotNumber||lot.serialNumber||"Lote",description:[lot.warehouseCode,lot.location].filter(Boolean).join(" · ")||"Sin ubicación",subline:lot.locationName||"",meta:[{label:"Bodega",value:lot.warehouseCode||"—"},{label:"Ubicación",value:lot.location||"—"},{label:"Lote",value:lot.lotNumber||"—"},{label:"Serie",value:lot.serialNumber||"—"}],statusLabel:"Por capturar",statusDetail:item.itemType==="CUTTABLE"?"Metraje ciego":"Conteo ciego",statusTone:"standalone"})).join("")||empty("Sin lotes","No hay ubicaciones activas.")}</section></section>`});
 }
