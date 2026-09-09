@@ -51,10 +51,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'version: "11.23.0"' assets/js/config.js
-          grep -q 'build: "2026-09-09.01"' assets/js/config.js
-          grep -q '"version": "11.23.0"' package.json
-          grep -q 'app-entry.js?v=11.23.0' index.html
+          grep -q 'version: "11.23.1"' assets/js/config.js
+          grep -q 'build: "2026-09-09.02"' assets/js/config.js
+          grep -q '"version": "11.23.1"' package.json
+          grep -q 'app-entry.js?v=11.23.1' index.html
           test "$(grep -c '<link rel="stylesheet" href="./assets/css/' index.html)" -eq 4
           test "$(find assets/css -maxdepth 1 -type f -name '*.css' | wc -l)" -eq 4
 
@@ -84,17 +84,22 @@ jobs:
 
           test -s supabase/migrations/094_architecture_core_cleanup_v11_21_0.sql
           test -s supabase/migrations/095_inventory_accounting_blind_count_v11_23_0.sql
+          test -s supabase/migrations/096_inventory_express_super_admin_review_v11_23_1.sql
           for core in confirm_picking_round_core execute_cut_group_core resolve_cut_requirement_core work_my_day_core vsm_people_core; do
             grep -q "erp_supply.${core}" supabase/migrations/094_architecture_core_cleanup_v11_21_0.sql
           done
           for contract in inventory_count_reports erp_x_inventory_count_submit erp_x_inventory_count_review erp_x_inventory_count_plan erp_x_inventory_count_center inventory_count_is_blind_operator; do
             grep -q "$contract" supabase/migrations/095_inventory_accounting_blind_count_v11_23_0.sql
           done
+          grep -q 'erp_x_inventory_express_reports' supabase/migrations/096_inventory_express_super_admin_review_v11_23_1.sql
+          grep -q "erp_supply.has_role('super_admin')" supabase/migrations/096_inventory_express_super_admin_review_v11_23_1.sql
           grep -q 'drop function if exists public.erp_x_inventory_cycle_count' supabase/migrations/095_inventory_accounting_blind_count_v11_23_0.sql
           grep -q 'drop function if exists public.erp_x_inventory_cycle_control' supabase/migrations/095_inventory_accounting_blind_count_v11_23_0.sql
 
-          grep -Fxq '// previous-cache: crm-suministros-v11-21-1-20260908-12' service-worker.js
-          grep -Fxq 'const CACHE="crm-suministros-v11-23-0-20260909-01";' service-worker.js
+          grep -Fxq '// previous-cache: crm-suministros-v11-23-0-20260909-01' service-worker.js
+          grep -Fxq 'const CACHE="crm-suministros-v11-23-1-20260909-02";' service-worker.js
+          grep -q 'Conteo exprés' assets/js/modules/inventory.js
+          grep -q 'erp_x_inventory_express_reports' assets/js/services/inventory.js
 
           for file in \
             assets/js/modules/inventory.js \
@@ -124,15 +129,15 @@ jobs:
           cp -R assets templates dist-deployable/
           printf '%s\n' \
             "commit=${GITHUB_SHA}" \
-            "version=11.23.0" \
-            "build=2026-09-09.01" \
+            "version=11.23.1" \
+            "build=2026-09-09.02" \
             "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.23.0-build01-deployable
+          name: crm-suministros-v11.23.1-build02-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
