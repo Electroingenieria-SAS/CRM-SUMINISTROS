@@ -1,29 +1,43 @@
-import {renderInventory as renderStock} from "./inventory-stock.js";
-import {renderInventoryCycle} from "./inventory-cycle-v11220.js";
-import {renderInventoryControl} from "./inventory-control-v11220.js";
-import {can,state} from "../core/state.js";
+import {renderInventoryOperator} from "./inventory-operator-v11230.js";
+import {renderInventoryReview} from "./inventory-review-v11230.js";
+import {renderInventoryStock} from "./inventory-stock-v11230.js";
+import {renderInventoryControl} from "./inventory-control-v11230.js";
+import {state} from "../core/state.js";
 import {empty,loading,toast} from "../core/ui.js";
 
-const KEY="crm_inventory_view_v11220";
-const executive=()=>state.profile?.roles?.some(role=>role==="super_admin"||role==="gerencia");
+const CONTROL_ROLES=new Set(["jefe_logistica","lider_logistica","coordinador_logistico","auditoria","gerencia","super_admin"]);
+const roles=()=>state.profile?.roles||[];
+const isController=()=>roles().some(role=>CONTROL_ROLES.has(role));
+const isBlindOperator=()=>roles().includes("aux_logistica")&&!isController();
+const KEY="crm_inventory_view_v11230";
 
 export async function renderInventory(root){
-  const isExecutive=executive();
-  const canCount=can("inventory","canUpdate");
-  const views=["stock",...(canCount||isExecutive?["cycle"]:[]),...(isExecutive?["control"]:[])];
-  let current=views.includes(sessionStorage.getItem(KEY))?sessionStorage.getItem(KEY):"stock";
-  root.innerHTML=`<section class="inventory-filter-shell-v11109"><div class="inventory-search-main-v11109"><label>Centro de inventario</label><small>Siesa + operación CRM + conteo físico + VSM, sin motores paralelos.</small></div><div class="inventory-stock-tabs-v11109">${views.map(view=>`<button type="button" data-inventory-view="${view}">${view==="stock"?"Existencias":view==="cycle"?"Conteo cíclico":"Contabilización"}</button>`).join("")}</div></section><div id="inventory-workspace-v11220">${loading()}</div>`;
-  const host=root.querySelector("#inventory-workspace-v11220"),buttons=[...root.querySelectorAll("[data-inventory-view]")];
+  const controller=isController(),operator=isBlindOperator();
+  let views=[];
+  if(operator)views=[["count","Contar"],["labels","Etiquetas"]];
+  else if(controller)views=[["review","Revisión"],["stock","Existencias"],["control","Inteligencia"]];
+  else{
+    root.innerHTML=empty("Inventario restringido","Tu perfil no tiene una experiencia de Inventario asignada.");
+    return;
+  }
+  let current=sessionStorage.getItem(KEY);
+  if(!views.some(([id])=>id===current))current=views[0][0];
+
+  root.innerHTML=`<section class="inventory-filter-shell-v11109"><div class="inventory-search-main-v11109"><label>Inventario</label><small>${operator?"Tu espacio está diseñado solo para contar, medir cable e imprimir identificaciones.":"Control de reportes, existencias e inteligencia de inventario."}</small></div><div class="inventory-stock-tabs-v11109">${views.map(([id,label])=>`<button type="button" data-inventory-view="${id}" class="${id===current?"active":""}">${label}</button>`).join("")}</div></section><div id="inventory-workspace-v11230">${loading()}</div>`;
+  const host=root.querySelector("#inventory-workspace-v11230"),buttons=[...root.querySelectorAll("[data-inventory-view]")];
   const open=async view=>{
-    current=views.includes(view)?view:"stock";
+    current=views.some(([id])=>id===view)?view:views[0][0];
     sessionStorage.setItem(KEY,current);
     buttons.forEach(button=>button.classList.toggle("active",button.dataset.inventoryView===current));
     host.innerHTML=loading();
-    if(current==="stock")return renderStock(host);
-    if(current==="cycle")return renderInventoryCycle(host);
-    if(!isExecutive){host.innerHTML=empty("Acceso restringido","Solo Superadministración y Gerencia pueden ver Contabilización.");return}
+    if(operator){
+      if(current==="labels")return renderInventoryOperator(host,{view:"labels"});
+      return renderInventoryOperator(host,{view:"count"});
+    }
+    if(current==="review")return renderInventoryReview(host,{status:"SUBMITTED"});
+    if(current==="stock")return renderInventoryStock(host);
     return renderInventoryControl(host);
   };
-  buttons.forEach(button=>button.onclick=()=>open(button.dataset.inventoryView).catch(error=>{toast(error.message,"error",7000);host.innerHTML=empty("No fue posible cargar Inventario",error.message)}));
+  buttons.forEach(button=>button.onclick=()=>open(button.dataset.inventoryView).catch(error=>{toast(error.message,"error",8000);host.innerHTML=empty("No fue posible cargar Inventario",error.message)}));
   await open(current);
 }
