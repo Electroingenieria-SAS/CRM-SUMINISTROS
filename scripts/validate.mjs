@@ -72,7 +72,7 @@ check(expressMigration.includes("erp_supply.has_role('super_admin')"),"La cola e
 check(scheduleMigration.includes("inventory_count_schedule_core"),"Migración 097 no registra el plan diario canónico.");
 check(scheduleMigration.includes("remainingToday")&&scheduleMigration.includes("countedToday"),"Migración 097 debe exponer avance real de la jornada.");
 check(scheduleMigration.includes("revoke all on function erp_supply.inventory_count_schedule_core"),"El plan interno no debe quedar expuesto directamente al navegador.");
-check(scheduleMigration.includes("'plan',v_engine->'plan'"),"Control debe recibir nuevamente el plan diario con Pareto.");
+check(scheduleMigration.includes("v_engine->''plan''"),"Control debe recibir nuevamente el plan diario con Pareto.");
 
 for(const file of ["assets/js/modules/inventory.js","assets/js/modules/inventory-operator-v11230.js","assets/js/modules/inventory-plan-v11232.js","assets/js/modules/inventory-review-v11230.js","assets/js/modules/inventory-stock-v11230.js","assets/js/modules/inventory-control-v11230.js","assets/js/services/inventory.js"])check(exists(file),`Falta propietario V11.23: ${file}`);
 for(const legacy of ["assets/js/modules/inventory-stock.js","assets/js/modules/inventory-cycle-v11220.js","assets/js/modules/inventory-control-v11220.js"])check(!exists(legacy),`Inventario conserva módulo V11.22 retirado: ${legacy}`);
