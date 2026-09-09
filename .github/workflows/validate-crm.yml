@@ -51,12 +51,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'version: "11.25.0"' assets/js/config.js
-          grep -q 'build: "2026-09-09.05"' assets/js/config.js
-          grep -q '"version": "11.25.0"' package.json
-          grep -q 'app-entry.js?v=11.25.0' index.html
-          grep -Fxq '// previous-cache: crm-suministros-v11-24-0-20260909-04' service-worker.js
-          grep -Fxq 'const CACHE="crm-suministros-v11-25-0-20260909-05";' service-worker.js
+          grep -q 'version: "11.25.1"' assets/js/config.js
+          grep -q 'build: "2026-09-09.06"' assets/js/config.js
+          grep -q '"version": "11.25.1"' package.json
+          grep -q 'app-entry.js?v=11.25.1' index.html
+          grep -Fxq '// previous-cache: crm-suministros-v11-25-0-20260909-05' service-worker.js
+          grep -Fxq 'const CACHE="crm-suministros-v11-25-1-20260909-06";' service-worker.js
           test "$(grep -c '<link rel="stylesheet" href="./assets/css/' index.html)" -eq 4
           test "$(find assets/css -maxdepth 1 -type f -name '*.css' | wc -l)" -eq 4
 
@@ -85,17 +85,21 @@ jobs:
             test -s "$file"
           done
 
+          grep -q 'inventory-nav-v11251' assets/js/modules/inventory.js
+          grep -q 'Control y auditoría' assets/js/modules/inventory.js
           grep -q 'Registrar conteo' assets/js/modules/inventory.js
           grep -q 'Mi jornada' assets/js/modules/inventory.js
           grep -q 'Historial' assets/js/modules/inventory.js
           grep -q 'Movimientos' assets/js/modules/inventory.js
           grep -q 'Revisión exprés' assets/js/modules/inventory.js
+          grep -q 'inventory-audit-card-v11251' assets/js/modules/inventory-review-v11250.js
+          grep -q 'inventory-comparison-row-v11251' assets/js/modules/inventory-review-v11250.js
+          grep -q 'Aprobar y aplicar' assets/js/modules/inventory-review-v11250.js
           grep -q 'CONTEO EXPRÉS' assets/js/modules/inventory-home-v11250.js
           grep -q 'REGISTRAR CONTEO' assets/js/modules/inventory-operator-v11250.js
           grep -q 'Imprimir jornada' assets/js/modules/inventory-operator-v11250.js
           grep -q 'Exportar CSV' assets/js/modules/inventory-operator-v11250.js
           grep -q 'PARETO ADAPTATIVO' assets/js/modules/inventory-plan-v11250.js
-          grep -q 'Aprobar y aplicar' assets/js/modules/inventory-review-v11250.js
           grep -q 'Actualizar Siesa' assets/js/modules/inventory-stock-v11250.js
           grep -q 'KARDEX' assets/js/modules/inventory-ledger-v11250.js
           grep -q 'Exportar análisis' assets/js/modules/inventory-control-v11250.js
@@ -109,15 +113,15 @@ jobs:
           cp -R assets templates dist-deployable/
           printf '%s\n' \
             "commit=${GITHUB_SHA}" \
-            "version=11.25.0" \
-            "build=2026-09-09.05" \
+            "version=11.25.1" \
+            "build=2026-09-09.06" \
             "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.25.0-build05-deployable
+          name: crm-suministros-v11.25.1-build06-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
