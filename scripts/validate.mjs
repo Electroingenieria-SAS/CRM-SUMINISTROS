@@ -15,7 +15,7 @@ const config=read("assets/js/config.js");
 const version=config.match(/version:\s*"([^"]+)"/)?.[1]||"";
 const build=config.match(/build:\s*"([^"]+)"/)?.[1]||"";
 const index=read("index.html"),entry=read("assets/js/app-entry.js"),main=read("assets/js/main.js"),sw=read("service-worker.js"),vercel=read("vercel.json");
-const inventory=read("assets/js/modules/inventory.js"),service=read("assets/js/services/inventory.js"),home=read("assets/js/modules/inventory-home-v11250.js"),operator=read("assets/js/modules/inventory-operator-v11250.js"),plan=read("assets/js/modules/inventory-plan-v11250.js"),review=read("assets/js/modules/inventory-review-v11250.js"),stock=read("assets/js/modules/inventory-stock-v11250.js"),ledger=read("assets/js/modules/inventory-ledger-v11250.js"),control=read("assets/js/modules/inventory-control-v11250.js"),exportsModule=read("assets/js/modules/inventory-export-v11250.js"),ui=read("assets/js/modules/inventory-ui-v11240.js");
+const inventory=read("assets/js/modules/inventory.js"),service=read("assets/js/services/inventory.js"),home=read("assets/js/modules/inventory-home-v11250.js"),operator=read("assets/js/modules/inventory-operator-v11250.js"),plan=read("assets/js/modules/inventory-plan-v11250.js"),review=read("assets/js/modules/inventory-review-v11250.js"),stock=read("assets/js/modules/inventory-stock-v11250.js"),ledger=read("assets/js/modules/inventory-ledger-v11250.js"),control=read("assets/js/modules/inventory-control-v11250.js"),exportsModule=read("assets/js/modules/inventory-export-v11250.js"),ui=read("assets/js/modules/inventory-ui-v11240.js"),inventoryModal=read("assets/js/modules/inventory-modal-v11253.js");
 const inventoryMigration=read("supabase/migrations/095_inventory_accounting_blind_count_v11_23_0.sql");
 const expressMigration=read("supabase/migrations/096_inventory_express_super_admin_review_v11_23_1.sql");
 const scheduleMigration=read("supabase/migrations/097_restore_inventory_control_plan_v11_23_2.sql");
@@ -24,12 +24,13 @@ const jsFiles=walk(path.join(root,"assets/js")).filter(file=>file.endsWith(".js"
 const jsRuntime=jsFiles.map(file=>fs.readFileSync(file,"utf8")).join("\n");
 const normalizedJsRuntime=jsRuntime.replace(/\bArray\s*\.\s*from\s*\(/g,"Array_from(").replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
-check(version==="11.25.2","CONFIG.version debe ser 11.25.2.");
-check(build==="2026-09-09.07","CONFIG.build debe ser 2026-09-09.07.");
+check(version==="11.25.3","CONFIG.version debe ser 11.25.3.");
+check(build==="2026-09-09.08","CONFIG.build debe ser 2026-09-09.08.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
 check((index.match(/<script\s+type="module"\s+src="\.\/assets\/js\//g)||[]).length===1,"index.html debe tener un único entrypoint ES Module local.");
 check(entry.includes('import "./main.js";'),"app-entry.js debe delegar a main.js.");
+check(entry.includes('import "./modules/inventory-modal-v11253.js";'),"app-entry.js debe instalar el sistema modal de Inventario.");
 
 const canonicalCss=["assets/css/core-shell.css","assets/css/operations.css","assets/css/analytics.css","assets/css/experience.css"];
 const cssRefs=[...index.matchAll(/href="\.\/([^"?#]+)(?:\?v=([^"#]+))?"/g)].filter(m=>m[1].endsWith(".css"));
@@ -42,8 +43,8 @@ check((coreCss.match(/:root\{/g)||[]).length===1,"core-shell.css debe conservar 
 check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía institucional.");
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
-check(sw.includes('// previous-cache: crm-suministros-v11-25-1-20260909-06'),"previous-cache PWA debe apuntar a V11.25.1.");
-check(sw.includes('const CACHE="crm-suministros-v11-25-2-20260909-07";'),"CACHE activo PWA no corresponde a V11.25.2.");
+check(sw.includes('// previous-cache: crm-suministros-v11-25-2-20260909-07'),"previous-cache PWA debe apuntar a V11.25.2.");
+check(sw.includes('const CACHE="crm-suministros-v11-25-3-20260909-08";'),"CACHE activo PWA no corresponde a V11.25.3.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 
 const bannedRuntime=/\b(QA_BOT|erp_x_qa_|erp_x_run_qa_|erp_x_sandbox_|sandboxMode|manualSandbox|TEST-QA-|erp-e2e-bot)\b/i;
@@ -56,7 +57,7 @@ check(expressMigration.includes("erp_x_inventory_express_reports")&&expressMigra
 check(scheduleMigration.includes("inventory_count_schedule_core")&&scheduleMigration.includes("remainingToday")&&scheduleMigration.includes("countedToday"),"Migración 097 perdió el avance real de jornada.");
 
 const requiredInventory=[
-  "assets/js/modules/inventory.js","assets/js/modules/inventory-ui-v11240.js","assets/js/modules/inventory-home-v11250.js","assets/js/modules/inventory-operator-v11250.js","assets/js/modules/inventory-plan-v11250.js","assets/js/modules/inventory-review-v11250.js","assets/js/modules/inventory-stock-v11250.js","assets/js/modules/inventory-ledger-v11250.js","assets/js/modules/inventory-control-v11250.js","assets/js/modules/inventory-export-v11250.js","assets/js/services/inventory.js"
+  "assets/js/modules/inventory.js","assets/js/modules/inventory-ui-v11240.js","assets/js/modules/inventory-modal-v11253.js","assets/js/modules/inventory-home-v11250.js","assets/js/modules/inventory-operator-v11250.js","assets/js/modules/inventory-plan-v11250.js","assets/js/modules/inventory-review-v11250.js","assets/js/modules/inventory-stock-v11250.js","assets/js/modules/inventory-ledger-v11250.js","assets/js/modules/inventory-control-v11250.js","assets/js/modules/inventory-export-v11250.js","assets/js/services/inventory.js"
 ];
 for(const file of requiredInventory)check(exists(file),`Falta propietario V11.25: ${file}`);
 const retiredInventory=["assets/js/modules/inventory-control-v11230.js","assets/js/modules/inventory-operator-v11230.js","assets/js/modules/inventory-plan-v11232.js","assets/js/modules/inventory-review-v11230.js","assets/js/modules/inventory-stock-v11230.js","assets/js/modules/inventory-cycle-v11220.js","assets/js/modules/inventory-control-v11220.js","assets/js/modules/inventory-stock.js"];
@@ -79,12 +80,17 @@ check(ledger.includes("KARDEX")&&ledger.includes("inventoryMovements")&&ledger.i
 check(control.includes("PARETO ADAPTATIVO")&&control.includes("Exportar análisis"),"Inteligencia perdió Pareto o exportación.");
 check(exportsModule.includes("downloadCsv")&&exportsModule.includes("URL.createObjectURL"),"Falta utilidad de exportación CSV.");
 check(ui.includes("v115-goods-row")&&ui.includes("bindListFilter"),"Falta el sistema visual WMS común.");
-check(ui.includes('inventory-enterprise-row-v11252')&&ui.includes('has-actions')&&ui.includes('no-actions'),"V11.25.2 perdió el contrato de filas con/sin acciones.");
+check(ui.includes('inventory-enterprise-row-v11252')&&ui.includes('has-actions')&&ui.includes('no-actions'),"Inventario perdió el contrato de filas con/sin acciones.");
 check(ui.includes('const actionsHtml=hasActions?')&&ui.includes('const hasActions=Boolean(actionHtml)'),"inventoryEnterpriseRow volvió a reservar una zona de acción sin comprobar contenido.");
 check(!ui.includes('<div class="page-actions">${actions}</div>'),"inventoryEnterpriseRow conserva el contenedor de acciones incondicional histórico.");
 check(ui.includes('no-controls')&&ui.includes('Sin distribución Pareto'),"La auditoría de contenedores vacíos perdió toolbar o Pareto defensivo.");
 check(service.includes("erp_x_inventory_count_submit")&&service.includes("erp_x_inventory_count_review")&&service.includes("erp_x_inventory_express_reports"),"El servicio de Inventario perdió contratos contables.");
 check(!service.includes("erp_x_inventory_cycle_count"),"El servicio aún referencia conteo directo V11.22.");
+
+for(const token of ["inventory-modal-v11253","inventory-modal-count-v11253","inventory-modal-review-v11253","inventory-modal-scanner-v11253","inventory-modal-labels-v11253","MutationObserver","#modal-root","state.currentModule","@media(max-width:620px)"])check(inventoryModal.includes(token),`Sistema modal V11.25.3 incompleto: falta ${token}.`);
+check(inventoryModal.includes("width:min(1480px")&&inventoryModal.includes("height:min(920px"),"Los pop-ups de Inventario volvieron a una geometría angosta.");
+check(inventoryModal.includes("overflow-wrap:anywhere")&&inventoryModal.includes("min-width:0"),"Faltan defensas anti-overflow en pop-ups de Inventario.");
+check(inventoryModal.includes("inventory-comparison-row-v11251")&&inventoryModal.includes("inventory-lot-row-v11109")&&inventoryModal.includes("v116-scanner-shell")&&inventoryModal.includes("v116-label-grid"),"No todos los tipos de pop-up de Inventario están cubiertos.");
 
 const workflows=walk(path.join(root,".github/workflows")).filter(file=>/\.ya?ml$/i.test(file)).map(rel);
 check(workflows.length===1&&workflows[0]===".github/workflows/validate-crm.yml","Debe existir una sola CI canónica.");
@@ -96,7 +102,8 @@ if(failures.length){console.error(`VALIDACIÓN CRM ${version||"SIN VERSIÓN"} FA
 console.log(`VALIDACIÓN CRM ${version} CORRECTA`);
 console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
-console.log("- Inventario V11.25.2 conserva captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
-console.log("- Filas empresariales omiten acciones, metadatos y estados cuando no existe contenido real; no quedan columnas fantasma.");
-console.log("- Toolbars y Pareto evitan contenedores vacíos y muestran estados explícitos.");
+console.log("- Inventario conserva captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
+console.log("- Filas empresariales omiten zonas vacías y mantienen composición responsive.");
+console.log("- Todos los pop-ups de Inventario usan el sistema modal V11.25.3 fuera del scope de la página.");
+console.log("- Conteo, revisión, stock, plan, scanner, etiquetas, identificación y sincronización tienen geometría responsive propia.");
 console.log("- Conteo ciego y aprobación contable permanecen como contratos obligatorios.");
