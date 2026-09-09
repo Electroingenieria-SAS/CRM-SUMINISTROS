@@ -24,7 +24,7 @@ export function inventoryParetoCards(rows=[]){
   return `<section class="v115-detail-grid">${rows.map(row=>`<article><small>Banda ${esc(row.band)}</small><strong>${fmt.number(row.materials||0)} referencias</strong><span>${fmt.number(row.pending||0)} pendientes · score ${fmt.number(row.avgScore||0,1)}</span></article>`).join("")}</section>`;
 }
 
-export function bindListFilter(root,{rows,render,searchId,filters=[],hostId,countId}={}){
+export function bindListFilter(root,{rows,render,searchId,filters=[],hostId,countId,onRendered}={}){
   const host=root.querySelector(`#${hostId}`),count=root.querySelector(`#${countId}`);
   if(!host)return;
   const apply=()=>{
@@ -37,6 +37,7 @@ export function bindListFilter(root,{rows,render,searchId,filters=[],hostId,coun
     });
     host.innerHTML=filtered.length?filtered.map(render).join(""):`<div class="empty-state"><strong>Sin coincidencias</strong><span>Ajusta la búsqueda o los filtros.</span></div>`;
     if(count)count.textContent=`${fmt.number(filtered.length)} de ${fmt.number((rows||[]).length)} registro(s)`;
+    onRendered?.(host,filtered);
   };
   root.querySelector(`#${searchId}`)?.addEventListener("input",apply);
   filters.forEach(f=>root.querySelector(`#${f.id}`)?.addEventListener("change",apply));
