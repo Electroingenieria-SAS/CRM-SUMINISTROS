@@ -24,8 +24,8 @@ const jsFiles=walk(path.join(root,"assets/js")).filter(file=>file.endsWith(".js"
 const jsRuntime=jsFiles.map(file=>fs.readFileSync(file,"utf8")).join("\n");
 const normalizedJsRuntime=jsRuntime.replace(/\bArray\s*\.\s*from\s*\(/g,"Array_from(").replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
-check(version==="11.25.0","CONFIG.version debe ser 11.25.0.");
-check(build==="2026-09-09.05","CONFIG.build debe ser 2026-09-09.05.");
+check(version==="11.25.1","CONFIG.version debe ser 11.25.1.");
+check(build==="2026-09-09.06","CONFIG.build debe ser 2026-09-09.06.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
 check((index.match(/<script\s+type="module"\s+src="\.\/assets\/js\//g)||[]).length===1,"index.html debe tener un único entrypoint ES Module local.");
@@ -42,8 +42,8 @@ check((coreCss.match(/:root\{/g)||[]).length===1,"core-shell.css debe conservar 
 check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía institucional.");
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
-check(sw.includes('// previous-cache: crm-suministros-v11-24-0-20260909-04'),"previous-cache PWA debe apuntar a V11.24.0.");
-check(sw.includes('const CACHE="crm-suministros-v11-25-0-20260909-05";'),"CACHE activo PWA no corresponde a V11.25.0.");
+check(sw.includes('// previous-cache: crm-suministros-v11-25-0-20260909-05'),"previous-cache PWA debe apuntar a V11.25.0.");
+check(sw.includes('const CACHE="crm-suministros-v11-25-1-20260909-06";'),"CACHE activo PWA no corresponde a V11.25.1.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 
 const bannedRuntime=/\b(QA_BOT|erp_x_qa_|erp_x_run_qa_|erp_x_sandbox_|sandboxMode|manualSandbox|TEST-QA-|erp-e2e-bot)\b/i;
@@ -64,11 +64,16 @@ for(const file of retiredInventory)check(!exists(file),`Inventario conserva prop
 check(inventory.includes('inventoryCountCenter')&&inventory.includes('access.operator')&&inventory.includes('access.controller'),"Inventario debe gobernarse por capacidades del servidor.");
 for(const view of ["home","capture","express","count","labels","plan","review","history","stock","ledger","control"])check(inventory.includes(`\"${view}\"`),`Falta vista de Inventario: ${view}`);
 check(inventory.includes('express-review'),"Super Admin perdió Revisión exprés.");
+check(inventory.includes('inventory-nav-v11251')&&inventory.includes('Control y auditoría')&&inventory.includes('inventory-nav-groups-v11251'),"V11.25.1 perdió la navegación agrupada de Inventario.");
+check(inventory.includes('overflow-wrap:anywhere')&&inventory.includes('@media(max-width:760px)')&&inventory.includes('@media(max-width:480px)'),"V11.25.1 perdió las defensas responsive contra desbordes de texto.");
 check(home.includes("Conteo no programado")&&home.includes("Etiquetas y stickers")&&home.includes("Movimientos"),"Inicio no expone las funciones críticas.");
 check(operator.includes("REGISTRAR CONTEO")&&operator.includes("Conteo exprés")&&operator.includes("Metraje")&&operator.includes("Imprimir jornada")&&operator.includes("Exportar CSV"),"Captura V11.25 perdió conteo, exprés, metraje o stickers.");
 check(operator.includes("inventoryCountSubmit")&&operator.includes("inventoryCountResolve")&&operator.includes("inventoryCountSearch"),"Captura no usa los contratos seguros de conteo.");
 check(plan.includes("PARETO ADAPTATIVO")&&plan.includes("Exportar CSV")&&plan.includes("businessScore"),"Plan perdió Pareto o exportación.");
 check(review.includes("Aprobar y aplicar")&&review.includes("Solicitar reconteo")&&review.includes("Exportar CSV")&&review.includes("ALL"),"Revisión/Historial perdió decisiones o exportación.");
+check(review.includes('inventory-audit-card-v11251')&&review.includes('inventory-audit-filter-v11251')&&review.includes('inventory-audit-tabs-v11251'),"Revisión/Exprés/Historial perdió su composición de auditoría V11.25.1.");
+check(review.includes('inventory-comparison-row-v11251')&&review.includes('Reservado')&&review.includes('Bloqueado')&&review.includes('Diferencia / impacto'),"Detalle de revisión perdió comparación física estructurada.");
+check(!review.includes('inventoryEnterpriseRow'),"Revisión volvió a usar la fila genérica que causaba desbordes.");
 check(stock.includes("Actualizar Siesa")&&stock.includes("Exportar CSV")&&stock.includes("inventoryMovements"),"Existencias perdió sincronización, exportación o trazabilidad.");
 check(ledger.includes("KARDEX")&&ledger.includes("inventoryMovements")&&ledger.includes("Exportar CSV"),"Movimientos no implementa kardex exportable.");
 check(control.includes("PARETO ADAPTATIVO")&&control.includes("Exportar análisis"),"Inteligencia perdió Pareto o exportación.");
@@ -87,7 +92,7 @@ if(failures.length){console.error(`VALIDACIÓN CRM ${version||"SIN VERSIÓN"} FA
 console.log(`VALIDACIÓN CRM ${version} CORRECTA`);
 console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
-console.log("- Inventario V11.25 integra captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
-console.log("- Navegación gobernada por capacidades del servidor: Operación y Control pueden coexistir en Super Admin.");
-console.log("- Propietarios históricos V11.22/V11.23/V11.24 retirados del runtime.");
+console.log("- Inventario V11.25.1 conserva captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
+console.log("- Revisión, Revisión exprés e Historial usan fichas de auditoría y comparación responsive dedicadas.");
+console.log("- Navegación agrupada y defensas anti-overflow aplicadas solo dentro del módulo Inventario.");
 console.log("- Conteo ciego y aprobación contable permanecen como contratos obligatorios.");
