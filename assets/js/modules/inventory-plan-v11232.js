@@ -19,30 +19,13 @@ export async function renderInventoryPlan(root){
   <section class="inventory-results-v11109">${inventoryListHeader({eyebrow:"PARETO ADAPTATIVO",title:"Distribución de criticidad",detail:"La prioridad es visible para Control, nunca para la captura ciega"})}${inventoryParetoCards(bands)}</section>
   <section class="inventory-results-v11109">${inventoryListHeader({eyebrow:"COLA DE HOY",title:"Referencias pendientes por contabilizar",detail:"Lista operativa compacta y filtrable"})}<div class="card-pad">${inventoryToolbar({title:"Plan diario",detail:"Busca o filtra sin alterar la programación",searchId:"plan-q",filters:[{id:"plan-type",allLabel:"Todos los tipos",options:[{value:"CUTTABLE",label:"Metraje"},{value:"STANDARD",label:"Conteo"}]},{id:"plan-band",allLabel:"Todas las bandas",options:["A+","A","B","C","D","E"].map(x=>({value:x,label:`Pareto ${x}`}))},{id:"plan-wh",allLabel:"Todas las bodegas",options:warehouses.map(x=>({value:x,label:x}))}]})}<small id="plan-visible-count"></small></div><div id="plan-list"></div></section>
   <section class="card card-pad"><strong>Estados del flujo</strong><p><b>Pendiente</b>: aún no capturado. <b>En revisión</b>: ya reportado por el auxiliar. <b>Reconteo</b>: requiere nueva captura. <b>Aplicado</b>: aprobado e incorporado al inventario.</p></section>`;
-  const render=row=>planRow(row);
-  bindListFilter(root,{rows:plan,render,searchId:"plan-q",hostId:"plan-list",countId:"plan-visible-count",filters:[{id:"plan-type",key:"type",get:x=>x.itemType},{id:"plan-band",key:"band",get:x=>x.paretoBand},{id:"plan-wh",key:"wh",get:x=>(x.warehouses||[])[0]||""}]});
+  bindListFilter(root,{rows:plan,render:planRow,searchId:"plan-q",hostId:"plan-list",countId:"plan-visible-count",filters:[{id:"plan-type",key:"type",get:x=>x.itemType},{id:"plan-band",key:"band",get:x=>x.paretoBand},{id:"plan-wh",key:"wh",get:x=>(x.warehouses||[])[0]||""}],onRendered:host=>host.querySelectorAll("[data-plan-detail]").forEach(btn=>btn.onclick=()=>openPlanDetail(plan.find(x=>x.itemId===btn.dataset.planDetail)))});
   root.querySelector("#plan-refresh").onclick=()=>renderInventoryPlan(root).catch(e=>toast(e.message,"error",7000));
-  root.querySelectorAll("[data-plan-detail]").forEach(btn=>btn.onclick=()=>openPlanDetail(plan.find(x=>x.itemId===btn.dataset.planDetail)));
 }
 
 function planRow(item){
   const cable=item.itemType==="CUTTABLE",high=item.paretoBand==="A+"||item.paretoBand==="A";
-  return inventoryEnterpriseRow({
-    eyebrow:cable?"METRAJE":"CONTEO",
-    reference:item.reference,
-    description:item.description,
-    subline:(item.warehouses||[]).join(" · ")||"Sin bodega",
-    meta:[
-      {label:"Prioridad",value:`${item.paretoBand||"—"} · ${fmt.number(item.businessScore||0,1)}`,detail:`ABC rot. ${item.abcTurns||"—"} · costo ${item.abcCost||"—"}`},
-      {label:cable?"Carretos / lotes":"Lotes / ubicaciones",value:fmt.number(item.lotCount||item.lots?.length||0),detail:cable?"Medición individual":"Conteo físico"},
-      {label:"Último conteo",value:item.lastCountAt?fmt.day(item.lastCountAt):"Nunca",detail:item.lastCountAt?`${fmt.number(item.daysSinceCount||0)} día(s)`:"Pendiente anual"},
-      {label:"Unidad",value:item.unit||"—",detail:cable?"Control por metraje":"Control por cantidad"}
-    ],
-    statusLabel:"Pendiente",
-    statusDetail:"Asignado al auxiliar",
-    statusTone:high?"standalone":"linked",
-    actions:`<button class="btn btn-ghost" data-plan-detail="${esc(item.itemId)}">Ver ubicaciones</button>`
-  });
+  return inventoryEnterpriseRow({eyebrow:cable?"METRAJE":"CONTEO",reference:item.reference,description:item.description,subline:(item.warehouses||[]).join(" · ")||"Sin bodega",meta:[{label:"Prioridad",value:`${item.paretoBand||"—"} · ${fmt.number(item.businessScore||0,1)}`,detail:`ABC rot. ${item.abcTurns||"—"} · costo ${item.abcCost||"—"}`},{label:cable?"Carretos / lotes":"Lotes / ubicaciones",value:fmt.number(item.lotCount||item.lots?.length||0),detail:cable?"Medición individual":"Conteo físico"},{label:"Último conteo",value:item.lastCountAt?fmt.day(item.lastCountAt):"Nunca",detail:item.lastCountAt?`${fmt.number(item.daysSinceCount||0)} día(s)`:"Pendiente anual"},{label:"Unidad",value:item.unit||"—",detail:cable?"Control por metraje":"Control por cantidad"}],statusLabel:"Pendiente",statusDetail:"Asignado al auxiliar",statusTone:high?"standalone":"linked",actions:`<button class="btn btn-ghost" data-plan-detail="${esc(item.itemId)}">Ver ubicaciones</button>`});
 }
 
 function openPlanDetail(item){
