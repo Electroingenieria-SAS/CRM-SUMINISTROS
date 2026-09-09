@@ -14,7 +14,7 @@ export async function renderInventoryHome(root,{onNavigate}={}){
   const actions=[];
   if(a.operator){
     actions.push(card("CAPTURA","Registrar conteo","Busca, escanea, cuenta o mide una referencia. El sistema detecta si es programada, exprés o metraje.","capture","Abrir captura"));
-    actions.push(card("CONTEO EXPRÉS","Conteo no programado","Busca una referencia que no esté en la jornada y regístrala sin consultar saldos. Si ya está programada, se usa el plan para evitar duplicidad.","capture","Iniciar exprés"));
+    actions.push(card("CONTEO EXPRÉS","Conteo no programado","Busca una referencia que no esté en la jornada y regístrala sin consultar saldos. Si ya está programada, se usa el plan para evitar duplicidad.","express","Iniciar exprés"));
     actions.push(card("JORNADA","Mi jornada","Trabaja la cola diaria en orden, con reconteos priorizados y sin ver saldos esperados.","count","Ver jornada"));
     actions.push(card("IDENTIFICACIÓN","Etiquetas y stickers","Imprime o exporta QR + CODE128 por lote/carreto, sin cantidades impresas.","labels","Gestionar etiquetas"));
   }
@@ -33,8 +33,5 @@ export async function renderInventoryHome(root,{onNavigate}={}){
   root.querySelectorAll("[data-home-go]").forEach(btn=>btn.onclick=()=>onNavigate?.(btn.dataset.homeGo));
   root.querySelector("#inv-home-refresh").onclick=()=>renderInventoryHome(root,{onNavigate}).catch(e=>toast(e.message,"error",7000));
 }
-
-function card(kicker,title,detail,view,cta){
-  return `<button class="v115-process-card" type="button" data-home-go="${esc(view)}"><span class="v115-process-icon">${icon(view)}</span><div><small>${esc(kicker)}</small><strong>${esc(title)}</strong><p>${esc(detail)}</p></div><em>${esc(cta)}</em></button>`;
-}
-function icon(view){return ({capture:"+",count:"✓",labels:"▣",plan:"≡",review:"◎",history:"↺",stock:"▦",ledger:"⇄",control:"◫"})[view]||"•"}
+function card(kicker,title,detail,view,cta){return `<button class="v115-process-card" type="button" data-home-go="${esc(view)}"><span class="v115-process-icon">${icon(view)}</span><div><small>${esc(kicker)}</small><strong>${esc(title)}</strong><p>${esc(detail)}</p></div><em>${esc(cta)}</em></button>`}
+function icon(view){return ({capture:"+",express:"⚡",count:"✓",labels:"▣",plan:"≡",review:"◎",history:"↺",stock:"▦",ledger:"⇄",control:"◫"})[view]||"•"}
