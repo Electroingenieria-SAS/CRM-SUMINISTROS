@@ -4,7 +4,7 @@ import {renderInventoryPlan} from "./inventory-plan-v11250.js";
 import {renderInventoryReview} from "./inventory-review-v11250.js";
 import {renderInventoryStock} from "./inventory-stock-v11250.js";
 import {renderInventoryLedger} from "./inventory-ledger-v11250.js";
-import {renderInventoryControl} from "./inventory-control-v11230.js";
+import {renderInventoryControl} from "./inventory-control-v11250.js";
 import {inventoryCountCenter} from "../services/inventory.js";
 import {state} from "../core/state.js";
 import {empty,loading,toast} from "../core/ui.js";
