@@ -1,6 +1,6 @@
 import {renderInventoryHome} from "./inventory-home-v11250.js";
 import {renderInventoryOperator} from "./inventory-operator-v11250.js";
-import {renderInventoryPlan} from "./inventory-plan-v11232.js";
+import {renderInventoryPlan} from "./inventory-plan-v11250.js";
 import {renderInventoryReview} from "./inventory-review-v11250.js";
 import {renderInventoryStock} from "./inventory-stock-v11250.js";
 import {renderInventoryLedger} from "./inventory-ledger-v11250.js";
