@@ -23,5 +23,6 @@ import "./modules/billing-invoice-reader-v1199.js";
 import "./modules/billing-multiformat-v11101.js";
 import "./modules/shipping-guide-reader-v11101.js";
 import "./modules/flow-performance-v11130.js";
+import "./modules/inventory-modal-workspace-v11254.js";
 
 import "./main.js";
