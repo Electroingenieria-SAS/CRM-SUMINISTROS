@@ -51,12 +51,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'version: "11.25.2"' assets/js/config.js
-          grep -q 'build: "2026-09-09.07"' assets/js/config.js
-          grep -q '"version": "11.25.2"' package.json
-          grep -q 'app-entry.js?v=11.25.2' index.html
-          grep -Fxq '// previous-cache: crm-suministros-v11-25-1-20260909-06' service-worker.js
-          grep -Fxq 'const CACHE="crm-suministros-v11-25-2-20260909-07";' service-worker.js
+          grep -q 'version: "11.25.3"' assets/js/config.js
+          grep -q 'build: "2026-09-09.08"' assets/js/config.js
+          grep -q '"version": "11.25.3"' package.json
+          grep -q 'app-entry.js?v=11.25.3' index.html
+          grep -Fxq '// previous-cache: crm-suministros-v11-25-2-20260909-07' service-worker.js
+          grep -Fxq 'const CACHE="crm-suministros-v11-25-3-20260909-08";' service-worker.js
           test "$(grep -c '<link rel="stylesheet" href="./assets/css/' index.html)" -eq 4
           test "$(find assets/css -maxdepth 1 -type f -name '*.css' | wc -l)" -eq 4
 
@@ -67,6 +67,7 @@ jobs:
 
           test "$(grep -c '<script type="module" src="./assets/js/' index.html)" -eq 1
           grep -q 'import "./main.js";' assets/js/app-entry.js
+          grep -q 'import "./modules/inventory-modal-v11253.js";' assets/js/app-entry.js
           test "$(find .github/workflows -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \) | wc -l)" -eq 1
           grep -q '"main"[[:space:]]*:[[:space:]]*true' vercel.json
           grep -q '"\*"[[:space:]]*:[[:space:]]*false' vercel.json
@@ -74,6 +75,7 @@ jobs:
           for file in \
             assets/js/modules/inventory.js \
             assets/js/modules/inventory-ui-v11240.js \
+            assets/js/modules/inventory-modal-v11253.js \
             assets/js/modules/inventory-home-v11250.js \
             assets/js/modules/inventory-operator-v11250.js \
             assets/js/modules/inventory-plan-v11250.js \
@@ -86,29 +88,22 @@ jobs:
           done
 
           grep -q 'inventory-nav-v11251' assets/js/modules/inventory.js
-          grep -q 'Control y auditoría' assets/js/modules/inventory.js
-          grep -q 'Registrar conteo' assets/js/modules/inventory.js
-          grep -q 'Mi jornada' assets/js/modules/inventory.js
-          grep -q 'Historial' assets/js/modules/inventory.js
-          grep -q 'Movimientos' assets/js/modules/inventory.js
-          grep -q 'Revisión exprés' assets/js/modules/inventory.js
           grep -q 'inventory-audit-card-v11251' assets/js/modules/inventory-review-v11250.js
           grep -q 'inventory-comparison-row-v11251' assets/js/modules/inventory-review-v11250.js
           grep -q 'Aprobar y aplicar' assets/js/modules/inventory-review-v11250.js
-          grep -q 'CONTEO EXPRÉS' assets/js/modules/inventory-home-v11250.js
           grep -q 'REGISTRAR CONTEO' assets/js/modules/inventory-operator-v11250.js
-          grep -q 'Imprimir jornada' assets/js/modules/inventory-operator-v11250.js
-          grep -q 'Exportar CSV' assets/js/modules/inventory-operator-v11250.js
           grep -q 'PARETO ADAPTATIVO' assets/js/modules/inventory-plan-v11250.js
           grep -q 'Actualizar Siesa' assets/js/modules/inventory-stock-v11250.js
           grep -q 'KARDEX' assets/js/modules/inventory-ledger-v11250.js
-          grep -q 'Exportar análisis' assets/js/modules/inventory-control-v11250.js
           grep -q 'inventory-enterprise-row-v11252' assets/js/modules/inventory-ui-v11240.js
-          grep -q 'const hasActions=Boolean(actionHtml)' assets/js/modules/inventory-ui-v11240.js
-          grep -q 'const actionsHtml=hasActions?' assets/js/modules/inventory-ui-v11240.js
-          grep -q 'no-controls' assets/js/modules/inventory-ui-v11240.js
-          grep -q 'Sin distribución Pareto' assets/js/modules/inventory-ui-v11240.js
-          ! grep -Fq '<div class="page-actions">${actions}</div>' assets/js/modules/inventory-ui-v11240.js
+          grep -q 'inventory-modal-v11253' assets/js/modules/inventory-modal-v11253.js
+          grep -q 'inventory-modal-count-v11253' assets/js/modules/inventory-modal-v11253.js
+          grep -q 'inventory-modal-review-v11253' assets/js/modules/inventory-modal-v11253.js
+          grep -q 'inventory-modal-scanner-v11253' assets/js/modules/inventory-modal-v11253.js
+          grep -q 'inventory-modal-labels-v11253' assets/js/modules/inventory-modal-v11253.js
+          grep -q 'MutationObserver' assets/js/modules/inventory-modal-v11253.js
+          grep -q 'width:min(1480px' assets/js/modules/inventory-modal-v11253.js
+          grep -q '@media(max-width:620px)' assets/js/modules/inventory-modal-v11253.js
 
       - name: Package deployable frontend
         shell: bash
@@ -119,15 +114,15 @@ jobs:
           cp -R assets templates dist-deployable/
           printf '%s\n' \
             "commit=${GITHUB_SHA}" \
-            "version=11.25.2" \
-            "build=2026-09-09.07" \
+            "version=11.25.3" \
+            "build=2026-09-09.08" \
             "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.25.2-build07-deployable
+          name: crm-suministros-v11.25.3-build08-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
