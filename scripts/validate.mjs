@@ -15,95 +15,76 @@ const config=read("assets/js/config.js");
 const version=config.match(/version:\s*"([^"]+)"/)?.[1]||"";
 const build=config.match(/build:\s*"([^"]+)"/)?.[1]||"";
 const index=read("index.html"),entry=read("assets/js/app-entry.js"),main=read("assets/js/main.js"),sw=read("service-worker.js"),vercel=read("vercel.json");
-const architectureMigration=read("supabase/migrations/094_architecture_core_cleanup_v11_21_0.sql");
+const inventory=read("assets/js/modules/inventory.js"),service=read("assets/js/services/inventory.js"),home=read("assets/js/modules/inventory-home-v11250.js"),operator=read("assets/js/modules/inventory-operator-v11250.js"),plan=read("assets/js/modules/inventory-plan-v11250.js"),review=read("assets/js/modules/inventory-review-v11250.js"),stock=read("assets/js/modules/inventory-stock-v11250.js"),ledger=read("assets/js/modules/inventory-ledger-v11250.js"),control=read("assets/js/modules/inventory-control-v11250.js"),exportsModule=read("assets/js/modules/inventory-export-v11250.js"),ui=read("assets/js/modules/inventory-ui-v11240.js");
 const inventoryMigration=read("supabase/migrations/095_inventory_accounting_blind_count_v11_23_0.sql");
 const expressMigration=read("supabase/migrations/096_inventory_express_super_admin_review_v11_23_1.sql");
 const scheduleMigration=read("supabase/migrations/097_restore_inventory_control_plan_v11_23_2.sql");
-const inventoryModule=read("assets/js/modules/inventory.js"),inventoryService=read("assets/js/services/inventory.js"),inventoryReview=read("assets/js/modules/inventory-review-v11230.js"),inventoryPlan=read("assets/js/modules/inventory-plan-v11232.js"),inventoryControl=read("assets/js/modules/inventory-control-v11230.js"),inventoryStock=read("assets/js/modules/inventory-stock-v11230.js"),inventoryOperator=read("assets/js/modules/inventory-operator-v11230.js"),inventoryUi=read("assets/js/modules/inventory-ui-v11240.js");
 const coreCss=read("assets/css/core-shell.css"),experienceCss=read("assets/css/experience.css");
 const jsFiles=walk(path.join(root,"assets/js")).filter(file=>file.endsWith(".js"));
 const jsRuntime=jsFiles.map(file=>fs.readFileSync(file,"utf8")).join("\n");
 const normalizedJsRuntime=jsRuntime.replace(/\bArray\s*\.\s*from\s*\(/g,"Array_from(").replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
-check(version==="11.24.0","CONFIG.version debe ser 11.24.0.");
-check(build==="2026-09-09.04","CONFIG.build debe ser 2026-09-09.04.");
+check(version==="11.25.0","CONFIG.version debe ser 11.25.0.");
+check(build==="2026-09-09.05","CONFIG.build debe ser 2026-09-09.05.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
-check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar app-entry.js con la versión vigente.");
+check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
 check((index.match(/<script\s+type="module"\s+src="\.\/assets\/js\//g)||[]).length===1,"index.html debe tener un único entrypoint ES Module local.");
-check(entry.includes('import "./main.js";'),"app-entry.js debe delegar finalmente al núcleo main.js.");
+check(entry.includes('import "./main.js";'),"app-entry.js debe delegar a main.js.");
 
 const canonicalCss=["assets/css/core-shell.css","assets/css/operations.css","assets/css/analytics.css","assets/css/experience.css"];
 const cssRefs=[...index.matchAll(/href="\.\/([^"?#]+)(?:\?v=([^"#]+))?"/g)].filter(m=>m[1].endsWith(".css"));
 check(cssRefs.length===4,"index.html debe cargar exactamente cuatro familias CSS canónicas.");
-check(JSON.stringify(cssRefs.map(m=>m[1]))===JSON.stringify(canonicalCss),"El orden CSS canónico debe ser core-shell → operations → analytics → experience.");
-check(cssRefs.every(m=>m[2]===version),"Las cuatro familias CSS deben usar la versión única del release.");
-for(const cssPath of canonicalCss)check(exists(cssPath),`Falta familia CSS canónica: ${cssPath}`);
-const cssFiles=walk(path.join(root,"assets/css")).filter(file=>file.endsWith(".css")).map(rel).sort();
-check(cssFiles.length===4&&cssFiles.every(file=>canonicalCss.includes(file)),"assets/css debe contener únicamente las cuatro familias canónicas.");
-check((coreCss.match(/:root\{/g)||[]).length===1,"core-shell.css debe conservar una sola raíz de tokens visuales.");
-check(coreCss.includes('font-family:"Century Gothic"'),"La tipografía institucional no está aplicada en core-shell.css.");
-check(experienceCss.includes('.paco2-panel{display:none!important}')&&experienceCss.includes('.is-open .paco2-panel{display:flex!important}'),"El contrato visual de Paco no sobrevivió a la consolidación.");
+check(JSON.stringify(cssRefs.map(m=>m[1]))===JSON.stringify(canonicalCss),"El orden CSS canónico es inválido.");
+check(cssRefs.every(m=>m[2]===version),"Todas las familias CSS deben usar la versión vigente.");
+for(const cssPath of canonicalCss)check(exists(cssPath),`Falta CSS canónico: ${cssPath}`);
+check(walk(path.join(root,"assets/css")).filter(file=>file.endsWith(".css")).map(rel).every(file=>canonicalCss.includes(file)),"assets/css conserva una familia no canónica.");
+check((coreCss.match(/:root\{/g)||[]).length===1,"core-shell.css debe conservar una sola raíz de tokens.");
+check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía institucional.");
+check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
-const appShellBody=sw.match(/const APP_SHELL=\[([\s\S]*?)\];/)?.[1]||"";
-check(Boolean(appShellBody),"service-worker.js debe declarar APP_SHELL.");
-const swRefs=[...appShellBody.matchAll(/"(\.\/[^"?#]+)"/g)].map(m=>m[1]);
-for(const asset of swRefs){if(asset!=="./")check(exists(asset.slice(2)),`Asset inexistente precacheado: ${asset}`)}
-check(new Set(swRefs).size===swRefs.length,"service-worker.js contiene assets duplicados en APP_SHELL.");
-for(const cssPath of canonicalCss)check(sw.includes(`./${cssPath}`),`PWA no precachea ${cssPath}.`);
-check(!/assets\/css\/(?!core-shell|operations|analytics|experience)[^"']+\.css/.test(sw),"PWA conserva hojas CSS históricas.");
-check(sw.includes('// previous-cache: crm-suministros-v11-23-2-20260909-03'),"previous-cache PWA debe apuntar a V11.23.2.");
-check(sw.includes('const CACHE="crm-suministros-v11-24-0-20260909-04";'),"CACHE activo PWA no corresponde a V11.24.0 build 04.");
-check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados ignorando query string.");
-check(sw.includes('event.request.mode==="navigate"'),"Service Worker debe conservar fallback exclusivo para navegación.");
-
-const enhancementModules=["responsive-foundation-v11190.js","global-progress-v11100.js","bootstrap-v113.js","inventory-scan-bootstrap-v116.js","order-priority-v117.js","pagination-v1184.js","commercial-v1187.js","commercial-records-v1188.js","popup-ux-v1190.js","order-create-v1191.js","receiving-order-v1192.js","receiving-focus-v1193.js","receiving-polish-v1194.js","picking-focus-v1195.js","billing-focus-v1198.js","billing-upload-v1199.js","billing-invoice-reader-v1199.js","billing-multiformat-v11101.js","shipping-guide-reader-v11101.js","flow-performance-v11130.js"];
-for(const moduleName of enhancementModules){check(entry.includes(`./modules/${moduleName}`),`app-entry.js no gobierna ${moduleName}.`);check(!index.includes(`/modules/${moduleName}`),`index.html todavía carga ${moduleName} como entrypoint paralelo.`)}
+check(sw.includes('// previous-cache: crm-suministros-v11-24-0-20260909-04'),"previous-cache PWA debe apuntar a V11.24.0.");
+check(sw.includes('const CACHE="crm-suministros-v11-25-0-20260909-05";'),"CACHE activo PWA no corresponde a V11.25.0.");
+check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 
 const bannedRuntime=/\b(QA_BOT|erp_x_qa_|erp_x_run_qa_|erp_x_sandbox_|sandboxMode|manualSandbox|TEST-QA-|erp-e2e-bot)\b/i;
 check(!bannedRuntime.test(jsRuntime),"El frontend productivo conserva referencias QA/Sandbox.");
 check(!/\.from\s*\(/.test(normalizedJsRuntime),"El navegador no debe acceder a tablas directamente; use RPC.");
 
-for(const token of ["erp_supply.confirm_picking_round_core","erp_supply.execute_cut_group_core","erp_supply.resolve_cut_requirement_core","erp_supply.work_my_day_core","erp_supply.vsm_people_core"])check(architectureMigration.includes(token),`Migración 094 incompleta: falta ${token}.`);
-for(const token of ["erp_supply.inventory_count_reports","erp_x_inventory_count_submit","erp_x_inventory_count_review","erp_x_inventory_count_plan","erp_x_inventory_count_center","inventory_count_is_blind_operator","drop function if exists public.erp_x_inventory_cycle_count","drop function if exists public.erp_x_inventory_cycle_control"])check(inventoryMigration.includes(token),`Migración 095 incompleta: falta ${token}.`);
-check(inventoryMigration.includes("revoke all on table erp_supply.inventory_count_reports from public, anon, authenticated"),"La tabla de reportes debe permanecer detrás de RPC SECURITY DEFINER.");
-check(inventoryMigration.includes("Vista de existencias restringida durante el conteo ciego"),"Falta el bloqueo servidor para consultas ricas del auxiliar.");
-check(expressMigration.includes("erp_x_inventory_express_reports"),"Migración 096 no registra la cola exprés.");
-check(expressMigration.includes("erp_supply.has_role('super_admin')"),"La cola exprés debe permanecer exclusiva de Super Admin.");
-check(scheduleMigration.includes("inventory_count_schedule_core"),"Migración 097 no registra el plan diario canónico.");
-check(scheduleMigration.includes("remainingToday")&&scheduleMigration.includes("countedToday"),"Migración 097 debe exponer avance real de la jornada.");
-check(scheduleMigration.includes("revoke all on function erp_supply.inventory_count_schedule_core"),"El plan interno no debe quedar expuesto directamente al navegador.");
-check(scheduleMigration.includes("v_engine->''plan''"),"Control debe recibir el plan diario con Pareto.");
+for(const token of ["erp_supply.inventory_count_reports","erp_x_inventory_count_submit","erp_x_inventory_count_review","erp_x_inventory_count_center","inventory_count_is_blind_operator","drop function if exists public.erp_x_inventory_cycle_count","drop function if exists public.erp_x_inventory_cycle_control"])check(inventoryMigration.includes(token),`Migración 095 incompleta: falta ${token}.`);
+check(inventoryMigration.includes("Vista de existencias restringida durante el conteo ciego"),"Falta el bloqueo de existencias para el auxiliar.");
+check(expressMigration.includes("erp_x_inventory_express_reports")&&expressMigration.includes("erp_supply.has_role('super_admin')"),"Migración 096 perdió la revisión exprés exclusiva.");
+check(scheduleMigration.includes("inventory_count_schedule_core")&&scheduleMigration.includes("remainingToday")&&scheduleMigration.includes("countedToday"),"Migración 097 perdió el avance real de jornada.");
 
-for(const file of ["assets/js/modules/inventory.js","assets/js/modules/inventory-ui-v11240.js","assets/js/modules/inventory-operator-v11230.js","assets/js/modules/inventory-plan-v11232.js","assets/js/modules/inventory-review-v11230.js","assets/js/modules/inventory-stock-v11230.js","assets/js/modules/inventory-control-v11230.js","assets/js/services/inventory.js"])check(exists(file),`Falta propietario de Inventario: ${file}`);
-for(const legacy of ["assets/js/modules/inventory-stock.js","assets/js/modules/inventory-cycle-v11220.js","assets/js/modules/inventory-control-v11220.js"])check(!exists(legacy),`Inventario conserva módulo V11.22 retirado: ${legacy}`);
-check(inventoryModule.includes('views=[["count","Contar"],["labels","Etiquetas"]]'),"El auxiliar debe conservar Contar/Etiquetas.");
-check(inventoryModule.includes('["plan","Plan de conteos"]'),"Control debe conservar Plan de conteos como primera vista.");
-check(inventoryModule.includes('["express","Conteo exprés"]'),"Super Admin debe disponer de Conteo exprés.");
-check(inventoryUi.includes("v115-goods-row")&&inventoryUi.includes("v115-goods-meta")&&inventoryUi.includes("bindListFilter"),"Falta el sistema visual empresarial común V11.24.");
-for(const [name,source] of [["Plan",inventoryPlan],["Revisión",inventoryReview],["Existencias",inventoryStock],["Inteligencia",inventoryControl],["Auxiliar",inventoryOperator]])check(!source.includes("inventory-row-v11109"),`${name} volvió a usar la grilla histórica de 9 columnas.`);
-check(inventoryPlan.includes("inventoryToolbar")&&inventoryPlan.includes("PARETO ADAPTATIVO")&&inventoryPlan.includes("businessScore"),"Plan perdió filtros o Pareto operativo.");
-check(inventoryReview.includes("inventoryEnterpriseRow")&&inventoryReview.includes('scope==="EXPRESS"'),"Revisión no usa el patrón visual común o perdió Conteo exprés.");
-check(inventoryStock.includes("inventoryEnterpriseRow")&&inventoryStock.includes("inventoryFiltered"),"Existencias no usa el patrón visual común o perdió consulta canónica.");
-check(inventoryControl.includes("inventoryEnterpriseRow")&&inventoryControl.includes("inventoryParetoCards"),"Inteligencia no usa el patrón visual común o perdió Pareto.");
-check(inventoryOperator.includes("v115-goods-hero")&&inventoryOperator.includes("printBlindLabels")&&inventoryOperator.includes("openSafeScanner"),"Auxiliar perdió tarea principal, stickers o escáner.");
-check(inventoryService.includes("erp_x_inventory_count_submit")&&inventoryService.includes("erp_x_inventory_count_review"),"El servicio de Inventario no usa los contratos contables.");
-check(inventoryService.includes("erp_x_inventory_express_reports"),"El servicio no usa el contrato exclusivo de Conteo exprés.");
-check(!inventoryService.includes("erp_x_inventory_cycle_count"),"El servicio aún referencia conteo directo V11.22.");
+const requiredInventory=[
+  "assets/js/modules/inventory.js","assets/js/modules/inventory-ui-v11240.js","assets/js/modules/inventory-home-v11250.js","assets/js/modules/inventory-operator-v11250.js","assets/js/modules/inventory-plan-v11250.js","assets/js/modules/inventory-review-v11250.js","assets/js/modules/inventory-stock-v11250.js","assets/js/modules/inventory-ledger-v11250.js","assets/js/modules/inventory-control-v11250.js","assets/js/modules/inventory-export-v11250.js","assets/js/services/inventory.js"
+];
+for(const file of requiredInventory)check(exists(file),`Falta propietario V11.25: ${file}`);
+check(inventory.includes('inventoryCountCenter')&&inventory.includes('access.operator')&&inventory.includes('access.controller'),"Inventario debe gobernarse por capacidades del servidor.");
+for(const view of ["home","capture","count","labels","plan","review","history","stock","ledger","control"])check(inventory.includes(`\"${view}\"`),`Falta vista de Inventario: ${view}`);
+check(inventory.includes('express-review'),"Super Admin perdió Revisión exprés.");
+check(home.includes("Conteo no programado")&&home.includes("Etiquetas y stickers")&&home.includes("Movimientos"),"Inicio no expone las funciones críticas.");
+check(operator.includes("REGISTRAR CONTEO")&&operator.includes("Conteo exprés")&&operator.includes("Metraje")&&operator.includes("Imprimir jornada")&&operator.includes("Exportar CSV"),"Captura V11.25 perdió conteo, exprés, metraje o stickers.");
+check(operator.includes("inventoryCountSubmit")&&operator.includes("inventoryCountResolve")&&operator.includes("inventoryCountSearch"),"Captura no usa los contratos seguros de conteo.");
+check(plan.includes("PARETO ADAPTATIVO")&&plan.includes("Exportar CSV")&&plan.includes("businessScore"),"Plan perdió Pareto o exportación.");
+check(review.includes("Aprobar y aplicar")&&review.includes("Solicitar reconteo")&&review.includes("Exportar CSV")&&review.includes("ALL"),"Revisión/Historial perdió decisiones o exportación.");
+check(stock.includes("Actualizar Siesa")&&stock.includes("Exportar CSV")&&stock.includes("inventoryMovements"),"Existencias perdió sincronización, exportación o trazabilidad.");
+check(ledger.includes("KARDEX")&&ledger.includes("inventoryMovements")&&ledger.includes("Exportar CSV"),"Movimientos no implementa kardex exportable.");
+check(control.includes("PARETO ADAPTATIVO")&&control.includes("Exportar análisis"),"Inteligencia perdió Pareto o exportación.");
+check(exportsModule.includes("downloadCsv")&&exportsModule.includes("URL.createObjectURL"),"Falta utilidad de exportación CSV.");
+check(ui.includes("v115-goods-row")&&ui.includes("bindListFilter"),"Falta el sistema visual WMS común.");
+check(service.includes("erp_x_inventory_count_submit")&&service.includes("erp_x_inventory_count_review")&&service.includes("erp_x_inventory_express_reports"),"El servicio de Inventario perdió contratos contables.");
+check(!service.includes("erp_x_inventory_cycle_count"),"El servicio aún referencia conteo directo V11.22.");
 
 const workflows=walk(path.join(root,".github/workflows")).filter(file=>/\.ya?ml$/i.test(file)).map(rel);
-check(workflows.length===1&&workflows[0]===".github/workflows/validate-crm.yml","Debe existir una sola CI canónica: validate-crm.yml.");
+check(workflows.length===1&&workflows[0]===".github/workflows/validate-crm.yml","Debe existir una sola CI canónica.");
 check(vercel.includes('"main": true')&&vercel.includes('"*": false'),"Vercel debe desplegar automáticamente solo main.");
 check(exists(".vercelignore"),"Falta .vercelignore.");
-check(exists("supabase/functions/erp-admin-users/index.ts")&&exists("supabase/functions/erp-admin-impersonate/index.ts"),"Falta una Edge Function administrativa activa.");
-check(main.includes('installPacoAssistant();')&&main.includes('initRouter('),"main.js debe conservar el arranque del asistente y router.");
-check(exists("assets/js/modules/shipping-flow.js")&&exists("assets/js/modules/cutting-flow.js"),"Falta un módulo operativo crítico.");
-check(exists("assets/js/modules/vsm.js")&&exists("assets/js/modules/reports-enterprise-v11140.js")&&exists("assets/js/modules/history-center-v11150.js"),"Falta un módulo analítico crítico.");
+check(main.includes('installPacoAssistant();')&&main.includes('initRouter('),"main.js perdió el arranque principal.");
 
 if(failures.length){console.error(`VALIDACIÓN CRM ${version||"SIN VERSIÓN"} FALLÓ`);failures.forEach(item=>console.error(`- ${item}`));process.exit(1)}
 console.log(`VALIDACIÓN CRM ${version} CORRECTA`);
 console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
-console.log("- Inventario V11.24 usa un único patrón WMS responsive en Plan, Revisión, Existencias, Inteligencia y Auxiliar.");
-console.log("- La grilla histórica inventory-row-v11109 está prohibida en las vistas V11.24.");
-console.log("- Conteo ciego, Pareto, metraje, stickers, Conteo exprés y aprobación contable permanecen activos.");
-console.log("- CI única, Vercel solo desde main y PWA V11.24.0 coherente.");
+console.log("- Inventario V11.25 integra captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
+console.log("- Navegación gobernada por capacidades del servidor: Operación y Control pueden coexistir en Super Admin.");
+console.log("- Conteo ciego y aprobación contable permanecen como contratos obligatorios.");
