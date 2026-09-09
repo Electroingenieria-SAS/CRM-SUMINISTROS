@@ -27,3 +27,13 @@ export function inventoryMovements(itemId,{lotId=null,page=1,pageSize=50}={}){
     p_page_size:pageSize
   });
 }
+
+export function inventoryCycleControl(day=null){
+  return rpc("erp_x_inventory_cycle_control",{p_day:day||null});
+}
+
+export async function inventoryCycleCount(payload={}){
+  const data=await rpc("erp_x_inventory_cycle_count",{p_payload:payload||{}});
+  if(typeof window!=="undefined")window.dispatchEvent(new CustomEvent("erp:work-changed",{detail:{rpc:"erp_x_inventory_cycle_count"}}));
+  return data;
+}
