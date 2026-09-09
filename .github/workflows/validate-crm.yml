@@ -51,12 +51,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'version: "11.25.1"' assets/js/config.js
-          grep -q 'build: "2026-09-09.06"' assets/js/config.js
-          grep -q '"version": "11.25.1"' package.json
-          grep -q 'app-entry.js?v=11.25.1' index.html
-          grep -Fxq '// previous-cache: crm-suministros-v11-25-0-20260909-05' service-worker.js
-          grep -Fxq 'const CACHE="crm-suministros-v11-25-1-20260909-06";' service-worker.js
+          grep -q 'version: "11.25.2"' assets/js/config.js
+          grep -q 'build: "2026-09-09.07"' assets/js/config.js
+          grep -q '"version": "11.25.2"' package.json
+          grep -q 'app-entry.js?v=11.25.2' index.html
+          grep -Fxq '// previous-cache: crm-suministros-v11-25-1-20260909-06' service-worker.js
+          grep -Fxq 'const CACHE="crm-suministros-v11-25-2-20260909-07";' service-worker.js
           test "$(grep -c '<link rel="stylesheet" href="./assets/css/' index.html)" -eq 4
           test "$(find assets/css -maxdepth 1 -type f -name '*.css' | wc -l)" -eq 4
 
@@ -103,6 +103,12 @@ jobs:
           grep -q 'Actualizar Siesa' assets/js/modules/inventory-stock-v11250.js
           grep -q 'KARDEX' assets/js/modules/inventory-ledger-v11250.js
           grep -q 'Exportar análisis' assets/js/modules/inventory-control-v11250.js
+          grep -q 'inventory-enterprise-row-v11252' assets/js/modules/inventory-ui-v11240.js
+          grep -q 'const hasActions=Boolean(actionHtml)' assets/js/modules/inventory-ui-v11240.js
+          grep -q 'const actionsHtml=hasActions?' assets/js/modules/inventory-ui-v11240.js
+          grep -q 'no-controls' assets/js/modules/inventory-ui-v11240.js
+          grep -q 'Sin distribución Pareto' assets/js/modules/inventory-ui-v11240.js
+          ! grep -Fq '<div class="page-actions">${actions}</div>' assets/js/modules/inventory-ui-v11240.js
 
       - name: Package deployable frontend
         shell: bash
@@ -113,15 +119,15 @@ jobs:
           cp -R assets templates dist-deployable/
           printf '%s\n' \
             "commit=${GITHUB_SHA}" \
-            "version=11.25.1" \
-            "build=2026-09-09.06" \
+            "version=11.25.2" \
+            "build=2026-09-09.07" \
             "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.25.1-build06-deployable
+          name: crm-suministros-v11.25.2-build07-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
