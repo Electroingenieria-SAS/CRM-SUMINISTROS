@@ -59,8 +59,10 @@ const requiredInventory=[
   "assets/js/modules/inventory.js","assets/js/modules/inventory-ui-v11240.js","assets/js/modules/inventory-home-v11250.js","assets/js/modules/inventory-operator-v11250.js","assets/js/modules/inventory-plan-v11250.js","assets/js/modules/inventory-review-v11250.js","assets/js/modules/inventory-stock-v11250.js","assets/js/modules/inventory-ledger-v11250.js","assets/js/modules/inventory-control-v11250.js","assets/js/modules/inventory-export-v11250.js","assets/js/services/inventory.js"
 ];
 for(const file of requiredInventory)check(exists(file),`Falta propietario V11.25: ${file}`);
+const retiredInventory=["assets/js/modules/inventory-control-v11230.js","assets/js/modules/inventory-operator-v11230.js","assets/js/modules/inventory-plan-v11232.js","assets/js/modules/inventory-review-v11230.js","assets/js/modules/inventory-stock-v11230.js","assets/js/modules/inventory-cycle-v11220.js","assets/js/modules/inventory-control-v11220.js","assets/js/modules/inventory-stock.js"];
+for(const file of retiredInventory)check(!exists(file),`Inventario conserva propietario histórico retirado: ${file}`);
 check(inventory.includes('inventoryCountCenter')&&inventory.includes('access.operator')&&inventory.includes('access.controller'),"Inventario debe gobernarse por capacidades del servidor.");
-for(const view of ["home","capture","count","labels","plan","review","history","stock","ledger","control"])check(inventory.includes(`\"${view}\"`),`Falta vista de Inventario: ${view}`);
+for(const view of ["home","capture","express","count","labels","plan","review","history","stock","ledger","control"])check(inventory.includes(`\"${view}\"`),`Falta vista de Inventario: ${view}`);
 check(inventory.includes('express-review'),"Super Admin perdió Revisión exprés.");
 check(home.includes("Conteo no programado")&&home.includes("Etiquetas y stickers")&&home.includes("Movimientos"),"Inicio no expone las funciones críticas.");
 check(operator.includes("REGISTRAR CONTEO")&&operator.includes("Conteo exprés")&&operator.includes("Metraje")&&operator.includes("Imprimir jornada")&&operator.includes("Exportar CSV"),"Captura V11.25 perdió conteo, exprés, metraje o stickers.");
@@ -87,4 +89,5 @@ console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
 console.log("- Inventario V11.25 integra captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
 console.log("- Navegación gobernada por capacidades del servidor: Operación y Control pueden coexistir en Super Admin.");
+console.log("- Propietarios históricos V11.22/V11.23/V11.24 retirados del runtime.");
 console.log("- Conteo ciego y aprobación contable permanecen como contratos obligatorios.");
