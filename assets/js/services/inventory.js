@@ -20,4 +20,5 @@ export function inventoryCountSearch(query,limit=20){return rpc("erp_x_inventory
 export function inventoryCountResolve(code){return rpc("erp_x_inventory_count_resolve",{p_code:String(code||"").trim()})}
 export function inventoryCountSubmit(payload={}){return mutation("erp_x_inventory_count_submit",{p_payload:payload||{}})}
 export function inventoryCountReports(status=null,page=1,pageSize=50){return rpc("erp_x_inventory_count_reports",{p_status:status||null,p_page:page,p_page_size:pageSize})}
+export function inventoryExpressReports(status=null,page=1,pageSize=50){return rpc("erp_x_inventory_express_reports",{p_status:status||null,p_page:page,p_page_size:pageSize})}
 export function inventoryCountReview(reportId,decision,reason){return mutation("erp_x_inventory_count_review",{p_report_id:reportId,p_decision:decision,p_reason:reason})}
