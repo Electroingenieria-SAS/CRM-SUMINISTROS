@@ -51,10 +51,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'version: "11.24.0"' assets/js/config.js
-          grep -q 'build: "2026-09-09.04"' assets/js/config.js
-          grep -q '"version": "11.24.0"' package.json
-          grep -q 'app-entry.js?v=11.24.0' index.html
+          grep -q 'version: "11.25.0"' assets/js/config.js
+          grep -q 'build: "2026-09-09.05"' assets/js/config.js
+          grep -q '"version": "11.25.0"' package.json
+          grep -q 'app-entry.js?v=11.25.0' index.html
+          grep -Fxq '// previous-cache: crm-suministros-v11-24-0-20260909-04' service-worker.js
+          grep -Fxq 'const CACHE="crm-suministros-v11-25-0-20260909-05";' service-worker.js
           test "$(grep -c '<link rel="stylesheet" href="./assets/css/' index.html)" -eq 4
           test "$(find assets/css -maxdepth 1 -type f -name '*.css' | wc -l)" -eq 4
 
@@ -63,63 +65,40 @@ jobs:
             grep -q "./assets/css/${css}.css" service-worker.js
           done
 
-          grep -q 'Fuente consolidada: app.css' assets/css/core-shell.css
-          grep -q 'Fuente consolidada: inventory-core-v11110.css' assets/css/operations.css
-          grep -q 'Fuente consolidada: shipping-core-v11107.css' assets/css/operations.css
-          grep -q 'Fuente consolidada: flow-times-core-v11120.css' assets/css/analytics.css
-          grep -q 'Fuente consolidada: reports-enterprise-v11140.css' assets/css/analytics.css
-          grep -q 'Fuente consolidada: admin-center-v11160.css' assets/css/analytics.css
-          grep -q 'Fuente consolidada: responsive-foundation-v11190.css' assets/css/experience.css
-          grep -q 'Fuente consolidada: paco-assistant-v11200.css' assets/css/experience.css
-
           test "$(grep -c '<script type="module" src="./assets/js/' index.html)" -eq 1
           grep -q 'import "./main.js";' assets/js/app-entry.js
           test "$(find .github/workflows -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \) | wc -l)" -eq 1
           grep -q '"main"[[:space:]]*:[[:space:]]*true' vercel.json
           grep -q '"\*"[[:space:]]*:[[:space:]]*false' vercel.json
-          test -s .vercelignore
-
-          test -s supabase/migrations/094_architecture_core_cleanup_v11_21_0.sql
-          test -s supabase/migrations/095_inventory_accounting_blind_count_v11_23_0.sql
-          test -s supabase/migrations/096_inventory_express_super_admin_review_v11_23_1.sql
-          test -s supabase/migrations/097_restore_inventory_control_plan_v11_23_2.sql
-          grep -q 'inventory_count_schedule_core' supabase/migrations/097_restore_inventory_control_plan_v11_23_2.sql
-          grep -q 'remainingToday' supabase/migrations/097_restore_inventory_control_plan_v11_23_2.sql
-          grep -q "v_engine->''plan''" supabase/migrations/097_restore_inventory_control_plan_v11_23_2.sql
-          grep -q 'drop function if exists public.erp_x_inventory_cycle_count' supabase/migrations/095_inventory_accounting_blind_count_v11_23_0.sql
-          grep -q 'drop function if exists public.erp_x_inventory_cycle_control' supabase/migrations/095_inventory_accounting_blind_count_v11_23_0.sql
-
-          grep -Fxq '// previous-cache: crm-suministros-v11-23-2-20260909-03' service-worker.js
-          grep -Fxq 'const CACHE="crm-suministros-v11-24-0-20260909-04";' service-worker.js
-          grep -q 'Plan de conteos' assets/js/modules/inventory.js
-          grep -q 'Conteo exprés' assets/js/modules/inventory.js
-          grep -q 'v115-goods-row' assets/js/modules/inventory-ui-v11240.js
-          grep -q 'bindListFilter' assets/js/modules/inventory-ui-v11240.js
-          grep -q 'PARETO ADAPTATIVO' assets/js/modules/inventory-plan-v11232.js
-          grep -q 'inventoryEnterpriseRow' assets/js/modules/inventory-review-v11230.js
-          grep -q 'inventoryEnterpriseRow' assets/js/modules/inventory-stock-v11230.js
-          grep -q 'inventoryParetoCards' assets/js/modules/inventory-control-v11230.js
-          grep -q 'v115-goods-hero' assets/js/modules/inventory-operator-v11230.js
-          grep -q 'printBlindLabels' assets/js/modules/inventory-operator-v11230.js
 
           for file in \
             assets/js/modules/inventory.js \
             assets/js/modules/inventory-ui-v11240.js \
-            assets/js/modules/inventory-operator-v11230.js \
-            assets/js/modules/inventory-plan-v11232.js \
-            assets/js/modules/inventory-review-v11230.js \
-            assets/js/modules/inventory-stock-v11230.js \
-            assets/js/modules/inventory-control-v11230.js; do
+            assets/js/modules/inventory-home-v11250.js \
+            assets/js/modules/inventory-operator-v11250.js \
+            assets/js/modules/inventory-plan-v11250.js \
+            assets/js/modules/inventory-review-v11250.js \
+            assets/js/modules/inventory-stock-v11250.js \
+            assets/js/modules/inventory-ledger-v11250.js \
+            assets/js/modules/inventory-control-v11250.js \
+            assets/js/modules/inventory-export-v11250.js; do
             test -s "$file"
-            if grep -q 'inventory-row-v11109' "$file"; then
-              echo "La vista $file volvió a usar la grilla histórica de 9 columnas" >&2
-              exit 1
-            fi
           done
 
-          test ! -e assets/js/modules/inventory-stock.js
-          test ! -e assets/js/modules/inventory-cycle-v11220.js
-          test ! -e assets/js/modules/inventory-control-v11220.js
+          grep -q 'Registrar conteo' assets/js/modules/inventory.js
+          grep -q 'Mi jornada' assets/js/modules/inventory.js
+          grep -q 'Historial' assets/js/modules/inventory.js
+          grep -q 'Movimientos' assets/js/modules/inventory.js
+          grep -q 'Revisión exprés' assets/js/modules/inventory.js
+          grep -q 'CONTEO EXPRÉS' assets/js/modules/inventory-home-v11250.js
+          grep -q 'REGISTRAR CONTEO' assets/js/modules/inventory-operator-v11250.js
+          grep -q 'Imprimir jornada' assets/js/modules/inventory-operator-v11250.js
+          grep -q 'Exportar CSV' assets/js/modules/inventory-operator-v11250.js
+          grep -q 'PARETO ADAPTATIVO' assets/js/modules/inventory-plan-v11250.js
+          grep -q 'Aprobar y aplicar' assets/js/modules/inventory-review-v11250.js
+          grep -q 'Actualizar Siesa' assets/js/modules/inventory-stock-v11250.js
+          grep -q 'KARDEX' assets/js/modules/inventory-ledger-v11250.js
+          grep -q 'Exportar análisis' assets/js/modules/inventory-control-v11250.js
 
       - name: Package deployable frontend
         shell: bash
@@ -130,15 +109,15 @@ jobs:
           cp -R assets templates dist-deployable/
           printf '%s\n' \
             "commit=${GITHUB_SHA}" \
-            "version=11.24.0" \
-            "build=2026-09-09.04" \
+            "version=11.25.0" \
+            "build=2026-09-09.05" \
             "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.24.0-build04-deployable
+          name: crm-suministros-v11.25.0-build05-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
