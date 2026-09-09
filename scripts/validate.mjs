@@ -19,14 +19,14 @@ const architectureMigration=read("supabase/migrations/094_architecture_core_clea
 const inventoryMigration=read("supabase/migrations/095_inventory_accounting_blind_count_v11_23_0.sql");
 const expressMigration=read("supabase/migrations/096_inventory_express_super_admin_review_v11_23_1.sql");
 const scheduleMigration=read("supabase/migrations/097_restore_inventory_control_plan_v11_23_2.sql");
-const inventoryModule=read("assets/js/modules/inventory.js"),inventoryService=read("assets/js/services/inventory.js"),inventoryReview=read("assets/js/modules/inventory-review-v11230.js"),inventoryPlan=read("assets/js/modules/inventory-plan-v11232.js"),inventoryControl=read("assets/js/modules/inventory-control-v11230.js");
+const inventoryModule=read("assets/js/modules/inventory.js"),inventoryService=read("assets/js/services/inventory.js"),inventoryReview=read("assets/js/modules/inventory-review-v11230.js"),inventoryPlan=read("assets/js/modules/inventory-plan-v11232.js"),inventoryControl=read("assets/js/modules/inventory-control-v11230.js"),inventoryStock=read("assets/js/modules/inventory-stock-v11230.js"),inventoryOperator=read("assets/js/modules/inventory-operator-v11230.js"),inventoryUi=read("assets/js/modules/inventory-ui-v11240.js");
 const coreCss=read("assets/css/core-shell.css"),experienceCss=read("assets/css/experience.css");
 const jsFiles=walk(path.join(root,"assets/js")).filter(file=>file.endsWith(".js"));
 const jsRuntime=jsFiles.map(file=>fs.readFileSync(file,"utf8")).join("\n");
 const normalizedJsRuntime=jsRuntime.replace(/\bArray\s*\.\s*from\s*\(/g,"Array_from(").replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
-check(version==="11.23.2","CONFIG.version debe ser 11.23.2.");
-check(build==="2026-09-09.03","CONFIG.build debe ser 2026-09-09.03.");
+check(version==="11.24.0","CONFIG.version debe ser 11.24.0.");
+check(build==="2026-09-09.04","CONFIG.build debe ser 2026-09-09.04.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar app-entry.js con la versión vigente.");
 check((index.match(/<script\s+type="module"\s+src="\.\/assets\/js\//g)||[]).length===1,"index.html debe tener un único entrypoint ES Module local.");
@@ -51,8 +51,8 @@ for(const asset of swRefs){if(asset!=="./")check(exists(asset.slice(2)),`Asset i
 check(new Set(swRefs).size===swRefs.length,"service-worker.js contiene assets duplicados en APP_SHELL.");
 for(const cssPath of canonicalCss)check(sw.includes(`./${cssPath}`),`PWA no precachea ${cssPath}.`);
 check(!/assets\/css\/(?!core-shell|operations|analytics|experience)[^"']+\.css/.test(sw),"PWA conserva hojas CSS históricas.");
-check(sw.includes('// previous-cache: crm-suministros-v11-23-1-20260909-02'),"previous-cache PWA debe apuntar a V11.23.1.");
-check(sw.includes('const CACHE="crm-suministros-v11-23-2-20260909-03";'),"CACHE activo PWA no corresponde a V11.23.2 build 03.");
+check(sw.includes('// previous-cache: crm-suministros-v11-23-2-20260909-03'),"previous-cache PWA debe apuntar a V11.23.2.");
+check(sw.includes('const CACHE="crm-suministros-v11-24-0-20260909-04";'),"CACHE activo PWA no corresponde a V11.24.0 build 04.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados ignorando query string.");
 check(sw.includes('event.request.mode==="navigate"'),"Service Worker debe conservar fallback exclusivo para navegación.");
 
@@ -72,20 +72,22 @@ check(expressMigration.includes("erp_supply.has_role('super_admin')"),"La cola e
 check(scheduleMigration.includes("inventory_count_schedule_core"),"Migración 097 no registra el plan diario canónico.");
 check(scheduleMigration.includes("remainingToday")&&scheduleMigration.includes("countedToday"),"Migración 097 debe exponer avance real de la jornada.");
 check(scheduleMigration.includes("revoke all on function erp_supply.inventory_count_schedule_core"),"El plan interno no debe quedar expuesto directamente al navegador.");
-check(scheduleMigration.includes("v_engine->''plan''"),"Control debe recibir nuevamente el plan diario con Pareto.");
+check(scheduleMigration.includes("v_engine->''plan''"),"Control debe recibir el plan diario con Pareto.");
 
-for(const file of ["assets/js/modules/inventory.js","assets/js/modules/inventory-operator-v11230.js","assets/js/modules/inventory-plan-v11232.js","assets/js/modules/inventory-review-v11230.js","assets/js/modules/inventory-stock-v11230.js","assets/js/modules/inventory-control-v11230.js","assets/js/services/inventory.js"])check(exists(file),`Falta propietario V11.23: ${file}`);
+for(const file of ["assets/js/modules/inventory.js","assets/js/modules/inventory-ui-v11240.js","assets/js/modules/inventory-operator-v11230.js","assets/js/modules/inventory-plan-v11232.js","assets/js/modules/inventory-review-v11230.js","assets/js/modules/inventory-stock-v11230.js","assets/js/modules/inventory-control-v11230.js","assets/js/services/inventory.js"])check(exists(file),`Falta propietario de Inventario: ${file}`);
 for(const legacy of ["assets/js/modules/inventory-stock.js","assets/js/modules/inventory-cycle-v11220.js","assets/js/modules/inventory-control-v11220.js"])check(!exists(legacy),`Inventario conserva módulo V11.22 retirado: ${legacy}`);
-check(inventoryModule.includes('views=[["count","Contar"],["labels","Etiquetas"]]'),"El auxiliar debe conservar una experiencia mínima Contar/Etiquetas.");
-check(inventoryModule.includes('["plan","Plan de conteos"]'),"Los perfiles de control deben recuperar Plan de conteos como primera vista.");
-check(inventoryModule.includes('["express","Conteo exprés"]'),"Super Admin debe disponer de una pestaña Conteo exprés.");
-check(inventoryModule.includes('current==="plan"'),"Inventario no enruta Plan de conteos.");
-check(inventoryPlan.includes("PARETO ADAPTATIVO")&&inventoryPlan.includes("Pendientes hoy")&&inventoryPlan.includes("Pendientes anuales"),"Plan de conteos debe renderizar Pareto y pendientes diarios/anuales.");
-check(inventoryPlan.includes("businessScore")&&inventoryPlan.includes("abcTurns")&&inventoryPlan.includes("abcCost"),"Plan de conteos perdió las señales de prioridad del motor.");
-check(inventoryControl.includes("Pendientes hoy")&&inventoryControl.includes("PARETO ADAPTATIVO"),"Inteligencia debe conservar pendientes y Pareto.");
-check(inventoryService.includes("erp_x_inventory_count_submit")&&inventoryService.includes("erp_x_inventory_count_review"),"El servicio de Inventario no usa los contratos V11.23.");
+check(inventoryModule.includes('views=[["count","Contar"],["labels","Etiquetas"]]'),"El auxiliar debe conservar Contar/Etiquetas.");
+check(inventoryModule.includes('["plan","Plan de conteos"]'),"Control debe conservar Plan de conteos como primera vista.");
+check(inventoryModule.includes('["express","Conteo exprés"]'),"Super Admin debe disponer de Conteo exprés.");
+check(inventoryUi.includes("v115-goods-row")&&inventoryUi.includes("v115-goods-meta")&&inventoryUi.includes("bindListFilter"),"Falta el sistema visual empresarial común V11.24.");
+for(const [name,source] of [["Plan",inventoryPlan],["Revisión",inventoryReview],["Existencias",inventoryStock],["Inteligencia",inventoryControl],["Auxiliar",inventoryOperator]])check(!source.includes("inventory-row-v11109"),`${name} volvió a usar la grilla histórica de 9 columnas.`);
+check(inventoryPlan.includes("inventoryToolbar")&&inventoryPlan.includes("PARETO ADAPTATIVO")&&inventoryPlan.includes("businessScore"),"Plan perdió filtros o Pareto operativo.");
+check(inventoryReview.includes("inventoryEnterpriseRow")&&inventoryReview.includes('scope==="EXPRESS"'),"Revisión no usa el patrón visual común o perdió Conteo exprés.");
+check(inventoryStock.includes("inventoryEnterpriseRow")&&inventoryStock.includes("inventoryFiltered"),"Existencias no usa el patrón visual común o perdió consulta canónica.");
+check(inventoryControl.includes("inventoryEnterpriseRow")&&inventoryControl.includes("inventoryParetoCards"),"Inteligencia no usa el patrón visual común o perdió Pareto.");
+check(inventoryOperator.includes("v115-goods-hero")&&inventoryOperator.includes("printBlindLabels")&&inventoryOperator.includes("openSafeScanner"),"Auxiliar perdió tarea principal, stickers o escáner.");
+check(inventoryService.includes("erp_x_inventory_count_submit")&&inventoryService.includes("erp_x_inventory_count_review"),"El servicio de Inventario no usa los contratos contables.");
 check(inventoryService.includes("erp_x_inventory_express_reports"),"El servicio no usa el contrato exclusivo de Conteo exprés.");
-check(inventoryReview.includes('scope==="EXPRESS"')&&inventoryReview.includes("inventoryExpressReports"),"La vista de revisión no separa la cola exprés.");
 check(!inventoryService.includes("erp_x_inventory_cycle_count"),"El servicio aún referencia conteo directo V11.22.");
 
 const workflows=walk(path.join(root,".github/workflows")).filter(file=>/\.ya?ml$/i.test(file)).map(rel);
@@ -101,8 +103,7 @@ if(failures.length){console.error(`VALIDACIÓN CRM ${version||"SIN VERSIÓN"} FA
 console.log(`VALIDACIÓN CRM ${version} CORRECTA`);
 console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
-console.log("- Inventario V11.23 segregado: captura ciega → revisión → aplicación contable.");
-console.log("- Plan diario y Pareto restaurados para Control con avance real de jornada.");
-console.log("- Conteo exprés disponible como cola exclusiva de Super Admin.");
-console.log("- Módulos V11.22 de conteo directo retirados del runtime.");
-console.log("- CI única, Vercel solo desde main y PWA V11.23.2 coherente.");
+console.log("- Inventario V11.24 usa un único patrón WMS responsive en Plan, Revisión, Existencias, Inteligencia y Auxiliar.");
+console.log("- La grilla histórica inventory-row-v11109 está prohibida en las vistas V11.24.");
+console.log("- Conteo ciego, Pareto, metraje, stickers, Conteo exprés y aprobación contable permanecen activos.");
+console.log("- CI única, Vercel solo desde main y PWA V11.24.0 coherente.");
