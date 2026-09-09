@@ -1,4 +1,4 @@
-/* CRM Suministros V11.21.0
+/* CRM Suministros V11.23.0
    Canonical composition root: all cross-cutting runtime enhancements are loaded once,
    then the application core boots through main.js. No parallel module script tags. */
 
