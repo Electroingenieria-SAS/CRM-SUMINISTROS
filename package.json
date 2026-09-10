@@ -1,6 +1,6 @@
 {
   "name": "crm-suministros-electroingenieria",
-  "version": "11.25.3",
+  "version": "11.26.0",
   "private": true,
   "type": "module",
   "scripts": {
