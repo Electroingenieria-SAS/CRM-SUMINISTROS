@@ -105,8 +105,9 @@ jobs:
           # Contrato UX V11.26: un solo sistema, ancho contenido y accesibilidad táctil/visual.
           grep -q 'inventory-dialog-v11260' assets/js/modules/inventory-dialogs-v11260.js
           grep -q 'inventory-dialog-guide-v11260' assets/js/modules/inventory-dialogs-v11260.js
-          grep -q -- '--inventory-dialog-width:1180px' assets/js/modules/inventory-dialogs-v11260.js
-          grep -q -- '--inventory-dialog-width:760px' assets/js/modules/inventory-dialogs-v11260.js
+          grep -q -- '--inventory-dialog-width:1120px' assets/js/modules/inventory-dialogs-v11260.js
+          grep -q -- '--inventory-dialog-width:720px' assets/js/modules/inventory-dialogs-v11260.js
+          grep -q -- '--inventory-dialog-width:1040px' assets/js/modules/inventory-dialogs-v11260.js
           grep -q 'min-height:48px' assets/js/modules/inventory-dialogs-v11260.js
           grep -q 'font-size:16px' assets/js/modules/inventory-dialogs-v11260.js
           grep -q 'grid-template-columns:repeat(3,minmax(0,1fr))' assets/js/modules/inventory-dialogs-v11260.js
