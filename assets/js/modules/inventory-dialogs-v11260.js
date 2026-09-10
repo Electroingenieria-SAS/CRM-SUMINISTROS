@@ -22,7 +22,7 @@ function installStyles(){
   style.id=STYLE_ID;
   style.textContent=`
   #modal-root .modal-overlay.inventory-dialog-overlay-v11260{
-    padding:24px 40px!important;
+    padding:24px 48px!important;
     background:rgba(6,24,43,.58)!important;
     backdrop-filter:blur(6px) saturate(1.02)!important;
     align-items:center!important;
@@ -30,9 +30,9 @@ function installStyles(){
   }
 
   #modal-root .modal.${DIALOG_CLASS}{
-    --inventory-dialog-width:980px;
-    width:min(var(--inventory-dialog-width),calc(100vw - 80px))!important;
-    max-width:min(var(--inventory-dialog-width),calc(100vw - 80px))!important;
+    --inventory-dialog-width:940px;
+    width:min(var(--inventory-dialog-width),calc(100vw - 96px))!important;
+    max-width:min(var(--inventory-dialog-width),calc(100vw - 96px))!important;
     height:min(900px,calc(100dvh - 48px))!important;
     max-height:calc(100dvh - 48px)!important;
     border:1px solid #d6e0e8!important;
@@ -41,14 +41,14 @@ function installStyles(){
     box-shadow:0 28px 72px rgba(4,24,44,.28)!important;
     overflow:hidden!important;
   }
-  #modal-root .${DIALOG_CLASS}.inventory-dialog-count-v11260{--inventory-dialog-width:1120px}
-  #modal-root .${DIALOG_CLASS}.inventory-dialog-review-v11260{--inventory-dialog-width:1180px}
-  #modal-root .${DIALOG_CLASS}.inventory-dialog-stock-v11260{--inventory-dialog-width:1080px}
-  #modal-root .${DIALOG_CLASS}.inventory-dialog-plan-v11260{--inventory-dialog-width:1040px}
-  #modal-root .${DIALOG_CLASS}.inventory-dialog-scanner-v11260{--inventory-dialog-width:1060px;height:min(840px,calc(100dvh - 48px))!important}
-  #modal-root .${DIALOG_CLASS}.inventory-dialog-labels-v11260{--inventory-dialog-width:1080px}
-  #modal-root .${DIALOG_CLASS}.inventory-dialog-identified-v11260{--inventory-dialog-width:860px;height:auto!important;min-height:min(600px,calc(100dvh - 48px))!important}
-  #modal-root .${DIALOG_CLASS}.inventory-dialog-sync-v11260{--inventory-dialog-width:760px;height:auto!important;min-height:min(560px,calc(100dvh - 48px))!important}
+  #modal-root .${DIALOG_CLASS}.inventory-dialog-count-v11260{--inventory-dialog-width:1040px}
+  #modal-root .${DIALOG_CLASS}.inventory-dialog-review-v11260{--inventory-dialog-width:1120px}
+  #modal-root .${DIALOG_CLASS}.inventory-dialog-stock-v11260{--inventory-dialog-width:1000px}
+  #modal-root .${DIALOG_CLASS}.inventory-dialog-plan-v11260{--inventory-dialog-width:960px}
+  #modal-root .${DIALOG_CLASS}.inventory-dialog-scanner-v11260{--inventory-dialog-width:1000px;height:min(840px,calc(100dvh - 48px))!important}
+  #modal-root .${DIALOG_CLASS}.inventory-dialog-labels-v11260{--inventory-dialog-width:1040px}
+  #modal-root .${DIALOG_CLASS}.inventory-dialog-identified-v11260{--inventory-dialog-width:820px;height:auto!important;min-height:min(600px,calc(100dvh - 48px))!important}
+  #modal-root .${DIALOG_CLASS}.inventory-dialog-sync-v11260{--inventory-dialog-width:720px;height:auto!important;min-height:min(560px,calc(100dvh - 48px))!important}
 
   #modal-root .${DIALOG_CLASS} .modal-head{
     min-height:78px!important;
@@ -534,11 +534,10 @@ function enhanceDialog(dialog){
   overlay?.classList.add("inventory-dialog-overlay-v11260");
   VARIANTS.filter(name=>name!==variant).forEach(name=>dialog.classList.remove(`inventory-dialog-${name}-v11260`));
   const titleGroup=dialog.querySelector(".modal-title-group")||dialog.querySelector(".modal-head>div");
-  if(titleGroup&&!titleGroup.querySelector(".modal-kicker")){
-    const kicker=document.createElement("span");
-    kicker.className="modal-kicker";
+  if(titleGroup){
+    let kicker=titleGroup.querySelector(".modal-kicker");
+    if(!kicker){kicker=document.createElement("span");kicker.className="modal-kicker";titleGroup.prepend(kicker)}
     kicker.textContent=(GUIDANCE[variant]||GUIDANCE.generic).kicker;
-    titleGroup.prepend(kicker);
   }
   if(!dialog.querySelector(":scope > .inventory-dialog-guide-v11260")){
     const body=dialog.querySelector(":scope > .modal-body");
