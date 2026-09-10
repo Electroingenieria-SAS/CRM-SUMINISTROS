@@ -52,12 +52,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'version: "11.25.3"' assets/js/config.js
-          grep -q 'build: "2026-09-09.08"' assets/js/config.js
-          grep -q '"version": "11.25.3"' package.json
-          grep -q 'app-entry.js?v=11.25.3' index.html
-          grep -Fxq '// previous-cache: crm-suministros-v11-25-2-20260909-07' service-worker.js
-          grep -Fxq 'const CACHE="crm-suministros-v11-25-3-20260909-08";' service-worker.js
+          grep -q 'version: "11.26.0"' assets/js/config.js
+          grep -q 'build: "2026-09-10.01"' assets/js/config.js
+          grep -q '"version": "11.26.0"' package.json
+          grep -q 'app-entry.js?v=11.26.0' index.html
+          grep -Fxq '// previous-cache: crm-suministros-v11-25-3-20260909-08' service-worker.js
+          grep -Fxq 'const CACHE="crm-suministros-v11-26-0-20260910-01";' service-worker.js
           test "$(grep -c '<link rel="stylesheet" href="./assets/css/' index.html)" -eq 4
           test "$(find assets/css -maxdepth 1 -type f -name '*.css' | wc -l)" -eq 4
 
@@ -68,7 +68,11 @@ jobs:
 
           test "$(grep -c '<script type="module" src="./assets/js/' index.html)" -eq 1
           grep -q 'import "./main.js";' assets/js/app-entry.js
-          grep -q 'import "./modules/inventory-modal-v11253.js";' assets/js/app-entry.js
+          grep -q 'import "./modules/inventory-dialogs-v11260.js";' assets/js/app-entry.js
+          ! grep -q 'inventory-modal-v11253.js' assets/js/app-entry.js
+          ! grep -q 'inventory-modal-workspace-v11254.js' assets/js/app-entry.js
+          test ! -e assets/js/modules/inventory-modal-v11253.js
+          test ! -e assets/js/modules/inventory-modal-workspace-v11254.js
           test "$(find .github/workflows -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \) | wc -l)" -eq 1
           grep -q '"main"[[:space:]]*:[[:space:]]*true' vercel.json
           grep -q '"\*"[[:space:]]*:[[:space:]]*false' vercel.json
@@ -76,7 +80,7 @@ jobs:
           for file in \
             assets/js/modules/inventory.js \
             assets/js/modules/inventory-ui-v11240.js \
-            assets/js/modules/inventory-modal-v11253.js \
+            assets/js/modules/inventory-dialogs-v11260.js \
             assets/js/modules/inventory-home-v11250.js \
             assets/js/modules/inventory-operator-v11250.js \
             assets/js/modules/inventory-plan-v11250.js \
@@ -97,14 +101,19 @@ jobs:
           grep -q 'Actualizar Siesa' assets/js/modules/inventory-stock-v11250.js
           grep -q 'KARDEX' assets/js/modules/inventory-ledger-v11250.js
           grep -q 'inventory-enterprise-row-v11252' assets/js/modules/inventory-ui-v11240.js
-          grep -q 'inventory-modal-v11253' assets/js/modules/inventory-modal-v11253.js
-          grep -q 'inventory-modal-count-v11253' assets/js/modules/inventory-modal-v11253.js
-          grep -q 'inventory-modal-review-v11253' assets/js/modules/inventory-modal-v11253.js
-          grep -q 'inventory-modal-scanner-v11253' assets/js/modules/inventory-modal-v11253.js
-          grep -q 'inventory-modal-labels-v11253' assets/js/modules/inventory-modal-v11253.js
-          grep -q 'MutationObserver' assets/js/modules/inventory-modal-v11253.js
-          grep -q 'width:min(1480px' assets/js/modules/inventory-modal-v11253.js
-          grep -q '@media(max-width:620px)' assets/js/modules/inventory-modal-v11253.js
+
+          # Contrato UX V11.26: un solo sistema, ancho contenido y accesibilidad táctil/visual.
+          grep -q 'inventory-dialog-v11260' assets/js/modules/inventory-dialogs-v11260.js
+          grep -q 'inventory-dialog-guide-v11260' assets/js/modules/inventory-dialogs-v11260.js
+          grep -q -- '--inventory-dialog-width:1180px' assets/js/modules/inventory-dialogs-v11260.js
+          grep -q -- '--inventory-dialog-width:760px' assets/js/modules/inventory-dialogs-v11260.js
+          grep -q 'min-height:48px' assets/js/modules/inventory-dialogs-v11260.js
+          grep -q 'font-size:16px' assets/js/modules/inventory-dialogs-v11260.js
+          grep -q 'grid-template-columns:repeat(3,minmax(0,1fr))' assets/js/modules/inventory-dialogs-v11260.js
+          grep -q 'MutationObserver' assets/js/modules/inventory-dialogs-v11260.js
+          ! grep -q 'width:min(86vw' assets/js/modules/inventory-dialogs-v11260.js
+          ! grep -q 'width:min(88vw' assets/js/modules/inventory-dialogs-v11260.js
+          ! grep -q 'width:min(94vw' assets/js/modules/inventory-dialogs-v11260.js
 
       - name: Package deployable frontend
         shell: bash
@@ -116,15 +125,15 @@ jobs:
           touch dist-deployable/.nojekyll
           printf '%s\n' \
             "commit=${GITHUB_SHA}" \
-            "version=11.25.3" \
-            "build=2026-09-09.08" \
+            "version=11.26.0" \
+            "build=2026-09-10.01" \
             "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.25.3-build08-deployable
+          name: crm-suministros-v11.26.0-build01-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
