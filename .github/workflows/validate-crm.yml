@@ -5,6 +5,7 @@ on:
     branches: [main]
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -112,6 +113,7 @@ jobs:
           mkdir -p dist-deployable
           cp index.html 404.html manifest.webmanifest service-worker.js vercel.json dist-deployable/
           cp -R assets templates dist-deployable/
+          touch dist-deployable/.nojekyll
           printf '%s\n' \
             "commit=${GITHUB_SHA}" \
             "version=11.25.3" \
@@ -126,3 +128,28 @@ jobs:
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
+
+      - name: Prepare GitHub Pages preview artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist-deployable
+
+  deploy-preview:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Deploy CRM preview to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
