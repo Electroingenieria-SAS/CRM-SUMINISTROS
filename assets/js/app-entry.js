@@ -1,4 +1,4 @@
-/* CRM Suministros V11.26.0
+/* CRM Suministros V11.26.0 · Visual revision V11.27
    Canonical composition root: cross-cutting runtime enhancements load once,
    then the application core boots through main.js. */
 
@@ -23,5 +23,6 @@ import "./modules/billing-multiformat-v11101.js";
 import "./modules/shipping-guide-reader-v11101.js";
 import "./modules/flow-performance-v11130.js";
 import "./modules/inventory-dialogs-v11260.js";
+import "./modules/inventory-visual-v11270.js";
 
 import "./main.js";

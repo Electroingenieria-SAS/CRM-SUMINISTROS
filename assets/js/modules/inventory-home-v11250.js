@@ -2,6 +2,7 @@ import {inventoryCountCenter} from "../services/inventory.js";
 import {fmt} from "../core/format.js";
 import {state} from "../core/state.js";
 import {empty,toast} from "../core/ui.js";
+import {icon as uiIcon} from "../core/icons.js";
 import {inventoryKpi} from "./inventory-ui-v11240.js";
 
 const esc=v=>fmt.escape(v??"");
@@ -33,5 +34,5 @@ export async function renderInventoryHome(root,{onNavigate}={}){
   root.querySelectorAll("[data-home-go]").forEach(btn=>btn.onclick=()=>onNavigate?.(btn.dataset.homeGo));
   root.querySelector("#inv-home-refresh").onclick=()=>renderInventoryHome(root,{onNavigate}).catch(e=>toast(e.message,"error",7000));
 }
-function card(kicker,title,detail,view,cta){return `<button class="v115-process-card" type="button" data-home-go="${esc(view)}"><span class="v115-process-icon">${icon(view)}</span><div><small>${esc(kicker)}</small><strong>${esc(title)}</strong><p>${esc(detail)}</p></div><em>${esc(cta)}</em></button>`}
-function icon(view){return ({capture:"+",express:"⚡",count:"✓",labels:"▣",plan:"≡",review:"◎",history:"↺",stock:"▦",ledger:"⇄",control:"◫"})[view]||"•"}
+function card(kicker,title,detail,view,cta){return `<button class="v115-process-card" type="button" data-home-go="${esc(view)}"><span class="v115-process-icon">${visualIcon(view)}</span><div><small>${esc(kicker)}</small><strong>${esc(title)}</strong><p>${esc(detail)}</p></div><em>${esc(cta)}</em></button>`}
+function visualIcon(view){const name=({capture:"plus",express:"activity",count:"check",labels:"inventory",plan:"calendar",review:"approvals",history:"audit",stock:"inventory",ledger:"vsm",control:"reports"})[view]||"inventory";return uiIcon(name,"inventory-home-icon-v11270")}
