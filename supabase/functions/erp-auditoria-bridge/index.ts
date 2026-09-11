@@ -96,8 +96,6 @@ function auditPayload(source: any) {
     proceso: "Recepción de mercancía · CRM Suministros",
     estado: "Pendiente",
     observaciones: notes,
-    pdf_url: "[]",
-    usuario: "Integración CRM",
     created_at: new Date().toISOString()
   };
   return { full: { ...base, categoria: "Logística", datos_especificos: specific }, base, name };
@@ -117,7 +115,7 @@ async function auditoriaRequest(admin:any,path: string, init: RequestInit = {}) 
 }
 
 async function findExisting(admin:any,name: string) {
-  const params = new URLSearchParams({ select:"id,nombre,estado,responsable", nombre:`eq.${name}`, usuario:"eq.Integración CRM", limit:"1" });
+  const params = new URLSearchParams({ select:"id,nombre,estado,responsable", nombre:`eq.${name}`, limit:"1" });
   const { response, body, text } = await auditoriaRequest(admin,`auditorias?${params.toString()}`, { method:"GET" });
   if (!response.ok) throw new Error(`AuditoriaERP no permitió consultar idempotencia (${response.status}): ${text.slice(0,300)}`);
   return Array.isArray(body) && body.length ? body[0] : null;
@@ -129,14 +127,9 @@ async function persistAudit(admin:any,existing: any, variants: {full:any;base:an
       tipo: variants.full.tipo,
       categoria: variants.full.categoria,
       observaciones: variants.full.observaciones,
-      datos_especificos: variants.full.datos_especificos,
-      usuario: variants.full.usuario
+      datos_especificos: variants.full.datos_especificos
     };
-    const baseUpdate = {
-      tipo: variants.base.tipo,
-      observaciones: variants.base.observaciones,
-      usuario: variants.base.usuario
-    };
+    const baseUpdate = { tipo: variants.base.tipo, observaciones: variants.base.observaciones };
     for (const payload of [fullUpdate, baseUpdate]) {
       const { response, body, text } = await auditoriaRequest(admin,`auditorias?id=eq.${encodeURIComponent(existing.id)}`, {
         method:"PATCH",
@@ -189,13 +182,14 @@ async function handle(req:Request){
   if(databaseDispatch){
     const deliveryToken=clean(body?.deliveryToken);
     if(!eventKey.startsWith("CRM_WAREHOUSE_RECEIPT:")||!UUID_RE.test(deliveryToken))return json(req,{error:"Evento server-to-server inválido"},400);
-    const {data:claimedReceipt,error:claimError}=await admin.rpc("erp_x_auditoria_erp_claim_webhook",{
+    const {data:claim,error:claimError}=await admin.rpc("erp_x_auditoria_erp_claim_webhook_v2",{
       p_event_key:eventKey,
       p_delivery_token:deliveryToken
     });
     if(claimError)throw new Error(`Claim webhook: ${claimError.message}`);
-    receiptId=clean(claimedReceipt);
-    if(!UUID_RE.test(receiptId))return json(req,{success:true,skipped:true,reason:"Evento expirado, procesado o no autorizado"},202);
+    if(claim?.claimed!==true)return json(req,{success:true,skipped:true,reason:"Evento expirado, procesado o ya reclamado"},202);
+    receiptId=clean(claim?.receiptId);
+    if(!UUID_RE.test(receiptId))throw new Error("Claim webhook sin receiptId válido");
   }else{
     if(!UUID_RE.test(receiptId))return json(req,{error:"receiptId inválido"},400);
     const token = clean(req.headers.get("Authorization")).replace(/^Bearer\s+/i,"");
