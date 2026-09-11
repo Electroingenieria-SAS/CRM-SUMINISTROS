@@ -23,16 +23,19 @@ const modules=new Map(files.map(file=>[
   })
 ]));
 
-function resolve(specifier,referencingModule){
+function targetFor(specifier,referencingModule){
   if(!specifier.startsWith(".")&&!specifier.startsWith("/")){
     throw new Error(`Import externo no soportado en runtime: ${specifier} (${referencingModule.identifier})`);
   }
   const base=path.dirname(fileURLToPath(referencingModule.identifier));
   let target=path.resolve(base,specifier);
   if(!path.extname(target))target+=".js";
-  const dependency=modules.get(target);
-  if(!dependency)throw new Error(`Módulo inexistente: ${specifier} -> ${target}`);
-  return dependency;
+  if(!modules.has(target))throw new Error(`Módulo inexistente: ${specifier} -> ${target}`);
+  return target;
+}
+
+function resolve(specifier,referencingModule){
+  return modules.get(targetFor(specifier,referencingModule));
 }
 
 const failures=[];
@@ -48,4 +51,25 @@ if(failures.length){
   failures.forEach(item=>console.error(`- ${item}`));
   process.exit(1);
 }
-console.log(`ENLACE ES MODULES CORRECTO · ${files.length} archivos · 0 contratos rotos.`);
+
+const entry=path.resolve(root,"assets/js/app-entry.js");
+const reachable=new Set();
+function visit(file){
+  if(reachable.has(file))return;
+  reachable.add(file);
+  const module=modules.get(file);
+  if(!module)return;
+  for(const specifier of module.dependencySpecifiers||[]){
+    visit(targetFor(specifier,module));
+  }
+}
+visit(entry);
+
+const orphans=files.filter(file=>!reachable.has(file));
+if(orphans.length){
+  console.error("AUDITORÍA DE RUNTIME FALLIDA · módulos JS no alcanzables desde app-entry.js");
+  orphans.forEach(file=>console.error(`- ${path.relative(root,file)}`));
+  process.exit(1);
+}
+
+console.log(`ENLACE ES MODULES CORRECTO · ${files.length} archivos · 0 contratos rotos · 0 módulos huérfanos.`);
