@@ -228,7 +228,6 @@ with bounds as (
   from erp_supply.warehouse_receipts wr,bounds b
   where wr.received_at >= b.date_from::timestamptz
     and wr.received_at < (b.date_to+1)::timestamptz
-    and coalesce((wr.metadata->>'isTest')::boolean,false)=false
 ), line_totals as (
   select l.receipt_id,
          coalesce(sum(l.received_quantity),0) total_received,
@@ -244,10 +243,10 @@ with bounds as (
   select coalesce(novelty_severity,'SIN_NOVEDAD') label,count(*)::integer value
   from receipts_scope group by 1 order by 2 desc
 ), daily as (
-  select received_at::date day,
-         count(*)::integer receipts,
-         count(*) filter(where novelty_type is not null or novelty_note is not null or status in('PARTIAL','NONCONFORMING'))::integer novelties,
-         coalesce(sum(lt.total_rejected),0) rejected
+  select received_at::date as metric_date,
+         count(*)::integer as receipts,
+         count(*) filter(where novelty_type is not null or novelty_note is not null or status in('PARTIAL','NONCONFORMING'))::integer as novelties,
+         coalesce(sum(lt.total_rejected),0) as rejected
   from receipts_scope r
   left join line_totals lt on lt.receipt_id=r.id
   group by received_at::date order by received_at::date
@@ -263,7 +262,7 @@ select jsonb_build_object(
   ),
   'noveltyTypes',(select coalesce(jsonb_agg(jsonb_build_object('label',label,'value',value)),'[]'::jsonb) from by_type),
   'severities',(select coalesce(jsonb_agg(jsonb_build_object('label',label,'value',value)),'[]'::jsonb) from by_severity),
-  'trend',(select coalesce(jsonb_agg(jsonb_build_object('date',day,'receipts',receipts,'novelties',novelties,'rejected',rejected) order by day),'[]'::jsonb) from daily),
+  'trend',(select coalesce(jsonb_agg(jsonb_build_object('date',metric_date,'receipts',receipts,'novelties',novelties,'rejected',rejected) order by metric_date),'[]'::jsonb) from daily),
   'generatedAt',now()
 )
 from bounds b
