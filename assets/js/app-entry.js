@@ -15,6 +15,7 @@ import "./modules/order-create-v1191.js";
 import "./modules/receiving-order-v1192.js";
 import "./modules/receiving-focus-v1193.js";
 import "./modules/receiving-polish-v1194.js";
+import "./modules/receiving-workspace-v11290.js";
 import "./modules/picking-focus-v1195.js";
 import "./modules/billing-focus-v1198.js";
 import "./modules/billing-upload-v1199.js";
