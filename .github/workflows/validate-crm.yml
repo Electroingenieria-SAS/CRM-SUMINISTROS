@@ -57,12 +57,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'version: "11.26.0"' assets/js/config.js
-          grep -q 'build: "2026-09-10.01"' assets/js/config.js
-          grep -q '"version": "11.26.0"' package.json
-          grep -q 'app-entry.js?v=11.26.0' index.html
-          grep -Fxq '// previous-cache: crm-suministros-v11-25-3-20260909-08' service-worker.js
-          grep -Fxq 'const CACHE="crm-suministros-v11-26-0-20260910-01";' service-worker.js
+          grep -q 'version: "11.27.0"' assets/js/config.js
+          grep -q 'build: "2026-09-11.01"' assets/js/config.js
+          grep -q '"version": "11.27.0"' package.json
+          grep -q '"version": "11.27.0"' package-lock.json
+          grep -q 'app-entry.js?v=11.27.0' index.html
+          grep -Fxq '// previous-cache: crm-suministros-v11-26-0-20260910-01' service-worker.js
+          grep -Fxq 'const CACHE="crm-suministros-v11-27-0-20260911-01";' service-worker.js
+          grep -q 'manifest.webmanifest' vercel.json
           test "$(grep -c '<link rel="stylesheet" href="./assets/css/' index.html)" -eq 4
           test "$(find assets/css -maxdepth 1 -type f -name '*.css' | wc -l)" -eq 4
 
@@ -74,6 +76,7 @@ jobs:
           test "$(grep -c '<script type="module" src="./assets/js/' index.html)" -eq 1
           grep -q 'import "./main.js";' assets/js/app-entry.js
           grep -q 'import "./modules/inventory-dialogs-v11260.js";' assets/js/app-entry.js
+          grep -q 'import "./modules/inventory-visual-v11270.js";' assets/js/app-entry.js
           ! grep -q 'inventory-modal-v11253.js' assets/js/app-entry.js
           ! grep -q 'inventory-modal-workspace-v11254.js' assets/js/app-entry.js
           test ! -e assets/js/modules/inventory-modal-v11253.js
@@ -81,6 +84,10 @@ jobs:
           test "$(find .github/workflows -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \) | wc -l)" -eq 1
           grep -q '"main"[[:space:]]*:[[:space:]]*true' vercel.json
           grep -q '"\*"[[:space:]]*:[[:space:]]*false' vercel.json
+
+          for migration in 098_profiles_rls_scope_v11_27_0 099_work_my_day_role_cache_v11_27_0 100_inventory_filtered_hotpath_v11_27_0 101_inventory_count_plan_hotpath_v11_27_0; do
+            test -s "supabase/migrations/${migration}.sql"
+          done
 
           for file in \
             assets/js/modules/inventory.js \
@@ -97,6 +104,7 @@ jobs:
             test -s "$file"
           done
 
+          grep -q 'pendingScopes' assets/js/modules/responsive-foundation-v11190.js
           grep -q 'inventory-nav-v11251' assets/js/modules/inventory.js
           grep -q 'inventory-audit-card-v11251' assets/js/modules/inventory-review-v11250.js
           grep -q 'inventory-comparison-row-v11251' assets/js/modules/inventory-review-v11250.js
@@ -107,7 +115,7 @@ jobs:
           grep -q 'KARDEX' assets/js/modules/inventory-ledger-v11250.js
           grep -q 'inventory-enterprise-row-v11252' assets/js/modules/inventory-ui-v11240.js
 
-          # Contrato UX V11.26: un solo sistema, ancho contenido y accesibilidad táctil/visual.
+          # Contrato UX: un solo sistema, ancho contenido y accesibilidad táctil/visual.
           grep -q 'inventory-dialog-v11260' assets/js/modules/inventory-dialogs-v11260.js
           grep -q 'inventory-dialog-guide-v11260' assets/js/modules/inventory-dialogs-v11260.js
           grep -q -- '--inventory-dialog-width:1120px' assets/js/modules/inventory-dialogs-v11260.js
@@ -129,9 +137,9 @@ jobs:
         if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
         run: npx playwright install --with-deps chromium
 
-      - name: Browser smoke · public shell
+      - name: Browser smoke · desktop and mobile public shell
         if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-        run: npx playwright test tests/smoke.spec.js --project=chromium --grep "login shell renders"
+        run: npx playwright test tests/smoke.spec.js --project=chromium --project=mobile --grep "login shell renders"
 
       - name: Package deployable frontend
         shell: bash
@@ -143,15 +151,15 @@ jobs:
           touch dist-deployable/.nojekyll
           printf '%s\n' \
             "commit=${GITHUB_SHA}" \
-            "version=11.26.0" \
-            "build=2026-09-10.01" \
+            "version=11.27.0" \
+            "build=2026-09-11.01" \
             "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.26.0-build01-deployable
+          name: crm-suministros-v11.27.0-build01-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
