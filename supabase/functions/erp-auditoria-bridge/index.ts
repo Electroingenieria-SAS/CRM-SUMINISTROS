@@ -12,6 +12,7 @@ const AUDITORIA_CONFIG_URL = Deno.env.get("AUDITORIA_ERP_CONFIG_URL") || "https:
 let auditoriaConfigPromise: Promise<{url:string;key:string}> | null = null;
 
 const clean = (value: unknown) => String(value ?? "").trim();
+const UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const origin = (req: Request) => clean(req.headers.get("Origin"));
 const isAllowedOrigin = (req: Request) => !origin(req) || allowedOrigins.has(origin(req));
 const corsHeaders = (req: Request) => ({
@@ -99,7 +100,8 @@ function auditPayload(source: any) {
     estado: "Pendiente",
     observaciones: notes,
     pdf_url: "[]",
-    usuario: "Integración CRM"
+    usuario: "Integración CRM",
+    created_at: new Date().toISOString()
   };
   return { full: { ...base, categoria: "Logística", datos_especificos: specific }, base, name };
 }
@@ -178,37 +180,61 @@ Deno.serve(async (req: Request) => {
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
   const clientKey = Deno.env.get("SUPABASE_ANON_KEY") || serviceKey;
   if (!supabaseUrl || !serviceKey) return json(req,{error:"Configuración del servidor incompleta"},500);
-
-  const token = clean(req.headers.get("Authorization")).replace(/^Bearer\s+/i,"");
-  if (!token) return json(req,{error:"Sesión requerida"},401);
   const admin = createClient(supabaseUrl,serviceKey,{auth:{autoRefreshToken:false,persistSession:false}});
-  const userClient = createClient(supabaseUrl,clientKey,{
-    global:{headers:{Authorization:`Bearer ${token}`}},
-    auth:{autoRefreshToken:false,persistSession:false,detectSessionInUrl:false}
-  });
-  const { data:userData,error:userError } = await admin.auth.getUser(token);
-  if (userError || !userData.user) return json(req,{error:"Sesión inválida o vencida"},401);
 
   let body: any = {};
   try { body = await req.json(); } catch { return json(req,{error:"JSON inválido"},400); }
-  const receiptId = clean(body?.receiptId);
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(receiptId)) return json(req,{error:"receiptId inválido"},400);
 
-  const {data:authorized,error:authzError}=await userClient.rpc("erp_x_auditoria_erp_authorize",{p_receipt_id:receiptId});
-  if(authzError||authorized!==true)return json(req,{error:"No autorizado para sincronizar esta recepción"},403);
+  const databaseDispatch=body?.source==="database";
+  let receiptId=clean(body?.receiptId);
+  let eventKey=clean(body?.eventKey)||`CRM_WAREHOUSE_RECEIPT:${receiptId}`;
 
-  let eventKey = `CRM_WAREHOUSE_RECEIPT:${receiptId}`;
+  if(databaseDispatch){
+    const deliveryToken=clean(body?.deliveryToken);
+    if(!eventKey.startsWith("CRM_WAREHOUSE_RECEIPT:")||!UUID_RE.test(deliveryToken))return json(req,{error:"Evento server-to-server inválido"},400);
+    const {data:claimedReceipt,error:claimError}=await admin.rpc("erp_x_auditoria_erp_claim_webhook",{
+      p_event_key:eventKey,
+      p_delivery_token:deliveryToken
+    });
+    if(claimError){
+      console.error("[AUDITORIA ERP BRIDGE] Claim webhook",claimError.message);
+      return json(req,{error:"No fue posible autenticar el evento de integración"},500);
+    }
+    receiptId=clean(claimedReceipt);
+    if(!UUID_RE.test(receiptId))return json(req,{success:true,skipped:true,reason:"Evento expirado, procesado o no autorizado"},202);
+  }else{
+    if(!UUID_RE.test(receiptId))return json(req,{error:"receiptId inválido"},400);
+    const token = clean(req.headers.get("Authorization")).replace(/^Bearer\s+/i,"");
+    if (!token) return json(req,{error:"Sesión requerida"},401);
+    const { data:userData,error:userError } = await admin.auth.getUser(token);
+    if (userError || !userData.user) return json(req,{error:"Sesión inválida o vencida"},401);
+    const userClient = createClient(supabaseUrl,clientKey,{
+      global:{headers:{Authorization:`Bearer ${token}`}},
+      auth:{autoRefreshToken:false,persistSession:false,detectSessionInUrl:false}
+    });
+    const {data:authorized,error:authzError}=await userClient.rpc("erp_x_auditoria_erp_authorize",{p_receipt_id:receiptId});
+    if(authzError||authorized!==true)return json(req,{error:"No autorizado para sincronizar esta recepción"},403);
+  }
+
   try {
     const { data:source,error:payloadError } = await admin.rpc("erp_x_auditoria_erp_payload",{p_receipt_id:receiptId});
     if (payloadError) throw payloadError;
-    if (!source) return json(req,{success:true,skipped:true,reason:"Recepción no encontrada"},200);
-    eventKey = clean(source.eventKey) || eventKey;
+    if (!source) {
+      if(databaseDispatch)await admin.rpc("erp_x_auditoria_erp_mark",{p_event_key:eventKey,p_status:"SYNCED",p_error:null,p_target_audit_id:null});
+      return json(req,{success:true,skipped:true,reason:"Recepción no encontrada"},200);
+    }
+    eventKey = clean(source.eventKey) || eventKey || `CRM_WAREHOUSE_RECEIPT:${receiptId}`;
     const hasNovelty = Boolean(clean(source.noveltyType) || clean(source.noveltyNote) || ["PARTIAL","NONCONFORMING"].includes(clean(source.status).toUpperCase()));
-    if (!hasNovelty) return json(req,{success:true,skipped:true,reason:"Recepción sin novedad"},200);
+    if (!hasNovelty) {
+      await admin.rpc("erp_x_auditoria_erp_mark",{p_event_key:eventKey,p_status:"SYNCED",p_error:null,p_target_audit_id:null});
+      return json(req,{success:true,skipped:true,reason:"Recepción sin novedad"},200);
+    }
 
-    const {data:claimed,error:claimError}=await admin.rpc("erp_x_auditoria_erp_mark",{p_event_key:eventKey,p_status:"SYNCING",p_error:null,p_target_audit_id:null});
-    if(claimError)throw claimError;
-    if(claimed!==true)return json(req,{success:true,skipped:true,reason:"Sincronización ya procesada o en curso"},200);
+    if(!databaseDispatch){
+      const {data:claimed,error:claimError}=await admin.rpc("erp_x_auditoria_erp_mark",{p_event_key:eventKey,p_status:"SYNCING",p_error:null,p_target_audit_id:null});
+      if(claimError)throw claimError;
+      if(claimed!==true)return json(req,{success:true,skipped:true,reason:"Sincronización ya procesada o en curso"},200);
+    }
 
     const mapped = auditPayload(source);
     const existing = await findExisting(mapped.name);
