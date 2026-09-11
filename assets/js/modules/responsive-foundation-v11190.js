@@ -8,8 +8,10 @@ const WIDE_MIN=1600;
 const KEYBOARD_THRESHOLD=160;
 
 let observer=null;
-let scheduled=false;
+let normalizeScheduled=false;
+let viewportScheduled=false;
 let lastKeyboardState="closed";
+const pendingScopes=new Set();
 
 const html=document.documentElement;
 
@@ -131,35 +133,47 @@ function normalizeTables(scope=document){
 
 function normalize(scope=document){normalizeScrollStrips(scope);normalizeTables(scope)}
 
-function scheduleNormalize(){
-  if(scheduled)return;
-  scheduled=true;
+function scheduleViewport(){
+  if(viewportScheduled)return;
+  viewportScheduled=true;
   requestAnimationFrame(()=>{
-    scheduled=false;
+    viewportScheduled=false;
     viewportMetrics();
-    normalize(document.querySelector("#app")||document);
-    const modalRoot=document.querySelector("#modal-root");
-    if(modalRoot)normalize(modalRoot);
+  });
+}
+
+function queueScope(scope){
+  if(!(scope instanceof Element||scope instanceof Document||scope instanceof DocumentFragment))return;
+  pendingScopes.add(scope);
+  if(normalizeScheduled)return;
+  normalizeScheduled=true;
+  requestAnimationFrame(()=>{
+    normalizeScheduled=false;
+    const scopes=[...pendingScopes];
+    pendingScopes.clear();
+    for(const item of scopes){
+      if(item instanceof Element&&!item.isConnected)continue;
+      normalize(item);
+    }
   });
 }
 
 function observeDynamicUi(){
   observer?.disconnect();
   observer=new MutationObserver(records=>{
-    let relevant=false;
     for(const record of records){
       if(record.type!=="childList"||!record.addedNodes.length)continue;
-      relevant=true;
-      break;
+      for(const node of record.addedNodes){
+        if(node instanceof Element||node instanceof DocumentFragment)queueScope(node);
+      }
     }
-    if(relevant)scheduleNormalize();
   });
   observer.observe(document.body,{childList:true,subtree:true});
 }
 
 function bindViewport(){
   const vv=window.visualViewport;
-  const handler=()=>scheduleNormalize();
+  const handler=()=>scheduleViewport();
   window.addEventListener("resize",handler,{passive:true});
   window.addEventListener("orientationchange",handler,{passive:true});
   window.addEventListener("pageshow",handler,{passive:true});
