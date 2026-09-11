@@ -1,5 +1,6 @@
 -- V11.28.0 · Hardening del puente CRM Suministros -> AuditoriaERP
--- Autoriza cada recepción con el contexto del usuario y hace reintentables SYNCING abandonados.
+-- Autoriza cada recepción con el contexto del usuario, reclama cada evento una sola vez
+-- y hace reintentables los estados SYNCING abandonados.
 
 create or replace function public.erp_x_auditoria_erp_authorize(p_receipt_id uuid)
 returns boolean
@@ -100,12 +101,26 @@ begin
     raise exception 'Estado de integración inválido';
   end if;
 
+  if v_status='SYNCING' then
+    update erp_supply.auditoria_erp_outbox
+    set status='SYNCING',
+        attempts=attempts+1,
+        last_error=null,
+        last_attempt_at=now(),
+        updated_at=now()
+    where event_key=p_event_key
+      and attempts<10
+      and (
+        status in ('PENDING','FAILED')
+        or (status='SYNCING' and coalesce(last_attempt_at,created_at)<now()-interval '5 minutes')
+      );
+    return found;
+  end if;
+
   update erp_supply.auditoria_erp_outbox
   set status=v_status,
-      attempts=case when v_status='SYNCING' then attempts+1 else attempts end,
       target_audit_id=coalesce(p_target_audit_id,target_audit_id),
       last_error=case when v_status='FAILED' then left(coalesce(p_error,'Error no especificado'),2000) else null end,
-      last_attempt_at=case when v_status='SYNCING' then now() else last_attempt_at end,
       synced_at=case when v_status='SYNCED' then now() else synced_at end,
       updated_at=now()
   where event_key=p_event_key;
