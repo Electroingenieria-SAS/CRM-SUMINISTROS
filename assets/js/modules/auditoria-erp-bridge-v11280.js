@@ -51,6 +51,9 @@ export function installAuditoriaErpBridge(){
   const retry=()=>retryPending(client,originalRpc);
   window.addEventListener("online",retry,{passive:true});
   document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")retry()});
+  client.auth.onAuthStateChange((event,session)=>{
+    if(session&&(event==="SIGNED_IN"||event==="TOKEN_REFRESHED"))setTimeout(retry,250);
+  });
   setTimeout(retry,1500);
 }
 
