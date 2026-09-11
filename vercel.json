@@ -9,7 +9,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/((?!assets/|templates/|service-worker\\.js|manifest\\.json|favicon\\.ico).*)", "destination": "/index.html" }
+    { "source": "/((?!assets/|templates/|service-worker\\.js|manifest\\.webmanifest|favicon\\.ico).*)", "destination": "/index.html" }
   ],
   "headers": [
     {
