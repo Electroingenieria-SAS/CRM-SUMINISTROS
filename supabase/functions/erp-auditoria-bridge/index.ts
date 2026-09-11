@@ -8,9 +8,8 @@ const allowedOrigins = new Set([
   "http://localhost:4173"
 ]);
 
-const AUDITORIA_URL = Deno.env.get("AUDITORIA_ERP_URL") || "https://hurxdjoiafkjoyrmyhbd.supabase.co";
-// Clave pública anon del propio frontend AuditoriaERP. Nunca se usa Service Role del sistema externo.
-const AUDITORIA_ANON_KEY = Deno.env.get("AUDITORIA_ERP_ANON_KEY") || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYXNlIiwicmVmIjoiaHVyeGRqb2lhZmtqb3lybXloYmQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc3OTczODExMywiZXhwIjoyMDk1MzE0MTEzfQ.Z6fRiWft3eSEVNZbWflmcvVcHAJTAEA37tPdp4LRnTg";
+const AUDITORIA_CONFIG_URL = Deno.env.get("AUDITORIA_ERP_CONFIG_URL") || "https://raw.githubusercontent.com/Electroingenieria-SAS/AuditoriaERP/main/js/config.js";
+let auditoriaConfigPromise: Promise<{url:string;key:string}> | null = null;
 
 const clean = (value: unknown) => String(value ?? "").trim();
 const origin = (req: Request) => clean(req.headers.get("Origin"));
@@ -26,6 +25,23 @@ const json = (req: Request, body: unknown, status = 200) => new Response(JSON.st
   status,
   headers: { ...corsHeaders(req), "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" }
 });
+
+async function getAuditoriaConfig(){
+  const envUrl=clean(Deno.env.get("AUDITORIA_ERP_URL"));
+  const envKey=clean(Deno.env.get("AUDITORIA_ERP_ANON_KEY"));
+  if(envUrl&&envKey)return {url:envUrl.replace(/\/$/,""),key:envKey};
+  if(auditoriaConfigPromise)return auditoriaConfigPromise;
+  auditoriaConfigPromise=(async()=>{
+    const response=await fetch(AUDITORIA_CONFIG_URL,{headers:{Accept:"text/plain"},redirect:"follow"});
+    if(!response.ok)throw new Error(`No fue posible cargar la configuración pública de AuditoriaERP (${response.status}).`);
+    const text=await response.text();
+    const urlMatch=text.match(/https:\/\/[a-z0-9]+\.supabase\.co/i);
+    const keyMatch=text.match(/(?:eyJ[A-Za-z0-9._-]{80,}|sb_publishable_[A-Za-z0-9_-]{20,})/);
+    if(!urlMatch||!keyMatch)throw new Error("La configuración pública de AuditoriaERP no contiene los parámetros esperados.");
+    return {url:urlMatch[0].replace(/\/$/,""),key:keyMatch[0]};
+  })().catch(error=>{auditoriaConfigPromise=null;throw error});
+  return auditoriaConfigPromise;
+}
 
 const noveltyLabels: Record<string,string> = {
   SHORTAGE: "Faltante",
@@ -46,7 +62,7 @@ function auditPayload(source: any) {
   const date = clean(source.receivedAt).slice(0,10) || new Date().toISOString().slice(0,10);
   const name = `[CRM] Novedad recepción ${clean(source.receiptNumber)}`;
   const notes = [
-    `Novedad generada automáticamente desde CRM Suministros.`,
+    "Novedad generada automáticamente desde CRM Suministros.",
     `Tipo: ${noveltyLabel}. Severidad: ${severityLabel}.`,
     clean(source.noveltyNote),
     source.totalRejected ? `Cantidad rechazada registrada: ${source.totalRejected}.` : "",
@@ -89,11 +105,12 @@ function auditPayload(source: any) {
 }
 
 async function auditoriaRequest(path: string, init: RequestInit = {}) {
+  const config=await getAuditoriaConfig();
   const headers = new Headers(init.headers || {});
-  headers.set("apikey", AUDITORIA_ANON_KEY);
-  headers.set("Authorization", `Bearer ${AUDITORIA_ANON_KEY}`);
+  headers.set("apikey", config.key);
+  headers.set("Authorization", `Bearer ${config.key}`);
   headers.set("Content-Type", "application/json");
-  const response = await fetch(`${AUDITORIA_URL}/rest/v1/${path}`, { ...init, headers });
+  const response = await fetch(`${config.url}/rest/v1/${path}`, { ...init, headers });
   const text = await response.text();
   let body: any = null;
   try { body = text ? JSON.parse(text) : null; } catch { body = text; }
