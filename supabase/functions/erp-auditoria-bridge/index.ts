@@ -8,10 +8,8 @@ const allowedOrigins = new Set([
   "http://localhost:4173"
 ]);
 
-const AUDITORIA_CONFIG_URL = Deno.env.get("AUDITORIA_ERP_CONFIG_URL") || "https://raw.githubusercontent.com/Electroingenieria-SAS/AuditoriaERP/main/js/config.js";
-let auditoriaConfigPromise: Promise<{url:string;key:string}> | null = null;
-
 const clean = (value: unknown) => String(value ?? "").trim();
+const UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const origin = (req: Request) => clean(req.headers.get("Origin"));
 const isAllowedOrigin = (req: Request) => !origin(req) || allowedOrigins.has(origin(req));
 const corsHeaders = (req: Request) => ({
@@ -26,21 +24,21 @@ const json = (req: Request, body: unknown, status = 200) => new Response(JSON.st
   headers: { ...corsHeaders(req), "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" }
 });
 
-async function getAuditoriaConfig(){
+let targetConfigPromise:Promise<{url:string;key:string}>|null=null;
+async function getAuditoriaConfig(admin:any){
   const envUrl=clean(Deno.env.get("AUDITORIA_ERP_URL"));
   const envKey=clean(Deno.env.get("AUDITORIA_ERP_ANON_KEY"));
   if(envUrl&&envKey)return {url:envUrl.replace(/\/$/,""),key:envKey};
-  if(auditoriaConfigPromise)return auditoriaConfigPromise;
-  auditoriaConfigPromise=(async()=>{
-    const response=await fetch(AUDITORIA_CONFIG_URL,{headers:{Accept:"text/plain"},redirect:"follow"});
-    if(!response.ok)throw new Error(`No fue posible cargar la configuración pública de AuditoriaERP (${response.status}).`);
-    const text=await response.text();
-    const urlMatch=text.match(/https:\/\/[a-z0-9]+\.supabase\.co/i);
-    const keyMatch=text.match(/(?:eyJ[A-Za-z0-9._-]{80,}|sb_publishable_[A-Za-z0-9_-]{20,})/);
-    if(!urlMatch||!keyMatch)throw new Error("La configuración pública de AuditoriaERP no contiene los parámetros esperados.");
-    return {url:urlMatch[0].replace(/\/$/,""),key:keyMatch[0]};
-  })().catch(error=>{auditoriaConfigPromise=null;throw error});
-  return auditoriaConfigPromise;
+  if(targetConfigPromise)return targetConfigPromise;
+  targetConfigPromise=(async()=>{
+    const {data,error}=await admin.rpc("erp_x_auditoria_erp_target_config");
+    if(error)throw new Error(`No fue posible leer la configuración privada de AuditoriaERP: ${error.message}`);
+    const url=clean(data?.url).replace(/\/$/,"");
+    const key=clean(data?.key);
+    if(!/^https:\/\/[a-z0-9.-]+\.supabase\.co$/i.test(url)||!key)throw new Error("La configuración privada de AuditoriaERP está incompleta.");
+    return {url,key};
+  })().catch(error=>{targetConfigPromise=null;throw error});
+  return targetConfigPromise;
 }
 
 const noveltyLabels: Record<string,string> = {
@@ -98,14 +96,13 @@ function auditPayload(source: any) {
     proceso: "Recepción de mercancía · CRM Suministros",
     estado: "Pendiente",
     observaciones: notes,
-    pdf_url: "[]",
-    usuario: "Integración CRM"
+    created_at: new Date().toISOString()
   };
   return { full: { ...base, categoria: "Logística", datos_especificos: specific }, base, name };
 }
 
-async function auditoriaRequest(path: string, init: RequestInit = {}) {
-  const config=await getAuditoriaConfig();
+async function auditoriaRequest(admin:any,path: string, init: RequestInit = {}) {
+  const config=await getAuditoriaConfig(admin);
   const headers = new Headers(init.headers || {});
   headers.set("apikey", config.key);
   headers.set("Authorization", `Bearer ${config.key}`);
@@ -117,29 +114,24 @@ async function auditoriaRequest(path: string, init: RequestInit = {}) {
   return { response, body, text };
 }
 
-async function findExisting(name: string) {
-  const params = new URLSearchParams({ select:"id,nombre,estado,responsable", nombre:`eq.${name}`, usuario:"eq.Integración CRM", limit:"1" });
-  const { response, body, text } = await auditoriaRequest(`auditorias?${params.toString()}`, { method:"GET" });
+async function findExisting(admin:any,name: string) {
+  const params = new URLSearchParams({ select:"id,nombre,estado,responsable", nombre:`eq.${name}`, limit:"1" });
+  const { response, body, text } = await auditoriaRequest(admin,`auditorias?${params.toString()}`, { method:"GET" });
   if (!response.ok) throw new Error(`AuditoriaERP no permitió consultar idempotencia (${response.status}): ${text.slice(0,300)}`);
   return Array.isArray(body) && body.length ? body[0] : null;
 }
 
-async function persistAudit(existing: any, variants: {full:any;base:any}) {
+async function persistAudit(admin:any,existing: any, variants: {full:any;base:any}) {
   if (existing?.id) {
     const fullUpdate = {
       tipo: variants.full.tipo,
       categoria: variants.full.categoria,
       observaciones: variants.full.observaciones,
-      datos_especificos: variants.full.datos_especificos,
-      usuario: variants.full.usuario
+      datos_especificos: variants.full.datos_especificos
     };
-    const baseUpdate = {
-      tipo: variants.base.tipo,
-      observaciones: variants.base.observaciones,
-      usuario: variants.base.usuario
-    };
+    const baseUpdate = { tipo: variants.base.tipo, observaciones: variants.base.observaciones };
     for (const payload of [fullUpdate, baseUpdate]) {
-      const { response, body, text } = await auditoriaRequest(`auditorias?id=eq.${encodeURIComponent(existing.id)}`, {
+      const { response, body, text } = await auditoriaRequest(admin,`auditorias?id=eq.${encodeURIComponent(existing.id)}`, {
         method:"PATCH",
         headers:{"Prefer":"return=representation"},
         body:JSON.stringify(payload)
@@ -154,7 +146,7 @@ async function persistAudit(existing: any, variants: {full:any;base:any}) {
   }
 
   for (const payload of [variants.full, variants.base]) {
-    const { response, body, text } = await auditoriaRequest("auditorias", {
+    const { response, body, text } = await auditoriaRequest(admin,"auditorias", {
       method:"POST",
       headers:{"Prefer":"return=representation"},
       body:JSON.stringify(payload)
@@ -169,7 +161,7 @@ async function persistAudit(existing: any, variants: {full:any;base:any}) {
   throw new Error("No fue posible persistir la auditoría espejo.");
 }
 
-Deno.serve(async (req: Request) => {
+async function handle(req:Request){
   if (!isAllowedOrigin(req)) return json(req,{error:"Origen no autorizado"},403);
   if (req.method === "OPTIONS") return new Response(null,{status:204,headers:corsHeaders(req)});
   if (req.method !== "POST") return json(req,{error:"Método no permitido"},405);
@@ -178,41 +170,63 @@ Deno.serve(async (req: Request) => {
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
   const clientKey = Deno.env.get("SUPABASE_ANON_KEY") || serviceKey;
   if (!supabaseUrl || !serviceKey) return json(req,{error:"Configuración del servidor incompleta"},500);
-
-  const token = clean(req.headers.get("Authorization")).replace(/^Bearer\s+/i,"");
-  if (!token) return json(req,{error:"Sesión requerida"},401);
   const admin = createClient(supabaseUrl,serviceKey,{auth:{autoRefreshToken:false,persistSession:false}});
-  const userClient = createClient(supabaseUrl,clientKey,{
-    global:{headers:{Authorization:`Bearer ${token}`}},
-    auth:{autoRefreshToken:false,persistSession:false,detectSessionInUrl:false}
-  });
-  const { data:userData,error:userError } = await admin.auth.getUser(token);
-  if (userError || !userData.user) return json(req,{error:"Sesión inválida o vencida"},401);
 
   let body: any = {};
   try { body = await req.json(); } catch { return json(req,{error:"JSON inválido"},400); }
-  const receiptId = clean(body?.receiptId);
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(receiptId)) return json(req,{error:"receiptId inválido"},400);
 
-  const {data:authorized,error:authzError}=await userClient.rpc("erp_x_auditoria_erp_authorize",{p_receipt_id:receiptId});
-  if(authzError||authorized!==true)return json(req,{error:"No autorizado para sincronizar esta recepción"},403);
+  const databaseDispatch=body?.source==="database";
+  let receiptId=clean(body?.receiptId);
+  let eventKey=clean(body?.eventKey)||`CRM_WAREHOUSE_RECEIPT:${receiptId}`;
 
-  let eventKey = `CRM_WAREHOUSE_RECEIPT:${receiptId}`;
+  if(databaseDispatch){
+    const deliveryToken=clean(body?.deliveryToken);
+    if(!eventKey.startsWith("CRM_WAREHOUSE_RECEIPT:")||!UUID_RE.test(deliveryToken))return json(req,{error:"Evento server-to-server inválido"},400);
+    const {data:claim,error:claimError}=await admin.rpc("erp_x_auditoria_erp_claim_webhook_v2",{
+      p_event_key:eventKey,
+      p_delivery_token:deliveryToken
+    });
+    if(claimError)throw new Error(`Claim webhook: ${claimError.message}`);
+    if(claim?.claimed!==true)return json(req,{success:true,skipped:true,reason:"Evento expirado, procesado o ya reclamado"},202);
+    receiptId=clean(claim?.receiptId);
+    if(!UUID_RE.test(receiptId))throw new Error("Claim webhook sin receiptId válido");
+  }else{
+    if(!UUID_RE.test(receiptId))return json(req,{error:"receiptId inválido"},400);
+    const token = clean(req.headers.get("Authorization")).replace(/^Bearer\s+/i,"");
+    if (!token) return json(req,{error:"Sesión requerida"},401);
+    const { data:userData,error:userError } = await admin.auth.getUser(token);
+    if (userError || !userData.user) return json(req,{error:"Sesión inválida o vencida"},401);
+    const userClient = createClient(supabaseUrl,clientKey,{
+      global:{headers:{Authorization:`Bearer ${token}`}},
+      auth:{autoRefreshToken:false,persistSession:false,detectSessionInUrl:false}
+    });
+    const {data:authorized,error:authzError}=await userClient.rpc("erp_x_auditoria_erp_authorize",{p_receipt_id:receiptId});
+    if(authzError||authorized!==true)return json(req,{error:"No autorizado para sincronizar esta recepción"},403);
+  }
+
   try {
     const { data:source,error:payloadError } = await admin.rpc("erp_x_auditoria_erp_payload",{p_receipt_id:receiptId});
     if (payloadError) throw payloadError;
-    if (!source) return json(req,{success:true,skipped:true,reason:"Recepción no encontrada"},200);
-    eventKey = clean(source.eventKey) || eventKey;
+    if (!source) {
+      if(databaseDispatch)await admin.rpc("erp_x_auditoria_erp_mark",{p_event_key:eventKey,p_status:"SYNCED",p_error:null,p_target_audit_id:null});
+      return json(req,{success:true,skipped:true,reason:"Recepción no encontrada"},200);
+    }
+    eventKey = clean(source.eventKey) || eventKey || `CRM_WAREHOUSE_RECEIPT:${receiptId}`;
     const hasNovelty = Boolean(clean(source.noveltyType) || clean(source.noveltyNote) || ["PARTIAL","NONCONFORMING"].includes(clean(source.status).toUpperCase()));
-    if (!hasNovelty) return json(req,{success:true,skipped:true,reason:"Recepción sin novedad"},200);
+    if (!hasNovelty) {
+      await admin.rpc("erp_x_auditoria_erp_mark",{p_event_key:eventKey,p_status:"SYNCED",p_error:null,p_target_audit_id:null});
+      return json(req,{success:true,skipped:true,reason:"Recepción sin novedad"},200);
+    }
 
-    const {data:claimed,error:claimError}=await admin.rpc("erp_x_auditoria_erp_mark",{p_event_key:eventKey,p_status:"SYNCING",p_error:null,p_target_audit_id:null});
-    if(claimError)throw claimError;
-    if(claimed!==true)return json(req,{success:true,skipped:true,reason:"Sincronización ya procesada o en curso"},200);
+    if(!databaseDispatch){
+      const {data:claimed,error:claimError}=await admin.rpc("erp_x_auditoria_erp_mark",{p_event_key:eventKey,p_status:"SYNCING",p_error:null,p_target_audit_id:null});
+      if(claimError)throw claimError;
+      if(claimed!==true)return json(req,{success:true,skipped:true,reason:"Sincronización ya procesada o en curso"},200);
+    }
 
     const mapped = auditPayload(source);
-    const existing = await findExisting(mapped.name);
-    const saved = await persistAudit(existing,mapped);
+    const existing = await findExisting(admin,mapped.name);
+    const saved = await persistAudit(admin,existing,mapped);
     const targetId = clean(saved?.id || existing?.id) || null;
     await admin.rpc("erp_x_auditoria_erp_mark",{p_event_key:eventKey,p_status:"SYNCED",p_error:null,p_target_audit_id:targetId});
     return json(req,{success:true,synced:true,idempotent:Boolean(existing),targetAuditId:targetId,receiptNumber:source.receiptNumber});
@@ -221,5 +235,13 @@ Deno.serve(async (req: Request) => {
     await admin.rpc("erp_x_auditoria_erp_mark",{p_event_key:eventKey,p_status:"FAILED",p_error:message,p_target_audit_id:null}).catch(()=>undefined);
     console.error("[AUDITORIA ERP BRIDGE]",message);
     return json(req,{success:false,error:"La recepción quedó guardada, pero la auditoría automática está pendiente de sincronización."},502);
+  }
+}
+
+Deno.serve(async(req:Request)=>{
+  try{return await handle(req)}
+  catch(error:any){
+    console.error("[AUDITORIA ERP BRIDGE RUNTIME]",error?.message||error);
+    return json(req,{error:"Fallo interno del puente de AuditoriaERP"},500);
   }
 });
