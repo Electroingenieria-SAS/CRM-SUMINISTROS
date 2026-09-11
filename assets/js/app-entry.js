@@ -5,6 +5,7 @@
 import "./modules/responsive-foundation-v11190.js";
 import "./modules/global-progress-v11100.js";
 import "./modules/bootstrap-v113.js";
+import "./modules/guides-layout-v11291.js";
 import "./modules/inventory-scan-bootstrap-v116.js";
 import "./modules/order-priority-v117.js";
 import "./modules/pagination-v1184.js";
