@@ -9,10 +9,13 @@ async function login(page){
 }
 
 test("login shell renders",async({page})=>{
+  const pageErrors=[];
+  page.on("pageerror",error=>pageErrors.push(error.message));
   await page.goto("/");
   await expect(page.getByRole("heading",{name:"Ingresa a CRM Suministros"})).toBeVisible();
   await expect(page.getByLabel("Correo corporativo")).toBeVisible();
   await expect(page.getByLabel("Contraseña")).toBeVisible();
+  expect(pageErrors).toEqual([]);
 });
 
 test("authenticated shell, modules and native API",async({page})=>{

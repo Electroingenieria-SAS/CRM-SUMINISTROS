@@ -18,6 +18,7 @@ function walk(dir,out=[]){
 }
 
 const pkg=JSON.parse(read("package.json"));
+const pkgLock=JSON.parse(read("package-lock.json"));
 const config=read("assets/js/config.js");
 const version=config.match(/version:\s*"([^"]+)"/)?.[1]||"";
 const build=config.match(/build:\s*"([^"]+)"/)?.[1]||"";
@@ -38,9 +39,15 @@ const control=read("assets/js/modules/inventory-control-v11250.js");
 const exportsModule=read("assets/js/modules/inventory-export-v11250.js");
 const ui=read("assets/js/modules/inventory-ui-v11240.js");
 const inventoryDialogs=read("assets/js/modules/inventory-dialogs-v11260.js");
+const responsive=read("assets/js/modules/responsive-foundation-v11190.js");
+const popupUx=read("assets/js/modules/popup-ux-v1190.js");
 const inventoryMigration=read("supabase/migrations/095_inventory_accounting_blind_count_v11_23_0.sql");
 const expressMigration=read("supabase/migrations/096_inventory_express_super_admin_review_v11_23_1.sql");
 const scheduleMigration=read("supabase/migrations/097_restore_inventory_control_plan_v11_23_2.sql");
+const rlsAuditMigration=read("supabase/migrations/098_profiles_rls_scope_v11_27_0.sql");
+const workPerfMigration=read("supabase/migrations/099_work_my_day_role_cache_v11_27_0.sql");
+const inventoryFilterMigration=read("supabase/migrations/100_inventory_filtered_hotpath_v11_27_0.sql");
+const inventoryPlanMigration=read("supabase/migrations/101_inventory_count_plan_hotpath_v11_27_0.sql");
 const coreCss=read("assets/css/core-shell.css");
 const experienceCss=read("assets/css/experience.css");
 const jsFiles=walk(path.join(root,"assets/js")).filter(file=>file.endsWith(".js"));
@@ -50,15 +57,16 @@ const normalizedJsRuntime=jsRuntime
   .replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
 // Release identity.
-check(version==="11.26.0","CONFIG.version debe ser 11.26.0.");
-check(build==="2026-09-10.01","CONFIG.build debe ser 2026-09-10.01.");
+check(version==="11.27.0","CONFIG.version debe ser 11.27.0.");
+check(build==="2026-09-11.01","CONFIG.build debe ser 2026-09-11.01.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
+check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
 check((index.match(/<script\s+type="module"\s+src="\.\/assets\/js\//g)||[]).length===1,"index.html debe tener un único entrypoint ES Module local.");
 check(entry.includes('import "./main.js";'),"app-entry.js debe delegar a main.js.");
-check(entry.includes('import "./modules/inventory-dialogs-v11260.js";'),"app-entry.js debe instalar el sistema único de diálogos de Inventario V11.26.");
-check(!entry.includes("inventory-modal-v11253.js"),"app-entry.js no debe cargar el sistema modal histórico V11.25.3.");
-check(!entry.includes("inventory-modal-workspace-v11254.js"),"app-entry.js no debe cargar el workspace modal histórico.");
+check(entry.includes('import "./modules/inventory-dialogs-v11260.js";'),"app-entry.js debe instalar el sistema único de diálogos guiados de Inventario.");
+check(entry.includes('import "./modules/inventory-visual-v11270.js";'),"app-entry.js debe instalar la capa visual V11.27 de Inventario.");
+check(!entry.includes("inventory-modal-v11253.js")&&!entry.includes("inventory-modal-workspace-v11254.js"),"app-entry.js no debe cargar propietarios modales históricos.");
 
 // Canonical CSS architecture.
 const canonicalCss=["assets/css/core-shell.css","assets/css/operations.css","assets/css/analytics.css","assets/css/experience.css"];
@@ -72,15 +80,28 @@ check((coreCss.match(/:root\{/g)||[]).length===1,"core-shell.css debe conservar 
 check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía institucional.");
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
-// PWA cache rotation.
-check(sw.includes('// previous-cache: crm-suministros-v11-25-3-20260909-08'),"previous-cache PWA debe apuntar a V11.25.3.");
-check(sw.includes('const CACHE="crm-suministros-v11-26-0-20260910-01";'),"CACHE activo PWA no corresponde a V11.26.0.");
+// PWA and Vercel routing.
+check(sw.includes('// previous-cache: crm-suministros-v11-26-0-20260910-01'),"previous-cache PWA debe apuntar a V11.26.0.");
+check(sw.includes('const CACHE="crm-suministros-v11-27-0-20260911-01";'),"CACHE activo PWA no corresponde a V11.27.0.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
+check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
+check(vercel.includes('manifest\\\\.webmanifest')||vercel.includes('/manifest.webmanifest'),"Vercel debe excluir o tratar explícitamente el manifest real.");
+check(vercel.includes('/service-worker.js')&&vercel.includes('no-cache, no-store, must-revalidate'),"Service worker debe revalidarse en cada release.");
 
 // Browser/backend boundaries.
 const bannedRuntime=/\b(QA_BOT|erp_x_qa_|erp_x_run_qa_|erp_x_sandbox_|sandboxMode|manualSandbox|TEST-QA-|erp-e2e-bot)\b/i;
 check(!bannedRuntime.test(jsRuntime),"El frontend productivo conserva referencias QA/Sandbox.");
 check(!/\.from\s*\(/.test(normalizedJsRuntime),"El navegador no debe acceder a tablas directamente; use RPC.");
+
+// Security/performance audit corrections.
+check(rlsAuditMigration.includes('drop policy if exists erp_active_read on public.profiles'),"Migración 098 debe retirar la policy RLS permisiva redundante.");
+check(workPerfMigration.includes('erp_supply.current_roles()')&&workPerfMigration.includes('v_roles'),"Migración 099 debe cachear roles de Mi jornada una sola vez.");
+check(inventoryFilterMigration.includes("when v_search='' then true")&&inventoryFilterMigration.includes('else erp_supply.material_norm('),"Migración 100 debe diferir la normalización textual cuando no hay búsqueda.");
+check(inventoryPlanMigration.includes("where l.inventory_item_id=s.item_id and l.source_active"),"Migración 101 debe construir detalle de lotes solo para el plan seleccionado.");
+check(responsive.includes("pendingScopes")&&responsive.includes("queueScope(node)"),"Responsive foundation debe procesar únicamente UI dinámica afectada.");
+check(!responsive.includes('normalize(document.querySelector("#app")||document)'),"Responsive foundation no debe reescanear #app en cada mutación.");
+check(popupUx.includes("pendingModals")&&popupUx.includes('document.querySelector("#modal-root")||document.body'),"Popup UX debe observar el modal-root y procesar solo modales afectados.");
+check(!popupUx.includes('requestAnimationFrame(()=>{\n    scheduled=false;\n    enhanceAll();'),"Popup UX no debe reescanear todos los modales en cada mutación.");
 
 // Accounting/security invariants remain untouched.
 for(const token of [
@@ -152,7 +173,7 @@ check(ui.includes('no-controls')&&ui.includes('Sin distribución Pareto'),"La au
 check(service.includes("erp_x_inventory_count_submit")&&service.includes("erp_x_inventory_count_review")&&service.includes("erp_x_inventory_express_reports"),"El servicio de Inventario perdió contratos contables.");
 check(!service.includes("erp_x_inventory_cycle_count"),"El servicio aún referencia conteo directo V11.22.");
 
-// V11.26 guided-dialog UX contract: accessible, contained and task-oriented.
+// Guided-dialog UX contract.
 for(const token of [
   "inventory-dialog-v11260",
   "inventory-dialog-guide-v11260",
@@ -167,10 +188,8 @@ for(const token of [
   "MutationObserver",
   "#modal-root",
   "state.currentModule"
-])check(inventoryDialogs.includes(token),`Sistema de diálogos V11.26 incompleto: falta ${token}.`);
-for(const width of ["1120px","1040px","1000px","960px","940px","820px","720px"]){
-  check(inventoryDialogs.includes(`--inventory-dialog-width:${width}`),`Falta ancho contenido V11.26: ${width}.`);
-}
+])check(inventoryDialogs.includes(token),`Sistema de diálogos guiados incompleto: falta ${token}.`);
+for(const width of ["1120px","1040px","1000px","960px","940px","820px","720px"])check(inventoryDialogs.includes(`--inventory-dialog-width:${width}`),`Falta ancho contenido: ${width}.`);
 check(inventoryDialogs.includes('calc(100vw - 96px)'),"Desktop debe conservar margen lateral visible.");
 check(!inventoryDialogs.includes('width:min(86vw')&&!inventoryDialogs.includes('width:min(88vw')&&!inventoryDialogs.includes('width:min(94vw'),"Inventario volvió a geometrías casi full-screen en escritorio.");
 check(inventoryDialogs.includes('min-height:48px')&&inventoryDialogs.includes('font-size:16px')&&inventoryDialogs.includes('width:46px')&&inventoryDialogs.includes('height:46px'),"Controles o acciones ya no cumplen accesibilidad táctil/visual.");
@@ -195,8 +214,7 @@ console.log(`VALIDACIÓN CRM ${version} CORRECTA`);
 console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
 console.log("- Inventario conserva captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
-console.log("- V11.26 usa un solo sistema de diálogos guiados; los propietarios modales V11.25 fueron retirados.");
-console.log("- Los diálogos usan anchos contenidos de 720 a 1120 px, altura amplia y márgenes laterales reales.");
-console.log("- Texto, controles y botones cumplen el nuevo contrato de legibilidad y uso táctil.");
-console.log("- Revisión presenta cada lote como tarjeta comparativa en lugar de seis columnas horizontales.");
-console.log("- Conteo ciego y aprobación contable permanecen como contratos obligatorios.");
+console.log("- V11.27.0 conserva un solo sistema de diálogos guiados y la capa visual premium.");
+console.log("- Observers responsive y popup procesan únicamente el ámbito dinámico afectado.");
+console.log("- PWA, Vercel, RLS y hotpaths SQL quedan incorporados al contrato canónico.");
+console.log("- Conteo ciego, RLS granular y aprobación contable permanecen como contratos obligatorios.");

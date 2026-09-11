@@ -9,9 +9,21 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/((?!assets/|templates/|service-worker\\.js|manifest\\.json|favicon\\.ico).*)", "destination": "/index.html" }
+    { "source": "/((?!assets/|templates/|service-worker\\.js|manifest\\.webmanifest|favicon\\.ico).*)", "destination": "/index.html" }
   ],
   "headers": [
+    {
+      "source": "/service-worker.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/manifest.webmanifest",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600, must-revalidate" }
+      ]
+    },
     {
       "source": "/(.*)",
       "headers": [
