@@ -17,6 +17,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
       - name: JavaScript syntax
         shell: bash
         run: |
@@ -115,6 +120,18 @@ jobs:
           ! grep -q 'width:min(86vw' assets/js/modules/inventory-dialogs-v11260.js
           ! grep -q 'width:min(88vw' assets/js/modules/inventory-dialogs-v11260.js
           ! grep -q 'width:min(94vw' assets/js/modules/inventory-dialogs-v11260.js
+
+      - name: Install browser smoke runner
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        run: npm install --no-save --no-package-lock @playwright/test@1.63.0
+
+      - name: Install Chromium
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser smoke · public shell
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        run: npx playwright test tests/smoke.spec.js --project=chromium --grep "login shell renders"
 
       - name: Package deployable frontend
         shell: bash
