@@ -34,6 +34,13 @@
   <div id="app" aria-live="polite"></div>
   <div id="modal-root"></div>
   <div id="toast-root" aria-live="assertive"></div>
+
+  <!-- Vercel Speed Insights básico: RUM/Core Web Vitals con muestreo al 25 %. -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js" data-sample-rate="0.25"></script>
+
   <script type="module" src="./assets/js/app-entry.js?v=11.27.0"></script>
 </body>
 </html>
