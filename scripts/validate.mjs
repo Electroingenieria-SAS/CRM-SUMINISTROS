@@ -57,15 +57,15 @@ const normalizedJsRuntime=jsRuntime
   .replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
 // Release identity.
-check(version==="11.27.0","CONFIG.version debe ser 11.27.0.");
-check(build==="2026-09-11.01","CONFIG.build debe ser 2026-09-11.01.");
+check(version==="11.30.0","CONFIG.version debe ser 11.30.0.");
+check(build==="2026-09-14.01","CONFIG.build debe ser 2026-09-14.01.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
 check((index.match(/<script\s+type="module"\s+src="\.\/assets\/js\//g)||[]).length===1,"index.html debe tener un único entrypoint ES Module local.");
 check(entry.includes('import "./main.js";'),"app-entry.js debe delegar a main.js.");
 check(entry.includes('import "./modules/inventory-dialogs-v11260.js";'),"app-entry.js debe instalar el sistema único de diálogos guiados de Inventario.");
-check(entry.includes('import "./modules/inventory-visual-v11270.js";'),"app-entry.js debe instalar la capa visual V11.27 de Inventario.");
+check(entry.includes('import "./modules/inventory-visual-v11270.js";'),"app-entry.js debe instalar la capa visual vigente de Inventario.");
 check(!entry.includes("inventory-modal-v11253.js")&&!entry.includes("inventory-modal-workspace-v11254.js"),"app-entry.js no debe cargar propietarios modales históricos.");
 
 // Canonical CSS architecture.
@@ -81,8 +81,8 @@ check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía instit
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
 // PWA and Vercel routing.
-check(sw.includes('// previous-cache: crm-suministros-v11-26-0-20260910-01'),"previous-cache PWA debe apuntar a V11.26.0.");
-check(sw.includes('const CACHE="crm-suministros-v11-27-0-20260911-01";'),"CACHE activo PWA no corresponde a V11.27.0.");
+check(sw.includes('// previous-cache: crm-suministros-v11-27-0-20260911-01'),"previous-cache PWA debe apuntar al release canónico anterior V11.27.0.");
+check(sw.includes('const CACHE="crm-suministros-v11-30-0-20260914-01";'),"CACHE activo PWA no corresponde a V11.30.0.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
 check(vercel.includes('manifest\\\\.webmanifest')||vercel.includes('/manifest.webmanifest'),"Vercel debe excluir o tratar explícitamente el manifest real.");
@@ -149,7 +149,7 @@ for(const file of retiredInventory)check(!exists(file),`Inventario conserva prop
 
 // Functional Inventory contract.
 check(inventory.includes('inventoryCountCenter')&&inventory.includes('access.operator')&&inventory.includes('access.controller'),"Inventario debe gobernarse por capacidades del servidor.");
-for(const view of ["home","capture","express","count","labels","plan","review","history","stock","ledger","control"])check(inventory.includes(`\"${view}\"`),`Falta vista de Inventario: ${view}`);
+for(const view of ["home","capture","express","count","labels","plan","review","history","stock","ledger","control"])check(inventory.includes(`"${view}"`),`Falta vista de Inventario: ${view}`);
 check(inventory.includes('express-review'),"Super Admin perdió Revisión exprés.");
 check(inventory.includes('inventory-nav-v11251')&&inventory.includes('Control y auditoría')&&inventory.includes('inventory-nav-groups-v11251'),"Inventario perdió la navegación agrupada.");
 check(inventory.includes('overflow-wrap:anywhere')&&inventory.includes('@media(max-width:760px)')&&inventory.includes('@media(max-width:480px)'),"Inventario perdió defensas responsive contra desbordes.");
@@ -214,7 +214,7 @@ console.log(`VALIDACIÓN CRM ${version} CORRECTA`);
 console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
 console.log("- Inventario conserva captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
-console.log("- V11.27.0 conserva un solo sistema de diálogos guiados y la capa visual premium.");
+console.log("- V11.30.0 conserva el sistema de diálogos guiados, las mejoras V11.28/V11.29 y la arquitectura visual canónica.");
 console.log("- Observers responsive y popup procesan únicamente el ámbito dinámico afectado.");
 console.log("- PWA, Vercel, RLS y hotpaths SQL quedan incorporados al contrato canónico.");
 console.log("- Conteo ciego, RLS granular y aprobación contable permanecen como contratos obligatorios.");
