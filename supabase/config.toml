@@ -1,2 +1,19 @@
+# Edge Functions · contrato de despliegue productivo.
+# Las funciones administrativas exigen JWT en el gateway.
 [functions.erp-admin-users]
 verify_jwt = true
+
+[functions.erp-admin-impersonate]
+verify_jwt = true
+
+# El bridge usa verify_jwt=false deliberadamente porque recibe dos clases de llamadas:
+# 1) navegador: aplica custom authentication validando el Bearer JWT y autorización del módulo;
+# 2) PostgreSQL/pg_net: usa deliveryToken de un solo uso + claim atómico server-to-server.
+# Activar verify_jwt en gateway rompería el dispatcher de base de datos.
+[functions.erp-auditoria-bridge]
+verify_jwt = false
+
+# Endpoint GET aggregate-only para BI de AuditoriaERP. No expone filas ni PII;
+# la consulta detallada permanece en RPC service_role-only.
+[functions.erp-auditoria-metrics]
+verify_jwt = false
