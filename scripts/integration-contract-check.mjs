@@ -36,9 +36,9 @@ check(frontendBridge.includes("erp_x_auditoria_erp_pending"),"El fallback fronte
 check(frontendBridge.includes("erp-auditoria-bridge"),"El frontend dejó de invocar el bridge autorizado.");
 
 check(migration102.includes("auditoria_erp_outbox"),"Falta la outbox canónica de AuditoriaERP.");
+check(migration102.includes("tr_queue_auditoria_erp_receipt"),"Falta trigger de encolado de recepciones.");
 check(migration103.includes("erp_x_auditoria_erp_authorize"),"Falta autorización del bridge.");
 check(migration104.includes("dispatch_auditoria_erp_pending"),"Falta dispatcher server-to-server.");
-check(migration104.includes("tr_queue_auditoria_erp_receipt"),"Falta trigger de encolado de recepciones.");
 
 const expectedModes={
   "erp-admin-users":true,
