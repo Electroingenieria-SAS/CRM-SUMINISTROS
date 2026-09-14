@@ -1,21 +1,16 @@
 # CRM Suministros — Electroingeniería S.A.S.
 
-> Versión de producto: **V11.0.0 — Renovación visual y de experiencia**
->
-> Línea base técnica heredada: **V10.33.1 — Security Rebuild 2026-09-01**
->
-> Supabase objetivo: **hezjxcxxcjlpmyalftam**
-> Estado del paquete: validación estática y hardening inicial completados; requiere campaña E2E autenticada por rol y cierre de settings de plataforma antes de declarar producción definitiva.
+> Versión canónica: **V11.30.0** · build **2026-09-14.01**  
+> Producción: Vercel + Supabase `hezjxcxxcjlpmyalftam`  
+> Auditoría integral vigente: `docs/AUDITORIA_INTEGRAL_2026-09-14.md`
 
-## 1. Qué es
+## 1. Propósito
 
-CRM Suministros es la plataforma interna de relación comercial, trazabilidad de pedidos, suministros y operación de Electroingeniería S.A.S. Combina una experiencia web informativa y navegable con las capacidades transaccionales necesarias desde Ventas hasta el cierre de entrega: Cartera, Caja, Compras, Recepción, Alistamiento, Corte, Facturación, Despacho, inventario, aprobaciones, auditoría y gestión de actividades del personal.
+CRM Suministros centraliza relación comercial, pedidos y operación de suministros desde Ventas hasta el cierre: Cartera, Caja, Compras, Recepción, Alistamiento, Corte, Facturación, Despachos, Inventario, aprobaciones, auditoría, analítica y gestión de actividades.
 
-El sistema está pensado para que una transición de negocio **no dependa de que un botón cambie un estado en el navegador**. El frontend solicita una acción; PostgreSQL/Supabase valida identidad, rol, propiedad del registro, versión y reglas del flujo antes de aceptar la mutación.
+Las transiciones de negocio no dependen de estados manipulados en el navegador. El frontend solicita acciones a RPC `public.erp_x_*`; PostgreSQL/Supabase valida identidad, roles, propiedad, versión y reglas operativas antes de persistir cambios.
 
-Los identificadores técnicos heredados `erp_x_*`, eventos `erp:*` y la carpeta institucional `ERP_SUPPLY_ENTERPRISE` se conservan temporalmente por compatibilidad. No forman parte del nombre visible del producto y solo se renombrarán mediante una migración controlada que no fracture RPC, sesiones, archivos o integraciones existentes.
-
-## 2. Arquitectura
+## 2. Arquitectura productiva
 
 ```text
 Usuario
@@ -23,101 +18,114 @@ Usuario
   ▼
 SPA HTML/CSS/ES Modules
   │
-  ├── Supabase Auth ─────── sesión JWT
-  │
-  ├── public.erp_x_* RPC ── lógica de negocio / erp_supply
-  │
-  ├── erp-admin-users ───── Edge Function JWT + service_role server-only
-  │
-  └── Google Apps Script ── Drive institucional + validación de sesión
+  ├── Supabase Auth ───────────── sesión JWT
+  ├── public.erp_x_* RPC ──────── lógica de negocio / erp_supply
+  ├── Edge Functions ──────────── administración e integraciones server-side
+  ├── Google Apps Script ──────── Drive institucional
+  └── Vercel ──────────────────── hosting, security headers y Speed Insights
 ```
 
-Más detalle: `docs/ARCHITECTURE.md`.
+El browser no accede directamente a tablas operativas. El esquema `erp_supply` permanece detrás de RLS y contratos RPC. `scripts/validate.mjs` y `scripts/link-check.mjs` hacen cumplir esta frontera.
 
-## 3. Estado de la auditoría 2026-09-01
+## 3. Estado V11.30.0
 
-Se verificó el proyecto Supabase `hezjxcxxcjlpmyalftam` en estado saludable. La base auditada contiene 33 perfiles operativos y 32 usuarios Auth; no existen vínculos Auth rotos. Los invariantes revisados de pedidos/tareas no presentan inconsistencias estructurales.
+La auditoría de producción del 14 de septiembre de 2026 verificó:
 
-El validador del repositorio ahora termina correctamente:
+- health check de backend **21/21 OK**;
+- 0 pedidos finalizados con tareas activas;
+- 0 pedidos activos duplicados;
+- 0 saldos negativos de inventario o reservas;
+- 0 perfiles operativos activos sin identidad Auth;
+- 0 RPC `erp_x_*` ejecutables por `anon`;
+- 0 eventos CRM → AuditoriaERP fallidos, vencidos o atascados;
+- Vercel sin errores runtime detectados en la ventana auditada;
+- CI canónica verde en sintaxis, ES Modules, seguridad, arquitectura, release y smoke desktop/móvil.
+
+Estado detallado: `docs/IMPLEMENTATION_STATUS.md`.
+
+## 4. Integración CRM → AuditoriaERP
+
+Una recepción de mercancía con novedad, avería, faltante, rechazo, estado parcial/no conforme o texto de novedad genera una entrada idempotente para **AuditoriaERP → Recepción**.
 
 ```text
-VALIDACIÓN V10.33.1 CORRECTA
-39 archivos JavaScript de producción revisados
-ENLACE ES MODULES CORRECTO · 39 archivos · 0 contratos rotos
-SECURITY CHECK CORRECTO · 0 secretos privados detectados
+warehouse_receipts
+   │ trigger
+   ▼
+auditoria_erp_outbox
+   │ pg_net / dispatcher
+   ▼
+erp-auditoria-bridge
+   │
+   ▼
+AuditoriaERP.recepciones
 ```
 
-Informe completo: `docs/AUDITORIA_INTEGRAL_2026-09-01.md`.
+El payload conserva el texto humano digitado en CRM (`noveltyNote`, `informationCaptured`, `verificationNote`, `generalNote`) y usa el marcador determinístico `[CRM_SYNC:<eventKey>]` para no duplicar la recepción destino.
 
-## 4. Módulos
+El navegador conserva un fallback autenticado, pero el flujo principal no depende de mantener una pestaña abierta. `scripts/integration-contract-check.mjs` protege este contrato en cada PR.
 
-### Inicio y comercial
+## 5. Módulos
 
-- Centro de operaciones / dashboard.
-- Pedidos.
-- Ventas.
+### Comercial
+- Centro de operaciones.
+- Pedidos / Ventas.
 - Crédito.
 
-### Suministros
-
+### Operación de suministros
 - Cartera.
 - Caja.
 - Compras.
-- Recepción de mercancía y del pedido.
+- Recepción de mercancía y Recepción de pedido.
 - Alistamiento.
 - Corte.
 - Facturación.
-- Despachos y entregas.
+- Despachos, entregas y cierre.
 
 ### Personas y productividad
+- Jornada, actividades, planeación, cronograma, evidencias y capacidad.
 
-- Jornada, actividades, cronograma semanal, calendario mensual, evidencias y capacidad.
-
-### Control
-
+### Control y análisis
 - Inventario.
 - Excepciones y aprobaciones.
-- VSM / tiempos.
+- Flujo y tiempos / VSM.
 - Analítica y reportes.
 - Histórico.
 - Auditoría.
 - Administración.
 
-Detalle de transiciones: `docs/FUNCTIONAL_FLOWS.md`.
-
-## 5. Estructura del repositorio
+## 6. Estructura canónica
 
 ```text
 assets/
-  css/app.css                 Sistema visual
-  js/main.js                  Boot/router
-  js/config.js                Configuración PÚBLICA del cliente
-  js/core/                    UI, layout, router, state, format
-  js/modules/                 Pantallas y flujos de negocio
-  js/services/                RPC, Auth, Drive, PDF, materiales
-
-docs/                         Arquitectura, seguridad, QA, despliegue, runbook
+  css/
+    core-shell.css
+    operations.css
+    analytics.css
+    experience.css
+  js/
+    app-entry.js          único composition root
+    main.js               boot/router
+    config.js             configuración pública del browser
+    core/
+    modules/
+    services/
+docs/
+scripts/
 supabase/
-  functions/erp-admin-users/  Administración Auth server-side
-  migrations/                 Migraciones canónicas recientes
-sql/                          Bootstrap/migraciones históricas; no borrar sin squash probado
-google-apps-script/           Puente Drive institucional
-scripts/                      Validadores y servidor local
-templates/                    Plantillas importación
+  functions/
+  migrations/
+google-apps-script/
+templates/
 index.html
 service-worker.js
 vercel.json
 ```
 
-## 6. Requisitos locales
+No agregar familias CSS, entrypoints o propietarios de módulos paralelos sin actualizar el contrato canónico y pasar CI.
 
-- Node.js 20+ recomendado.
-- Navegador moderno con ES Modules.
-- Acceso de red a Supabase/Google según el módulo probado.
+## 7. Desarrollo y validación
 
-No existe una dependencia npm de framework/build en esta reconstrucción. El servidor local usa `node:http`.
-
-## 7. Instalar y ejecutar
+Requisitos: Node.js 24 en CI; navegador moderno con ES Modules.
 
 ```bash
 npm install
@@ -125,151 +133,104 @@ npm run validate
 npm run serve
 ```
 
-Abrir `http://127.0.0.1:4173`.
+`npm run validate` ejecuta:
 
-Para ejecutar únicamente el escáner de seguridad:
+1. arquitectura/invariantes del CRM;
+2. grafo ES Modules y detección de huérfanos;
+3. scanner/contrato de seguridad;
+4. contrato CRM → AuditoriaERP.
 
-```bash
-npm run security
-```
+La CI añade además Playwright para el shell público desktop/móvil y construye el artefacto desplegable.
 
-## 8. Configuración
+## 8. Configuración pública y secretos
 
-### Browser
+`assets/js/config.js` puede contener exclusivamente configuración pública de cliente, incluida la publishable key de Supabase.
 
-`assets/js/config.js` contiene únicamente valores que pueden llegar al navegador, incluida la Supabase publishable key. **Una publishable key no sustituye autorización:** cualquier protección real de registros debe permanecer en RLS/RPC.
+Nunca añadir al frontend ni al repositorio:
 
-Nunca añadir aquí:
+- `service_role`;
+- `sb_secret_...`;
+- JWT signing secrets;
+- private keys;
+- passwords.
 
-- `service_role`
-- `sb_secret_...`
-- JWT signing secrets
-- private keys
-- passwords
+Los secretos de integración se mantienen server-side/Vault. La configuración de destino de AuditoriaERP se obtiene mediante RPC service-role-only.
 
-### Servidor / Edge
+## 9. Edge Functions
 
-Variables requeridas por la Edge Function:
+`supabase/config.toml` documenta el contrato productivo:
 
-```text
-SUPABASE_URL
-SUPABASE_SERVICE_ROLE_KEY
-SUPABASE_ANON_KEY
-ERP_ALLOWED_ORIGINS
-```
+- `erp-admin-users`: `verify_jwt=true`;
+- `erp-admin-impersonate`: `verify_jwt=true`;
+- `erp-auditoria-bridge`: `verify_jwt=false` deliberadamente, con autenticación propia para browser y token/claim server-to-server para PostgreSQL;
+- `erp-auditoria-metrics`: `verify_jwt=false`, endpoint agregado/no PII.
 
-Usar `.env.example` como guía, nunca como archivo de secretos reales.
+No cambiar estos modos sin revisar su contrato completo. En particular, activar gateway JWT sobre el bridge rompería el dispatcher `pg_net` de base de datos.
 
-## 9. Seguridad
+## 10. Seguridad
 
-La reconstrucción incluye:
-
-- RLS verificado en tablas públicas auditadas.
-- RPC como acceso productivo desde browser.
-- Edge Function con JWT para Auth Admin.
+- RLS habilitado en todas las tablas base de `erp_supply`.
+- Browser RPC-only para datos operativos.
+- Ningún `erp_x_*` disponible para `anon`.
+- `SECURITY DEFINER` usa `search_path` controlado y autorización interna según función.
+- Funciones sensibles de integración reservadas a `service_role`.
 - CORS administrativo por allowlist.
-- password administrativo mínimo 12.
-- 10 intentos locales/15 min como capa UX; el rate limit real debe configurarse en Supabase Auth.
-- scanner de secretos.
-- logs browser sin payload/password.
-- escape de contenido dinámico corregido.
-- upload <=15 MB y allowlist/denylist en browser + Apps Script.
-- CSP/HSTS/security headers para Vercel.
-- CDN Supabase fijada a versión exacta.
-- 0 dependencias npm de terceros del proyecto.
+- CSP, HSTS, anti-framing, nosniff, Referrer Policy y Permissions Policy en Vercel.
+- Límite local de intentos de login como capa UX; la defensa principal pertenece a Supabase Auth.
+- Archivos restringidos por tamaño/tipo en browser y Apps Script.
 
-Leer obligatoriamente `docs/SECURITY.md` antes de producción.
+**Pendiente de plataforma:** Supabase Security Advisor reporta `Leaked Password Protection` deshabilitado. Debe activarse en Auth cuando esté disponible en la configuración del proyecto. No se simula desde código.
 
-## 10. Contraseñas
+## 11. Base de datos y migraciones
 
-CRM Suministros no implementa hashing casero. Las contraseñas pertenecen a Supabase Auth y Supabase almacena el hash server-side. La aplicación nunca debe guardar contraseñas en `profiles`, auditoría, metadata ni logs.
+No editar producción manualmente para “arreglar un estado” si existe un RPC o transición. Toda modificación de esquema debe quedar en migración reproducible.
 
-La protección contra contraseñas filtradas debe habilitarse en los settings de Auth del proyecto cuando el plan lo permita.
+Migraciones recientes relevantes:
 
-## 11. Roles
+- 098–101: RLS/performance V11.27.
+- 102–107: integración CRM → AuditoriaERP.
+- 108: health check integral V11.30.
+- 109: contrato observable de integración V11.30.
 
-El acceso visible y la capacidad de ejecutar una acción son conceptos distintos. Ocultar un botón mejora UX; la autorización definitiva debe seguir fallando en backend si un usuario intenta llamar el RPC manualmente.
+Antes de promover una migración: CI verde, revisión del SQL, aplicación controlada, health checks posteriores y verificación de Advisors.
 
-Auditoría es un perfil de solo lectura operativo. Super Admin concentra administración de cuentas, pero no debe poder eliminar su propia cuenta desde la consola.
+## 12. Performance
 
-## 12. Drive y archivos
+No convertir automáticamente todas las recomendaciones del Advisor en índices. Las FKs sin índice y los índices sin uso deben evaluarse con volumen, cardinalidad, frecuencia de joins y `pg_stat_statements`; un índice también tiene costo de escritura y mantenimiento.
 
-El Apps Script institucional:
+Durante la auditoría V11.30 los RPC principales medidos se mantuvieron en rangos operativos adecuados para el volumen actual.
 
-1. recibe POST de CRM Suministros;
-2. valida el origen exacto;
-3. valida JWT llamando `erp_x_session`;
-4. valida contexto, tamaño y tipo del archivo;
-5. carga al Drive institucional;
-6. devuelve metadata, no credenciales.
+## 13. PWA y releases
 
-Formatos activos/ejecutables como HTML, SVG, JavaScript, EXE, MSI, BAT, PowerShell, shell, JAR, APK e ISO se rechazan. Tamaño máximo: 15 MB.
+El service worker es network-first para recursos same-origin y usa cache identificada por release. Al promover versión debe actualizarse de forma coordinada:
 
-## 13. Base de datos y migraciones
+- `assets/js/config.js`;
+- `package.json` / `package-lock.json`;
+- query strings de `index.html`;
+- `service-worker.js`;
+- invariantes de `.github/workflows/validate-crm.yml`;
+- `scripts/validate.mjs`;
+- `CHANGELOG.md`.
 
-No editar producción manualmente para “arreglar un estado” si existe una transición/RPC. Toda modificación de esquema debe quedar en migración reproducible.
+No hacer bumps parciales.
 
-La migración `074_security_performance_hardening_v10_33_1.sql` fue aplicada el **1 de septiembre de 2026** al proyecto verificado `hezjxcxxcjlpmyalftam`. Permanece versionada para instalaciones nuevas y trazabilidad; no debe ejecutarse manualmente otra vez si ya figura en el historial de migraciones del entorno.
+## 14. QA y despliegue
 
-Antes de aplicar:
+Un merge a `main` debe pasar la CI canónica. Vercel está configurado para desplegar producción desde `main`; previews de ramas no sustituyen la validación de producción.
 
-1. backup/branch;
-2. ejecutar migraciones;
-3. `npm run validate`;
-4. Security Advisor;
-5. Performance Advisor;
-6. smoke/E2E.
+Después de un cambio de backend o integración, ejecutar los health checks y comprobar que no existan eventos de outbox fallidos/atascados.
 
-## 14. Performance
+## 15. Operación e incidentes
 
-La aplicación pagina consultas con tamaños razonables y configura `maxPageSize=250`. El Advisor detectó varias FKs sin índice. No deben indexarse todas ciegamente. Revisar `pg_stat_statements`, frecuencia de joins, cardinalidad y costo de escritura antes de añadir índices.
+Consultar:
 
-## 15. UI/UX
+- `docs/AUDITORIA_INTEGRAL_2026-09-14.md`
+- `docs/IMPLEMENTATION_STATUS.md`
+- `docs/SECURITY.md`
+- `docs/ARCHITECTURE.md`
+- `docs/FUNCTIONAL_FLOWS.md`
+- `docs/QA_RELEASE_CHECKLIST.md`
+- `docs/DEPLOYMENT_VERCEL_SUPABASE.md`
+- `docs/OPERATIONS_RUNBOOK.md`
 
-El sistema visual utiliza Century Gothic y la familia Refined Workspaces. Esta reconstrucción añadió foco visible, targets táctiles más seguros en móvil, inputs de tamaño usable y respeto a `prefers-reduced-motion`. Los cambios fueron deliberadamente conservadores para no romper los flujos mientras se hace la auditoría funcional.
-
-La siguiente etapa visual debe realizarse sobre un entorno autenticado de staging y capturas de cada módulo, no solo sobre el login.
-
-## 16. QA antes de release
-
-No liberar con solo “se ve bien”. Ejecutar `docs/QA_RELEASE_CHECKLIST.md`, incluyendo usuarios de QA por rol. Deben probarse happy path, permisos denegados, concurrencia, sesión vencida, archivos inválidos y todos los desvíos del flujo.
-
-## 17. Deploy
-
-Guía completa: `docs/DEPLOYMENT_VERCEL_SUPABASE.md`.
-
-Puntos críticos después de crear el nuevo repo/dominio:
-
-- configurar dominio exacto en Edge `ERP_ALLOWED_ORIGINS`;
-- configurar el mismo dominio en Apps Script;
-- configurar secrets solo en Supabase/Vercel;
-- activar Auth rate limits + CAPTCHA;
-- escanear **historia Git**;
-- revisar CSP en navegador real;
-- ejecutar QA por rol.
-
-## 18. Operación e incidentes
-
-Consultar `docs/OPERATIONS_RUNBOOK.md` para monitoreo, Auth, flujo, secretos y recuperación.
-
-## 19. Archivos históricos
-
-Se eliminaron módulos QA/Sandbox incompatibles con producción. El SQL histórico grande se conserva por ahora porque aún puede ser necesario para reconstrucción desde cero. El paso correcto futuro es un **schema squash** probado en una base vacía; solo después se elimina historial redundante.
-
-## 20. Definición de “listo para producción”
-
-Una build se considera candidata final cuando:
-
-- validadores verdes;
-- E2E por rol verde;
-- settings Auth cerrados;
-- Security Advisor revisado;
-- no hay secretos privados ni en working tree ni en Git history;
-- migraciones reproducibles;
-- backup/restore definidos;
-- CORS/CSP ajustados al dominio final;
-- pruebas de flujo completo sin inconsistencias.
-
----
-
-Documentos clave: `docs/AUDITORIA_INTEGRAL_2026-09-01.md`, `docs/SECURITY.md`, `docs/ARCHITECTURE.md`, `docs/FUNCTIONAL_FLOWS.md`, `docs/QA_RELEASE_CHECKLIST.md`, `docs/DEPLOYMENT_VERCEL_SUPABASE.md`, `docs/OPERATIONS_RUNBOOK.md`.
+El SQL histórico se conserva por trazabilidad. Cualquier squash futuro debe probarse primero sobre una base vacía antes de retirar migraciones históricas.

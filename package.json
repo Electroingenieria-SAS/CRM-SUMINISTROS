@@ -1,11 +1,12 @@
 {
   "name": "crm-suministros-electroingenieria",
-  "version": "11.27.0",
+  "version": "11.30.0",
   "private": true,
   "type": "module",
   "scripts": {
     "serve": "node scripts/serve.mjs",
-    "validate": "node scripts/validate.mjs && node --experimental-vm-modules scripts/link-check.mjs && node scripts/security-check.mjs",
+    "validate": "node scripts/validate.mjs && node --experimental-vm-modules scripts/link-check.mjs && node scripts/security-check.mjs && node scripts/integration-contract-check.mjs",
+    "validate:integration": "node scripts/integration-contract-check.mjs",
     "security": "node scripts/security-check.mjs"
   }
 }
