@@ -1,5 +1,27 @@
 # Changelog
 
+## 11.31.0 — 2026-09-18
+
+### Entrega y satisfacción
+- Nueva confirmación independiente **Entregado con satisfacción** posterior a la entrega logística.
+- Distancia recorrida por pedido con fuente verificable del kilometraje.
+- Despachos locales/nacionales exigen distancia mayor que cero al confirmar satisfacción.
+- Se conserva `DELIVERED` como estado logístico; la satisfacción se registra en campos y eventos separados.
+- Nuevos hitos `DELIVERED_SATISFIED` / `DELIVERY_REVIEW_UPDATED`.
+
+### Tiempos y analítica
+- Tránsito: salida → entrega logística.
+- Tiempo hasta satisfacción: salida → confirmación del cliente.
+- Confirmación post-entrega: entrega → satisfacción.
+- Pedidos enviados muestra recorrido y estado de satisfacción.
+- Analítica → Entregas incorpora satisfacción, distancia total/promedio y tiempos post-entrega.
+- Exportación de Entregas incorpora distancia, receptor, satisfacción y duraciones.
+
+### Seguridad / compatibilidad
+- Cambio aditivo: no reabre pedidos cerrados ni modifica el flujo existente de evidencia/cierre.
+- RPC de satisfacción valida rol, propiedad comercial, entrega previa y ausencia de novedad abierta.
+- Sin acceso `anon`; ejecución explícita para `authenticated`.
+
 ## 11.30.2 — 2026-09-18
 
 ### CSP y estilos runtime
