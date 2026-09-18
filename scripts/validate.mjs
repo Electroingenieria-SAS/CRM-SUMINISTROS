@@ -212,7 +212,7 @@ for(const token of [
   "MutationObserver",
   "#modal-root",
   "state.currentModule"
-])check(inventoryDialogs.includes(token),`Sistema de diálogos guiados incompleto: falta ${token}.`);
+])check(inventoryDialogsContract.includes(token),`Sistema de diálogos guiados incompleto: falta ${token}.`);
 for(const width of ["1120px","1040px","1000px","960px","940px","820px","720px"])check(inventoryDialogsContract.includes(`--inventory-dialog-width:${width}`),`Falta ancho contenido: ${width}.`);
 check(inventoryDialogsContract.includes('calc(100vw - 96px)'),"Desktop debe conservar margen lateral visible.");
 check(!inventoryDialogsContract.includes('width:min(86vw')&&!inventoryDialogsContract.includes('width:min(88vw')&&!inventoryDialogsContract.includes('width:min(94vw'),"Inventario volvió a geometrías casi full-screen en escritorio.");
