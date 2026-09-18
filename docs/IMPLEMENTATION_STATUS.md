@@ -1,8 +1,8 @@
 # Estado de implementación
 
-## Estado de release — V11.30.1 · 2026-09-18
+## Estado de release — V11.31.0 · 2026-09-18
 
-CRM Suministros mantiene la línea funcional V11.30.0 y prepara el hardening V11.30.1 sobre Vercel + Supabase `hezjxcxxcjlpmyalftam`. La operación productiva usa Supabase Auth, RPC `public.erp_x_*`, esquema privado `erp_supply`, Edge Functions administrativas y la integración server-to-server CRM → AuditoriaERP.
+CRM Suministros mantiene la línea funcional auditada y prepara V11.31.0 sobre Vercel + Supabase `hezjxcxxcjlpmyalftam`. La operación productiva usa Supabase Auth, RPC `public.erp_x_*`, esquema privado `erp_supply`, Edge Functions administrativas y la integración server-to-server CRM → AuditoriaERP.
 
 ## Incluido y operativo
 
@@ -10,6 +10,7 @@ CRM Suministros mantiene la línea funcional V11.30.0 y prepara el hardening V11
 - Supabase Auth, perfiles operativos, roles y permisos por módulo.
 - Motor transaccional de pedidos, tareas, sesiones y calendario laboral.
 - Cartera, Caja, Compras, Recepción, Alistamiento, Corte, Facturación, Despachos y Cierre.
+- Seguimiento post-entrega con confirmación de satisfacción, distancia recorrida, fuente del kilometraje y tiempos diferenciados.
 - Inventario con maestro Siesa, lotes, reservas, movimientos, conteos ciegos, revisión y trazabilidad.
 - Crédito, aprobaciones, comentarios, Drive y auditoría.
 - Importación histórica, VSM, reportes, Administración y Jornada/actividades.
@@ -50,7 +51,6 @@ En la auditoría V11.30.0 se comprobó:
 ## Pendientes de plataforma, no de código
 
 - **Supabase Auth · Leaked Password Protection:** el Security Advisor la reporta deshabilitada. Debe activarse en la configuración Auth del proyecto.
-- **Supabase Auth · rate limiting / anti-bot:** cerrar a nivel plataforma; el guard local no sustituye el control server-side.
 - **GitHub · protección de `main`:** activar ruleset/branch protection con PR + `Validate CRM Suministros`, sin force-push ni borrado.
 - Los 11 usuarios Auth históricos asociados a perfiles inactivos nunca han iniciado sesión. Se conservan hasta definir formalmente una política de retención/eliminación; no constituyen perfiles operativos activos.
 - El Advisor informa FKs sin índice e índices sin uso. No se aplicarán cambios masivos: cualquier optimización debe justificarse con volumen y `pg_stat_statements` para evitar degradar escrituras.
