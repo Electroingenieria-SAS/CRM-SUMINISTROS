@@ -1,35 +1,76 @@
 # Despliegue y salud de integración
 
-Este documento registra el mecanismo esperado de publicación del CRM Suministros.
+## Flujo productivo objetivo
 
-## Flujo esperado
+1. Todo cambio se desarrolla en una rama distinta de `main`.
+2. Se abre Pull Request contra `main`.
+3. GitHub Actions ejecuta **Validate CRM Suministros**.
+4. El PR solo debe fusionarse con la validación en verde.
+5. El método recomendado es **squash merge**.
+6. Vercel despliega automáticamente únicamente desde `main`.
+7. Tras el merge, la misma CI vuelve a ejecutar validaciones y smoke desktop/móvil sobre el SHA productivo.
+8. Se confirma que Vercel publica exactamente el SHA fusionado y queda `READY`.
 
-1. Los cambios se validan mediante GitHub Actions.
-2. `main` representa la versión candidata a producción.
-3. Vercel debe detectar cada push a `main` y crear un deployment asociado al commit.
-4. El alias productivo es `crm-suministros-amber.vercel.app`.
+## Protección requerida de main
 
-## Verificación de integración
+La configuración de GitHub debe mantener:
 
-El 4 de septiembre de 2026 se realizó una prueba de reconexión GitHub → Vercel después de restaurar el repositorio y cambiar su visibilidad a pública.
+- Pull Request obligatorio para cambios normales;
+- check requerido: **Validate CRM Suministros**;
+- bloqueo de force-push;
+- bloqueo de eliminación de `main`;
+- conversaciones/revisiones resueltas antes del merge cuando existan;
+- squash merge como método preferido.
 
-Resultado de la prueba:
+La protección es un control de plataforma: no puede sustituirse con un archivo del repositorio. La CI post-merge es una defensa adicional, no un reemplazo del ruleset.
 
-- Push de control a `main`: `c9f34980f7e7c5207a0f8fe8c77a6a5a424b190e`.
-- GitHub Actions: validación completa exitosa.
-- Vercel: deployment automático de producción generado desde ese mismo commit.
-- Alias productivo: versión `11.8.2`, build `2026-09-04.3`.
+## Vercel
 
-La integración GitHub → Vercel se considera restablecida mientras nuevos pushes a `main` sigan generando deployments asociados al SHA correspondiente.
+Contrato actual:
 
-## Protección recomendada de `main`
+- proyecto: `crm-suministros`;
+- rama Production: `main`;
+- ramas diferentes de `main`: deployment automático deshabilitado por `vercel.json`;
+- dominio estable: `crm-suministros-amber.vercel.app`.
 
-Mientras el mantenimiento del CRM continúe realizando commits directos a `main`, la protección debe ser compatible con ese flujo:
+El deployment se considera válido únicamente si:
 
-- Proteger `main` contra borrado.
-- No permitir force-push.
-- Mantener habilitado GitHub Actions.
-- No exigir Pull Request obligatorio mientras se mantenga el flujo de edición directa.
-- No exigir status checks como condición previa al push directo; el workflow actual los ejecuta inmediatamente después de cada push.
+- el SHA de Vercel coincide con el HEAD fusionado de `main`;
+- el estado es `READY`;
+- `assets/js/config.js`, `index.html` y `service-worker.js` muestran la misma versión/build;
+- no aparecen errores runtime nuevos;
+- la PWA sirve el cache correspondiente al release.
 
-Si más adelante se adopta un flujo obligatorio por Pull Request, se recomienda entonces exigir el check `Validate CRM Suministros` antes de fusionar.
+## CI V11.30.1
+
+La CI canónica valida en PR, push a `main` y ejecución manual:
+
+- sintaxis JavaScript;
+- grafo ES Modules;
+- scanner de seguridad del árbol actual;
+- scanner de secretos del historial Git completo;
+- arquitectura canónica;
+- contrato CRM → AuditoriaERP;
+- invariantes de release y PWA;
+- Playwright desktop y mobile;
+- artefacto desplegable.
+
+El checkout usa `fetch-depth: 0` para que el análisis histórico sea real y no se limite al commit actual.
+
+## Base de datos / Supabase
+
+Cambios DDL deben quedar en migración reproducible. Antes de dar por cerrado un release con migraciones:
+
+1. CI verde;
+2. revisión del SQL;
+3. aplicación controlada;
+4. ejecución de health checks;
+5. ejecución de Security/Performance Advisors;
+6. verificación de integraciones y colas;
+7. comprobación de errores runtime.
+
+No modificar datos operativos directamente para resolver un estado si existe un RPC o transición canónica.
+
+## Rollback
+
+Vercel permite seleccionar un deployment productivo anterior como candidato de rollback. Un rollback de frontend no revierte automáticamente migraciones Supabase; por eso las migraciones deben diseñarse de forma compatible/no destructiva o disponer de un procedimiento explícito de reversión.

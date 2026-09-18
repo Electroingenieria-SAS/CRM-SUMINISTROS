@@ -1,5 +1,24 @@
 # Changelog
 
+## 11.30.1 — 2026-09-18
+
+### Seguridad y gobierno
+- Añadidos `.gitignore` y `.env.example` canónicos para impedir que secretos/local artifacts entren al repositorio.
+- Nuevo `npm run security:history`: revisa el historial Git completo mediante `fetch-depth: 0` y falla ante patrones compatibles con claves privadas o credenciales.
+- El scanner del árbol actual exige dependencias CDN versionadas, prohíbe `unsafe-eval` y valida el hash CSP del bootstrap inline de Speed Insights.
+- Nueva migración 110 con `erp_x_security_definer_contract_check()`, service-role-only, para vigilar ejecución anónima, guardas y wrappers auditados.
+- Política formal de gobierno de ramas y flujo PR → CI → squash merge → verificación post-merge.
+
+### CI/CD
+- Playwright desktop/móvil deja de limitarse a PR/manual y se ejecuta también después de cada push a `main`.
+- Release, PWA y artefacto desplegable sincronizados como V11.30.1 / build 2026-09-18.01.
+- Cache PWA rotada desde V11.30.0 a `crm-suministros-v11-30-1-20260918-01`.
+
+### Plataforma pendiente
+- GitHub ruleset/branch protection para `main` debe activarse a nivel plataforma.
+- Supabase Auth mantiene pendientes Leaked Password Protection, rate limiting real y anti-bot.
+- `style-src 'unsafe-inline'` se conserva temporalmente por estilos inline/dinámicos heredados; su retirada requiere migración visual controlada.
+
 ## 11.30.0 — 2026-09-14
 
 ### Producción y release

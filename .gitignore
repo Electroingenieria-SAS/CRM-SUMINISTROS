@@ -1,0 +1,30 @@
+# Dependencies and local tooling
+node_modules/
+playwright-report/
+test-results/
+coverage/
+dist-deployable/
+.vercel/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local/editor artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*.log
+
+# Temporary files
+.tmp/
+temp/
+tmp/

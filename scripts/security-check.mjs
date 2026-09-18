@@ -7,6 +7,26 @@ const ignore=new Set(["node_modules",".git","playwright-report","test-results","
 const files=[];
 function walk(dir){for(const e of fs.readdirSync(dir,{withFileTypes:true})){if(ignore.has(e.name))continue;const full=path.join(dir,e.name);if(e.isDirectory())walk(full);else if(/\.(js|mjs|ts|html|json|toml|md|yml|yaml|sql|gs)$/i.test(e.name))files.push(full)}}
 walk(root);
+
+for(const required of [".gitignore",".env.example","scripts/git-history-security-check.mjs","docs/REPOSITORY_GOVERNANCE.md"]){
+  if(!fs.existsSync(path.join(root,required)))failures.push(`Falta control requerido: ${required}.`);
+}
+const rootEntries=fs.readdirSync(root);
+for(const name of rootEntries){
+  if(/^\.env(?:\.|$)/.test(name)&&name!==".env.example")failures.push(`${name}: archivo de entorno real no debe estar versionado.`);
+}
+const indexHtml=fs.readFileSync(path.join(root,"index.html"),"utf8");
+const vercelConfig=fs.readFileSync(path.join(root,"vercel.json"),"utf8");
+const externalScripts=[...indexHtml.matchAll(/<script[^>]+src=["'](https:\/\/[^"']+)["'][^>]*>/gi)].map(match=>match[1]);
+for(const src of externalScripts){
+  if(/cdn\.jsdelivr\.net|unpkg\.com|cdn\.sheetjs\.com/.test(src)){
+    if(/\/(latest|next)(?:\/|$)|@latest(?:\/|$)/i.test(src))failures.push(`index.html: dependencia CDN no fijada: ${src}`);
+    if(/cdn\.jsdelivr\.net\/npm\//.test(src)&&!/@\d+\.\d+\.\d+/.test(src))failures.push(`index.html: paquete jsDelivr sin versión exacta: ${src}`);
+    if(/unpkg\.com\//.test(src)&&!/@\d+\.\d+\.\d+/.test(src))failures.push(`index.html: paquete unpkg sin versión exacta: ${src}`);
+  }
+}
+if(/unsafe-eval/i.test(vercelConfig))failures.push("vercel.json: CSP no puede habilitar unsafe-eval.");
+if(!vercelConfig.includes("'sha256-rRTok79almAGgfPvRLw0V1lpoIyngNj1axoWNf4jXA8='"))failures.push("vercel.json: falta hash CSP del bootstrap inline de Speed Insights.");
 for(const file of files){
  const rel=path.relative(root,file).replaceAll("\\","/"); const text=fs.readFileSync(file,"utf8");
  if(/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/.test(text))failures.push(`${rel}: contiene una clave privada.`);
@@ -24,5 +44,5 @@ for(const file of files){
 const edge=path.join(root,"supabase/functions/erp-admin-users/index.ts");
 if(fs.existsSync(edge)&&/Access-Control-Allow-Origin["']?\s*:\s*["']\*["']/.test(fs.readFileSync(edge,"utf8")))failures.push("erp-admin-users: CORS wildcard no permitido para administración.");
 if(failures.length){console.error("SECURITY CHECK FALLÓ");for(const x of failures)console.error(`- ${x}`);process.exit(1)}
-console.log(`SECURITY CHECK CORRECTO · ${files.length} archivos revisados · 0 secretos privados detectados.`);
+console.log(`SECURITY CHECK CORRECTO · ${files.length} archivos revisados · secretos privados ausentes · dependencias CDN versionadas · CSP sin unsafe-eval.`);
 for(const x of warn)console.warn(`- ${x}`);
