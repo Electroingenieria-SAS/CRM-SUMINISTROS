@@ -1,8 +1,8 @@
 # Estado de implementación
 
-## Estado productivo — V11.30.0 · 2026-09-14
+## Estado de release — V11.30.1 · 2026-09-18
 
-CRM Suministros se encuentra desplegado en producción sobre Vercel y conectado al proyecto Supabase `hezjxcxxcjlpmyalftam`. La operación productiva usa Supabase Auth, RPC `public.erp_x_*`, esquema privado `erp_supply`, Edge Functions administrativas y la integración server-to-server CRM → AuditoriaERP.
+CRM Suministros mantiene la línea funcional V11.30.0 y prepara el hardening V11.30.1 sobre Vercel + Supabase `hezjxcxxcjlpmyalftam`. La operación productiva usa Supabase Auth, RPC `public.erp_x_*`, esquema privado `erp_supply`, Edge Functions administrativas y la integración server-to-server CRM → AuditoriaERP.
 
 ## Incluido y operativo
 
@@ -23,14 +23,15 @@ La CI `Validate CRM Suministros` exige:
 
 - sintaxis JavaScript;
 - grafo ES Modules completo y sin módulos huérfanos;
-- contrato de seguridad;
+- contrato de seguridad del árbol actual;
+- escaneo de secretos del historial Git completo;
 - arquitectura canónica y cuatro familias CSS;
 - invariantes de release/PWA;
 - contrato estático CRM → AuditoriaERP;
-- smoke público desktop y móvil;
+- smoke público desktop y móvil en PR y nuevamente post-merge;
 - empaquetado del frontend desplegable.
 
-El backend productivo dispone de `erp_x_health_check()` con 21 canarios. Tras la auditoría integral del 14 de septiembre de 2026 el resultado fue **21/21 OK**. La integración AuditoriaERP dispone además de `erp_x_auditoria_erp_contract_check()` service-role-only.
+El backend productivo dispone de `erp_x_health_check()` con 21 canarios. Tras la auditoría integral del 14 de septiembre de 2026 el resultado fue **21/21 OK**. La integración AuditoriaERP dispone además de `erp_x_auditoria_erp_contract_check()` service-role-only. V11.30.1 añade `erp_x_security_definer_contract_check()` como control service-role-only de privilegios.
 
 ## Integridad verificada
 
@@ -48,7 +49,9 @@ En la auditoría V11.30.0 se comprobó:
 
 ## Pendientes de plataforma, no de código
 
-- **Supabase Auth · Leaked Password Protection:** el Security Advisor la reporta deshabilitada. Debe activarse desde la configuración Auth cuando esté disponible para el plan/proyecto. No existe una acción de escritura de Auth expuesta por el conector usado en esta auditoría.
+- **Supabase Auth · Leaked Password Protection:** el Security Advisor la reporta deshabilitada. Debe activarse en la configuración Auth del proyecto.
+- **Supabase Auth · rate limiting / anti-bot:** cerrar a nivel plataforma; el guard local no sustituye el control server-side.
+- **GitHub · protección de `main`:** activar ruleset/branch protection con PR + `Validate CRM Suministros`, sin force-push ni borrado.
 - Los 11 usuarios Auth históricos asociados a perfiles inactivos nunca han iniciado sesión. Se conservan hasta definir formalmente una política de retención/eliminación; no constituyen perfiles operativos activos.
 - El Advisor informa FKs sin índice e índices sin uso. No se aplicarán cambios masivos: cualquier optimización debe justificarse con volumen y `pg_stat_statements` para evitar degradar escrituras.
 
