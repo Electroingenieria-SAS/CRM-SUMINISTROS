@@ -1,59 +1,99 @@
-# ERP EI · Security Advisor Backlog · 2026-09-01
+# CRM Suministros · Security Advisor Backlog · 2026-09-18
 
-Este documento registra advertencias que **no deben corregirse con borrados o revocaciones masivas** porque forman parte de la API del ERP o requieren una decisión arquitectónica.
+Este documento separa advertencias que requieren acción real de aquellas que son coherentes con la arquitectura RPC-only del CRM. No se corrigen Advisors mediante permisos amplios, índices masivos o cambios destructivos sin evidencia.
 
-## Resuelto en esta reconstrucción
+## Estado verificado
 
-- Acceso `anon` a los RPC `SECURITY DEFINER` identificados por Advisor: **0 restante** tras migración 074.
-- Índice duplicado `idx_financial_validations_order_type_v1033`: eliminado.
-- `profiles_read_v8`: `auth.uid()` estabilizado mediante `(select auth.uid())`.
+### RLS / acceso anónimo
 
-## Pendiente prioritario
+- Tablas base de `erp_supply`: RLS habilitado.
+- RPC `public.erp_x_*` ejecutables por `anon`: **0**.
+- Tablas internas con RLS sin policies: el Advisor mantiene avisos INFO; en este esquema son mayoritariamente **deny-by-default deliberado** porque el browser usa RPC y no acceso directo a tablas.
 
-### 1. Reducir la superficie `SECURITY DEFINER`
+### SECURITY DEFINER
 
-El ERP usa RPC públicos como fachada de negocio. Que un RPC autenticado sea `SECURITY DEFINER` no implica por sí mismo una vulnerabilidad, pero obliga a que la función haga autorización interna antes de leer o mutar datos. La familia actual `erp_x_*` debe revisarse función por función contra una matriz de roles/acciones.
+El Advisor reporta **147 funciones SECURITY DEFINER ejecutables por `authenticated`**. La auditoría del 18 de septiembre encontró:
 
-Plan recomendado:
+- **0** ejecutables por `anon`;
+- 140 con patrones directos de identidad/autorización detectables;
+- 7 helpers/wrappers históricos que no contienen la guarda en el wrapper pero delegan en funciones auditadas:
+  - `erp_can_read_case`;
+  - `erp_case_id_visible`;
+  - `erp_current_exact_role`;
+  - `erp_current_firebase_uid`;
+  - `erp_x_admin_save_profile`;
+  - `erp_x_create_physical_receipt`;
+  - `erp_x_resolve_cut_requirement`.
 
-1. inventariar RPC realmente llamados por `assets/js/services/api.js`;
-2. clasificar cada RPC como lectura, escritura, administrativa o helper;
-3. mover helpers internos a un esquema no expuesto (`private`/`erp_supply`) cuando sea viable;
-4. cambiar a `SECURITY INVOKER` donde RLS pueda expresar correctamente la autorización;
-5. mantener `SECURITY DEFINER` solo donde exista justificación y validación explícita de actor/rol/organización;
-6. revocar `EXECUTE` a `anon` y a roles que no lo necesiten;
-7. fijar `search_path` en toda función privilegiada.
+V11.30.1 añade `erp_x_security_definer_contract_check()` para detectar cambios en esta frontera. Este health contract es exclusivo de `service_role`.
 
-### 2. Funciones con `search_path` mutable
+**Criterio:** no convertir funciones masivamente a `SECURITY INVOKER`; revisar función por función y mover helpers internos a `erp_supply` cuando exista una mejora clara sin romper contratos.
 
-Advisor señala helpers en `public` y `erp_supply` cuyo `search_path` no está fijado. Deben migrarse gradualmente a `SET search_path = pg_catalog, public, erp_supply` —o el mínimo necesario— después de verificar dependencias y nombres no cualificados.
+## Pendientes de plataforma
 
-No se aplicó un `ALTER FUNCTION ... SET search_path` masivo porque una función que dependa de resolución implícita de objetos puede cambiar de comportamiento si se modifica sin prueba.
+### 1. Supabase Auth · Leaked Password Protection
 
-### 3. Familias legacy `erp_v9_*`
+Estado: **WARN / pendiente**.
 
-Son candidatas fuertes a deprecación. El runtime V10.33.1 usa `erp_x_*`; sin embargo, antes de eliminarlas se debe confirmar que no haya integraciones externas, scripts administrativos o clientes anteriores consumiéndolas.
+El Advisor confirma que está deshabilitada. Debe activarse desde la configuración Auth/Management API autorizada. No existe un equivalente SQL seguro y no se debe simular en el frontend.
 
-### 4. RLS habilitado sin políticas en `erp_supply`
+### 2. Supabase Auth · rate limiting y anti-bot
 
-Muchas tablas internas tienen RLS activo y cero políticas. Esto produce un aviso INFO, pero en un esquema interno puede ser una estrategia *deny by default*: el cliente no accede directamente y la lógica pasa por RPC controlados. No se deben crear políticas permisivas solo para silenciar el Advisor.
+Estado: **pendiente**.
 
-### 5. Auth: leaked-password protection
+El guard local de intentos solo mejora UX. La defensa real requiere límites server-side y CAPTCHA/Turnstile/hCaptcha según las opciones del proyecto.
 
-El Advisor confirma que la protección contra contraseñas filtradas está deshabilitada. Debe activarse en Auth si el plan de Supabase lo soporta y reforzarse con longitud/complejidad, MFA para privilegios y reautenticación para cambios sensibles.
+### 3. GitHub · protección de main
 
-### 6. Rate limiting y CAPTCHA
+Estado: **pendiente de configuración administrativa**.
 
-El bloqueo de 10 intentos añadido en el frontend es una defensa secundaria de UX y **no sustituye** un límite de servidor. Configurar en Supabase Auth el límite acordado y CAPTCHA/Turnstile para login/reset. Para acciones administrativas de la Edge Function, añadir un rate limiter persistente/edge si la exposición y el volumen lo justifican.
+Objetivo:
 
-## Performance
+- Pull Request obligatorio;
+- check requerido **Validate CRM Suministros**;
+- bloquear force-push;
+- bloquear eliminación de `main`;
+- squash merge como método preferido.
 
-El Advisor lista numerosas FK sin índices. Antes de indexar masivamente:
+La CI V11.30.1 ejecuta nuevamente Playwright después del merge, pero esto es defensa adicional y no reemplaza branch protection.
 
-- revisar `pg_stat_statements` y consultas más costosas;
-- priorizar columnas FK usadas en joins/filtros de flujos calientes;
-- medir write amplification y tamaño del índice;
-- crear índices concurrentemente en producción cuando corresponda;
-- reevaluar Advisor y latencias después de cada lote.
+## Performance Advisor
 
-Los índices marcados como “unused” tampoco deben borrarse de inmediato: primero validar un período representativo de estadísticas y ventanas de operación.
+Última lectura: **127 foreign keys sin índice** y **74 índices sin uso registrado**.
+
+No se aplican cambios masivos.
+
+Criterio para crear un índice:
+
+1. la FK/columna participa en un join/filtro real de un flujo caliente;
+2. `EXPLAIN (ANALYZE, BUFFERS)` evidencia costo relevante;
+3. `pg_stat_statements` confirma frecuencia/latencia;
+4. se valora write amplification y tamaño;
+5. se mide antes/después.
+
+Criterio para retirar un índice:
+
+1. ventana estadística representativa;
+2. cero dependencia de constraint/índice único;
+3. no pertenece a una funcionalidad estacional o recién desplegada;
+4. prueba de planes antes/después;
+5. rollback definido.
+
+Por tanto, estos dos avisos permanecen **informativos** hasta que existan datos que justifiquen una intervención.
+
+## Deuda técnica controlada
+
+### CSP · estilos inline
+
+`style-src 'unsafe-inline'` permanece habilitado para compatibilidad con estilos inline/dinámicos heredados. No se considera cerrado mediante una eliminación ciega porque podría romper diálogos, banners y componentes runtime.
+
+Plan correcto:
+
+1. inventariar estilos dinámicos;
+2. migrarlos a `core-shell.css`, `operations.css`, `analytics.css` o `experience.css`;
+3. ejecutar regresión visual desktop/tablet/mobile;
+4. separar `style-src-attr` y `style-src-elem` cuando la cobertura permita retirar `unsafe-inline`.
+
+### Dependencias externas
+
+Las dependencias CDN versionables están fijadas y la CI bloquea `latest/next`. Google Identity Services continúa usando el endpoint oficial dinámico. La incorporación de SRI o self-host debe evaluarse proveedor por proveedor; no se aplicará un hash incorrecto que bloquee producción.
