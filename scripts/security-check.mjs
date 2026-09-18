@@ -26,6 +26,8 @@ for(const src of externalScripts){
   }
 }
 if(/unsafe-eval/i.test(vercelConfig))failures.push("vercel.json: CSP no puede habilitar unsafe-eval.");
+if(/style-src[^;]*'unsafe-inline'/i.test(vercelConfig))failures.push("vercel.json: style-src general no puede habilitar unsafe-inline.");
+if(!/style-src-attr[^;]*'unsafe-inline'/i.test(vercelConfig))failures.push("vercel.json: la excepción inline debe quedar limitada a style-src-attr mientras existan métricas visuales dinámicas.");
 if(!vercelConfig.includes("'sha256-rRTok79almAGgfPvRLw0V1lpoIyngNj1axoWNf4jXA8='"))failures.push("vercel.json: falta hash CSP del bootstrap inline de Speed Insights.");
 for(const file of files){
  const rel=path.relative(root,file).replaceAll("\\","/"); const text=fs.readFileSync(file,"utf8");
@@ -35,6 +37,7 @@ for(const file of files){
  if(rel.startsWith("assets/")&&/SUPABASE_SERVICE_ROLE_KEY|service_role|sb_secret_/i.test(text))failures.push(`${rel}: referencia un secreto de servidor en frontend.`);
  if(rel==="index.html"&&/@supabase\/supabase-js@2["/]/.test(text))failures.push("index.html: Supabase JS CDN no está fijado a versión exacta.");
  if(rel.startsWith("assets/js")){
+   if(/createElement\s*\(\s*["']style["']\s*\)/i.test(text))failures.push(`${rel}: no se permite inyectar <style>; use CSS same-origin externo.`);
    // `.from()` is forbidden for browser-side Supabase table access, but standard
    // language calls such as Array.from() and Object.fromEntries() are legitimate.
    const withoutStandardFrom=text.replace(/\bArray\s*\.\s*from\s*\(/g,"Array_from(").replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
@@ -44,5 +47,5 @@ for(const file of files){
 const edge=path.join(root,"supabase/functions/erp-admin-users/index.ts");
 if(fs.existsSync(edge)&&/Access-Control-Allow-Origin["']?\s*:\s*["']\*["']/.test(fs.readFileSync(edge,"utf8")))failures.push("erp-admin-users: CORS wildcard no permitido para administración.");
 if(failures.length){console.error("SECURITY CHECK FALLÓ");for(const x of failures)console.error(`- ${x}`);process.exit(1)}
-console.log(`SECURITY CHECK CORRECTO · ${files.length} archivos revisados · secretos privados ausentes · dependencias CDN versionadas · CSP sin unsafe-eval.`);
+console.log(`SECURITY CHECK CORRECTO · ${files.length} archivos revisados · secretos privados ausentes · dependencias CDN versionadas · CSP sin unsafe-eval y sin style-src unsafe-inline general.`);
 for(const x of warn)console.warn(`- ${x}`);
