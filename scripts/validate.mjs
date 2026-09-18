@@ -39,6 +39,10 @@ const control=read("assets/js/modules/inventory-control-v11250.js");
 const exportsModule=read("assets/js/modules/inventory-export-v11250.js");
 const ui=read("assets/js/modules/inventory-ui-v11240.js");
 const inventoryDialogs=read("assets/js/modules/inventory-dialogs-v11260.js");
+const inventoryWorkspaceCss=read("assets/runtime-css/inventory-workspace-v11251.css");
+const inventoryDialogsCss=read("assets/runtime-css/inventory-dialogs-v11260.css");
+const inventoryContract=inventory+"\n"+inventoryWorkspaceCss;
+const inventoryDialogsContract=inventoryDialogs+"\n"+inventoryDialogsCss;
 const responsive=read("assets/js/modules/responsive-foundation-v11190.js");
 const popupUx=read("assets/js/modules/popup-ux-v1190.js");
 const inventoryMigration=read("supabase/migrations/095_inventory_accounting_blind_count_v11_23_0.sql");
@@ -172,7 +176,7 @@ check(inventory.includes('inventoryCountCenter')&&inventory.includes('access.ope
 for(const view of ["home","capture","express","count","labels","plan","review","history","stock","ledger","control"])check(inventory.includes(`"${view}"`),`Falta vista de Inventario: ${view}`);
 check(inventory.includes('express-review'),"Super Admin perdió Revisión exprés.");
 check(inventory.includes('inventory-nav-v11251')&&inventory.includes('Control y auditoría')&&inventory.includes('inventory-nav-groups-v11251'),"Inventario perdió la navegación agrupada.");
-check(inventory.includes('overflow-wrap:anywhere')&&inventory.includes('@media(max-width:760px)')&&inventory.includes('@media(max-width:480px)'),"Inventario perdió defensas responsive contra desbordes.");
+check(inventoryContract.includes('overflow-wrap:anywhere')&&inventoryContract.includes('@media(max-width:760px)')&&inventoryContract.includes('@media(max-width:480px)'),"Inventario perdió defensas responsive contra desbordes.");
 check(home.includes("Conteo no programado")&&home.includes("Etiquetas y stickers")&&home.includes("Movimientos"),"Inicio no expone las funciones críticas.");
 check(operator.includes("REGISTRAR CONTEO")&&operator.includes("Conteo exprés")&&operator.includes("Metraje")&&operator.includes("Imprimir jornada")&&operator.includes("Exportar CSV"),"Captura perdió conteo, exprés, metraje o stickers.");
 check(operator.includes("inventoryCountSubmit")&&operator.includes("inventoryCountResolve")&&operator.includes("inventoryCountSearch"),"Captura no usa los contratos seguros de conteo.");
@@ -209,13 +213,13 @@ for(const token of [
   "#modal-root",
   "state.currentModule"
 ])check(inventoryDialogs.includes(token),`Sistema de diálogos guiados incompleto: falta ${token}.`);
-for(const width of ["1120px","1040px","1000px","960px","940px","820px","720px"])check(inventoryDialogs.includes(`--inventory-dialog-width:${width}`),`Falta ancho contenido: ${width}.`);
-check(inventoryDialogs.includes('calc(100vw - 96px)'),"Desktop debe conservar margen lateral visible.");
-check(!inventoryDialogs.includes('width:min(86vw')&&!inventoryDialogs.includes('width:min(88vw')&&!inventoryDialogs.includes('width:min(94vw'),"Inventario volvió a geometrías casi full-screen en escritorio.");
-check(inventoryDialogs.includes('min-height:48px')&&inventoryDialogs.includes('font-size:16px')&&inventoryDialogs.includes('width:46px')&&inventoryDialogs.includes('height:46px'),"Controles o acciones ya no cumplen accesibilidad táctil/visual.");
+for(const width of ["1120px","1040px","1000px","960px","940px","820px","720px"])check(inventoryDialogsContract.includes(`--inventory-dialog-width:${width}`),`Falta ancho contenido: ${width}.`);
+check(inventoryDialogsContract.includes('calc(100vw - 96px)'),"Desktop debe conservar margen lateral visible.");
+check(!inventoryDialogsContract.includes('width:min(86vw')&&!inventoryDialogsContract.includes('width:min(88vw')&&!inventoryDialogsContract.includes('width:min(94vw'),"Inventario volvió a geometrías casi full-screen en escritorio.");
+check(inventoryDialogsContract.includes('min-height:48px')&&inventoryDialogsContract.includes('font-size:16px')&&inventoryDialogsContract.includes('width:46px')&&inventoryDialogsContract.includes('height:46px'),"Controles o acciones ya no cumplen accesibilidad táctil/visual.");
 check(inventoryDialogs.includes('Qué debes hacer')&&inventoryDialogs.includes('Confirma la referencia')&&inventoryDialogs.includes('Escribe la cantidad física'),"Falta guía de operación simple en los diálogos.");
-check(inventoryDialogs.includes('grid-template-columns:repeat(3,minmax(0,1fr))'),"Revisión debe agrupar comparación por lote en tres columnas legibles.");
-check(inventoryDialogs.includes('@media(max-width:820px)')&&inventoryDialogs.includes('@media(max-width:620px)'),"Faltan breakpoints de tablet/móvil.");
+check(inventoryDialogsContract.includes('grid-template-columns:repeat(3,minmax(0,1fr))'),"Revisión debe agrupar comparación por lote en tres columnas legibles.");
+check(inventoryDialogsContract.includes('@media(max-width:820px)')&&inventoryDialogsContract.includes('@media(max-width:620px)'),"Faltan breakpoints de tablet/móvil.");
 check(inventoryDialogs.includes('simplifyFooter')&&inventoryDialogs.includes('single-action-v11260'),"Los diálogos informativos deben evitar Cancelar + Cerrar duplicados.");
 
 // Delivery architecture.
