@@ -25,6 +25,7 @@ function latestDelivery(data){return [...(data.deliveries||[])].sort((a,b)=>new 
 function deliveryEvidence(data,taskId){return (data.files||[]).filter(file=>file.file_category==="DELIVERY_EVIDENCE"&&(!taskId||file.task_id===taskId)).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))[0]||null}
 function guideFile(data){return (data.files||[]).filter(file=>file.file_category==="SHIPPING_GUIDE").sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))[0]||null}
 function canReportNoDelivery(){return hasRole("ventas")||hasRole("super_admin")}
+function canConfirmDeliverySatisfaction(){return hasRole("ventas")||hasRole("jefe_logistica")||hasRole("super_admin")}
 function canOperateShipping(){return hasRole("super_admin")||hasRole("coordinador_logistico")||hasRole("despacho_nacional")||hasRole("lider_logistica")||hasRole("jefe_logistica")}
 function canOperateTask(task){const assignee=task?.assigned_profile_id||task?.assignedProfileId;return !assignee||assignee===state.profile?.id||hasRole("super_admin")||hasRole("jefe_logistica")}
 function profileFor(order){return ROUTE_PROFILE[order?.delivery_route_code]||ROUTE_PROFILE.GENERIC}
@@ -248,13 +249,52 @@ function openGuideDialog(data,delivery,{reload,refreshLists}){
 
 function renderCommercialViewer(host,data,{refreshLists}={}){
   const delivery=latestDelivery(data),place=destination(delivery,data.order),hasException=Boolean(data.order?.metadata?.deliveryExceptionOpen)||delivery?.status==="NOT_DELIVERED";
-  shell(host,data,`<section class="shipping-commercial-view"><header><div><span>Seguimiento comercial</span><h4>Pedido enviado</h4><p>Consulta la guía, la dirección registrada y el estado. Ventas no puede modificar el despacho.</p></div>${statusBadge(delivery?.status||data.order.status)}</header>${dispatchRecap(delivery,place)}<div class="commercial-shipping-actions">${canReportNoDelivery()&&!hasException&&delivery?.dispatched_at?'<button class="btn btn-danger btn-large" data-commercial-no-delivery>Reportar no entrega</button>':hasException?'<span class="sent-order-alert">Novedad de no entrega registrada</span>':''}</div><details class="simple-details" open><summary>Ver trazabilidad y tiempos</summary>${shippingSummary(data)}</details></section>`,{showFooter:false});
+  const delivered=Boolean(delivery?.delivered_at)||delivery?.status==="DELIVERED";
+  const satisfied=Boolean(delivery?.satisfaction_confirmed_at)||delivery?.satisfaction_status==="SATISFIED";
+  const noDeliveryAction=canReportNoDelivery()&&!hasException&&delivery?.dispatched_at&&!delivered?'<button class="btn btn-danger btn-large" data-commercial-no-delivery>Reportar no entrega</button>':"";
+  const satisfactionAction=canConfirmDeliverySatisfaction()&&!hasException&&delivered&&!satisfied?'<button class="btn btn-success btn-large" data-commercial-satisfied>Entregado con satisfacción</button>':satisfied?'<span class="sent-order-alert success">Entrega confirmada con satisfacción</span>':"";
+  const exceptionAction=hasException?'<span class="sent-order-alert">Novedad de no entrega registrada</span>':"";
+  shell(host,data,`<section class="shipping-commercial-view"><header><div><span>Seguimiento comercial</span><h4>Pedido enviado</h4><p>Consulta guía, recorrido, entrega y confirmación posterior del cliente.</p></div>${statusBadge(delivery?.status||data.order.status)}</header>${dispatchRecap(delivery,place)}<div class="commercial-shipping-actions">${exceptionAction||`${noDeliveryAction}${satisfactionAction}`}</div><details class="simple-details" open><summary>Ver trazabilidad, distancia y tiempos</summary>${shippingSummary(data)}</details></section>`,{showFooter:false});
   host.querySelector("[data-commercial-no-delivery]")?.addEventListener("click",()=>openNoDeliveryReport({id:data.order.id,orderNumber:data.order.order_number},{onSaved:()=>{host.replaceChildren();refreshLists?.();}}));
+  host.querySelector("[data-commercial-satisfied]")?.addEventListener("click",()=>openSatisfactionConfirmation({id:data.order.id,orderNumber:data.order.order_number,route:data.order.delivery_route_code,distanceKm:delivery?.distance_km,receivedBy:delivery?.received_by},{onSaved:()=>{host.replaceChildren();refreshLists?.();}}));
 }
 
 export function openNoDeliveryReport(order,{onSaved}={}){
   if(!canReportNoDelivery())return toast("Solo Ventas o Superadministración pueden registrar una no entrega.","error",7000);
   modal({title:"Reportar no entrega a Logística",confirmLabel:"Enviar reporte",size:"wide",body:`<div class="shipping-dialog-intro danger"><strong>${fmt.escape(order.orderNumber||order.order_number||"Pedido")}</strong><p>Se generará un Reporte bloqueante para Logística. El pedido no continuará hasta que Logística lo solucione y cierre.</p></div><div class="field"><label>Motivo de no entrega *</label><textarea class="control" name="reason" required autofocus placeholder="Explica por qué el cliente no recibió el pedido"></textarea></div><div class="field"><label>Acción solicitada</label><select class="control" name="requestedAction"><option value="CONTACT_CLIENT">Contactar al cliente</option><option value="REPROGRAM">Reprogramar entrega</option><option value="RETURN">Retornar mercancía</option><option value="REVIEW">Revisar con Logística</option></select></div>`,onConfirm:async dialog=>{const reason=dialog.querySelector('[name="reason"]').value.trim(),requestedAction=dialog.querySelector('[name="requestedAction"]').value;await api.reportShippingNoDelivery(order.id,{reason,requestedAction});toast("Reporte de no entrega enviado a Logística.","success",6500);onSaved?.();}});
+}
+
+export function openSatisfactionConfirmation(order,{onSaved}={}){
+  if(!canConfirmDeliverySatisfaction())return toast("No tienes permiso para confirmar la satisfacción de entrega.","error",7000);
+  const route=String(order.route||order.delivery_route_code||"").toUpperCase();
+  const distanceRequired=route==="LOCAL_DISPATCH"||route==="NATIONAL_DISPATCH";
+  const distanceHint=distanceRequired?"Obligatoria para despachos locales y nacionales. Registra la distancia real reportada por la operación o transportadora.":"Opcional para entrega en punto o retiro del cliente.";
+  modal({
+    title:"Entregado con satisfacción",
+    confirmLabel:"Confirmar entrega satisfactoria",
+    size:"wide",
+    body:`<div class="shipping-dialog-intro"><strong>${fmt.escape(order.orderNumber||order.order_number||"Pedido")}</strong><p>Esta confirmación no reemplaza la entrega logística: registra la validación posterior del cliente y permite medir por separado tránsito, distancia y tiempo hasta satisfacción.</p></div>
+      <div class="form-grid">
+        <div class="field"><label>Recibido por</label><input class="control" name="receivedBy" value="${fmt.escape(order.receivedBy||"")}" placeholder="Nombre de quien recibió"></div>
+        <div class="field"><label>Distancia recorrida (km) ${distanceRequired?"*":""}</label><input class="control" name="distanceKm" type="number" min="0" max="100000" step="0.1" value="${fmt.escape(order.distanceKm??"")}" ${distanceRequired?"required":""}><small>${fmt.escape(distanceHint)}</small></div>
+        <div class="field"><label>Fuente de la distancia</label><select class="control" name="distanceSource"><option value="">Seleccionar…</option><option value="CARRIER_REPORTED">Reportada por transportadora</option><option value="ODOMETER_GPS">Odómetro / GPS</option><option value="ROUTE_ESTIMATE">Ruta estimada</option><option value="CLIENT_CONFIRMED">Confirmada con cliente</option><option value="OTHER">Otra fuente verificable</option></select></div>
+        <div class="field full"><label>Observación</label><textarea class="control" name="note" maxlength="500" placeholder="Observación breve sobre la entrega o la confirmación del cliente"></textarea></div>
+      </div>`,
+    onConfirm:async dialog=>{
+      const rawDistance=dialog.querySelector('[name="distanceKm"]').value.trim();
+      const distanceKm=rawDistance===""?null:Number(rawDistance);
+      const distanceSource=dialog.querySelector('[name="distanceSource"]').value;
+      const receivedBy=dialog.querySelector('[name="receivedBy"]').value.trim();
+      const note=dialog.querySelector('[name="note"]').value.trim();
+      if(distanceRequired&&(!Number.isFinite(distanceKm)||distanceKm<=0))throw new Error("Registra la distancia recorrida para este despacho.");
+      if(distanceKm!==null&&(!Number.isFinite(distanceKm)||distanceKm<0))throw new Error("La distancia recorrida no es válida.");
+      if(distanceKm!==null&&!distanceSource)throw new Error("Selecciona la fuente de la distancia recorrida.");
+      const result=await api.confirmShippingSatisfaction(order.id,{distanceKm,distanceSource,receivedBy,note});
+      const km=Number(result?.metrics?.distanceKm);
+      toast(Number.isFinite(km)?`Entrega confirmada con satisfacción · ${new Intl.NumberFormat("es-CO",{maximumFractionDigits:1}).format(km)} km registrados.`:"Entrega confirmada con satisfacción.","success",7000);
+      onSaved?.(result);
+    }
+  });
 }
 
 function guideSummary(delivery,file){
@@ -269,6 +309,26 @@ function formatCurrency(value){const n=Number(value);return Number.isFinite(n)&&
 
 function shippingSummary(data){
   const delivery=latestDelivery(data),place=destination(delivery,data.order),trace=data.deliveryTimeTrace||{};
-  const traceCards=[["Gestión de despacho",trace.dispatchBusinessSeconds,"Tiempo productivo"],["Espera y tránsito",trace.transitBusinessSeconds,"Desde salida hasta entrega"],["Cierre de entrega",trace.closureBusinessSeconds,"Validación y evidencia"],["Tiempo muerto",trace.deadBusinessSeconds??trace.deadTimeSeconds,"Tiempo laboral sin gestión"]];
-  return `<div class="simple-detail-sections"><section><h4>Información del envío</h4><div class="detail-grid"><div class="info-box"><label>Ruta</label><strong>${fmt.escape(fmt.route(data.order.delivery_route_code))}</strong></div><div class="info-box"><label>Guía</label><strong>${fmt.escape(delivery?.tracking_number||"—")}</strong></div><div class="info-box"><label>Transportadora</label><strong>${fmt.escape(delivery?.carrier||"—")}</strong></div><div class="info-box"><label>Factura transporte</label><strong>${fmt.escape(carrierInvoice(delivery)||"—")}</strong></div><div class="info-box"><label>Flete</label><strong>${fmt.escape(formatCurrency(carrierCost(delivery)))}</strong></div><div class="info-box"><label>Municipio</label><strong>${fmt.escape(place.municipality||"—")}</strong></div><div class="info-box"><label>Dirección</label><strong>${fmt.escape(place.address||"—")}</strong></div></div></section><section><h4>Resumen de tiempos laborales</h4><div class="shipping-trace-metrics">${traceCards.map(([label,value,caption])=>`<article><small>${fmt.escape(label)}</small><strong>${fmt.hours(Number(value||0))}</strong><span>${fmt.escape(caption)}</span></article>`).join("")}</div><div class="shipping-time-list">${(data.tasks||[]).map(task=>`<article><span>${fmt.escape(fmt.step(task.step_code))}</span><strong>${fmt.hours(task.business_seconds)}</strong><small>Transcurrido: ${fmt.hours(task.raw_seconds)}</small></article>`).join("")}</div></section></div>`;
+  const rawTransit=secondsBetween(delivery?.dispatched_at,delivery?.delivered_at);
+  const rawSatisfied=secondsBetween(delivery?.dispatched_at,delivery?.satisfaction_confirmed_at);
+  const postDelivery=secondsBetween(delivery?.delivered_at,delivery?.satisfaction_confirmed_at);
+  const traceCards=[
+    ["Gestión de despacho",trace.dispatchBusinessSeconds,"Tiempo productivo"],
+    ["Tránsito laboral",trace.transitBusinessSeconds,"Salida → entrega logística"],
+    ["Cierre de entrega",trace.closureBusinessSeconds,"Validación y evidencia"],
+    ["Tiempo muerto",trace.deadBusinessSeconds??trace.deadTimeSeconds,"Tiempo laboral sin gestión"],
+    ...(rawTransit!==null?[["Tránsito calendario",rawTransit,"Salida → entrega logística"]]:[]),
+    ...(rawSatisfied!==null?[["Hasta satisfacción",rawSatisfied,"Salida → confirmación del cliente"]]:[]),
+    ...(postDelivery!==null?[["Confirmación posterior",postDelivery,"Entrega → satisfacción"]]:[])
+  ];
+  const distance=Number(delivery?.distance_km);
+  const satisfied=delivery?.satisfaction_status==="SATISFIED"||Boolean(delivery?.satisfaction_confirmed_at);
+  return `<div class="simple-detail-sections"><section><h4>Información del envío</h4><div class="detail-grid"><div class="info-box"><label>Ruta</label><strong>${fmt.escape(fmt.route(data.order.delivery_route_code))}</strong></div><div class="info-box"><label>Guía</label><strong>${fmt.escape(delivery?.tracking_number||"—")}</strong></div><div class="info-box"><label>Transportadora</label><strong>${fmt.escape(delivery?.carrier||"—")}</strong></div><div class="info-box"><label>Factura transporte</label><strong>${fmt.escape(carrierInvoice(delivery)||"—")}</strong></div><div class="info-box"><label>Flete</label><strong>${fmt.escape(formatCurrency(carrierCost(delivery)))}</strong></div><div class="info-box"><label>Municipio</label><strong>${fmt.escape(place.municipality||"—")}</strong></div><div class="info-box"><label>Dirección</label><strong>${fmt.escape(place.address||"—")}</strong></div><div class="info-box"><label>Distancia recorrida</label><strong>${Number.isFinite(distance)?`${new Intl.NumberFormat("es-CO",{maximumFractionDigits:1}).format(distance)} km`:"Pendiente"}</strong></div><div class="info-box"><label>Satisfacción</label><strong>${satisfied?"Entregado con satisfacción":"Pendiente de confirmar"}</strong></div><div class="info-box"><label>Confirmación cliente</label><strong>${delivery?.satisfaction_confirmed_at?fmt.date(delivery.satisfaction_confirmed_at):"—"}</strong></div><div class="info-box"><label>Recibido por</label><strong>${fmt.escape(delivery?.received_by||"—")}</strong></div></div></section><section><h4>Resumen de tiempos</h4><div class="shipping-trace-metrics">${traceCards.map(([label,value,caption])=>`<article><small>${fmt.escape(label)}</small><strong>${fmt.hours(Number(value||0))}</strong><span>${fmt.escape(caption)}</span></article>`).join("")}</div><div class="shipping-time-list">${(data.tasks||[]).map(task=>`<article><span>${fmt.escape(fmt.step(task.step_code))}</span><strong>${fmt.hours(task.business_seconds)}</strong><small>Transcurrido: ${fmt.hours(task.raw_seconds)}</small></article>`).join("")}</div></section></div>`;
+}
+
+function secondsBetween(start,end){
+  if(!start||!end)return null;
+  const a=new Date(start).getTime(),b=new Date(end).getTime();
+  if(!Number.isFinite(a)||!Number.isFinite(b))return null;
+  return Math.max(0,Math.round((b-a)/1000));
 }
