@@ -1,5 +1,18 @@
 # Changelog
 
+## 11.30.2 — 2026-09-18
+
+### CSP y estilos runtime
+- Externalizados seis bloques CSS que antes se inyectaban mediante `createElement("style")`.
+- Los estilos de Guías, Recepción e Inventario se cargan como recursos CSS same-origin conservando el orden runtime.
+- `style-src` general deja de usar `'unsafe-inline'`; la excepción temporal queda limitada a `style-src-attr` para porcentajes/medidas visuales realmente dinámicas.
+- CI prohíbe volver a introducir elementos `<style>` desde JavaScript o ampliar nuevamente `style-src 'unsafe-inline'`.
+- PWA precachea los seis fragmentos CSS runtime.
+
+### Release
+- Versión **V11.30.2**, build **2026-09-18.02**.
+- Sin cambios de lógica de negocio, permisos, RPC ni datos operativos.
+
 ## 11.30.1 — 2026-09-18
 
 ### Seguridad y gobierno
