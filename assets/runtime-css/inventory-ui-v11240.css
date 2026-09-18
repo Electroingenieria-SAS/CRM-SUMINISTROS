@@ -1,0 +1,20 @@
+.inventory-app-v11251 .inventory-enterprise-row-v11252.no-actions{grid-template-columns:minmax(210px,1.05fr) minmax(320px,1.45fr) minmax(180px,.78fr)}
+  .inventory-app-v11251 .inventory-enterprise-row-v11252.no-actions>.page-actions:empty{display:none!important}
+  .inventory-app-v11251 .inventory-enterprise-row-v11252.no-meta.no-actions{grid-template-columns:minmax(0,1fr) minmax(180px,.55fr)}
+  .inventory-app-v11251 .inventory-enterprise-row-v11252.no-status.no-actions{grid-template-columns:minmax(0,1fr)}
+  .inventory-app-v11251 .inventory-enterprise-row-v11252.no-status.has-actions{grid-template-columns:minmax(210px,1.05fr) minmax(320px,1.45fr) minmax(110px,auto)}
+  @media(max-width:1180px){
+    .inventory-app-v11251 .inventory-enterprise-row-v11252.no-actions{grid-template-columns:minmax(0,1fr) minmax(170px,.45fr)}
+    .inventory-app-v11251 .inventory-enterprise-row-v11252.no-actions>.v115-goods-id{grid-column:1;grid-row:1}
+    .inventory-app-v11251 .inventory-enterprise-row-v11252.no-actions>.v115-goods-link{grid-column:2;grid-row:1;align-self:stretch}
+    .inventory-app-v11251 .inventory-enterprise-row-v11252.no-actions>.v115-goods-meta{grid-column:1/-1;grid-row:2;order:initial}
+    .inventory-app-v11251 .inventory-enterprise-row-v11252.no-meta.no-actions>.v115-goods-link{grid-column:2;grid-row:1}
+    .inventory-app-v11251 .inventory-enterprise-row-v11252.no-status.no-actions{grid-template-columns:1fr}
+    .inventory-app-v11251 .inventory-enterprise-row-v11252.no-status.no-actions>.v115-goods-meta{grid-column:1;grid-row:2}
+  }
+  @media(max-width:760px){
+    .inventory-app-v11251 .inventory-enterprise-row-v11252.no-actions,.inventory-app-v11251 .inventory-enterprise-row-v11252.no-meta.no-actions,.inventory-app-v11251 .inventory-enterprise-row-v11252.no-status.no-actions{grid-template-columns:1fr}
+    .inventory-app-v11251 .inventory-enterprise-row-v11252.no-actions>.v115-goods-id,.inventory-app-v11251 .inventory-enterprise-row-v11252.no-actions>.v115-goods-link,.inventory-app-v11251 .inventory-enterprise-row-v11252.no-actions>.v115-goods-meta{grid-column:1;grid-row:auto}
+    .inventory-app-v11251 .inventory-enterprise-row-v11252.no-actions>.v115-goods-link{order:2}
+    .inventory-app-v11251 .inventory-enterprise-row-v11252.no-actions>.v115-goods-meta{order:3}
+  }
