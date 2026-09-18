@@ -98,8 +98,8 @@ jobs:
           grep -q 'confirmShippingSatisfaction' assets/js/services/api.js
           grep -q 'Entregado con satisfacción' assets/js/modules/shipping-flow.js
           grep -q 'data-satisfaction' assets/js/modules/sent-orders.js
-          ! grep -q '^\.btn-danger,\.btn\.danger{' assets/css/analytics.css
-          grep -q '^\.admin-shell-v11160 \.btn-danger,\.admin-shell-v11160 \.btn\.danger{' assets/css/analytics.css
+          ! grep -Fq '.btn-danger,.btn.danger{' assets/css/analytics.css
+          grep -Fq '.admin-shell-v11160 .btn-danger,.admin-shell-v11160 .btn.danger{' assets/css/analytics.css
 
           test "$(grep -c '<script type="module" src="./assets/js/' index.html)" -eq 1
           grep -q 'import "./main.js";' assets/js/app-entry.js
