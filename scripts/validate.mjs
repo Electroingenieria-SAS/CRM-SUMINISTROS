@@ -48,6 +48,7 @@ const rlsAuditMigration=read("supabase/migrations/098_profiles_rls_scope_v11_27_
 const workPerfMigration=read("supabase/migrations/099_work_my_day_role_cache_v11_27_0.sql");
 const inventoryFilterMigration=read("supabase/migrations/100_inventory_filtered_hotpath_v11_27_0.sql");
 const inventoryPlanMigration=read("supabase/migrations/101_inventory_count_plan_hotpath_v11_27_0.sql");
+const securityDefinerMigration=read("supabase/migrations/110_security_definer_contract_v11_30_1.sql");
 const coreCss=read("assets/css/core-shell.css");
 const experienceCss=read("assets/css/experience.css");
 const jsFiles=walk(path.join(root,"assets/js")).filter(file=>file.endsWith(".js"));
@@ -57,8 +58,8 @@ const normalizedJsRuntime=jsRuntime
   .replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
 // Release identity.
-check(version==="11.30.0","CONFIG.version debe ser 11.30.0.");
-check(build==="2026-09-14.01","CONFIG.build debe ser 2026-09-14.01.");
+check(version==="11.30.1","CONFIG.version debe ser 11.30.1.");
+check(build==="2026-09-18.01","CONFIG.build debe ser 2026-09-18.01.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
@@ -81,8 +82,8 @@ check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía instit
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
 // PWA and Vercel routing.
-check(sw.includes('// previous-cache: crm-suministros-v11-27-0-20260911-01'),"previous-cache PWA debe apuntar al release canónico anterior V11.27.0.");
-check(sw.includes('const CACHE="crm-suministros-v11-30-0-20260914-01";'),"CACHE activo PWA no corresponde a V11.30.0.");
+check(sw.includes('// previous-cache: crm-suministros-v11-30-0-20260914-01'),"previous-cache PWA debe apuntar a V11.30.0.");
+check(sw.includes('const CACHE="crm-suministros-v11-30-1-20260918-01";'),"CACHE activo PWA no corresponde a V11.30.1.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
 check(vercel.includes('manifest\\\\.webmanifest')||vercel.includes('/manifest.webmanifest'),"Vercel debe excluir o tratar explícitamente el manifest real.");
@@ -98,6 +99,9 @@ check(rlsAuditMigration.includes('drop policy if exists erp_active_read on publi
 check(workPerfMigration.includes('erp_supply.current_roles()')&&workPerfMigration.includes('v_roles'),"Migración 099 debe cachear roles de Mi jornada una sola vez.");
 check(inventoryFilterMigration.includes("when v_search='' then true")&&inventoryFilterMigration.includes('else erp_supply.material_norm('),"Migración 100 debe diferir la normalización textual cuando no hay búsqueda.");
 check(inventoryPlanMigration.includes("where l.inventory_item_id=s.item_id and l.source_active"),"Migración 101 debe construir detalle de lotes solo para el plan seleccionado.");
+check(securityDefinerMigration.includes("erp_x_security_definer_contract_check")&&securityDefinerMigration.includes("from public,anon,authenticated")&&securityDefinerMigration.includes("grant execute on function public.erp_x_security_definer_contract_check() to service_role"),"Migración 110 debe conservar el health contract SECURITY DEFINER como service-role-only.");
+check(exists(".gitignore")&&exists(".env.example"),"Faltan controles base .gitignore/.env.example.");
+check(exists("scripts/git-history-security-check.mjs"),"Falta el scanner de secretos sobre historial Git.");
 check(responsive.includes("pendingScopes")&&responsive.includes("queueScope(node)"),"Responsive foundation debe procesar únicamente UI dinámica afectada.");
 check(!responsive.includes('normalize(document.querySelector("#app")||document)'),"Responsive foundation no debe reescanear #app en cada mutación.");
 check(popupUx.includes("pendingModals")&&popupUx.includes('document.querySelector("#modal-root")||document.body'),"Popup UX debe observar el modal-root y procesar solo modales afectados.");
@@ -214,7 +218,7 @@ console.log(`VALIDACIÓN CRM ${version} CORRECTA`);
 console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
 console.log("- Inventario conserva captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
-console.log("- V11.30.0 conserva el sistema de diálogos guiados, las mejoras V11.28/V11.29 y la arquitectura visual canónica.");
+console.log("- V11.30.1 conserva el sistema de diálogos guiados, las mejoras V11.28/V11.29 y la arquitectura visual canónica.");
 console.log("- Observers responsive y popup procesan únicamente el ámbito dinámico afectado.");
 console.log("- PWA, Vercel, RLS y hotpaths SQL quedan incorporados al contrato canónico.");
 console.log("- Conteo ciego, RLS granular y aprobación contable permanecen como contratos obligatorios.");
