@@ -60,6 +60,7 @@ const shippingFlow=read("assets/js/modules/shipping-flow.js");
 const sentOrders=read("assets/js/modules/sent-orders.js");
 const api=read("assets/js/services/api.js");
 const reportsEnterprise=read("assets/js/modules/reports-enterprise-v11140.js");
+const analyticsCss=read("assets/css/analytics.css");
 const coreCss=read("assets/css/core-shell.css");
 const experienceCss=read("assets/css/experience.css");
 const jsFiles=walk(path.join(root,"assets/js")).filter(file=>file.endsWith(".js"));
@@ -69,8 +70,8 @@ const normalizedJsRuntime=jsRuntime
   .replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
 // Release identity.
-check(version==="11.31.0","CONFIG.version debe ser 11.31.0.");
-check(build==="2026-09-18.03","CONFIG.build debe ser 2026-09-18.03.");
+check(version==="11.31.1","CONFIG.version debe ser 11.31.1.");
+check(build==="2026-09-18.04","CONFIG.build debe ser 2026-09-18.04.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
@@ -105,8 +106,8 @@ check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía instit
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
 // PWA and Vercel routing.
-check(sw.includes('// previous-cache: crm-suministros-v11-30-2-20260918-02'),"previous-cache PWA debe apuntar a V11.30.2.");
-check(sw.includes('const CACHE="crm-suministros-v11-31-0-20260918-03";'),"CACHE activo PWA no corresponde a V11.31.0.");
+check(sw.includes('// previous-cache: crm-suministros-v11-31-0-20260918-03'),"previous-cache PWA debe apuntar a V11.31.0.");
+check(sw.includes('const CACHE="crm-suministros-v11-31-1-20260918-04";'),"CACHE activo PWA no corresponde a V11.31.1.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
 check(vercel.includes('manifest\\\\.webmanifest')||vercel.includes('/manifest.webmanifest'),"Vercel debe excluir o tratar explícitamente el manifest real.");
@@ -136,6 +137,8 @@ check(deliverySatisfactionMigration.includes("reports_delivery_explore_v1131")&&
 check(deliverySatisfactionIndexMigration.includes("distance_recorded_by")&&deliverySatisfactionIndexMigration.includes("satisfaction_confirmed_by"),"Migración 113 debe cubrir las FKs de actores post-entrega.");
 check(deliverySatisfactionIndexMigration.includes("drop index if exists erp_supply.idx_deliveries_satisfaction_confirmed_v1131"),"Migración 113 debe retirar el índice temporal de satisfacción sin hot path.");
 check(reportsEnterprise.includes("distance_km")&&reportsEnterprise.includes("avg_distance_km")&&reportsEnterprise.includes("avg_satisfaction_hours"),"Analítica debe exponer distancia y satisfacción del dataset Entregas.");
+check(!analyticsCss.includes(".btn-danger,.btn.danger{"),"analytics.css no debe sobrescribir globalmente los botones danger.");
+check(analyticsCss.includes(".admin-shell-v11160 .btn-danger,.admin-shell-v11160 .btn.danger{"),"Los estilos danger de Administración deben permanecer encapsulados.");
 check(exists(".gitignore")&&exists(".env.example"),"Faltan controles base .gitignore/.env.example.");
 check(exists("scripts/git-history-security-check.mjs"),"Falta el scanner de secretos sobre historial Git.");
 check(responsive.includes("pendingScopes")&&responsive.includes("queueScope(node)"),"Responsive foundation debe procesar únicamente UI dinámica afectada.");
@@ -254,7 +257,7 @@ console.log(`VALIDACIÓN CRM ${version} CORRECTA`);
 console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
 console.log("- Inventario conserva captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
-console.log("- V11.31.0 añade satisfacción post-entrega, distancia recorrida y tiempos confirmados sin alterar el cierre logístico.");
+console.log("- V11.31.1 corrige la fuga global de estilos danger y restaura contraste en Pedidos enviados.");
 console.log("- Observers responsive y popup procesan únicamente el ámbito dinámico afectado.");
 console.log("- PWA, Vercel, RLS y hotpaths SQL quedan incorporados al contrato canónico.");
 console.log("- Conteo ciego, RLS granular y aprobación contable permanecen como contratos obligatorios.");
