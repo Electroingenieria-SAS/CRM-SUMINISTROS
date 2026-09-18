@@ -54,6 +54,10 @@ const inventoryFilterMigration=read("supabase/migrations/100_inventory_filtered_
 const inventoryPlanMigration=read("supabase/migrations/101_inventory_count_plan_hotpath_v11_27_0.sql");
 const securityDefinerMigration=read("supabase/migrations/110_security_definer_contract_v11_30_1.sql");
 const securityDefinerFixMigration=read("supabase/migrations/111_security_definer_contract_regex_fix_v11_30_1.sql");
+const deliverySatisfactionMigration=read("supabase/migrations/112_delivery_satisfaction_distance_v11_31_0.sql");
+const shippingFlow=read("assets/js/modules/shipping-flow.js");
+const sentOrders=read("assets/js/modules/sent-orders.js");
+const api=read("assets/js/services/api.js");
 const coreCss=read("assets/css/core-shell.css");
 const experienceCss=read("assets/css/experience.css");
 const jsFiles=walk(path.join(root,"assets/js")).filter(file=>file.endsWith(".js"));
@@ -63,8 +67,8 @@ const normalizedJsRuntime=jsRuntime
   .replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
 // Release identity.
-check(version==="11.30.2","CONFIG.version debe ser 11.30.2.");
-check(build==="2026-09-18.02","CONFIG.build debe ser 2026-09-18.02.");
+check(version==="11.31.0","CONFIG.version debe ser 11.31.0.");
+check(build==="2026-09-18.03","CONFIG.build debe ser 2026-09-18.03.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
@@ -99,8 +103,8 @@ check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía instit
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
 // PWA and Vercel routing.
-check(sw.includes('// previous-cache: crm-suministros-v11-30-1-20260918-01'),"previous-cache PWA debe apuntar a V11.30.1.");
-check(sw.includes('const CACHE="crm-suministros-v11-30-2-20260918-02";'),"CACHE activo PWA no corresponde a V11.30.2.");
+check(sw.includes('// previous-cache: crm-suministros-v11-30-2-20260918-02'),"previous-cache PWA debe apuntar a V11.30.2.");
+check(sw.includes('const CACHE="crm-suministros-v11-31-0-20260918-03";'),"CACHE activo PWA no corresponde a V11.31.0.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
 check(vercel.includes('manifest\\\\.webmanifest')||vercel.includes('/manifest.webmanifest'),"Vercel debe excluir o tratar explícitamente el manifest real.");
@@ -120,6 +124,12 @@ check(inventoryFilterMigration.includes("when v_search='' then true")&&inventory
 check(inventoryPlanMigration.includes("where l.inventory_item_id=s.item_id and l.source_active"),"Migración 101 debe construir detalle de lotes solo para el plan seleccionado.");
 check(securityDefinerMigration.includes("erp_x_security_definer_contract_check")&&securityDefinerMigration.includes("from public,anon,authenticated")&&securityDefinerMigration.includes("grant execute on function public.erp_x_security_definer_contract_check() to service_role"),"Migración 110 debe crear el health contract SECURITY DEFINER como service-role-only.");
 check(securityDefinerFixMigration.includes("auth[.]uid[(][)]")&&securityDefinerFixMigration.includes("erp_x_security_definer_contract_check"),"Migración 111 debe conservar el detector corregido de auth.uid().");
+check(deliverySatisfactionMigration.includes("erp_x_shipping_confirm_satisfaction")&&deliverySatisfactionMigration.includes("distance_km")&&deliverySatisfactionMigration.includes("satisfaction_confirmed_at"),"Migración 112 debe instalar distancia y satisfacción post-entrega.");
+check(deliverySatisfactionMigration.includes("DELIVERED_SATISFIED")&&deliverySatisfactionMigration.includes("postDeliveryConfirmationSeconds"),"Migración 112 debe conservar milestone y métricas post-entrega.");
+check(deliverySatisfactionMigration.includes("revoke all on function public.erp_x_shipping_confirm_satisfaction")&&deliverySatisfactionMigration.includes("grant execute on function public.erp_x_shipping_confirm_satisfaction"),"RPC de satisfacción debe tener frontera de permisos explícita.");
+check(api.includes("confirmShippingSatisfaction")&&api.includes("erp_x_shipping_confirm_satisfaction"),"API frontend debe exponer confirmación de satisfacción.");
+check(shippingFlow.includes("Entregado con satisfacción")&&shippingFlow.includes("Distancia recorrida (km)")&&shippingFlow.includes("distanceSource"),"Shipping flow debe capturar satisfacción, distancia y fuente.");
+check(sentOrders.includes("data-satisfaction")&&sentOrders.includes("distanceText")&&sentOrders.includes("satisfactionConfirmedAt"),"Pedidos enviados debe mostrar y permitir confirmar satisfacción.");
 check(exists(".gitignore")&&exists(".env.example"),"Faltan controles base .gitignore/.env.example.");
 check(exists("scripts/git-history-security-check.mjs"),"Falta el scanner de secretos sobre historial Git.");
 check(responsive.includes("pendingScopes")&&responsive.includes("queueScope(node)"),"Responsive foundation debe procesar únicamente UI dinámica afectada.");
@@ -238,7 +248,7 @@ console.log(`VALIDACIÓN CRM ${version} CORRECTA`);
 console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
 console.log("- Inventario conserva captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
-console.log("- V11.30.2 conserva la UX y externaliza CSS runtime para endurecer CSP.");
+console.log("- V11.31.0 añade satisfacción post-entrega, distancia recorrida y tiempos confirmados sin alterar el cierre logístico.");
 console.log("- Observers responsive y popup procesan únicamente el ámbito dinámico afectado.");
 console.log("- PWA, Vercel, RLS y hotpaths SQL quedan incorporados al contrato canónico.");
 console.log("- Conteo ciego, RLS granular y aprobación contable permanecen como contratos obligatorios.");
