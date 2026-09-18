@@ -58,6 +58,7 @@ const deliverySatisfactionMigration=read("supabase/migrations/112_delivery_satis
 const shippingFlow=read("assets/js/modules/shipping-flow.js");
 const sentOrders=read("assets/js/modules/sent-orders.js");
 const api=read("assets/js/services/api.js");
+const reportsEnterprise=read("assets/js/modules/reports-enterprise-v11140.js");
 const coreCss=read("assets/css/core-shell.css");
 const experienceCss=read("assets/css/experience.css");
 const jsFiles=walk(path.join(root,"assets/js")).filter(file=>file.endsWith(".js"));
@@ -130,6 +131,8 @@ check(deliverySatisfactionMigration.includes("revoke all on function public.erp_
 check(api.includes("confirmShippingSatisfaction")&&api.includes("erp_x_shipping_confirm_satisfaction"),"API frontend debe exponer confirmación de satisfacción.");
 check(shippingFlow.includes("Entregado con satisfacción")&&shippingFlow.includes("Distancia recorrida (km)")&&shippingFlow.includes("distanceSource"),"Shipping flow debe capturar satisfacción, distancia y fuente.");
 check(sentOrders.includes("data-satisfaction")&&sentOrders.includes("distanceText")&&sentOrders.includes("satisfactionConfirmedAt"),"Pedidos enviados debe mostrar y permitir confirmar satisfacción.");
+check(deliverySatisfactionMigration.includes("reports_delivery_explore_v1131")&&deliverySatisfactionMigration.includes("reports_delivery_export_v1131"),"Migración 112 debe integrar Entregas con Analítica y exportación.");
+check(reportsEnterprise.includes("distance_km")&&reportsEnterprise.includes("avg_distance_km")&&reportsEnterprise.includes("avg_satisfaction_hours"),"Analítica debe exponer distancia y satisfacción del dataset Entregas.");
 check(exists(".gitignore")&&exists(".env.example"),"Faltan controles base .gitignore/.env.example.");
 check(exists("scripts/git-history-security-check.mjs"),"Falta el scanner de secretos sobre historial Git.");
 check(responsive.includes("pendingScopes")&&responsive.includes("queueScope(node)"),"Responsive foundation debe procesar únicamente UI dinámica afectada.");
