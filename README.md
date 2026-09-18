@@ -1,6 +1,6 @@
 # CRM Suministros — Electroingeniería S.A.S.
 
-> Versión canónica: **V11.30.0** · build **2026-09-14.01**  
+> Versión canónica: **V11.30.1** · build **2026-09-18.01**  
 > Producción: Vercel + Supabase `hezjxcxxcjlpmyalftam`  
 > Auditoría integral vigente: `docs/AUDITORIA_INTEGRAL_2026-09-14.md`
 
@@ -27,9 +27,9 @@ SPA HTML/CSS/ES Modules
 
 El browser no accede directamente a tablas operativas. El esquema `erp_supply` permanece detrás de RLS y contratos RPC. `scripts/validate.mjs` y `scripts/link-check.mjs` hacen cumplir esta frontera.
 
-## 3. Estado V11.30.0
+## 3. Estado V11.30.1
 
-La auditoría de producción del 14 de septiembre de 2026 verificó:
+La línea base productiva V11.30.0 fue auditada el 14 de septiembre de 2026. V11.30.1 conserva esos contratos y añade hardening de repositorio/CI y gobierno de privilegios:
 
 - health check de backend **21/21 OK**;
 - 0 pedidos finalizados con tareas activas;
@@ -39,7 +39,10 @@ La auditoría de producción del 14 de septiembre de 2026 verificó:
 - 0 RPC `erp_x_*` ejecutables por `anon`;
 - 0 eventos CRM → AuditoriaERP fallidos, vencidos o atascados;
 - Vercel sin errores runtime detectados en la ventana auditada;
-- CI canónica verde en sintaxis, ES Modules, seguridad, arquitectura, release y smoke desktop/móvil.
+- CI canónica en sintaxis, ES Modules, seguridad, arquitectura, release y smoke desktop/móvil;
+- scanner de secretos del historial Git completo;
+- health contract service-role-only para `SECURITY DEFINER`;
+- smoke browser también en el push post-merge a `main`.
 
 Estado detallado: `docs/IMPLEMENTATION_STATUS.md`.
 
@@ -179,7 +182,9 @@ No cambiar estos modos sin revisar su contrato completo. En particular, activar 
 - Límite local de intentos de login como capa UX; la defensa principal pertenece a Supabase Auth.
 - Archivos restringidos por tamaño/tipo en browser y Apps Script.
 
-**Pendiente de plataforma:** Supabase Security Advisor reporta `Leaked Password Protection` deshabilitado. Debe activarse en Auth cuando esté disponible en la configuración del proyecto. No se simula desde código.
+**Pendientes de plataforma:** Supabase Security Advisor reporta `Leaked Password Protection` deshabilitado; rate limiting y anti-bot también deben cerrarse en Auth. GitHub debe mantener ruleset/branch protection para `main`. Estos controles no se simulan desde código.
+
+V11.30.1 añade además `.gitignore`, `.env.example`, escaneo del historial Git y `erp_x_security_definer_contract_check()` como control service-role-only.
 
 ## 11. Base de datos y migraciones
 
@@ -191,6 +196,7 @@ Migraciones recientes relevantes:
 - 102–107: integración CRM → AuditoriaERP.
 - 108: health check integral V11.30.
 - 109: contrato observable de integración V11.30.
+- 110: contrato observable de privilegios `SECURITY DEFINER` V11.30.1.
 
 Antes de promover una migración: CI verde, revisión del SQL, aplicación controlada, health checks posteriores y verificación de Advisors.
 
@@ -216,7 +222,7 @@ No hacer bumps parciales.
 
 ## 14. QA y despliegue
 
-Un merge a `main` debe pasar la CI canónica. Vercel está configurado para desplegar producción desde `main`; previews de ramas no sustituyen la validación de producción.
+Todo cambio debe llegar a `main` mediante Pull Request con la CI canónica en verde. Vercel está configurado para desplegar producción únicamente desde `main`; la CI repite el smoke desktop/móvil después del merge como defensa adicional.
 
 Después de un cambio de backend o integración, ejecutar los health checks y comprobar que no existan eventos de outbox fallidos/atascados.
 
