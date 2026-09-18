@@ -1,5 +1,13 @@
 # Changelog
 
+## 11.31.1 — 2026-09-18
+
+### Corrección visual
+- Se encapsula la regla de botones `danger` de Administración para impedir que sobrescriba botones de otros módulos.
+- **Reportar no entrega** recupera texto blanco sobre fondo rojo en Pedidos enviados.
+- Se añade una validación de CI para impedir que vuelva a aparecer un selector global `.btn-danger,.btn.danger`.
+- Se rota la caché PWA para que los clientes reciban inmediatamente el CSS corregido.
+
 ## 11.31.0 — 2026-09-18
 
 ### Entrega y satisfacción

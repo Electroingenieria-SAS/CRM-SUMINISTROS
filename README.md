@@ -1,6 +1,6 @@
 # CRM Suministros — Electroingeniería S.A.S.
 
-> Versión canónica: **V11.31.0** · build **2026-09-18.03**  
+> Versión canónica: **V11.31.1** · build **2026-09-18.04**  
 > Producción: Vercel + Supabase `hezjxcxxcjlpmyalftam`  
 > Auditoría integral vigente: `docs/AUDITORIA_INTEGRAL_2026-09-14.md`
 
@@ -27,9 +27,9 @@ SPA HTML/CSS/ES Modules
 
 El browser no accede directamente a tablas operativas. El esquema `erp_supply` permanece detrás de RLS y contratos RPC. `scripts/validate.mjs` y `scripts/link-check.mjs` hacen cumplir esta frontera.
 
-## 3. Estado V11.31.0
+## 3. Estado V11.31.1
 
-La línea base productiva V11.30.0 fue auditada el 14 de septiembre de 2026. V11.31.0 conserva los contratos de seguridad/hardening y añade trazabilidad post-entrega sin alterar el cierre logístico existente:
+La línea base productiva V11.30.0 fue auditada el 14 de septiembre de 2026. V11.31.1 conserva la trazabilidad post-entrega de V11.31.0 y corrige una fuga global de estilos que afectaba el contraste del botón «Reportar no entrega»:
 
 - health check de backend **21/21 OK**;
 - 0 pedidos finalizados con tareas activas;
