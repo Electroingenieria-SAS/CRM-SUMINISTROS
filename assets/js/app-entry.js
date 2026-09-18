@@ -1,4 +1,4 @@
-/* CRM Suministros V11.30.2 · Runtime auditado
+/* CRM Suministros V11.31.0 · Runtime auditado
    Canonical composition root: cross-cutting runtime enhancements load once,
    then the application core boots through main.js. */
 
