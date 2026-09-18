@@ -26,7 +26,7 @@ for(const src of externalScripts){
   }
 }
 if(/unsafe-eval/i.test(vercelConfig))failures.push("vercel.json: CSP no puede habilitar unsafe-eval.");
-if(/style-src[^;]*'unsafe-inline'/i.test(vercelConfig))failures.push("vercel.json: style-src general no puede habilitar unsafe-inline.");
+if(/style-src(?!-)[^;]*'unsafe-inline'/i.test(vercelConfig))failures.push("vercel.json: style-src general no puede habilitar unsafe-inline.");
 if(!/style-src-attr[^;]*'unsafe-inline'/i.test(vercelConfig))failures.push("vercel.json: la excepción inline debe quedar limitada a style-src-attr mientras existan métricas visuales dinámicas.");
 if(!vercelConfig.includes("'sha256-rRTok79almAGgfPvRLw0V1lpoIyngNj1axoWNf4jXA8='"))failures.push("vercel.json: falta hash CSP del bootstrap inline de Speed Insights.");
 for(const file of files){
