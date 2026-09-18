@@ -61,6 +61,7 @@ const sentOrders=read("assets/js/modules/sent-orders.js");
 const api=read("assets/js/services/api.js");
 const reportsEnterprise=read("assets/js/modules/reports-enterprise-v11140.js");
 const analyticsCss=read("assets/css/analytics.css");
+const operationsCss=read("assets/css/operations.css");
 const coreCss=read("assets/css/core-shell.css");
 const experienceCss=read("assets/css/experience.css");
 const jsFiles=walk(path.join(root,"assets/js")).filter(file=>file.endsWith(".js"));
@@ -70,8 +71,8 @@ const normalizedJsRuntime=jsRuntime
   .replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
 // Release identity.
-check(version==="11.31.1","CONFIG.version debe ser 11.31.1.");
-check(build==="2026-09-18.04","CONFIG.build debe ser 2026-09-18.04.");
+check(version==="11.31.2","CONFIG.version debe ser 11.31.2.");
+check(build==="2026-09-18.05","CONFIG.build debe ser 2026-09-18.05.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
@@ -106,8 +107,8 @@ check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía instit
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
 // PWA and Vercel routing.
-check(sw.includes('// previous-cache: crm-suministros-v11-31-0-20260918-03'),"previous-cache PWA debe apuntar a V11.31.0.");
-check(sw.includes('const CACHE="crm-suministros-v11-31-1-20260918-04";'),"CACHE activo PWA no corresponde a V11.31.1.");
+check(sw.includes('// previous-cache: crm-suministros-v11-31-1-20260918-04'),"previous-cache PWA debe apuntar a V11.31.1.");
+check(sw.includes('const CACHE="crm-suministros-v11-31-2-20260918-05";'),"CACHE activo PWA no corresponde a V11.31.2.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
 check(vercel.includes('manifest\\\\.webmanifest')||vercel.includes('/manifest.webmanifest'),"Vercel debe excluir o tratar explícitamente el manifest real.");
@@ -139,6 +140,12 @@ check(deliverySatisfactionIndexMigration.includes("drop index if exists erp_supp
 check(reportsEnterprise.includes("distance_km")&&reportsEnterprise.includes("avg_distance_km")&&reportsEnterprise.includes("avg_satisfaction_hours"),"Analítica debe exponer distancia y satisfacción del dataset Entregas.");
 check(!analyticsCss.includes(".btn-danger,.btn.danger{"),"analytics.css no debe sobrescribir globalmente los botones danger.");
 check(analyticsCss.includes(".admin-shell-v11160 .btn-danger,.admin-shell-v11160 .btn.danger{"),"Los estilos danger de Administración deben permanecer encapsulados.");
+check(operationsCss.includes(".modal.popup-ux-v1190:not(.full):not(.split):not(.wizard-modal){width:min(680px,100%)}"),"El ancho base de popups comunes debe conservarse en 680px.");
+check(operationsCss.includes("#modal-root .modal.popup-ux-v1190.simple-process-modal.wide")&&operationsCss.includes("width:min(1120px,calc(100vw - 80px))!important"),"Gestión rápida debe usar el ancho desktop V11.31.2 sin afectar otros popups.");
+check(operationsCss.includes(".simple-process-head .wizard-kicker")&&operationsCss.includes("color:#0b65c7!important"),"Gestión rápida debe mostrar el kicker en azul.");
+check(operationsCss.includes(".simple-process-head h3")&&operationsCss.includes("color:#0a4f91!important"),"Gestión rápida debe mostrar el número de pedido en azul.");
+check(operationsCss.includes(".simple-process-head p")&&operationsCss.includes("color:#416e99!important"),"Gestión rápida debe mostrar cliente/etapa en azul legible.");
+check(operationsCss.includes("grid-template-columns:repeat(5,minmax(0,1fr))!important"),"Gestión rápida debe aprovechar el ancho con cinco estados en desktop.");
 check(exists(".gitignore")&&exists(".env.example"),"Faltan controles base .gitignore/.env.example.");
 check(exists("scripts/git-history-security-check.mjs"),"Falta el scanner de secretos sobre historial Git.");
 check(responsive.includes("pendingScopes")&&responsive.includes("queueScope(node)"),"Responsive foundation debe procesar únicamente UI dinámica afectada.");
@@ -257,7 +264,7 @@ console.log(`VALIDACIÓN CRM ${version} CORRECTA`);
 console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
 console.log("- Inventario conserva captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
-console.log("- V11.31.1 corrige la fuga global de estilos danger y restaura contraste en Pedidos enviados.");
+console.log("- V11.31.2 amplía Gestión rápida, aprovecha mejor el espacio y corrige definitivamente su cabecera azul.");
 console.log("- Observers responsive y popup procesan únicamente el ámbito dinámico afectado.");
 console.log("- PWA, Vercel, RLS y hotpaths SQL quedan incorporados al contrato canónico.");
 console.log("- Conteo ciego, RLS granular y aprobación contable permanecen como contratos obligatorios.");
