@@ -49,6 +49,7 @@ const workPerfMigration=read("supabase/migrations/099_work_my_day_role_cache_v11
 const inventoryFilterMigration=read("supabase/migrations/100_inventory_filtered_hotpath_v11_27_0.sql");
 const inventoryPlanMigration=read("supabase/migrations/101_inventory_count_plan_hotpath_v11_27_0.sql");
 const securityDefinerMigration=read("supabase/migrations/110_security_definer_contract_v11_30_1.sql");
+const securityDefinerFixMigration=read("supabase/migrations/111_security_definer_contract_regex_fix_v11_30_1.sql");
 const coreCss=read("assets/css/core-shell.css");
 const experienceCss=read("assets/css/experience.css");
 const jsFiles=walk(path.join(root,"assets/js")).filter(file=>file.endsWith(".js"));
@@ -99,7 +100,8 @@ check(rlsAuditMigration.includes('drop policy if exists erp_active_read on publi
 check(workPerfMigration.includes('erp_supply.current_roles()')&&workPerfMigration.includes('v_roles'),"Migración 099 debe cachear roles de Mi jornada una sola vez.");
 check(inventoryFilterMigration.includes("when v_search='' then true")&&inventoryFilterMigration.includes('else erp_supply.material_norm('),"Migración 100 debe diferir la normalización textual cuando no hay búsqueda.");
 check(inventoryPlanMigration.includes("where l.inventory_item_id=s.item_id and l.source_active"),"Migración 101 debe construir detalle de lotes solo para el plan seleccionado.");
-check(securityDefinerMigration.includes("erp_x_security_definer_contract_check")&&securityDefinerMigration.includes("from public,anon,authenticated")&&securityDefinerMigration.includes("grant execute on function public.erp_x_security_definer_contract_check() to service_role"),"Migración 110 debe conservar el health contract SECURITY DEFINER como service-role-only.");
+check(securityDefinerMigration.includes("erp_x_security_definer_contract_check")&&securityDefinerMigration.includes("from public,anon,authenticated")&&securityDefinerMigration.includes("grant execute on function public.erp_x_security_definer_contract_check() to service_role"),"Migración 110 debe crear el health contract SECURITY DEFINER como service-role-only.");
+check(securityDefinerFixMigration.includes("auth[.]uid[(][)]")&&securityDefinerFixMigration.includes("erp_x_security_definer_contract_check"),"Migración 111 debe conservar el detector corregido de auth.uid().");
 check(exists(".gitignore")&&exists(".env.example"),"Faltan controles base .gitignore/.env.example.");
 check(exists("scripts/git-history-security-check.mjs"),"Falta el scanner de secretos sobre historial Git.");
 check(responsive.includes("pendingScopes")&&responsive.includes("queueScope(node)"),"Responsive foundation debe procesar únicamente UI dinámica afectada.");
