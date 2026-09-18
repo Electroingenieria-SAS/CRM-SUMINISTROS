@@ -1,68 +1,96 @@
-# Seguridad del ERP EI
+# Seguridad del CRM Suministros
 
 ## Modelo de confianza
 
-El navegador se considera **no confiable**. Puede validar para UX, pero nunca decide permisos. La autorización final vive en Supabase: JWT válido, perfil activo, RPC, reglas de rol/ownership y RLS. La `publishable key` del navegador identifica el proyecto; no es un secreto. `service_role` es un secreto con privilegios elevados y solo puede existir en Supabase Edge Functions o un backend servidor.
+El navegador se considera **no confiable**. Puede validar para UX, pero nunca decide permisos. La autorización final vive en Supabase: JWT válido, perfil activo, RPC, reglas de rol/ownership y RLS. La `publishable key` del navegador identifica el proyecto y no es un secreto. `service_role`, secret keys, JWT signing secrets y credenciales de integración son exclusivamente server-side.
 
-## Matriz de los 20 controles solicitados
+## Matriz de controles
 
-| # | Control | Estado de esta reconstrucción | Implementación / acción |
+| # | Control | Estado V11.30.1 | Implementación / criterio |
 |---|---|---|---|
-| 1 | Ocultar API keys | Parcial por diseño | Secret keys fuera del cliente; publishable key pública. `.env.example` sin valores secretos. |
-| 2 | Eliminar secretos Git | Preparado | `.gitignore` + scanner. Al crear/mover repo ejecutar escaneo de historial y rotar cualquier secreto histórico. |
-| 3 | Activar RLS | Verificado | Tablas públicas auditadas con RLS habilitado. Revisar policies tras cada migración. |
-| 4 | Usar clave pública DB | Cumplido | Browser usa `sb_publishable_...`; `service_role` solo servidor. |
-| 5 | Cifrar datos sensibles | Plataforma + diseño | TLS/HTTPS y cifrado de plataforma; para PII de alto riesgo usar Vault/pgcrypto según clasificación, no cifrado indiscriminado. |
-| 6 | Forzar autenticación servidor | Cumplido en operaciones privilegiadas | Edge `verify_jwt=true`; RPC exige perfil/roles en backend. |
-| 7 | Restringir registros | Cumplido / auditable | RLS + helpers de organización/rol/ownership. |
-| 8 | Proteger cookies sesión | No aplica literalmente al SPA actual | Supabase browser persiste sesión del cliente; CSP/XSS reducen robo de token. Si se exige HttpOnly, migrar Auth a BFF/SSR server-side. |
-| 9 | Bloquear manipulación de campos | Cumplido por arquitectura | Mutaciones pasan por RPC; backend decide campos, transición, ownership y versión. |
-| 10 | Hashear contraseñas | Cumplido por Supabase Auth | Supabase Auth almacena hashes bcrypt; ERP nunca almacena contraseña en perfiles. |
-| 11 | Máx. 10 intentos | Parcial + pendiente plataforma | Guard local 10/15 min; configurar límite real en Supabase Auth. |
-| 12 | Protección bots | Pendiente plataforma | Activar Turnstile/hCaptcha en Supabase Auth. |
-| 13 | Monitor DB | Preparado | Advisors + pg_stat_statements + logs/runbook. |
-| 14 | Validar entradas | Reforzado | Validación UI, Edge y RPC; nunca confiar solo en navegador. |
-| 15 | Escapar contenido usuario | Reforzado | `fmt.escape`, corrección de error sin escape, CSP. |
-| 16 | Restringir uploads | Cumplido en dos capas | Máx 15 MB, allowlist de formatos, denylist activos/ejecutables, Apps Script replica control. |
-| 17 | Limitar respuestas API | Existente / reforzar backend | Paginación y `maxPageSize=250`; RPC debe mantener topes independientemente del cliente. |
-| 18 | Security headers | Preparado | `vercel.json`: CSP, HSTS, nosniff, anti-frame, Permissions/Referrer Policy. |
-| 19 | HTTPS | Preparado | Vercel sirve TLS; HSTS y `upgrade-insecure-requests`. |
-| 20 | Dependencias | Cumplido en proyecto | 0 dependencias npm locales; CDN Supabase pin exacto; `npm run security`. |
+| 1 | Separar claves públicas y privadas | Cumplido | Browser usa únicamente `sb_publishable_...`; secretos permanecen fuera del frontend. |
+| 2 | Evitar secretos en Git | Reforzado | `.gitignore`, `.env.example`, scanner del árbol actual y `security:history` sobre historial completo. |
+| 3 | RLS | Verificado | Todas las tablas base de `erp_supply` tienen RLS habilitado. |
+| 4 | Cero RPC ERP para `anon` | Verificado | Health check productivo y migración 108. |
+| 5 | SECURITY DEFINER gobernado | Reforzado | Auditoría explícita de funciones autenticadas y health contract service-role-only V11.30.1. |
+| 6 | Auth server-side en operaciones privilegiadas | Cumplido | Edge administrativas con JWT y autorización interna de RPC. |
+| 7 | Restricción por rol/ownership | Cumplido / auditable | `require_profile`, roles, permisos de módulo, organización y ownership. |
+| 8 | Protección de sesión SPA | Mitigado por arquitectura | PKCE/autorefresh, CSP y escape. HttpOnly requeriría BFF/SSR. |
+| 9 | Bloqueo de manipulación de campos | Cumplido | Mutaciones de negocio pasan por RPC; el backend decide campos y transición. |
+| 10 | Contraseñas | Cumplido por Supabase Auth | El CRM no almacena contraseñas ni hashes propios. |
+| 11 | Rate limiting de Auth | Pendiente de plataforma | El guard local es UX; el límite real debe configurarse en Supabase Auth. |
+| 12 | Protección anti-bot | Pendiente de plataforma | Activar CAPTCHA/Turnstile/hCaptcha según soporte del proyecto. |
+| 13 | Leaked Password Protection | Pendiente de plataforma | El Security Advisor sigue reportándola deshabilitada. |
+| 14 | Monitorización de DB | Cumplido | Advisors, health checks, `pg_stat_statements`, logs y runbook. |
+| 15 | Validación de entradas | Reforzado | Validación en UI, Edge y RPC. |
+| 16 | Escape de contenido | Reforzado | Escapes de salida + CSP; no ejecutar HTML de usuario. |
+| 17 | Uploads | Cumplido en dos capas | Máx. 15 MB, allowlist y denylist en browser y Apps Script. |
+| 18 | Security headers | Reforzado | HSTS, CSP, nosniff, anti-frame, Referrer Policy, Permissions Policy. |
+| 19 | Dependencias | Reforzado | CDN con versiones exactas cuando el proveedor lo permite y CI que impide `latest/next`. |
+| 20 | Historial y gobernanza Git | Reforzado | Política formal de ramas, PR obligatorio recomendado y secret scan histórico. |
 
-## Passwords
+## Contraseñas y autenticación
 
 - Nueva contraseña administrativa: mínimo 12 caracteres.
-- No registrar contraseñas en logs, eventos de auditoría, tablas ERP ni metadata.
-- La Edge Function entrega la contraseña únicamente a Supabase Auth Admin API.
-- Activar leaked-password protection si el plan lo soporta.
-- Valorar MFA para Super Admin/Gerencia.
+- No registrar contraseñas en logs, auditoría, metadata ni tablas operativas.
+- La Edge Function administrativa entrega credenciales únicamente a Supabase Auth Admin API.
+- **Leaked Password Protection**, rate limiting real y anti-bot son controles de plataforma; no deben simularse desde SQL o JavaScript.
+- Para perfiles críticos se recomienda MFA cuando se formalice la política corporativa de autenticación.
+
+## SECURITY DEFINER
+
+Supabase Security Advisor marca funciones `SECURITY DEFINER` ejecutables por `authenticated`. Esto no implica vulnerabilidad por sí mismo: el CRM usa RPC privilegiados intencionalmente.
+
+Contrato obligatorio:
+
+1. cero ejecución para `anon`;
+2. `search_path` explícito/controlado;
+3. autorización interna o delegación a un núcleo que la aplique;
+4. funciones de secretos/integración privadas reservadas a `service_role`;
+5. wrappers históricos auditados por nombre y destino.
+
+V11.30.1 añade `public.erp_x_security_definer_contract_check()`, accesible solo por `service_role`, para detectar nuevas funciones autenticadas que salgan del contrato de guardas/wrappers aprobado.
 
 ## Sesión
 
-El SPA usa el cliente oficial Supabase. Esto implica almacenamiento de la sesión en el entorno del navegador en lugar de una cookie HttpOnly de un BFF propio. La mitigación actual se apoya en CSP, escape sistemático, no ejecución de HTML aportado por usuarios y reducción de dependencias. Si el requisito corporativo obliga a tokens inaccesibles a JavaScript, el cambio correcto es arquitectónico: backend-for-frontend/SSR con sesión gestionada en servidor, no “poner HttpOnly” sobre el SPA actual.
+El SPA usa el cliente oficial Supabase con PKCE, persistencia de sesión y refresh automático. La sesión permanece accesible al runtime JavaScript del navegador; por tanto, una política que exija cookies HttpOnly requeriría migrar la autenticación a BFF/SSR. No existe una modificación local equivalente que convierta el SPA actual en HttpOnly sin cambiar la arquitectura.
 
 ## CORS
 
-`erp-admin-users` usa `ERP_ALLOWED_ORIGINS`. Antes de desplegar establecer, por ejemplo:
+`erp-admin-users` debe usar `ERP_ALLOWED_ORIGINS` y nunca `*` para operaciones administrativas. Los orígenes de producción y previews autorizados deben declararse explícitamente.
 
-```text
-ERP_ALLOWED_ORIGINS=https://erp.midominio.com,https://preview-autorizado.vercel.app
-```
+## CSP y dependencias
 
-No usar `*` para una función que gestiona usuarios y contraseñas.
+- `unsafe-eval` está prohibido por CI.
+- Las dependencias jsDelivr/unpkg/SheetJS deben estar fijadas a versión exacta.
+- Google Identity Services se consume desde su endpoint oficial, que no ofrece una URL de release inmutable equivalente.
+- El bootstrap inline de Vercel Speed Insights queda autorizado mediante hash CSP específico.
+- `style-src 'unsafe-inline'` permanece como deuda técnica controlada porque módulos heredados usan estilos inline/dinámicos. Su eliminación exige migrar esos estilos a las cuatro familias CSS canónicas y ejecutar regresión visual; no debe retirarse a ciegas.
 
 ## Uploads
 
-Permitidos: imágenes raster comunes, PDF, TXT/CSV y documentos Office requeridos por la operación. Bloqueados: HTML, SVG, JavaScript, ejecutables, scripts shell/PowerShell, instaladores y paquetes ejecutables. El tamaño máximo sigue siendo 15 MB.
+Permitidos: imágenes raster comunes, PDF, TXT/CSV y documentos Office necesarios para la operación. Bloqueados: HTML, SVG activo, JavaScript, ejecutables, shell/PowerShell, instaladores y paquetes ejecutables. El tamaño máximo continúa en 15 MB.
 
-El chequeo de extensión/MIME reduce riesgo pero no sustituye malware scanning. Para un nivel corporativo superior, insertar una etapa antivirus/Content Disarm & Reconstruction antes de hacer disponible el archivo.
+El control de extensión/MIME reduce riesgo, pero no sustituye un antivirus o Content Disarm & Reconstruction si la organización adopta un nivel superior de protección documental.
 
 ## Git y secretos
 
-Antes de subir al nuevo repositorio:
+La CI ejecuta:
 
-1. Ejecutar `npm run security`.
-2. Ejecutar un escáner de historial como Gitleaks/TruffleHog en el repositorio una vez exista `.git`.
-3. Si aparece un secreto histórico, **rotarlo**; borrar un commit no vuelve seguro un secreto ya expuesto.
-4. Reescribir historia con `git filter-repo` solo después del backup y acuerdo del equipo.
-5. Guardar secrets en Supabase/Vercel environment variables, nunca en commits.
+1. `npm run security` sobre el árbol actual;
+2. `npm run security:history` sobre el historial Git completo;
+3. validación de arquitectura, integración y release;
+4. smoke browser desktop/móvil.
+
+Si el scanner histórico detecta un secreto real:
+
+1. rotar/revocar la credencial;
+2. identificar alcance y consumidores;
+3. verificar que la nueva credencial quede en Vault/secret store;
+4. solo después evaluar reescritura de historia con un procedimiento controlado.
+
+Nunca asumir que borrar un commit vuelve segura una credencial ya expuesta.
+
+## Gobierno de cambios
+
+Consultar `docs/REPOSITORY_GOVERNANCE.md`. El objetivo operativo es que `main` quede protegido por ruleset/branch protection, exija `Validate CRM Suministros`, bloquee force-push y bloquee eliminación.
