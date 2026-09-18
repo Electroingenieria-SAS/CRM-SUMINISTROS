@@ -66,9 +66,9 @@ jobs:
         run: |
           set -euo pipefail
           grep -q 'version: "11.31.0"' assets/js/config.js
-          grep -q 'build: "2026-09-18.02"' assets/js/config.js
-          grep -q '"version": "11.30.2"' package.json
-          grep -q '"version": "11.30.2"' package-lock.json
+          grep -q 'build: "2026-09-18.03"' assets/js/config.js
+          grep -q '"version": "11.31.0"' package.json
+          grep -q '"version": "11.31.0"' package-lock.json
           grep -q 'app-entry.js?v=11.31.0' index.html
           grep -Fxq '// previous-cache: crm-suministros-v11-30-2-20260918-02' service-worker.js
           grep -Fxq 'const CACHE="crm-suministros-v11-31-0-20260918-03";' service-worker.js
