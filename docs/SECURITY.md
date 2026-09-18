@@ -62,10 +62,11 @@ El SPA usa el cliente oficial Supabase con PKCE, persistencia de sesión y refre
 ## CSP y dependencias
 
 - `unsafe-eval` está prohibido por CI.
+- `style-src` general ya no permite `'unsafe-inline'` desde V11.30.2.
 - Las dependencias jsDelivr/unpkg/SheetJS deben estar fijadas a versión exacta.
 - Google Identity Services se consume desde su endpoint oficial, que no ofrece una URL de release inmutable equivalente.
 - El bootstrap inline de Vercel Speed Insights queda autorizado mediante hash CSP específico.
-- `style-src 'unsafe-inline'` permanece como deuda técnica controlada porque módulos heredados usan estilos inline/dinámicos. Su eliminación exige migrar esos estilos a las cuatro familias CSS canónicas y ejecutar regresión visual; no debe retirarse a ciegas.
+- Se externalizaron los bloques `<style>` runtime a recursos CSS same-origin. La única excepción restante es `style-src-attr 'unsafe-inline'`, limitada a valores visuales dinámicos (porcentajes, anchos y variables CSS calculadas). Su eliminación completa requiere reemplazar esos atributos por clases/estructuras equivalentes.
 
 ## Uploads
 
