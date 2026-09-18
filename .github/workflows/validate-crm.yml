@@ -65,13 +65,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'version: "11.30.1"' assets/js/config.js
-          grep -q 'build: "2026-09-18.01"' assets/js/config.js
-          grep -q '"version": "11.30.1"' package.json
-          grep -q '"version": "11.30.1"' package-lock.json
-          grep -q 'app-entry.js?v=11.30.1' index.html
-          grep -Fxq '// previous-cache: crm-suministros-v11-30-0-20260914-01' service-worker.js
-          grep -Fxq 'const CACHE="crm-suministros-v11-30-1-20260918-01";' service-worker.js
+          grep -q 'version: "11.30.2"' assets/js/config.js
+          grep -q 'build: "2026-09-18.02"' assets/js/config.js
+          grep -q '"version": "11.30.2"' package.json
+          grep -q '"version": "11.30.2"' package-lock.json
+          grep -q 'app-entry.js?v=11.30.2' index.html
+          grep -Fxq '// previous-cache: crm-suministros-v11-30-1-20260918-01' service-worker.js
+          grep -Fxq 'const CACHE="crm-suministros-v11-30-2-20260918-02";' service-worker.js
           grep -q 'manifest.webmanifest' vercel.json
           test "$(grep -c '<link rel="stylesheet" href="./assets/css/' index.html)" -eq 4
           test "$(find assets/css -maxdepth 1 -type f -name '*.css' | wc -l)" -eq 4
@@ -80,6 +80,15 @@ jobs:
             test -s "assets/css/${css}.css"
             grep -q "./assets/css/${css}.css" service-worker.js
           done
+
+          for css in guides-layout-v11291 receiving-workspace-v11290 inventory-dialogs-v11260 inventory-visual-v11270 inventory-ui-v11240 inventory-workspace-v11251; do
+            test -s "assets/runtime-css/${css}.css"
+            grep -q "./assets/runtime-css/${css}.css" service-worker.js
+          done
+
+          ! grep -R -E 'createElement[[:space:]]*\\([[:space:]]*["'"'"']style["'"'"'][[:space:]]*\\)' assets/js
+          ! grep -q "style-src 'self' 'unsafe-inline'" vercel.json
+          grep -q "style-src-attr 'unsafe-inline'" vercel.json
 
           test "$(grep -c '<script type="module" src="./assets/js/' index.html)" -eq 1
           grep -q 'import "./main.js";' assets/js/app-entry.js
@@ -127,16 +136,16 @@ jobs:
           # Contrato UX: un solo sistema, ancho contenido y accesibilidad táctil/visual.
           grep -q 'inventory-dialog-v11260' assets/js/modules/inventory-dialogs-v11260.js
           grep -q 'inventory-dialog-guide-v11260' assets/js/modules/inventory-dialogs-v11260.js
-          grep -q -- '--inventory-dialog-width:1120px' assets/js/modules/inventory-dialogs-v11260.js
-          grep -q -- '--inventory-dialog-width:720px' assets/js/modules/inventory-dialogs-v11260.js
-          grep -q -- '--inventory-dialog-width:1040px' assets/js/modules/inventory-dialogs-v11260.js
-          grep -q 'min-height:48px' assets/js/modules/inventory-dialogs-v11260.js
-          grep -q 'font-size:16px' assets/js/modules/inventory-dialogs-v11260.js
-          grep -q 'grid-template-columns:repeat(3,minmax(0,1fr))' assets/js/modules/inventory-dialogs-v11260.js
+          grep -q -- '--inventory-dialog-width:1120px' assets/runtime-css/inventory-dialogs-v11260.css
+          grep -q -- '--inventory-dialog-width:720px' assets/runtime-css/inventory-dialogs-v11260.css
+          grep -q -- '--inventory-dialog-width:1040px' assets/runtime-css/inventory-dialogs-v11260.css
+          grep -q 'min-height:48px' assets/runtime-css/inventory-dialogs-v11260.css
+          grep -q 'font-size:16px' assets/runtime-css/inventory-dialogs-v11260.css
+          grep -q 'grid-template-columns:repeat(3,minmax(0,1fr))' assets/runtime-css/inventory-dialogs-v11260.css
           grep -q 'MutationObserver' assets/js/modules/inventory-dialogs-v11260.js
-          ! grep -q 'width:min(86vw' assets/js/modules/inventory-dialogs-v11260.js
-          ! grep -q 'width:min(88vw' assets/js/modules/inventory-dialogs-v11260.js
-          ! grep -q 'width:min(94vw' assets/js/modules/inventory-dialogs-v11260.js
+          ! grep -q 'width:min(86vw' assets/runtime-css/inventory-dialogs-v11260.css
+          ! grep -q 'width:min(88vw' assets/runtime-css/inventory-dialogs-v11260.css
+          ! grep -q 'width:min(94vw' assets/runtime-css/inventory-dialogs-v11260.css
 
       - name: Install browser smoke runner
         run: npm install --no-save --no-package-lock @playwright/test@1.63.0
@@ -157,15 +166,15 @@ jobs:
           touch dist-deployable/.nojekyll
           printf '%s\n' \
             "commit=${GITHUB_SHA}" \
-            "version=11.30.1" \
-            "build=2026-09-18.01" \
+            "version=11.30.2" \
+            "build=2026-09-18.02" \
             "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crm-suministros-v11.30.1-build01-deployable
+          name: crm-suministros-v11.30.2-build02-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90

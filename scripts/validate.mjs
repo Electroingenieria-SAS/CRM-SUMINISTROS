@@ -39,6 +39,10 @@ const control=read("assets/js/modules/inventory-control-v11250.js");
 const exportsModule=read("assets/js/modules/inventory-export-v11250.js");
 const ui=read("assets/js/modules/inventory-ui-v11240.js");
 const inventoryDialogs=read("assets/js/modules/inventory-dialogs-v11260.js");
+const inventoryWorkspaceCss=read("assets/runtime-css/inventory-workspace-v11251.css");
+const inventoryDialogsCss=read("assets/runtime-css/inventory-dialogs-v11260.css");
+const inventoryContract=inventory+"\n"+inventoryWorkspaceCss;
+const inventoryDialogsContract=inventoryDialogs+"\n"+inventoryDialogsCss;
 const responsive=read("assets/js/modules/responsive-foundation-v11190.js");
 const popupUx=read("assets/js/modules/popup-ux-v1190.js");
 const inventoryMigration=read("supabase/migrations/095_inventory_accounting_blind_count_v11_23_0.sql");
@@ -59,8 +63,8 @@ const normalizedJsRuntime=jsRuntime
   .replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
 // Release identity.
-check(version==="11.30.1","CONFIG.version debe ser 11.30.1.");
-check(build==="2026-09-18.01","CONFIG.build debe ser 2026-09-18.01.");
+check(version==="11.30.2","CONFIG.version debe ser 11.30.2.");
+check(build==="2026-09-18.02","CONFIG.build debe ser 2026-09-18.02.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
@@ -77,18 +81,32 @@ check(cssRefs.length===4,"index.html debe cargar exactamente cuatro familias CSS
 check(JSON.stringify(cssRefs.map(m=>m[1]))===JSON.stringify(canonicalCss),"El orden CSS canónico es inválido.");
 check(cssRefs.every(m=>m[2]===version),"Todas las familias CSS deben usar la versión vigente.");
 for(const cssPath of canonicalCss)check(exists(cssPath),`Falta CSS canónico: ${cssPath}`);
+const runtimeCss=[
+  "assets/runtime-css/guides-layout-v11291.css",
+  "assets/runtime-css/receiving-workspace-v11290.css",
+  "assets/runtime-css/inventory-dialogs-v11260.css",
+  "assets/runtime-css/inventory-visual-v11270.css",
+  "assets/runtime-css/inventory-ui-v11240.css",
+  "assets/runtime-css/inventory-workspace-v11251.css"
+];
+for(const cssPath of runtimeCss){
+  check(exists(cssPath),`Falta CSS runtime externalizado: ${cssPath}`);
+  check(sw.includes("./"+cssPath),`PWA debe precachear ${cssPath}`);
+}
 check(walk(path.join(root,"assets/css")).filter(file=>file.endsWith(".css")).map(rel).every(file=>canonicalCss.includes(file)),"assets/css conserva una familia no canónica.");
 check((coreCss.match(/:root\{/g)||[]).length===1,"core-shell.css debe conservar una sola raíz de tokens.");
 check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía institucional.");
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
 // PWA and Vercel routing.
-check(sw.includes('// previous-cache: crm-suministros-v11-30-0-20260914-01'),"previous-cache PWA debe apuntar a V11.30.0.");
-check(sw.includes('const CACHE="crm-suministros-v11-30-1-20260918-01";'),"CACHE activo PWA no corresponde a V11.30.1.");
+check(sw.includes('// previous-cache: crm-suministros-v11-30-1-20260918-01'),"previous-cache PWA debe apuntar a V11.30.1.");
+check(sw.includes('const CACHE="crm-suministros-v11-30-2-20260918-02";'),"CACHE activo PWA no corresponde a V11.30.2.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
 check(vercel.includes('manifest\\\\.webmanifest')||vercel.includes('/manifest.webmanifest'),"Vercel debe excluir o tratar explícitamente el manifest real.");
 check(vercel.includes('/service-worker.js')&&vercel.includes('no-cache, no-store, must-revalidate'),"Service worker debe revalidarse en cada release.");
+check(!/style-src(?!-)[^;]*'unsafe-inline'/i.test(vercel),"CSP no debe permitir unsafe-inline en style-src general.");
+check(/style-src-attr[^;]*'unsafe-inline'/i.test(vercel),"La excepción temporal debe limitarse a style-src-attr.");
 
 // Browser/backend boundaries.
 const bannedRuntime=/\b(QA_BOT|erp_x_qa_|erp_x_run_qa_|erp_x_sandbox_|sandboxMode|manualSandbox|TEST-QA-|erp-e2e-bot)\b/i;
@@ -158,7 +176,7 @@ check(inventory.includes('inventoryCountCenter')&&inventory.includes('access.ope
 for(const view of ["home","capture","express","count","labels","plan","review","history","stock","ledger","control"])check(inventory.includes(`"${view}"`),`Falta vista de Inventario: ${view}`);
 check(inventory.includes('express-review'),"Super Admin perdió Revisión exprés.");
 check(inventory.includes('inventory-nav-v11251')&&inventory.includes('Control y auditoría')&&inventory.includes('inventory-nav-groups-v11251'),"Inventario perdió la navegación agrupada.");
-check(inventory.includes('overflow-wrap:anywhere')&&inventory.includes('@media(max-width:760px)')&&inventory.includes('@media(max-width:480px)'),"Inventario perdió defensas responsive contra desbordes.");
+check(inventoryContract.includes('overflow-wrap:anywhere')&&inventoryContract.includes('@media(max-width:760px)')&&inventoryContract.includes('@media(max-width:480px)'),"Inventario perdió defensas responsive contra desbordes.");
 check(home.includes("Conteo no programado")&&home.includes("Etiquetas y stickers")&&home.includes("Movimientos"),"Inicio no expone las funciones críticas.");
 check(operator.includes("REGISTRAR CONTEO")&&operator.includes("Conteo exprés")&&operator.includes("Metraje")&&operator.includes("Imprimir jornada")&&operator.includes("Exportar CSV"),"Captura perdió conteo, exprés, metraje o stickers.");
 check(operator.includes("inventoryCountSubmit")&&operator.includes("inventoryCountResolve")&&operator.includes("inventoryCountSearch"),"Captura no usa los contratos seguros de conteo.");
@@ -194,14 +212,14 @@ for(const token of [
   "MutationObserver",
   "#modal-root",
   "state.currentModule"
-])check(inventoryDialogs.includes(token),`Sistema de diálogos guiados incompleto: falta ${token}.`);
-for(const width of ["1120px","1040px","1000px","960px","940px","820px","720px"])check(inventoryDialogs.includes(`--inventory-dialog-width:${width}`),`Falta ancho contenido: ${width}.`);
-check(inventoryDialogs.includes('calc(100vw - 96px)'),"Desktop debe conservar margen lateral visible.");
-check(!inventoryDialogs.includes('width:min(86vw')&&!inventoryDialogs.includes('width:min(88vw')&&!inventoryDialogs.includes('width:min(94vw'),"Inventario volvió a geometrías casi full-screen en escritorio.");
-check(inventoryDialogs.includes('min-height:48px')&&inventoryDialogs.includes('font-size:16px')&&inventoryDialogs.includes('width:46px')&&inventoryDialogs.includes('height:46px'),"Controles o acciones ya no cumplen accesibilidad táctil/visual.");
+])check(inventoryDialogsContract.includes(token),`Sistema de diálogos guiados incompleto: falta ${token}.`);
+for(const width of ["1120px","1040px","1000px","960px","940px","820px","720px"])check(inventoryDialogsContract.includes(`--inventory-dialog-width:${width}`),`Falta ancho contenido: ${width}.`);
+check(inventoryDialogsContract.includes('calc(100vw - 96px)'),"Desktop debe conservar margen lateral visible.");
+check(!inventoryDialogsContract.includes('width:min(86vw')&&!inventoryDialogsContract.includes('width:min(88vw')&&!inventoryDialogsContract.includes('width:min(94vw'),"Inventario volvió a geometrías casi full-screen en escritorio.");
+check(inventoryDialogsContract.includes('min-height:48px')&&inventoryDialogsContract.includes('font-size:16px')&&inventoryDialogsContract.includes('width:46px')&&inventoryDialogsContract.includes('height:46px'),"Controles o acciones ya no cumplen accesibilidad táctil/visual.");
 check(inventoryDialogs.includes('Qué debes hacer')&&inventoryDialogs.includes('Confirma la referencia')&&inventoryDialogs.includes('Escribe la cantidad física'),"Falta guía de operación simple en los diálogos.");
-check(inventoryDialogs.includes('grid-template-columns:repeat(3,minmax(0,1fr))'),"Revisión debe agrupar comparación por lote en tres columnas legibles.");
-check(inventoryDialogs.includes('@media(max-width:820px)')&&inventoryDialogs.includes('@media(max-width:620px)'),"Faltan breakpoints de tablet/móvil.");
+check(inventoryDialogsContract.includes('grid-template-columns:repeat(3,minmax(0,1fr))'),"Revisión debe agrupar comparación por lote en tres columnas legibles.");
+check(inventoryDialogsContract.includes('@media(max-width:820px)')&&inventoryDialogsContract.includes('@media(max-width:620px)'),"Faltan breakpoints de tablet/móvil.");
 check(inventoryDialogs.includes('simplifyFooter')&&inventoryDialogs.includes('single-action-v11260'),"Los diálogos informativos deben evitar Cancelar + Cerrar duplicados.");
 
 // Delivery architecture.
@@ -220,7 +238,7 @@ console.log(`VALIDACIÓN CRM ${version} CORRECTA`);
 console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
 console.log("- Inventario conserva captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
-console.log("- V11.30.1 conserva el sistema de diálogos guiados, las mejoras V11.28/V11.29 y la arquitectura visual canónica.");
+console.log("- V11.30.2 conserva la UX y externaliza CSS runtime para endurecer CSP.");
 console.log("- Observers responsive y popup procesan únicamente el ámbito dinámico afectado.");
 console.log("- PWA, Vercel, RLS y hotpaths SQL quedan incorporados al contrato canónico.");
 console.log("- Conteo ciego, RLS granular y aprobación contable permanecen como contratos obligatorios.");

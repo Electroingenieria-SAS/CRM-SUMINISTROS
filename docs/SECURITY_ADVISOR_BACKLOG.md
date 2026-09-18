@@ -85,14 +85,14 @@ Por tanto, estos dos avisos permanecen **informativos** hasta que existan datos 
 
 ### CSP · estilos inline
 
-`style-src 'unsafe-inline'` permanece habilitado para compatibilidad con estilos inline/dinámicos heredados. No se considera cerrado mediante una eliminación ciega porque podría romper diálogos, banners y componentes runtime.
+Estado V11.30.2: **mitigación estructural aplicada**.
 
-Plan correcto:
+- Los seis bloques CSS creados desde JavaScript fueron externalizados a recursos same-origin.
+- `style-src` general ya no contiene `'unsafe-inline'`.
+- La excepción está confinada a `style-src-attr 'unsafe-inline'` por valores visuales dinámicos de progreso, porcentajes y variables calculadas.
+- CI impide reintroducir `createElement("style")` o ampliar nuevamente la directiva general.
 
-1. inventariar estilos dinámicos;
-2. migrarlos a `core-shell.css`, `operations.css`, `analytics.css` o `experience.css`;
-3. ejecutar regresión visual desktop/tablet/mobile;
-4. separar `style-src-attr` y `style-src-elem` cuando la cobertura permita retirar `unsafe-inline`.
+Pendiente de hardening futuro: sustituir los atributos dinámicos por clases/estructuras equivalentes para retirar también `style-src-attr 'unsafe-inline'`.
 
 ### Dependencias externas
 
