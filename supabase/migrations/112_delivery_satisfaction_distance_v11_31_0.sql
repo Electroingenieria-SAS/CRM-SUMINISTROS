@@ -363,3 +363,212 @@ $function$;
 
 revoke all on function public.erp_x_shipping_sent_orders(text,integer,integer) from public,anon;
 grant execute on function public.erp_x_shipping_sent_orders(text,integer,integer) to authenticated;
+
+
+-- Extensión no destructiva del dataset de Entregas en Analítica.
+create or replace function erp_supply.reports_delivery_explore_v1131(p_payload jsonb)
+returns jsonb
+language plpgsql
+stable security definer
+set search_path=''
+as $function$
+declare
+  v_actor uuid:=erp_supply.require_profile();
+  v_org uuid:=erp_supply.current_org_id();
+  v_tz text:=coalesce((select o.timezone from erp_supply.organizations o where o.id=v_org),'America/Bogota');
+  v_dimension text:=lower(coalesce(p_payload->>'dimension','route'));
+  v_metric text:=lower(coalesce(p_payload->>'metric','count'));
+  v_from date:=coalesce((p_payload->>'from')::date,current_date-29);
+  v_to date:=coalesce((p_payload->>'to')::date,current_date);
+  v_limit integer:=greatest(1,least(coalesce((p_payload->>'limit')::integer,50),500));
+  v_start timestamptz;
+  v_end timestamptz;
+  v_rows jsonb:='[]'::jsonb;
+begin
+  if not erp_supply.can_access_module('reports','read') then
+    raise exception 'No autorizado para consultar Analítica y reportes' using errcode='42501';
+  end if;
+  if v_from>v_to or (v_to-v_from)>366 then raise exception 'Rango de fechas inválido'; end if;
+  if v_dimension not in('route','carrier','status','day') then raise exception 'Dimensión no permitida para Entregas'; end if;
+  if v_metric not in(
+    'count','delivered','satisfied','cost','avg_transit_hours',
+    'distance_km','avg_distance_km','avg_satisfaction_hours','avg_post_delivery_confirmation_hours'
+  ) then raise exception 'Métrica no permitida para Entregas'; end if;
+
+  v_start:=(v_from::timestamp at time zone v_tz);
+  v_end:=((v_to+1)::timestamp at time zone v_tz);
+
+  with base as (
+    select d.*
+    from erp_supply.deliveries d
+    join erp_supply.orders o on o.id=d.order_id
+    where o.organization_id=v_org
+      and not coalesce(o.is_test,false)
+      and d.created_at>=v_start and d.created_at<v_end
+  ), grouped as (
+    select
+      case v_dimension
+        when 'route' then coalesce(route_code,'SIN_RUTA')
+        when 'carrier' then coalesce(nullif(trim(carrier),''),'SIN_TRANSPORTADORA')
+        when 'status' then coalesce(status,'SIN_ESTADO')
+        when 'day' then to_char(created_at at time zone v_tz,'YYYY-MM-DD')
+      end label,
+      case v_metric
+        when 'count' then count(*)::numeric
+        when 'delivered' then count(*) filter(where delivered_at is not null or status='DELIVERED')::numeric
+        when 'satisfied' then count(*) filter(where satisfaction_confirmed_at is not null or satisfaction_status='SATISFIED')::numeric
+        when 'cost' then coalesce(sum(carrier_cost),0)::numeric
+        when 'avg_transit_hours' then coalesce(avg(case when dispatched_at is not null and delivered_at is not null then extract(epoch from(delivered_at-dispatched_at)) end)/3600.0,0)::numeric
+        when 'distance_km' then coalesce(sum(distance_km),0)::numeric
+        when 'avg_distance_km' then coalesce(avg(distance_km),0)::numeric
+        when 'avg_satisfaction_hours' then coalesce(avg(case when dispatched_at is not null and satisfaction_confirmed_at is not null then extract(epoch from(satisfaction_confirmed_at-dispatched_at)) end)/3600.0,0)::numeric
+        when 'avg_post_delivery_confirmation_hours' then coalesce(avg(case when delivered_at is not null and satisfaction_confirmed_at is not null then extract(epoch from(satisfaction_confirmed_at-delivered_at)) end)/3600.0,0)::numeric
+      end value,
+      count(*) records
+    from base
+    group by 1
+  )
+  select coalesce(
+    jsonb_agg(jsonb_build_object('label',label,'value',value,'records',records) order by value desc nulls last)
+      filter(where label is not null),
+    '[]'::jsonb
+  )
+  into v_rows
+  from (select * from grouped order by value desc nulls last limit v_limit) q;
+
+  return jsonb_build_object(
+    'dataset','deliveries',
+    'dimension',v_dimension,
+    'metric',v_metric,
+    'from',v_from,
+    'to',v_to,
+    'rows',v_rows,
+    'catalog',jsonb_build_object(
+      'deliveries',jsonb_build_object(
+        'dimensions',jsonb_build_array('route','carrier','status','day'),
+        'metrics',jsonb_build_array(
+          'count','delivered','satisfied','cost','avg_transit_hours',
+          'distance_km','avg_distance_km','avg_satisfaction_hours','avg_post_delivery_confirmation_hours'
+        )
+      )
+    )
+  );
+end;
+$function$;
+
+revoke all on function erp_supply.reports_delivery_explore_v1131(jsonb) from public,anon;
+grant execute on function erp_supply.reports_delivery_explore_v1131(jsonb) to authenticated;
+
+create or replace function erp_supply.reports_delivery_export_v1131(p_payload jsonb)
+returns jsonb
+language plpgsql
+stable security definer
+set search_path=''
+as $function$
+declare
+  v_actor uuid:=erp_supply.require_profile();
+  v_org uuid:=erp_supply.current_org_id();
+  v_tz text:=coalesce((select o.timezone from erp_supply.organizations o where o.id=v_org),'America/Bogota');
+  v_from date:=coalesce((p_payload->>'from')::date,current_date-29);
+  v_to date:=coalesce((p_payload->>'to')::date,current_date);
+  v_limit integer:=greatest(1,least(coalesce((p_payload->>'limit')::integer,5000),5000));
+  v_start timestamptz;
+  v_end timestamptz;
+  v_rows jsonb:='[]'::jsonb;
+begin
+  if not erp_supply.can_access_module('reports','read') then
+    raise exception 'No autorizado para exportar Analítica y reportes' using errcode='42501';
+  end if;
+  if v_from>v_to or (v_to-v_from)>366 then raise exception 'Rango de fechas inválido'; end if;
+  v_start:=(v_from::timestamp at time zone v_tz);
+  v_end:=((v_to+1)::timestamp at time zone v_tz);
+
+  select coalesce(jsonb_agg(to_jsonb(q) order by q.created_at desc),'[]'::jsonb)
+  into v_rows
+  from (
+    select
+      o.order_number,
+      o.client_name,
+      d.route_code,
+      d.status,
+      d.scheduled_at,
+      d.dispatched_at,
+      d.delivered_at,
+      d.received_by,
+      d.no_delivery_reason,
+      d.carrier,
+      d.tracking_number,
+      d.carrier_invoice_number,
+      d.carrier_cost,
+      d.carrier_cost_currency,
+      d.distance_km,
+      d.distance_source,
+      d.distance_recorded_at,
+      d.satisfaction_status,
+      d.satisfaction_confirmed_at,
+      sc.display_name satisfaction_confirmed_by,
+      d.satisfaction_note,
+      d.metadata#>>'{destination,municipality}' municipality,
+      d.metadata#>>'{destination,address}' address,
+      case when d.dispatched_at is not null and d.delivered_at is not null
+        then greatest(0,extract(epoch from(d.delivered_at-d.dispatched_at))::bigint) end transit_elapsed_seconds,
+      case when d.dispatched_at is not null and d.satisfaction_confirmed_at is not null
+        then greatest(0,extract(epoch from(d.satisfaction_confirmed_at-d.dispatched_at))::bigint) end satisfaction_elapsed_seconds,
+      case when d.delivered_at is not null and d.satisfaction_confirmed_at is not null
+        then greatest(0,extract(epoch from(d.satisfaction_confirmed_at-d.delivered_at))::bigint) end post_delivery_confirmation_seconds,
+      p.display_name assigned_to,
+      d.created_at
+    from erp_supply.deliveries d
+    join erp_supply.orders o on o.id=d.order_id
+    left join erp_supply.profiles p on p.id=d.assigned_profile_id
+    left join erp_supply.profiles sc on sc.id=d.satisfaction_confirmed_by
+    where o.organization_id=v_org
+      and not coalesce(o.is_test,false)
+      and d.created_at>=v_start and d.created_at<v_end
+    order by d.created_at desc
+    limit v_limit
+  ) q;
+
+  return jsonb_build_object(
+    'dataset','deliveries','from',v_from,'to',v_to,
+    'rows',v_rows,'rowCount',jsonb_array_length(v_rows)
+  );
+end;
+$function$;
+
+revoke all on function erp_supply.reports_delivery_export_v1131(jsonb) from public,anon;
+grant execute on function erp_supply.reports_delivery_export_v1131(jsonb) to authenticated;
+
+create or replace function public.erp_x_reports_explore(p_payload jsonb default '{}'::jsonb)
+returns jsonb
+language plpgsql
+stable security invoker
+set search_path=''
+as $function$
+begin
+  if lower(coalesce(p_payload->>'dataset','orders'))='deliveries' then
+    return erp_supply.reports_delivery_explore_v1131(coalesce(p_payload,'{}'::jsonb));
+  end if;
+  return erp_supply.reports_explore_core(coalesce(p_payload,'{}'::jsonb));
+end;
+$function$;
+
+revoke all on function public.erp_x_reports_explore(jsonb) from public,anon;
+grant execute on function public.erp_x_reports_explore(jsonb) to authenticated;
+
+create or replace function public.erp_x_reports_export(p_payload jsonb default '{}'::jsonb)
+returns jsonb
+language plpgsql
+stable security invoker
+set search_path=''
+as $function$
+begin
+  if lower(coalesce(p_payload->>'dataset','orders'))='deliveries' then
+    return erp_supply.reports_delivery_export_v1131(coalesce(p_payload,'{}'::jsonb));
+  end if;
+  return erp_supply.reports_export_core(coalesce(p_payload,'{}'::jsonb));
+end;
+$function$;
+
+revoke all on function public.erp_x_reports_export(jsonb) from public,anon;
+grant execute on function public.erp_x_reports_export(jsonb) to authenticated;
