@@ -1,10 +1,11 @@
-// previous-cache: crm-suministros-v11-30-0-20260914-01
-const CACHE="crm-suministros-v11-30-1-20260918-01";
+// previous-cache: crm-suministros-v11-30-1-20260918-01
+const CACHE="crm-suministros-v11-30-2-20260918-02";
 
 const APP_SHELL=[
   "./","./index.html","./404.html","./manifest.webmanifest","./templates/historical_orders.csv",
   "./assets/js/app-entry.js","./assets/js/main.js","./assets/js/config.js",
   "./assets/css/core-shell.css","./assets/css/operations.css","./assets/css/analytics.css","./assets/css/experience.css",
+  "./assets/runtime-css/guides-layout-v11291.css","./assets/runtime-css/receiving-workspace-v11290.css","./assets/runtime-css/inventory-dialogs-v11260.css","./assets/runtime-css/inventory-visual-v11270.css","./assets/runtime-css/inventory-ui-v11240.css","./assets/runtime-css/inventory-workspace-v11251.css",
   "./assets/img/logo-electroingenieria.png","./assets/img/iso-electroingenieria.png","./assets/img/ui/crm-psp-waves-v11180.webp",
   "./assets/img/paco/paco-idle-v11183.svg","./assets/img/paco/paco-listening-v11183.svg","./assets/img/paco/paco-thinking-v11183.svg",
   "./assets/img/paco/paco-wink-v11183.svg","./assets/img/paco/paco-talking-v11183.svg","./assets/img/paco/paco-success-v11183.svg"
