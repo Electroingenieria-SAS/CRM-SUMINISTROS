@@ -1,5 +1,17 @@
 # Changelog
 
+## 11.31.2 — 2026-09-18
+
+### Gestión rápida
+- El popup `simple-process-modal` deja de heredar el ancho genérico de 680 px y usa hasta **1120 px** en desktop.
+- El ancho se limita a `calc(100vw - 80px)` para conservar contexto visual alrededor del modal.
+- La cabecera blanca conserva el acento azul y corrige **Gestión rápida**, número de pedido y cliente/etapa a tonos azules legibles.
+- Los cinco estados operativos se distribuyen en cinco columnas en desktop y tres columnas en tamaños intermedios.
+- Se ajustan resumen, flujo, acción recomendada, acciones secundarias y footer para aprovechar el nuevo ancho sin aumentar innecesariamente la altura.
+- La regla queda aislada a `simple-process-modal`; el resto de popups conserva su ancho base de 680 px.
+- CI protege el ancho, los colores y el aislamiento del popup.
+- Caché PWA rotada para distribuir inmediatamente la corrección.
+
 ## 11.31.1 — 2026-09-18
 
 ### Corrección visual
