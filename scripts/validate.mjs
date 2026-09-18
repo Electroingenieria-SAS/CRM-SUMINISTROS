@@ -59,8 +59,8 @@ const normalizedJsRuntime=jsRuntime
   .replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
 // Release identity.
-check(version==="11.30.1","CONFIG.version debe ser 11.30.1.");
-check(build==="2026-09-18.01","CONFIG.build debe ser 2026-09-18.01.");
+check(version==="11.30.2","CONFIG.version debe ser 11.30.2.");
+check(build==="2026-09-18.02","CONFIG.build debe ser 2026-09-18.02.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
@@ -77,18 +77,32 @@ check(cssRefs.length===4,"index.html debe cargar exactamente cuatro familias CSS
 check(JSON.stringify(cssRefs.map(m=>m[1]))===JSON.stringify(canonicalCss),"El orden CSS canónico es inválido.");
 check(cssRefs.every(m=>m[2]===version),"Todas las familias CSS deben usar la versión vigente.");
 for(const cssPath of canonicalCss)check(exists(cssPath),`Falta CSS canónico: ${cssPath}`);
+const runtimeCss=[
+  "assets/runtime-css/guides-layout-v11291.css",
+  "assets/runtime-css/receiving-workspace-v11290.css",
+  "assets/runtime-css/inventory-dialogs-v11260.css",
+  "assets/runtime-css/inventory-visual-v11270.css",
+  "assets/runtime-css/inventory-ui-v11240.css",
+  "assets/runtime-css/inventory-workspace-v11251.css"
+];
+for(const cssPath of runtimeCss){
+  check(exists(cssPath),`Falta CSS runtime externalizado: ${cssPath}`);
+  check(sw.includes("./"+cssPath),`PWA debe precachear ${cssPath}`);
+}
 check(walk(path.join(root,"assets/css")).filter(file=>file.endsWith(".css")).map(rel).every(file=>canonicalCss.includes(file)),"assets/css conserva una familia no canónica.");
 check((coreCss.match(/:root\{/g)||[]).length===1,"core-shell.css debe conservar una sola raíz de tokens.");
 check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía institucional.");
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
 // PWA and Vercel routing.
-check(sw.includes('// previous-cache: crm-suministros-v11-30-0-20260914-01'),"previous-cache PWA debe apuntar a V11.30.0.");
-check(sw.includes('const CACHE="crm-suministros-v11-30-1-20260918-01";'),"CACHE activo PWA no corresponde a V11.30.1.");
+check(sw.includes('// previous-cache: crm-suministros-v11-30-1-20260918-01'),"previous-cache PWA debe apuntar a V11.30.1.");
+check(sw.includes('const CACHE="crm-suministros-v11-30-2-20260918-02";'),"CACHE activo PWA no corresponde a V11.30.2.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
 check(vercel.includes('manifest\\\\.webmanifest')||vercel.includes('/manifest.webmanifest'),"Vercel debe excluir o tratar explícitamente el manifest real.");
 check(vercel.includes('/service-worker.js')&&vercel.includes('no-cache, no-store, must-revalidate'),"Service worker debe revalidarse en cada release.");
+check(!/style-src[^;]*'unsafe-inline'/i.test(vercel),"CSP no debe permitir unsafe-inline en style-src general.");
+check(/style-src-attr[^;]*'unsafe-inline'/i.test(vercel),"La excepción temporal debe limitarse a style-src-attr.");
 
 // Browser/backend boundaries.
 const bannedRuntime=/\b(QA_BOT|erp_x_qa_|erp_x_run_qa_|erp_x_sandbox_|sandboxMode|manualSandbox|TEST-QA-|erp-e2e-bot)\b/i;
@@ -220,7 +234,7 @@ console.log(`VALIDACIÓN CRM ${version} CORRECTA`);
 console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
 console.log("- Inventario conserva captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
-console.log("- V11.30.1 conserva el sistema de diálogos guiados, las mejoras V11.28/V11.29 y la arquitectura visual canónica.");
+console.log("- V11.30.2 conserva la UX y externaliza CSS runtime para endurecer CSP.");
 console.log("- Observers responsive y popup procesan únicamente el ámbito dinámico afectado.");
 console.log("- PWA, Vercel, RLS y hotpaths SQL quedan incorporados al contrato canónico.");
 console.log("- Conteo ciego, RLS granular y aprobación contable permanecen como contratos obligatorios.");
