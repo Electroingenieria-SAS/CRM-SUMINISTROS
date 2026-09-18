@@ -1,6 +1,6 @@
 # CRM Suministros — Electroingeniería S.A.S.
 
-> Versión canónica: **V11.30.2** · build **2026-09-18.02**  
+> Versión canónica: **V11.31.0** · build **2026-09-18.03**  
 > Producción: Vercel + Supabase `hezjxcxxcjlpmyalftam`  
 > Auditoría integral vigente: `docs/AUDITORIA_INTEGRAL_2026-09-14.md`
 
@@ -27,9 +27,9 @@ SPA HTML/CSS/ES Modules
 
 El browser no accede directamente a tablas operativas. El esquema `erp_supply` permanece detrás de RLS y contratos RPC. `scripts/validate.mjs` y `scripts/link-check.mjs` hacen cumplir esta frontera.
 
-## 3. Estado V11.30.2
+## 3. Estado V11.31.0
 
-La línea base productiva V11.30.0 fue auditada el 14 de septiembre de 2026. V11.30.2 conserva esos contratos, el hardening V11.30.1 y añade endurecimiento CSP sin cambiar lógica operativa:
+La línea base productiva V11.30.0 fue auditada el 14 de septiembre de 2026. V11.31.0 conserva los contratos de seguridad/hardening y añade trazabilidad post-entrega sin alterar el cierre logístico existente:
 
 - health check de backend **21/21 OK**;
 - 0 pedidos finalizados con tareas activas;
@@ -44,7 +44,11 @@ La línea base productiva V11.30.0 fue auditada el 14 de septiembre de 2026. V11
 - health contract service-role-only para `SECURITY DEFINER`;
 - smoke browser también en el push post-merge a `main`;
 - CSS runtime externalizado a recursos same-origin;
-- `style-src` general sin `'unsafe-inline'`; la compatibilidad dinámica queda confinada a `style-src-attr`.
+- `style-src` general sin `'unsafe-inline'`; la compatibilidad dinámica queda confinada a `style-src-attr`;
+- confirmación independiente **Entregado con satisfacción** después de la entrega logística;
+- distancia recorrida y fuente de kilometraje por entrega;
+- tiempos separados: salida → entrega, salida → satisfacción y entrega → confirmación;
+- métricas de distancia/satisfacción disponibles en Pedidos enviados, detalle y Analítica → Entregas.
 
 Estado detallado: `docs/IMPLEMENTATION_STATUS.md`.
 

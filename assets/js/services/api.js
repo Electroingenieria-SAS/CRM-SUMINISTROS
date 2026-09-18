@@ -171,5 +171,6 @@ export const api={
   finalizeShipping:(orderId,payload={})=>mutationRpc("erp_x_shipping_finalize",{p_order_id:orderId,p_payload:payload}),
   shippingSentOrders:(search="",page=1,pageSize=30)=>rpc("erp_x_shipping_sent_orders",{p_search:search||null,p_page:page,p_page_size:pageSize}),
   reportShippingNoDelivery:(orderId,payload)=>mutationRpc("erp_x_shipping_report_no_delivery",{p_order_id:orderId,p_payload:payload}),
+  confirmShippingSatisfaction:(orderId,payload={})=>mutationRpc("erp_x_shipping_confirm_satisfaction",{p_order_id:orderId,p_payload:payload}),
   audit:(entityType=null,search="",page=1,pageSize=100)=>rpc("erp_x_audit",{p_entity_type:entityType,p_search:search||null,p_page:page,p_page_size:pageSize})
 };

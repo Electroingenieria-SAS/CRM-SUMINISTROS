@@ -15,6 +15,7 @@ Estos documentos describen el estado que debe usarse para operar o modificar el 
 - `docs/OPERATIONS_RUNBOOK.md` — operación e incidentes.
 - `docs/QA_RELEASE_CHECKLIST.md` — checklist de release.
 - `docs/SECURITY_ADVISOR_BACKLOG.md` — observaciones del Advisor.
+- `docs/DELIVERY_SATISFACTION_V11_31.md` — contrato de distancia, satisfacción y tiempos post-entrega.
 - `docs/AUDITORIA_INTEGRAL_2026-09-14.md` — última auditoría integral base.
 
 ## Histórico / evidencia de evolución

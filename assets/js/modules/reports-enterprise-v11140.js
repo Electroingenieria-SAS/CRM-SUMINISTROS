@@ -34,7 +34,7 @@ const DATASETS={
   deliveries:{
     label:"Entregas",
     dimensions:{route:"Ruta",carrier:"Transportadora",status:"Estado",day:"Día"},
-    metrics:{count:"Entregas",delivered:"Entregas completadas",cost:"Costo logístico",avg_transit_hours:"Tránsito promedio (h)"}
+    metrics:{count:"Entregas",delivered:"Entregas completadas",satisfied:"Entregas con satisfacción",cost:"Costo logístico",avg_transit_hours:"Tránsito promedio (h)",distance_km:"Distancia total (km)",avg_distance_km:"Distancia promedio (km)",avg_satisfaction_hours:"Tiempo hasta satisfacción (h)",avg_post_delivery_confirmation_hours:"Confirmación post-entrega (h)"}
   },
   inventory:{
     label:"Inventario",
@@ -91,7 +91,8 @@ function hours(seconds){
 function metricValue(metric,value){
   if(["invoice_amount","amount","avg_amount","cost"].includes(metric))return money(value);
   if(metric.includes("hours"))return `${fmt.number(value,1)} h`;
-  if(["count","closed","completed","delivered","lots","sessions","tasks","completed_tasks","resolved","approved"].includes(metric))return fmt.number(value,0);
+  if(metric.includes("distance"))return `${fmt.number(value,1)} km`;
+  if(["count","closed","completed","delivered","satisfied","lots","sessions","tasks","completed_tasks","resolved","approved"].includes(metric))return fmt.number(value,0);
   return fmt.number(value,2);
 }
 function pretty(value){
