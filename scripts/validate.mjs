@@ -55,6 +55,7 @@ const inventoryPlanMigration=read("supabase/migrations/101_inventory_count_plan_
 const securityDefinerMigration=read("supabase/migrations/110_security_definer_contract_v11_30_1.sql");
 const securityDefinerFixMigration=read("supabase/migrations/111_security_definer_contract_regex_fix_v11_30_1.sql");
 const deliverySatisfactionMigration=read("supabase/migrations/112_delivery_satisfaction_distance_v11_31_0.sql");
+const deliverySatisfactionIndexMigration=read("supabase/migrations/113_delivery_satisfaction_fk_indexes_v11_31_0.sql");
 const shippingFlow=read("assets/js/modules/shipping-flow.js");
 const sentOrders=read("assets/js/modules/sent-orders.js");
 const api=read("assets/js/services/api.js");
@@ -132,6 +133,8 @@ check(api.includes("confirmShippingSatisfaction")&&api.includes("erp_x_shipping_
 check(shippingFlow.includes("Entregado con satisfacción")&&shippingFlow.includes("Distancia recorrida (km)")&&shippingFlow.includes("distanceSource"),"Shipping flow debe capturar satisfacción, distancia y fuente.");
 check(sentOrders.includes("data-satisfaction")&&sentOrders.includes("distanceText")&&sentOrders.includes("satisfactionConfirmedAt"),"Pedidos enviados debe mostrar y permitir confirmar satisfacción.");
 check(deliverySatisfactionMigration.includes("reports_delivery_explore_v1131")&&deliverySatisfactionMigration.includes("reports_delivery_export_v1131"),"Migración 112 debe integrar Entregas con Analítica y exportación.");
+check(deliverySatisfactionIndexMigration.includes("distance_recorded_by")&&deliverySatisfactionIndexMigration.includes("satisfaction_confirmed_by"),"Migración 113 debe cubrir las FKs de actores post-entrega.");
+check(deliverySatisfactionIndexMigration.includes("drop index if exists erp_supply.idx_deliveries_satisfaction_confirmed_v1131"),"Migración 113 debe retirar el índice temporal de satisfacción sin hot path.");
 check(reportsEnterprise.includes("distance_km")&&reportsEnterprise.includes("avg_distance_km")&&reportsEnterprise.includes("avg_satisfaction_hours"),"Analítica debe exponer distancia y satisfacción del dataset Entregas.");
 check(exists(".gitignore")&&exists(".env.example"),"Faltan controles base .gitignore/.env.example.");
 check(exists("scripts/git-history-security-check.mjs"),"Falta el scanner de secretos sobre historial Git.");
