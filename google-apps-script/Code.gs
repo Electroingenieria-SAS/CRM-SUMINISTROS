@@ -10,7 +10,7 @@
  */
 
 const SETTINGS = Object.freeze({
-  VERSION: '3.5.0',
+  VERSION: '3.5.1',
 
   SUPABASE_URL: 'https://hezjxcxxcjlpmyalftam.supabase.co',
   SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_yxgyHILzQVDHrS2MYYkBkA_UfN77JtT',
@@ -439,34 +439,47 @@ function callbackPage_(request, data) {
     request && request.origin ? request.origin : ''
   );
 
-  // postMessage usa el origin informado por la propia página si es válido.
-  // Si no pudo normalizarse, se usa "*" únicamente para entregar el error
-  // al iframe llamante. La autorización de la carga ya fue resuelta por JWT.
   const targetOrigin = requestedOrigin || '*';
 
-  const json = JSON.stringify({
+  const response = {
     source: 'ERP_EI_DRIVE_BRIDGE',
     version: SETTINGS.VERSION,
-    requestId: request && (request.requestId || request.uploadId) ? (request.requestId || request.uploadId) : null,
-    uploadId: request && (request.uploadId || request.requestId) ? (request.uploadId || request.requestId) : null,
-    ...data
-  })
+    requestId:
+      request && (request.requestId || request.uploadId)
+        ? (request.requestId || request.uploadId)
+        : null,
+    uploadId:
+      request && (request.uploadId || request.requestId)
+        ? (request.uploadId || request.requestId)
+        : null
+  };
+
+  Object.keys(data || {}).forEach(function(key) {
+    response[key] = data[key];
+  });
+
+  const json = JSON.stringify(response)
     .replace(/</g, '\\u003c')
     .replace(/>/g, '\\u003e')
     .replace(/&/g, '\\u0026');
 
   const scriptBody =
-    'window.parent.postMessage(' +
-    json +
-    ',' +
-    JSON.stringify(targetOrigin) +
-    ');';
+    '(function(){' +
+      'var message=' + json + ';' +
+      'var origin=' + JSON.stringify(targetOrigin) + ';' +
+      'var targets=[];' +
+      'try{if(window.top&&window.top!==window){targets.push(window.top);}}catch(e){}' +
+      'try{if(window.parent&&window.parent!==window&&targets.indexOf(window.parent)===-1){targets.push(window.parent);}}catch(e){}' +
+      'for(var i=0;i<targets.length;i++){try{targets[i].postMessage(message,origin);}catch(e){}}' +
+    '})();';
 
   return HtmlService.createHtmlOutput(
     '<!doctype html><html><head><meta charset="utf-8"></head><body>' +
     '<script>' + scriptBody + '</scr' + 'ipt>' +
     '</body></html>'
-  ).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  ).setXFrameOptionsMode(
+    HtmlService.XFrameOptionsMode.ALLOWALL
+  );
 }
 
 function safeError_(error) {
