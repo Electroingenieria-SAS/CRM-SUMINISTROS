@@ -105,16 +105,19 @@ Deno.serve(async (req:Request)=>{
     const tokenHash=clean(properties.hashed_token||properties.hashedToken);
     if(!tokenHash)throw new Error("Supabase no devolvió un token temporal de verificación");
 
-    const {error:auditError}=await userClient.rpc("erp_x_admin_auth_audit",{
-      p_profile_id:profileId,
-      p_action:"AUTH_IMPERSONATION_STARTED",
-      p_metadata:{reason,targetEmail:email,targetRoles:Array.isArray(target.roles)?target.roles:[],sourceOrigin:origin(req)}
+    const {data:trace,error:traceError}=await userClient.rpc("erp_x_admin_impersonation_start",{
+      p_target_profile_id:profileId,
+      p_target_auth_user_id:clean(target.authUserId),
+      p_reason:reason,
+      p_source_origin:origin(req)||null
     });
-    if(auditError)throw auditError;
+    if(traceError||!clean(trace?.sessionId))throw traceError||new Error("No fue posible registrar la sesión de verificación");
 
     return json(req,{
       success:true,
       tokenHash,
+      sessionId:clean(trace.sessionId),
+      expiresAt:trace?.expiresAt||null,
       target:{id:profileId,name:clean(target.name)||email,email,roles:Array.isArray(target.roles)?target.roles:[]}
     });
   }catch(error){
