@@ -13,6 +13,10 @@ assert.equal(finalEvidenceType("FINAL_PHOTO"),"FINAL_PHOTO");
 
 const workforce=fs.readFileSync(new URL("../assets/js/modules/workforce.js",import.meta.url),"utf8");
 for(const token of [
+  "workday-guide",
+  "workday-step",
+  "workday-launch-grid",
+  "workday-status-strip",
   "data-work-finish",
   "Tomar foto",
   "Subir foto",
