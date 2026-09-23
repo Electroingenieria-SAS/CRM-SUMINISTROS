@@ -320,60 +320,29 @@ export async function uploadWorkEvidence(
   }
 }
 
-const workEvidencePreviewCache=new Map();
-const workEvidencePreviewPending=new Map();
-const WORK_EVIDENCE_PREVIEW_CACHE_LIMIT=8;
-
-function rememberWorkEvidencePreview(key,preview){
-  workEvidencePreviewCache.delete(key);
-  workEvidencePreviewCache.set(key,preview);
-  while(workEvidencePreviewCache.size>WORK_EVIDENCE_PREVIEW_CACHE_LIMIT){
-    const oldest=workEvidencePreviewCache.keys().next().value;
-    workEvidencePreviewCache.delete(oldest);
-  }
-  return preview;
-}
-
 export async function loadWorkEvidencePreview(evidenceId,fileId){
   const evidence=String(evidenceId||"").trim();
   const id=String(fileId||"").trim();
   if(!evidence||!id)throw new Error("La evidencia no tiene un archivo de Drive asociado.");
 
-  const cacheKey=`${evidence}:${id}`;
-  if(workEvidencePreviewCache.has(cacheKey)){
-    const cached=workEvidencePreviewCache.get(cacheKey);
-    rememberWorkEvidencePreview(cacheKey,cached);
-    return cached;
+  const session=await currentSession();
+  if(!session?.access_token)throw new Error("Tu sesión venció. Ingresa nuevamente al ERP.");
+
+  const response=await postToBridge({
+    action:"PREVIEW_WORK_EVIDENCE",
+    origin:window.location.origin,
+    accessToken:session.access_token,
+    evidenceId:evidence,
+    driveFileId:id,
+    clientVersion:CONFIG.version||"ERP_EI"
+  },{timeoutMs:PREVIEW_TIMEOUT_MS});
+
+  const preview=response?.preview;
+  if(!preview?.dataUrl||!/^data:image\//i.test(String(preview.dataUrl))){
+    throw new Error("No fue posible preparar la vista previa de la evidencia.");
   }
-  if(workEvidencePreviewPending.has(cacheKey))return workEvidencePreviewPending.get(cacheKey);
 
-  const pending=(async()=>{
-    const session=await currentSession();
-    if(!session?.access_token)throw new Error("Tu sesión venció. Ingresa nuevamente al ERP.");
-
-    const response=await postToBridge({
-      action:"PREVIEW_WORK_EVIDENCE",
-      origin:window.location.origin,
-      accessToken:session.access_token,
-      evidenceId:evidence,
-      driveFileId:id,
-      clientVersion:CONFIG.version||"ERP_EI"
-    },{timeoutMs:PREVIEW_TIMEOUT_MS});
-
-    const preview=response?.preview;
-    if(!preview?.dataUrl||!/^data:image\//i.test(preview.dataUrl)){
-      throw new Error("No fue posible preparar la vista previa de la evidencia.");
-    }
-
-    return rememberWorkEvidencePreview(cacheKey,preview);
-  })().finally(()=>workEvidencePreviewPending.delete(cacheKey));
-
-  workEvidencePreviewPending.set(cacheKey,pending);
-  return pending;
-}
-
-export function prefetchWorkEvidencePreview(evidenceId,fileId){
-  return loadWorkEvidencePreview(evidenceId,fileId).catch(()=>null);
+  return preview;
 }
 
 /* Compatibilidad exclusiva para el lector PDF de Recepción. */

@@ -62,6 +62,7 @@ const workforceTodayMigration=read("supabase/migrations/116_workforce_my_day_aut
 const workforceManagerMigration=read("supabase/migrations/117_workforce_manager_review_v11_34_1.sql");
 const workforceCatalogMigration=read("supabase/migrations/118_workforce_catalog_taxonomy_v11_34_3.sql");
 const workforceTimelineMigration=read("supabase/migrations/119_workforce_timeline_evidence_v11_35_0.sql");
+const workforceCalendarMigration=read("supabase/migrations/120_workforce_calendar_feed_v11_36_0.sql");
 const workforce=read("assets/js/modules/workforce.js");
 const workforcePlanner=read("assets/js/modules/workforce-planner-v11330.js");
 const workforceToday=read("assets/js/modules/workforce-today-v11340.js");
@@ -71,6 +72,9 @@ const workforceExperience=read("assets/js/modules/workforce-experience-v11344.js
 const workforceExperienceCss=read("assets/runtime-css/workforce-experience-v11344.css");
 const workforceTimeline=read("assets/js/modules/workforce-timeline-v11350.js");
 const workforceTimelineCss=read("assets/runtime-css/workforce-timeline-v11350.css");
+const workforceEvidenceManager=read("assets/js/modules/workforce-evidence-manager-v11360.js");
+const workforceCalendar=read("assets/js/modules/workforce-calendar-v11360.js");
+const workforceCalendarCss=read("assets/runtime-css/workforce-calendar-v11360.css");
 const approvalsModule=read("assets/js/modules/approvals.js");
 const operational=read("assets/js/modules/operational-v112.js");
 const coreUi=read("assets/js/core/ui.js");
@@ -93,8 +97,8 @@ const normalizedJsRuntime=jsRuntime
   .replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
 // Release identity.
-check(version==="11.35.4","CONFIG.version debe ser 11.35.4.");
-check(build==="2026-09-23.14","CONFIG.build debe ser 2026-09-23.14.");
+check(version==="11.36.0","CONFIG.version debe ser 11.36.0.");
+check(build==="2026-09-23.15","CONFIG.build debe ser 2026-09-23.15.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
@@ -105,10 +109,20 @@ check(exists("assets/js/modules/workforce-timeline-v11350.js"),"Falta módulo ti
 check(exists("assets/runtime-css/workforce-timeline-v11350.css"),"Falta CSS timeline V11.35.0.");
 check(sw.includes("./assets/js/modules/workforce-timeline-v11350.js"),"PWA debe precachear el módulo timeline.");
 check(sw.includes("./assets/runtime-css/workforce-timeline-v11350.css"),"PWA debe precachear el CSS timeline.");
-check(workforce.includes("composePlannerTimeline")&&workforce.includes("openWorkTimelineCard"),"Workforce debe integrar el cronograma unificado.");
+check(workforce.includes("composePlannerTimeline")&&workforce.includes("renderWorkforceCalendarBoard")&&workforce.includes("bindWorkforceCalendar"),"Workforce debe delegar el cronograma al motor V11.36.0.");
 check(workforceTimelineMigration.includes("erp_x_work_planner_detail")&&workforceTimelineMigration.includes("erp_x_work_evidence_preview_allowed"),"Migración V11.35.0 incompleta.");
 check(!/create\\s+table/i.test(workforceTimelineMigration)&&!/create\\s+(unique\\s+)?index/i.test(workforceTimelineMigration),"V11.35.0 no debe crear tablas ni índices redundantes.");
 check(workforceTimeline.includes("loadPreview")&&workforceTimelineCss.includes("work-timeline-sheet-v11350"),"Tarjeta timeline/evidencia bajo demanda incompleta.");
+check(exists("assets/js/modules/workforce-calendar-v11360.js"),"Falta motor calendario V11.36.0.");
+check(exists("assets/js/modules/workforce-evidence-manager-v11360.js"),"Falta gestor evidencia V11.36.0.");
+check(exists("assets/runtime-css/workforce-calendar-v11360.css"),"Falta CSS calendario V11.36.0.");
+check(sw.includes("./assets/js/modules/workforce-calendar-v11360.js"),"PWA debe precachear motor calendario V11.36.0.");
+check(sw.includes("./assets/js/modules/workforce-evidence-manager-v11360.js"),"PWA debe precachear gestor evidencia V11.36.0.");
+check(sw.includes("./assets/runtime-css/workforce-calendar-v11360.css"),"PWA debe precachear CSS calendario V11.36.0.");
+check(workforceCalendarMigration.includes('"previewEvidenceId"')&&workforceCalendarMigration.includes('"previewDriveFileId"'),"Feed V11.36.0 debe entregar referencias mínimas de preview.");
+check(!/create\\s+table/i.test(workforceCalendarMigration)&&!/create\\s+(unique\\s+)?index/i.test(workforceCalendarMigration),"V11.36.0 no debe crear tablas ni índices.");
+check(workforceEvidenceManager.includes("createWorkEvidenceManager")&&workforceEvidenceManager.includes("maxBytes"),"Gestor de evidencia debe centralizar caché acotada por memoria.");
+check(workforceCalendar.includes("IntersectionObserver")&&workforceCalendarCss.includes("work-calendar-event-title-v11360"),"Motor de cronograma visual incompleto.");
 check(entry.includes('import "./modules/inventory-dialogs-v11260.js";'),"app-entry.js debe instalar el sistema único de diálogos guiados de Inventario.");
 check(entry.includes('import "./modules/inventory-visual-v11270.js";'),"app-entry.js debe instalar la capa visual vigente de Inventario.");
 check(!entry.includes("inventory-modal-v11253.js")&&!entry.includes("inventory-modal-workspace-v11254.js"),"app-entry.js no debe cargar propietarios modales históricos.");
@@ -138,8 +152,8 @@ check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía instit
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
 // PWA and Vercel routing.
-check(sw.includes('// previous-cache: crm-suministros-v11-35-3-20260923-13'),"previous-cache PWA debe apuntar a V11.35.3.");
-check(sw.includes('const CACHE="crm-suministros-v11-35-4-20260923-14";'),"CACHE activo PWA no corresponde a V11.35.4.");
+check(sw.includes('// previous-cache: crm-suministros-v11-35-4-20260923-14'),"previous-cache PWA debe apuntar a V11.35.4.");
+check(sw.includes('const CACHE="crm-suministros-v11-36-0-20260923-15";'),"CACHE activo PWA no corresponde a V11.36.0.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
 check(vercel.includes('manifest\\\\.webmanifest')||vercel.includes('/manifest.webmanifest'),"Vercel debe excluir o tratar explícitamente el manifest real.");
@@ -338,7 +352,7 @@ console.log(`VALIDACIÓN CRM ${version} CORRECTA`);
 console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
 console.log("- Inventario conserva captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
-console.log("- V11.34.5 elimina visuales legadas de Jornada y estabiliza GitHub Pages con latest-wins.");
+console.log("- V11.36.0 reconstruye el cronograma, centraliza previews y elimina la dependencia de tarjetas diminutas/hover.");
 console.log("- Observers responsive y popup procesan únicamente el ámbito dinámico afectado.");
 console.log("- PWA, Vercel, RLS y hotpaths SQL quedan incorporados al contrato canónico.");
 console.log("- Conteo ciego, RLS granular y aprobación contable permanecen como contratos obligatorios.");
