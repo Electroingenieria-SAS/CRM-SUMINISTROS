@@ -102,11 +102,82 @@ export function teamCapacityHtml(people,assignments,range,calendar){
     const pct=Math.round(100*planned/capacity);
     const state=personState(p);
     return `<article class="work-capacity-row">
-      <div class="work-capacity-person"><span class="avatar">${fmt.initials(p.name)}</span><div><strong>${fmt.escape(p.name)}</strong>${stateHtml(state,p.activeTitle)}</div></div>
+      <div class="work-capacity-person"><span class="avatar">${fmt.initials(p.name)}</span><div><strong>${fmt.escape(p.name)}</strong>${stateHtml(state,p.activeTitle,p.id)}</div></div>
       <div class="capacity-meter" aria-label="${Math.min(pct,100)}% de capacidad planificada"><span style="width:${Math.min(pct,100)}%"></span></div>
       <div class="work-capacity-value"><b class="${pct>100?"danger":pct>85?"warning":""}">${pct}%</b><small>${fmt.number(planned)} / ${fmt.number(capacity)} min</small></div>
     </article>`;
   }).join("")}</div>`;
+}
+
+
+export function assignmentDetailHtml(assignment,allAssignments=[]){
+  const a=assignment||{};
+  const participants=[...new Map(
+    (allAssignments||[]).filter(x=>x.id===a.id&&x.profileName).map(x=>[x.profileId||x.profileName,x.profileName])
+  ).values()];
+  if(!participants.length&&a.profileName)participants.push(a.profileName);
+  const description=String(a.description||"").trim();
+  const recurrence=readableObject(a.recurrence);
+  const metadata=readableObject(a.metadata);
+  const duration=Number(a.estimatedMinutes||0);
+  const actualWindow=a.plannedStart
+    ? `${fmt.date(a.plannedStart)}${a.plannedEnd?` → ${fmt.date(a.plannedEnd)}`:""}`
+    : a.dueAt?`Fecha límite: ${fmt.date(a.dueAt)}`:"Sin horario definido";
+  return `<div class="work-detail-v11330">
+    <section class="work-detail-hero">
+      <div class="work-detail-icon">${a.kind==="DELIVERABLE"?"✓":"◷"}</div>
+      <div class="work-detail-hero-copy">
+        <div class="work-detail-kickers">
+          <span class="work-detail-status ${statusTone(a.memberStatus)}">${fmt.escape(statusLabel(a.memberStatus))}</span>
+          <span>${fmt.escape(fmt.label(a.kind||"ACTIVITY"))}</span>
+          <span>${fmt.escape(fmt.label(a.priority||"MEDIUM"))}</span>
+        </div>
+        <h4>${fmt.escape(a.title||"Actividad")}</h4>
+        <p>${description?fmt.escape(description):"Sin descripción registrada para esta actividad."}</p>
+      </div>
+    </section>
+
+    <section class="work-detail-grid">
+      ${detailField("Horario",actualWindow)}
+      ${detailField("Duración estimada",duration?`${fmt.number(duration)} min`:"—")}
+      ${detailField("Responsable",a.profileName||"—")}
+      ${detailField("Catálogo / categoría",a.catalogName||fmt.label(a.kind||"ACTIVITY"))}
+      ${detailField("Estado de asignación",statusLabel(a.memberStatus))}
+      ${detailField("Estado general",fmt.label(a.status||"PUBLISHED"))}
+    </section>
+
+    <section class="work-detail-section">
+      <header><span>Personas</span><strong>Responsables y participantes</strong></header>
+      <div class="work-detail-people">${participants.length?participants.map(name=>`<span><b class="avatar">${fmt.initials(name)}</b><em>${fmt.escape(name)}</em></span>`).join(""):'<p class="muted">Sin participantes registrados.</p>'}</div>
+    </section>
+
+    <section class="work-detail-section">
+      <header><span>Gobernanza</span><strong>Origen, aprobación y evidencia</strong></header>
+      <div class="work-detail-grid compact">
+        ${detailField("Origen",fmt.label(a.requestOrigin||"MANUAL"))}
+        ${detailField("Motivo",a.requestReason||"—")}
+        ${detailField("Aprobación",fmt.label(a.approvalStatus||"—"))}
+        ${detailField("Ámbito",fmt.label(a.approvalScope||"—"))}
+        ${detailField("Evidencia",fmt.label(a.evidencePolicy||"—"))}
+        ${detailField("Aceptación requerida",a.acceptanceRequired?"Sí":"No")}
+      </div>
+    </section>
+
+    ${recurrence?`<section class="work-detail-section"><header><span>Recurrencia</span><strong>Programación repetitiva</strong></header><div class="work-detail-note">${recurrence}</div></section>`:""}
+    ${metadata?`<section class="work-detail-section"><header><span>Información adicional</span><strong>Datos registrados</strong></header><div class="work-detail-note">${metadata}</div></section>`:""}
+  </div>`;
+}
+
+function detailField(label,value){
+  return `<div class="work-detail-field"><span>${fmt.escape(label)}</span><strong>${fmt.escape(String(value??"—"))}</strong></div>`;
+}
+
+function readableObject(value){
+  if(value==null)return "";
+  if(typeof value==="object"&&Object.keys(value).length===0)return "";
+  const text=fmt.data(value);
+  if(!text||text==="—")return "";
+  return fmt.escape(text).replaceAll("\n","<br>");
 }
 
 function dayPlannerHtml(data,calendar,anchor){
@@ -147,7 +218,7 @@ function daySegmentCell(rows,segment){
     if(overlapEnd<=overlapStart)return null;
     return {a,left:100*(overlapStart-start)/duration,width:100*(overlapEnd-overlapStart)/duration};
   }).filter(Boolean);
-  return `<div class="work-day-segment-cell">${timed.map(({a,left,width},i)=>`<div class="work-day-task ${statusTone(a.memberStatus)} ${a.kind==="DELIVERABLE"?"deliverable":""}" style="left:${left.toFixed(2)}%;width:${Math.max(width,7).toFixed(2)}%;top:${6+(i%2)*31}px" title="${fmt.escape(a.title)}"><span>${timeOnly(a.plannedStart)}–${timeOnly(a.plannedEnd)}</span><strong>${fmt.escape(a.title)}</strong><small>${statusLabel(a.memberStatus)}</small><button data-assignment-cancel="${fmt.escape(a.id)}" aria-label="Cancelar asignación">×</button></div>`).join("")}</div>`;
+  return `<div class="work-day-segment-cell">${timed.map(({a,left,width},i)=>`<div class="work-day-task ${statusTone(a.memberStatus)} ${a.kind==="DELIVERABLE"?"deliverable":""}" data-assignment-open="${fmt.escape(a.id)}" role="button" tabindex="0" style="left:${left.toFixed(2)}%;width:${Math.max(width,7).toFixed(2)}%;top:${6+(i%2)*31}px" title="Ver detalle · ${fmt.escape(a.title)}"><span>${timeOnly(a.plannedStart)}–${timeOnly(a.plannedEnd)}</span><strong>${fmt.escape(a.title)}</strong><small>${statusLabel(a.memberStatus)}</small><button data-assignment-cancel="${fmt.escape(a.id)}" aria-label="Cancelar asignación">×</button></div>`).join("")}</div>`;
 }
 
 function weekPlannerHtml(data,calendar,anchor){
@@ -188,12 +259,12 @@ function monthPlannerHtml(data,calendar,anchor){
     if(!day)return '<div class="work-month-day-v11330 spacer" aria-hidden="true"></div>';
     const d=parseIsoDate(day.date),rows=assignments.filter(a=>sameDate(new Date(a.plannedStart||a.dueAt),d));
     if(day.isHoliday)return `<div class="work-month-day-v11330 holiday"><div class="work-month-date"><strong>${d.getDate()}</strong><span>Festivo</span></div><p>${fmt.escape(day.holidayName)}</p></div>`;
-    return `<button class="work-month-day-v11330 ${isToday(d)?"today":""}" data-plan-day="${day.date}"><div class="work-month-date"><strong>${d.getDate()}</strong><span>${rows.length?"Actividad":"Disponible"}</span></div><div class="work-month-items-v11330">${rows.slice(0,4).map(monthAssignment).join("")}${rows.length>4?`<small class="work-more-count">+${rows.length-4} más</small>`:""}</div></button>`;
+    return `<div class="work-month-day-v11330 ${isToday(d)?"today":""}" data-plan-day="${day.date}" role="button" tabindex="0"><div class="work-month-date"><strong>${d.getDate()}</strong><span>${rows.length?"Actividad":"Disponible"}</span></div><div class="work-month-items-v11330">${rows.slice(0,4).map(monthAssignment).join("")}${rows.length>4?`<small class="work-more-count">+${rows.length-4} más</small>`:""}</div></div>`;
   }).join("")}</div></section>`;
 }
 
 function assignmentCard(a){
-  return `<article class="work-assignment-card-v11330 ${statusTone(a.memberStatus)} ${a.kind==="DELIVERABLE"?"deliverable":""}">
+  return `<article class="work-assignment-card-v11330 ${statusTone(a.memberStatus)} ${a.kind==="DELIVERABLE"?"deliverable":""}" data-assignment-open="${fmt.escape(a.id)}" role="button" tabindex="0" aria-label="Ver detalle de ${fmt.escape(a.title)}">
     <div class="work-assignment-card-head"><span>${a.plannedStart?timeOnly(a.plannedStart):"Entregable"}${a.plannedEnd?`–${timeOnly(a.plannedEnd)}`:""}</span><em>${statusLabel(a.memberStatus)}</em></div>
     <strong>${fmt.escape(a.title)}</strong>
     <small>${fmt.escape(a.catalogName||fmt.label(a.kind))} · ${fmt.number(a.estimatedMinutes||0)} min</small>
@@ -201,18 +272,18 @@ function assignmentCard(a){
   </article>`;
 }
 
-function compactAssignment(a){return `<span class="work-floating-assignment ${statusTone(a.memberStatus)}"><b>${fmt.escape(a.title)}</b><small>${statusLabel(a.memberStatus)}</small></span>`}
+function compactAssignment(a){return `<button type="button" class="work-floating-assignment ${statusTone(a.memberStatus)}" data-assignment-open="${fmt.escape(a.id)}"><b>${fmt.escape(a.title)}</b><small>${statusLabel(a.memberStatus)}</small></button>`}
 
 function monthAssignment(a){
-  return `<span class="work-month-item-v11330 ${statusTone(a.memberStatus)} ${a.kind==="DELIVERABLE"?"deliverable":""}"><b>${a.plannedStart?timeOnly(a.plannedStart):"Límite"}</b><span>${fmt.escape(a.title)}</span><small>${fmt.escape(firstName(a.profileName))}</small></span>`;
+  return `<button type="button" class="work-month-item-v11330 ${statusTone(a.memberStatus)} ${a.kind==="DELIVERABLE"?"deliverable":""}" data-assignment-open="${fmt.escape(a.id)}"><b>${a.plannedStart?timeOnly(a.plannedStart):"Límite"}</b><span>${fmt.escape(a.title)}</span><small>${fmt.escape(firstName(a.profileName))}</small></button>`;
 }
 
 function personIdentity(person,state){
-  return `<span class="avatar">${fmt.initials(person.name)}</span><div class="work-person-copy"><strong>${fmt.escape(person.name)}</strong>${stateHtml(state,person.activeTitle)}</div>`;
+  return `<span class="avatar">${fmt.initials(person.name)}</span><div class="work-person-copy"><strong>${fmt.escape(person.name)}</strong>${stateHtml(state,person.activeTitle,person.id)}</div>`;
 }
 
-function stateHtml(state,title){
-  return `<div class="work-person-state ${state.tone}"><span>${state.label}</span>${title?`<small>${fmt.escape(title)}</small>`:""}</div>`;
+function stateHtml(state,title,profileId=""){
+  return `<div class="work-person-state ${state.tone}"><span>${state.label}</span>${title?`<button type="button" class="work-current-activity" data-active-profile="${fmt.escape(profileId)}" title="Ver qué está haciendo">${fmt.escape(title)}</button>`:""}</div>`;
 }
 
 function personState(person){
