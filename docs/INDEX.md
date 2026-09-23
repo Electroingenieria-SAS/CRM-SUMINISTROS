@@ -1,5 +1,7 @@
 # Índice documental CRM Suministros
 
+> Estado normativo actualizado para la candidata **V11.32.0**.
+
 ## Vigente / operativo
 
 Estos documentos describen el estado que debe usarse para operar o modificar el sistema:
@@ -13,6 +15,7 @@ Estos documentos describen el estado que debe usarse para operar o modificar el 
 - `docs/DEPLOYMENT.md` — promoción a producción.
 - `docs/DEPLOYMENT_VERCEL_SUPABASE.md` — detalle de plataformas.
 - `docs/OPERATIONS_RUNBOOK.md` — operación e incidentes.
+- `docs/DISASTER_RECOVERY.md` — recuperación ante desastre, procedencia de migraciones y criterio de rebuild source-only.
 - `docs/QA_RELEASE_CHECKLIST.md` — checklist de release.
 - `docs/SECURITY_ADVISOR_BACKLOG.md` — observaciones del Advisor.
 - `docs/DELIVERY_SATISFACTION_V11_31.md` — contrato de distancia, satisfacción y tiempos post-entrega.
