@@ -4,6 +4,7 @@ import {fmt,statusBadge} from "../core/format.js";
 import {loading,empty,toast,guide,modal,closeDialog} from "../core/ui.js";
 import {hasRole} from "../core/state.js";
 import {CONFIG} from "../config.js";
+import {adminSectionHead as head,adminKpi as kpi,adminPanel as panel,adminTable as table} from "./admin-view-helpers-v11320.js";
 
 /* CRM Suministros · Centro de Control Administrativo V11.16.0 */
 const S={root:null,data:null,section:"overview",role:"super_admin",step:null,calendar:null,catalog:"orderTypes"};
@@ -26,10 +27,6 @@ async function mutate(domain,action,payload,message="Cambio guardado."){
   if(!admin())throw new Error("Solo Super Admin puede modificar esta configuración.");
   await rpc("erp_x_admin_config_mutate",{p_domain:domain,p_action:action,p_payload:payload||{}});toast(message);await load();
 }
-function head(k,t,d,a=""){return `<header class="admin-section-head-v11160"><div><span>${e(k)}</span><h3>${e(t)}</h3><p>${e(d)}</p></div>${a}</header>`}
-function kpi(k,v,d,t=""){return `<article class="admin-kpi-v11160 ${t}"><small>${e(k)}</small><strong>${e(v)}</strong><span>${e(d)}</span></article>`}
-function panel(title,sub,body,action=""){return `<article class="admin-panel-v11160"><header><div><h4>${e(title)}</h4><span>${e(sub)}</span></div>${action}</header>${body}</article>`}
-function table(headers,rows){return `<div class="admin-table-scroll-v11160"><table class="admin-table-v11160"><thead><tr>${headers.map(h=>`<th>${e(h)}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table></div>`}
 function button(id,text,kind="ghost"){return admin()?`<button class="btn btn-${kind}" ${id}>${e(text)}</button>`:""}
 
 export async function renderAdmin(root){
