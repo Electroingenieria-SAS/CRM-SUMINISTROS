@@ -44,8 +44,51 @@ for(const file of files){
    if(/\.from\s*\(/.test(withoutStandardFrom))failures.push(`${rel}: acceso directo a tabla desde navegador; use RPC.`);
  }
 }
-const edge=path.join(root,"supabase/functions/erp-admin-users/index.ts");
-if(fs.existsSync(edge)&&/Access-Control-Allow-Origin["']?\s*:\s*["']\*["']/.test(fs.readFileSync(edge,"utf8")))failures.push("erp-admin-users: CORS wildcard no permitido para administración.");
+const adminEdge=path.join(root,"supabase/functions/erp-admin-users/index.ts");
+if(fs.existsSync(adminEdge)&&/Access-Control-Allow-Origin["']?\s*:\s*["']\*["']/.test(fs.readFileSync(adminEdge,"utf8")))failures.push("erp-admin-users: CORS wildcard no permitido para administración.");
+
+const metricsEdge=path.join(root,"supabase/functions/erp-auditoria-metrics/index.ts");
+const metricsConfig=path.join(root,"supabase/config.toml");
+if(!fs.existsSync(metricsEdge))failures.push("Falta erp-auditoria-metrics.");
+else{
+  const text=fs.readFileSync(metricsEdge,"utf8");
+  if(/Access-Control-Allow-Origin["']?\s*:\s*["']\*["']/.test(text))failures.push("erp-auditoria-metrics: CORS wildcard no permitido.");
+  if(/SUPABASE_SERVICE_ROLE_KEY|service_role/i.test(text))failures.push("erp-auditoria-metrics: las métricas de usuario no deben elevarse a service_role.");
+  if(!text.includes("erp_x_auditoria_erp_metrics_user"))failures.push("erp-auditoria-metrics: debe usar el RPC autenticado y limitado por organización.");
+  if(!/auth\.getUser\s*\(/.test(text))failures.push("erp-auditoria-metrics: falta validación explícita de sesión.");
+}
+if(!fs.existsSync(metricsConfig)||!/\[functions\.erp-auditoria-metrics\][\s\S]*?verify_jwt\s*=\s*true/.test(fs.readFileSync(metricsConfig,"utf8")))failures.push("supabase/config.toml: erp-auditoria-metrics debe exigir JWT.");
+
+const uiCore=path.join(root,"assets/js/core/ui.js");
+if(!fs.existsSync(uiCore))failures.push("Falta core/ui.js.");
+else{
+  const text=fs.readFileSync(uiCore,"utf8");
+  for(const token of ["export function sanitizeHtml","BLOCKED_HTML_TAGS","UNSAFE_URL","UNSAFE_STYLE","sanitizeHtml(body","sanitizeHtml(step.content"]){
+    if(!text.includes(token))failures.push(`core/ui.js: falta barrera XSS requerida: ${token}.`);
+  }
+}
+
+const impersonationEdge=path.join(root,"supabase/functions/erp-admin-impersonate/index.ts");
+const impersonationMigration=path.join(root,"supabase/migrations/114_impersonation_metrics_security_v11_32_0.sql");
+if(!fs.existsSync(impersonationEdge)||!fs.readFileSync(impersonationEdge,"utf8").includes("erp_x_admin_impersonation_start"))failures.push("Impersonación: Edge Function no está enlazada a una sesión auditable.");
+if(!fs.existsSync(impersonationMigration)){
+  failures.push("Impersonación: falta migración de trazabilidad V11.32.0.");
+}else{
+  const text=fs.readFileSync(impersonationMigration,"utf8");
+  for(const token of ["admin_impersonation_sessions","x-erp-impersonation-session","originalActorProfileId","effectiveActorProfileId","erp_x_auditoria_erp_metrics_user"]){
+    if(!text.includes(token))failures.push(`Migración 114 incompleta: falta ${token}.`);
+  }
+}
+
+const workflow=path.join(root,".github/workflows/validate-crm.yml");
+if(!fs.existsSync(workflow))failures.push("Falta workflow canónico.");
+else{
+  const text=fs.readFileSync(workflow,"utf8");
+  for(const token of ["authenticated shell, critical modules and native API","ERP_QA_EMAIL","ERP_QA_PASSWORD","github/codeql-action/init@v4","actions/dependency-review-action@v5","trufflesecurity/trufflehog@v3.97.5"]){
+    if(!text.includes(token))failures.push(`CI de seguridad incompleta: falta ${token}.`);
+  }
+}
+
 if(failures.length){console.error("SECURITY CHECK FALLÓ");for(const x of failures)console.error(`- ${x}`);process.exit(1)}
-console.log(`SECURITY CHECK CORRECTO · ${files.length} archivos revisados · secretos privados ausentes · dependencias CDN versionadas · CSP sin unsafe-eval y sin style-src unsafe-inline general.`);
+console.log(`SECURITY CHECK CORRECTO · ${files.length} archivos revisados · secretos privados ausentes · dependencias CDN versionadas · CSP endurecida · métricas autenticadas · trazabilidad de impersonación y barrera XSS verificadas.`);
 for(const x of warn)console.warn(`- ${x}`);
