@@ -90,6 +90,24 @@ const dayHtml=renderWorkforceCalendarBoard({
 assert.equal(dayHtml.includes("work-calendar-event-day-v11360"),true);
 assert.equal(dayHtml.includes("Alistamiento de mercancía"),true);
 assert.equal(dayHtml.includes("11:06"),true);
+
+const hiddenByWorker=renderWorkforceCalendarBoard({
+  mode:"day",
+  anchor:monday,
+  data,
+  calendar,
+  filters:{profileId:"otro",fromTime:"07:00",toTime:"17:30",weekday:"ALL"}
+});
+assert.equal(hiddenByWorker.includes("11:06"),false,"Filtro por trabajador debe ocultar actividades ajenas.");
+
+const hiddenByHour=renderWorkforceCalendarBoard({
+  mode:"day",
+  anchor:monday,
+  data,
+  calendar,
+  filters:{profileId:"ALL",fromTime:"13:40",toTime:"17:30",weekday:"ALL"}
+});
+assert.equal(hiddenByHour.includes("11:06"),false,"Filtro horario debe ocultar actividades fuera del rango.");
 assert.equal(dayHtml.includes("11:06"),true);
 
 const weekHtml=renderWorkforceCalendarBoard({
@@ -99,6 +117,15 @@ const weekHtml=renderWorkforceCalendarBoard({
   calendar
 });
 assert.equal(weekHtml.includes("work-calendar-event-week-v11360"),true);
+
+const hiddenByWeekday=renderWorkforceCalendarBoard({
+  mode:"week",
+  anchor:monday,
+  data,
+  calendar,
+  filters:{profileId:"ALL",fromTime:"07:00",toTime:"17:30",weekday:"2"}
+});
+assert.equal(hiddenByWeekday.includes("Alistamiento de mercancía"),false,"Filtro por día debe ocultar actividades de otros días.");
 assert.equal(weekHtml.includes("work-calendar-event-week-v11360"),true);
 
 const migration=fs.readFileSync(
