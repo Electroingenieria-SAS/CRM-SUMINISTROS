@@ -227,7 +227,14 @@ export function bindWorkforceCalendar({
     });
   }
 
-  cleanup.push(()=>closeCalendarCloud());
+  const closeOnViewportMove=()=>closeCalendarCloud();
+  window.addEventListener("scroll",closeOnViewportMove,{passive:true,capture:true});
+  window.addEventListener("resize",closeOnViewportMove,{passive:true});
+  cleanup.push(()=>{
+    window.removeEventListener("scroll",closeOnViewportMove,true);
+    window.removeEventListener("resize",closeOnViewportMove);
+    closeCalendarCloud();
+  });
   return ()=>cleanup.splice(0).forEach(fn=>fn());
 }
 
