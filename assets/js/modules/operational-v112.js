@@ -4,9 +4,7 @@ import {uploadOrderFile} from "../services/drive.js";
 import {modal,toast,empty,loading} from "../core/ui.js";
 import {fmt,statusBadge} from "../core/format.js";
 import {state} from "../core/state.js";
-import {managerQueueSummary,timeReviewCardHtml,timeReviewDialogHtml,recentTimeReviewHtml} from "./workforce-time-review-v11340.js";
 
-const REVIEWER_ROLES=new Set(["super_admin","jefe_logistica","lider_logistica","coordinador_logistico","gerencia"]);
 const OPS_MODULES=[
   {code:"receiving",label:"Recepción",icon:"▣"},
   {code:"billing",label:"Facturación",icon:"▤"},
@@ -24,9 +22,6 @@ async function rpc(name,params={}){
   return data;
 }
 
-function roles(){return new Set(state.profile?.roles||[])}
-function hasAny(set){const r=roles();return [...set].some(x=>r.has(x))}
-function canReviewWorkTime(){return hasAny(REVIEWER_ROLES)}
 function moduleReadable(code){return Boolean(state.modules?.find(m=>m.code===code)?.canRead)}
 function activeTask(data){return (data?.tasks||[]).find(t=>["QUEUED","ASSIGNED","IN_PROGRESS","WAITING","BLOCKED"].includes(t.status))||null}
 function actionCodes(data){return new Set((data?.actions?.actions||[]).map(x=>x.code))}
@@ -40,10 +35,6 @@ export function installOperationalV112(){
   if(installed)return;
   installed=true;
   document.addEventListener("click",handleCapturedClick,true);
-  window.addEventListener("erp:work-changed",()=>{
-    if(state.currentModule!=="workforce")return;
-    setTimeout(()=>enhanceWorkforce(document.querySelector("#page-content")).catch(()=>{}),250);
-  });
 }
 
 async function handleCapturedClick(event){
@@ -76,62 +67,6 @@ async function handleCapturedClick(event){
       return;
     }
   }
-}
-
-export async function enhanceWorkforce(root){
-  if(!root||state.currentModule!=="workforce"||!canReviewWorkTime())return;
-  const content=root.querySelector("#workforce-content");
-  if(!content||!content.querySelector(".workforce-agenda-card"))return;
-  content.querySelector("[data-v112-work-requests]")?.remove();
-  try{
-    const queue=await api.workManagerQueue(50);
-    const timeReviews=queue?.timeReviews||[];
-    const recentReviews=queue?.recentReviews||[];
-    if(!timeReviews.length&&!recentReviews.length)return;
-    const reviewSummary=managerQueueSummary(timeReviews);
-    const section=document.createElement("section");
-    section.className="card v112-work-requests";
-    section.dataset.v112WorkRequests="1";
-    section.innerHTML=`
-      <header class="card-head">
-        <div><h3>Revisión de tiempos</h3><p>Solo aparecen actividades que superaron 1 hora y ya fueron cerradas con foto.</p></div>
-        <span class="workforce-count attention" title="Tiempos pendientes de revisión">${reviewSummary.pending}</span>
-      </header>
-      <div class="card-body v112-work-requests-body">
-        ${timeReviews.length?`<div class="v112-request-group work-time-review-group">
-          <div class="v112-group-title"><div><strong>Tiempos por revisar</strong><small>Revisa evidencia y tiempo real. No existe aprobación previa para iniciar actividades.</small></div><span>${timeReviews.length}</span></div>
-          <div class="work-time-review-list">${timeReviews.map(timeReviewCardHtml).join("")}</div>
-        </div>`:""}
-        ${recentReviews.length?`<div class="v112-request-group work-time-review-history"><div class="v112-group-title"><div><strong>Revisiones recientes</strong><small>Últimas decisiones trazables del equipo.</small></div><span>${recentReviews.length}</span></div><div class="work-time-review-recent-list">${recentReviews.map(recentTimeReviewHtml).join("")}</div></div>`:""}
-      </div>`;
-    const historyCard=content.querySelector(".workforce-history-card");
-    if(historyCard)historyCard.before(section);else content.append(section);
-    section.querySelectorAll("[data-time-review-open]").forEach(button=>button.addEventListener("click",()=>{
-      const row=timeReviews.find(x=>x.executionId===button.dataset.timeReviewOpen);
-      if(row)openTimeReviewDialog(row);
-    }));
-  }catch(error){console.warn("[V11.34 Workforce review]",error)}
-}
-
-function openTimeReviewDialog(row){
-  const view=modal({
-    title:"Revisar tiempo de actividad",
-    confirmLabel:"Guardar revisión",
-    size:"wide",
-    body:timeReviewDialogHtml(row),
-    onConfirm:async dialog=>{
-      const decision=dialog.querySelector('[name="timeReviewDecision"]:checked')?.value||"REVIEWED";
-      const note=dialog.querySelector('[name="timeReviewNote"]').value.trim()||null;
-      if(decision==="OBSERVED"&&(!note||note.length<5))throw new Error("Escribe una observación breve para cerrar como Observado.");
-      await api.workReviewTime(row.executionId,decision,note);
-      toast(decision==="REVIEWED"?"Tiempo revisado y actividad cerrada.":"Actividad cerrada con observación.","success",6000);
-      view.close();
-      window.dispatchEvent(new CustomEvent("erp:work-changed"));
-    }
-  });
-  view.root.querySelectorAll('[name="timeReviewDecision"]').forEach(input=>input.addEventListener("change",()=>{
-    view.root.querySelectorAll(".work-time-review-choice .choice").forEach(label=>label.classList.toggle("active",Boolean(label.querySelector("input")?.checked)));
-  }));
 }
 
 async function finalizeAfterDomain(orderId,message){
