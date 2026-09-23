@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-09-23",
+  "projectId": "hezjxcxxcjlpmyalftam",
+  "policy": "Every new production DDL change must exist in supabase/migrations before it is applied. Historical database-only entries are frozen debt and must never increase.",
+  "historicalInstaller": {
+    "lastKnownPath": "sql/00_INSTALL_ALL.sql",
+    "lastVerifiedCommit": "5fd560ef91bb39ee5509f4bdb686436d0effa418",
+    "blobSha": "29df83313a9381eeb805a077fd3d3f64c30c8cee",
+    "sizeBytes": 4051446,
+    "status": "git-history-only",
+    "note": "Legacy installer existed through V11.5 and is not a current full-system baseline."
+  },
+  "equivalentRepositoryAliases": [
+    {
+      "productionName": "exception_authority_v11_7_rpcs",
+      "repositoryFile": "supabase/migrations/20260901214600_exception_authority_rpcs_v11_7.sql"
+    },
+    {
+      "productionName": "role_scope_governance_v1181",
+      "repositoryFile": "supabase/migrations/078_role_scope_governance_v11_8_1.sql"
+    }
+  ],
+  "knownDatabaseOnly": [
+    "reset_qa_flow_statement_timeout_v10_25_11_retry",
+    "restore_can_view_order_productive",
+    "restore_reception_shadow_productive",
+    "remove_sandbox_cut_branches_and_legacy_rpc_v10_26_1",
+    "purge_qa_generated_audit_outbox_v10_26_1",
+    "super_admin_user_management_v10_27_0",
+    "security_boundary_v11_0",
+    "crm_operational_flows_v11_1",
+    "crm_operational_private_tables_v11_1",
+    "crm_operational_hardening_v11_2",
+    "workforce_catalog_permissions_v11_3",
+    "workforce_catalog_corte_v11_3",
+    "workforce_catalog_recepcion_v11_3",
+    "workforce_catalog_administrativas_v11_3",
+    "workforce_catalog_alistamiento_v11_3",
+    "workforce_catalog_despacho_nacional_v11_3",
+    "workforce_catalog_despacho_local_v11_3",
+    "workforce_catalog_general_v11_3",
+    "workforce_catalog_area_lead_scope_v11_3",
+    "workforce_coordinator_planner_v11_3",
+    "workforce_coordinator_my_day_permission_v11_3",
+    "receiving_explicit_creation_v11_4",
+    "receiving_physical_entry_v11_4",
+    "warehouse_receiving_domain_v11_5",
+    "retire_merchandise_receipt_from_order_flow_v11_5",
+    "warehouse_receiving_hardening_v11_5",
+    "inventory_cyclic_intelligence_v11_22_0"
+  ],
+  "debtBudget": 27
+}
