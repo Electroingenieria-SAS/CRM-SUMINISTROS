@@ -98,7 +98,7 @@ function isBridgeOrigin(origin) {
   }
 }
 
-function submitToBridge(payload) {
+function postToBridge(payload) {
   return new Promise((resolve, reject) => {
     const requestId = String(payload.requestId || payload.uploadId || (typeof crypto?.randomUUID === "function" ? crypto.randomUUID() : `drive_${Date.now()}_${Math.random().toString(36).slice(2)}`));
     payload.requestId = requestId;
@@ -146,12 +146,12 @@ function submitToBridge(payload) {
         ![data?.requestId, data?.uploadId].filter(Boolean).includes(requestId)
       ) return;
 
-      if (data.ok && data.file) finish(resolve, data.file);
-      else finish(reject, new Error(data.error || "No fue posible cargar el archivo en Google Drive."));
+      if (data.ok) finish(resolve, data);
+      else finish(reject, new Error(data.error || "No fue posible completar la operación con Google Drive."));
     };
 
     timer = setTimeout(() => {
-      finish(reject, new Error("La carga institucional tardó demasiado. Revisa que el Apps Script siga desplegado e inténtalo nuevamente."));
+      finish(reject, new Error("La operación institucional tardó demasiado. Revisa que el Apps Script siga desplegado e inténtalo nuevamente."));
     }, BRIDGE_TIMEOUT_MS);
 
     window.addEventListener("message", onMessage);
@@ -159,6 +159,12 @@ function submitToBridge(payload) {
     document.body.appendChild(form);
     form.submit();
   });
+}
+
+async function submitToBridge(payload) {
+  const response = await postToBridge(payload);
+  if (!response?.file) throw new Error("Google Drive no devolvió el archivo esperado.");
+  return response.file;
 }
 
 export async function uploadOrderFile(
@@ -229,61 +235,6 @@ export async function uploadOrderFile(
   }
 }
 
-const WORK_PREVIEW_MAX_EDGE=420;
-const WORK_PREVIEW_MAX_BYTES=32*1024;
-
-async function buildWorkEvidencePreview(file){
-  const mime=String(file?.type||"").toLowerCase();
-  if(!["image/jpeg","image/png","image/webp"].includes(mime))return null;
-
-  let objectUrl="";
-  try{
-    objectUrl=URL.createObjectURL(file);
-    const image=await new Promise((resolve,reject)=>{
-      const node=new Image();
-      node.decoding="async";
-      node.onload=()=>resolve(node);
-      node.onerror=()=>reject(new Error("No fue posible preparar la miniatura."));
-      node.src=objectUrl;
-    });
-
-    const sourceWidth=Math.max(1,Number(image.naturalWidth||image.width||1));
-    const sourceHeight=Math.max(1,Number(image.naturalHeight||image.height||1));
-    const scale=Math.min(1,WORK_PREVIEW_MAX_EDGE/sourceWidth,WORK_PREVIEW_MAX_EDGE/sourceHeight);
-    let width=Math.max(1,Math.round(sourceWidth*scale));
-    let height=Math.max(1,Math.round(sourceHeight*scale));
-    let quality=.62;
-    let blob=null;
-
-    for(let attempt=0;attempt<5;attempt++){
-      const canvas=document.createElement("canvas");
-      canvas.width=width;
-      canvas.height=height;
-      const context=canvas.getContext("2d",{alpha:false});
-      if(!context)return null;
-      context.drawImage(image,0,0,width,height);
-      blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/webp",quality));
-      if(blob&&blob.size<=WORK_PREVIEW_MAX_BYTES)break;
-      quality=Math.max(.36,quality-.08);
-      width=Math.max(180,Math.round(width*.84));
-      height=Math.max(120,Math.round(height*.84));
-    }
-
-    if(!blob||blob.size>WORK_PREVIEW_MAX_BYTES)return null;
-    const data=await new Promise((resolve,reject)=>{
-      const reader=new FileReader();
-      reader.onload=()=>resolve(String(reader.result||""));
-      reader.onerror=()=>reject(reader.error||new Error("No fue posible serializar la miniatura."));
-      reader.readAsDataURL(blob);
-    });
-    return {data,mimeType:"image/webp",width,height,bytes:blob.size};
-  }catch{
-    return null;
-  }finally{
-    if(objectUrl)URL.revokeObjectURL(objectUrl);
-  }
-}
-
 /**
  * Carga evidencia de una actividad de Workforce y registra el archivo en la
  * ejecución correspondiente. Usa el mismo puente institucional de Drive que
@@ -315,10 +266,7 @@ export async function uploadWorkEvidence(
     if (!session?.access_token) throw new Error("Tu sesión venció. Ingresa nuevamente al ERP.");
 
     progress.update({progress:24,phase:"ENCODE",message:"Preparando el archivo antes de enviarlo…"});
-    const [dataBase64,preview]=await Promise.all([
-      fileToBase64(file),
-      type.includes("PHOTO")?buildWorkEvidencePreview(file):Promise.resolve(null)
-    ]);
+    const dataBase64=await fileToBase64(file);
 
     progress.update({progress:42,phase:"UPLOAD",message:"Enviando la evidencia a Google Drive…"});
     const uploaded = await submitToBridge({
@@ -350,7 +298,14 @@ export async function uploadWorkEvidence(
       mimeType: uploaded.mimeType || file.type || "application/octet-stream",
       sizeBytes: Number(uploaded.size || file.size),
       webViewLink: uploaded.webViewLink || null,
-      metadata: preview ? {preview} : {}
+      metadata: {
+        workTitle,
+        driveParentId: uploaded.parentId || null,
+        uploadMode: "INSTITUTIONAL_APPS_SCRIPT",
+        uploadedByProfileId: uploaded.uploadedByProfileId || null,
+        uploadedByEmail: uploaded.uploadedByEmail || null,
+        clientVersion: CONFIG.version || "ERP_EI"
+      }
     });
 
     progress.done("Evidencia guardada y vinculada a la actividad.");
@@ -359,6 +314,33 @@ export async function uploadWorkEvidence(
     progress.error(error);
     throw error;
   }
+}
+
+const workEvidencePreviewCache=new Map();
+
+export async function loadWorkEvidencePreview(fileId){
+  const id=String(fileId||"").trim();
+  if(!id)throw new Error("La evidencia no tiene un archivo de Drive asociado.");
+  if(workEvidencePreviewCache.has(id))return workEvidencePreviewCache.get(id);
+
+  const session=await currentSession();
+  if(!session?.access_token)throw new Error("Tu sesión venció. Ingresa nuevamente al ERP.");
+
+  const response=await postToBridge({
+    action:"PREVIEW_WORK_EVIDENCE",
+    origin:window.location.origin,
+    accessToken:session.access_token,
+    driveFileId:id,
+    clientVersion:CONFIG.version||"ERP_EI"
+  });
+
+  const preview=response?.preview;
+  if(!preview?.dataUrl||!/^data:image\//i.test(preview.dataUrl)){
+    throw new Error("No fue posible preparar la vista previa de la evidencia.");
+  }
+
+  workEvidencePreviewCache.set(id,preview);
+  return preview;
 }
 
 /* Compatibilidad exclusiva para el lector PDF de Recepción. */
