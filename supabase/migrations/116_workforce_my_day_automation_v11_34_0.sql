@@ -3,6 +3,46 @@
 -- Versionada únicamente. NO aplicar a producción en esta fase.
 begin;
 
+create or replace function public.erp_x_work_catalog()
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path=erp_supply,public,auth,pg_catalog
+as $
+declare
+  v_actor uuid:=erp_supply.require_profile();
+  v_org uuid:=erp_supply.current_org_id();
+begin
+  -- V11.34.0: catálogo operativo liviano.
+  -- Las medianas/percentiles pertenecen a Indicadores, no al inicio diario.
+  return coalesce((
+    select jsonb_agg(to_jsonb(x) order by x."sortOrder",x.name)
+    from(
+      select
+        c.id,c.code,c.name,c.description,c.activity_group "activityGroup",c.activity_kind "activityKind",
+        c.standard_minutes "standardMinutes",c.evidence_policy "evidencePolicy",
+        c.acceptance_required "acceptanceRequired",c.team_allowed "teamAllowed",c.sort_order "sortOrder",
+        0::integer samples,
+        null::numeric "medianMinutes",
+        null::numeric "p80Minutes"
+      from erp_supply.work_activity_catalog c
+      where c.organization_id=v_org
+        and c.active
+        and (
+          erp_supply.work_catalog_allowed(c.id,v_actor)
+          or erp_supply.has_role('super_admin')
+          or (erp_supply.has_role('gerencia') and c.activity_kind='DELIVERABLE')
+          or (erp_supply.has_role('jefe_logistica') and c.activity_kind='ACTIVITY' and c.activity_group in('LOGISTICS','IMPROVEMENT','GENERAL'))
+        )
+    ) x
+  ),'[]'::jsonb);
+end;
+$;
+
+revoke all on function public.erp_x_work_catalog() from public,anon;
+grant execute on function public.erp_x_work_catalog() to authenticated;
+
 create or replace function erp_supply.work_evidence_complete(p_execution_id uuid)
 returns boolean
 language plpgsql
