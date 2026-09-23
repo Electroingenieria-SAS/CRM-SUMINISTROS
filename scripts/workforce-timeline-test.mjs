@@ -122,10 +122,12 @@ for(const token of ["composePlannerTimeline","openWorkTimelineCard","loadWorkEvi
 }
 
 const appsScript=fs.readFileSync(new URL("../google-apps-script/Code.gs",import.meta.url),"utf8");
-assert.doesNotThrow(()=>new Function(appsScript),"Code.gs 3.5.0 debe conservar sintaxis JavaScript válida.");
-for(const token of ["VERSION: '3.5.0'","PREVIEW_WORK_EVIDENCE","erp_x_work_evidence_preview_allowed","MAX_PREVIEW_BYTES"]){
+assert.doesNotThrow(()=>new Function(appsScript),"Code.gs 3.5.1 debe conservar sintaxis JavaScript válida.");
+for(const token of ["VERSION: '3.5.1'","PREVIEW_WORK_EVIDENCE","erp_x_work_evidence_preview_allowed","MAX_PREVIEW_BYTES"]){
   assert.equal(appsScript.includes(token),true,`Apps Script debe conservar: ${token}`);
 }
 assert.equal(appsScript.includes("SHARING_MODE: 'PRIVATE'"),true,"La evidencia debe permanecer privada en Drive.");
 
+assert.equal(appsScript.includes("window.top"),true,"Apps Script debe responder al CRM superior cuando HtmlService introduce un iframe intermedio.");
+assert.equal(appsScript.includes("window.parent"),true,"Apps Script debe conservar parent como fallback de compatibilidad.");
 console.log("workforce timeline v11.35.1 tests: OK");
