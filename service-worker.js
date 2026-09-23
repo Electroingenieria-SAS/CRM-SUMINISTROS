@@ -1,5 +1,5 @@
-// previous-cache: crm-suministros-v11-35-1-20260923-11
-const CACHE="crm-suministros-v11-35-2-20260923-12";
+// previous-cache: crm-suministros-v11-35-2-20260923-12
+const CACHE="crm-suministros-v11-35-3-20260923-13";
 
 const APP_SHELL=[
   "./","./index.html","./404.html","./manifest.webmanifest","./templates/historical_orders.csv",
