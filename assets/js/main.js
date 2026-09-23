@@ -22,7 +22,7 @@ import {installSupportFlow} from "./modules/support-flow.js";
 import {installPacoAssistant} from "./modules/paco-assistant-v11200.js";
 import {renderWorkforce} from "./modules/workforce.js";
 import {initWorkClock} from "./modules/work-clock.js";
-import {installOperationalV112,enhanceOperationalDashboard,enhanceWorkforce} from "./modules/operational-v112.js";
+import {installOperationalV112,enhanceOperationalDashboard} from "./modules/operational-v112.js";
 import {installOperationalResolveGuard} from "./modules/operational-resolve-guard-v112.js";
 import {renderReceivingHub} from "./modules/receiving-hub-v115.js";
 
@@ -40,7 +40,7 @@ const routes={
   admin:renderAdmin,
   reports:renderReports,
   cutting:renderCutting,
-  workforce:async root=>{await renderWorkforce(root);await enhanceWorkforce(root)}
+  workforce:renderWorkforce
 };
 const queueModules={cartera:["CARTERA"],caja:["CAJA","CAJA_FACTURACION"],purchasing:["COMPRAS"],picking:["ALISTAMIENTO"],billing:["FACTURACION"],shipping:["CLIENT_POINT","CLIENT_PICKUP","LOCAL_DISPATCH","NATIONAL_DISPATCH","CLOSURE"]};
 let authBootPromise=null;
