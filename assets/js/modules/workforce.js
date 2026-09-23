@@ -494,7 +494,7 @@ async function renderPlanner(root,content){
 
   content.querySelector("[data-plan-prev]").onclick=()=>move(-1);
   content.querySelector("[data-plan-next]").onclick=()=>move(1);
-  content.querySelector(Ytata-plan-today]").onclick=()=>{
+  content.querySelector("[data-plan-today]").onclick=()=>{
     plannerAnchor=new Date();
     if(plannerMode==="day"){
       const today=isoDate(plannerAnchor);
