@@ -10,17 +10,26 @@
  */
 
 const SETTINGS = Object.freeze({
+  VERSION: '3.4.0',
+
   SUPABASE_URL: 'https://hezjxcxxcjlpmyalftam.supabase.co',
   SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_yxgyHILzQVDHrS2MYYkBkA_UfN77JtT',
 
   // Carpeta institucional suministrada.
   ROOT_FOLDER_ID: '1B9IsvURgsDWxLP84Z7uD3wsDNhh43n_x',
 
-  // Dominio desde el que actualmente se ejecuta el ERP.
-  // Cuando el ERP cambie de dominio, agrega el nuevo origen exacto aquí,
-  // siempre sin slash al final.
+  // Orígenes autorizados para utilizar el puente institucional.
+  // IMPORTANTE: aquí van ORIGINS (protocolo + host), nunca rutas.
+  // Ejemplo GitHub Pages:
+  // URL pública: https://electroingenieria-sas.github.io/CRM-SUMINISTROS/
+  // Origin real: https://electroingenieria-sas.github.io
   ALLOWED_ORIGINS: [
-    'https://ei-erp-google-auth.vercel.app'
+    'https://electroingenieria-sas.github.io',
+    'https://crm-suministros-amber.vercel.app',
+    'https://crm-suministros-jeptacs-projects.vercel.app',
+    'https://crm-suministros-git-main-jeptacs-projects.vercel.app',
+    'https://ei-erp-google-auth.vercel.app',
+    'https://borrador-erp-ei.vercel.app'
   ],
 
   // Máximo por archivo. Apps Script no es adecuado para archivos gigantes.
@@ -44,7 +53,9 @@ function doGet() {
     '<body style="font-family:Arial,sans-serif;padding:32px;color:#12345b">' +
     '<h1>ERP EI</h1>' +
     '<p>Puente institucional de Google Drive activo.</p>' +
+    '<p>Versión: <strong>' + escapeHtml_(SETTINGS.VERSION) + '</strong></p>' +
     '<p>Carpeta configurada: <strong>' + escapeHtml_(SETTINGS.ROOT_FOLDER_ID) + '</strong></p>' +
+    '<p>Orígenes autorizados:</p><ul>' + SETTINGS.ALLOWED_ORIGINS.map(function(origin){ return '<li>' + escapeHtml_(origin) + '</li>'; }).join('') + '</ul>' +
     '</body></html>'
   ).setTitle('ERP EI · Drive');
 }
@@ -57,6 +68,7 @@ function probarConfiguracion() {
   const folder = DriveApp.getFolderById(SETTINGS.ROOT_FOLDER_ID);
   const result = {
     ok: true,
+    version: SETTINGS.VERSION,
     folderId: folder.getId(),
     folderName: folder.getName(),
     folderUrl: folder.getUrl(),
@@ -85,14 +97,16 @@ function doPost(e) {
 
     return callbackPage_(request, {
       ok: true,
-      uploadId: request.uploadId,
+      requestId: request.requestId || request.uploadId || null,
+      uploadId: request.uploadId || request.requestId || null,
       file: result
     });
   } catch (error) {
     console.error(error && error.stack ? error.stack : error);
     return callbackPage_(request, {
       ok: false,
-      uploadId: request.uploadId || null,
+      requestId: request.requestId || request.uploadId || null,
+      uploadId: request.uploadId || request.requestId || null,
       error: safeError_(error)
     });
   }
@@ -102,11 +116,31 @@ function validateRequest_(request) {
   if (!request || typeof request !== 'object') {
     throw new Error('Solicitud inválida.');
   }
-  if (!request.uploadId) {
+  if (!request.uploadId && !request.requestId) {
     throw new Error('No se recibió el identificador de carga.');
   }
-  if (!request.origin || SETTINGS.ALLOWED_ORIGINS.indexOf(request.origin) === -1) {
-    throw new Error('El dominio del ERP no está autorizado para cargar archivos.');
+
+  const rawOrigin = String(request.origin || '').trim();
+  const normalizedOrigin = normalizeOrigin_(rawOrigin);
+
+  // El origin enviado dentro del payload NO se usa como control de acceso,
+  // porque es un dato declarado por el cliente y puede falsificarse.
+  // La autorización real la determina el JWT de Supabase más abajo.
+  //
+  // Conservamos el origin únicamente para:
+  // - trazabilidad;
+  // - diagnóstico;
+  // - dirigir postMessage de vuelta a la aplicación.
+  request.origin = normalizedOrigin || rawOrigin || '';
+
+  if (
+    normalizedOrigin &&
+    !isAllowedOrigin_(normalizedOrigin)
+  ) {
+    console.warn(
+      'Origen no listado (permitido por autenticación Supabase): ' +
+      normalizedOrigin
+    );
   }
   if (!request.accessToken) {
     throw new Error('La sesión del ERP no fue recibida.');
@@ -144,6 +178,29 @@ function validateRequest_(request) {
   if (estimatedBytes > SETTINGS.MAX_FILE_BYTES + 2048) {
     throw new Error('El contenido recibido supera el tamaño permitido.');
   }
+}
+
+/**
+ * Convierte una URL completa o un origin al origin canónico.
+ */
+function normalizeOrigin_(value) {
+  const input = String(value || '').trim();
+  if (!input) return '';
+
+  const match = input.match(/^(https?:\/\/[^\/?#]+)/i);
+  return match
+    ? match[1].toLowerCase().replace(/\/$/, '')
+    : '';
+}
+
+/**
+ * Comprueba el origin normalizado contra la lista autorizada.
+ */
+function isAllowedOrigin_(origin) {
+  const normalized = normalizeOrigin_(origin);
+  return SETTINGS.ALLOWED_ORIGINS.some(function(allowedOrigin) {
+    return normalizeOrigin_(allowedOrigin) === normalized;
+  });
 }
 
 /**
@@ -213,9 +270,12 @@ function saveFile_(request, session) {
       root,
       String(new Date().getFullYear())
     );
-    const contextType = String(request.contextType || 'ORDER').toUpperCase();
-    const contextId = request.contextId || request.orderId;
-    const contextLabel = request.contextLabel || request.orderNumber || contextId;
+    const inferredContextType = request.contextType
+      ? String(request.contextType)
+      : (request.workExecutionId ? 'ACTIVITY' : 'ORDER');
+    const contextType = String(inferredContextType).toUpperCase();
+    const contextId = request.contextId || request.workExecutionId || request.orderId;
+    const contextLabel = request.contextLabel || request.workTitle || request.orderNumber || contextId;
     const contextPrefix = contextType === 'ACTIVITY' ? 'ACTIVIDAD_' : 'PEDIDO_';
     const contextFolder = findOrCreateFolder_(
       yearFolder,
@@ -230,9 +290,12 @@ function saveFile_(request, session) {
   }
 
   const file = categoryFolder.createFile(blob);
-  const contextType = String(request.contextType || 'ORDER').toUpperCase();
-  const contextId = request.contextId || request.orderId;
-  const contextLabel = request.contextLabel || request.orderNumber || contextId;
+  const inferredContextType = request.contextType
+      ? String(request.contextType)
+      : (request.workExecutionId ? 'ACTIVITY' : 'ORDER');
+  const contextType = String(inferredContextType).toUpperCase();
+  const contextId = request.contextId || request.workExecutionId || request.orderId;
+  const contextLabel = request.contextLabel || request.workTitle || request.orderNumber || contextId;
   file.setDescription([
     'ERP EI',
     (contextType === 'ACTIVITY' ? 'Actividad: ' : 'Pedido: ') + String(contextLabel),
@@ -289,14 +352,20 @@ function safeName_(value, fallback) {
  * Devuelve el resultado al iframe oculto que inició la carga en el ERP.
  */
 function callbackPage_(request, data) {
-  const requestedOrigin = request && request.origin;
-  const targetOrigin =
-    SETTINGS.ALLOWED_ORIGINS.indexOf(requestedOrigin) >= 0
-      ? requestedOrigin
-      : '*';
+  const requestedOrigin = normalizeOrigin_(
+    request && request.origin ? request.origin : ''
+  );
+
+  // postMessage usa el origin informado por la propia página si es válido.
+  // Si no pudo normalizarse, se usa "*" únicamente para entregar el error
+  // al iframe llamante. La autorización de la carga ya fue resuelta por JWT.
+  const targetOrigin = requestedOrigin || '*';
 
   const json = JSON.stringify({
     source: 'ERP_EI_DRIVE_BRIDGE',
+    version: SETTINGS.VERSION,
+    requestId: request && (request.requestId || request.uploadId) ? (request.requestId || request.uploadId) : null,
+    uploadId: request && (request.uploadId || request.requestId) ? (request.uploadId || request.requestId) : null,
     ...data
   })
     .replace(/</g, '\\u003c')
