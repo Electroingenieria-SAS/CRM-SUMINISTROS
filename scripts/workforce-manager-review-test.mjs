@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import {
   managerQueueSummary,
   timeReviewCardHtml,
-  timeReviewDialogHtml
+  timeReviewDialogHtml,
+  recentTimeReviewHtml
 } from "../assets/js/modules/workforce-time-review-v11340.js";
 
 const row={
@@ -35,6 +36,18 @@ for(const token of ["Ana Gómez","Organización de inventario","Foto final","1 h
   assert.equal(dialog.includes(token),true,`El diálogo debe mostrar: ${token}`);
 }
 assert.equal(dialog.includes("https://drive.google.com/file/d/abc/view"),true,"La revisión debe enlazar la evidencia de Drive");
+const recent=recentTimeReviewHtml({
+  profileName:"Ana Gómez",
+  title:"Organización de inventario",
+  activeSeconds:4680,
+  decision:"OBSERVED",
+  note:"Validar distribución del trabajo.",
+  reviewedBy:"Jefe Logística",
+  reviewedAt:"2026-09-23T10:00:00-05:00"
+});
+for(const token of ["Observado","Ana Gómez","1 h 18 min","Jefe Logística","Validar distribución"]){
+  assert.equal(recent.includes(token),true,`El historial debe mostrar: ${token}`);
+}
 
 const operational=fs.readFileSync(new URL("../assets/js/modules/operational-v112.js",import.meta.url),"utf8");
 assert.equal(operational.includes('data-start-catalog'),false,"Operational no debe interceptar Inicio rápido: workforce.js inicia directamente");
