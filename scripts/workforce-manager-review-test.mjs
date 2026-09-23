@@ -64,11 +64,12 @@ for(const token of [
   "webViewLink",
   "erp_x_work_review_time",
   "TIME_REVIEWED",
-  "limit 50"
+  "limit v_limit"
 ]){
   assert.equal(sql.includes(token),true,`Migración 117 debe contener: ${token}`);
 }
 assert.equal(sql.includes("erp_x_work_quick_request"),false,"La migración no debe crear una solicitud rápida con aprobación previa");
+assert.equal(sql.includes("least(coalesce(p_limit,50),50)"),true,"La cola debe estar acotada a máximo 50 filas");
 assert.equal(sql.includes("assignmentApprovals"),false,"La cola gerencial debe consultar solo revisiones de tiempo");
 assert.equal(sql.includes("Para iniciar una actividad adicional primero debes agregarla a tu jornada"),false,"El backend no debe exigir aprobación previa para iniciar manualmente");
 assert.equal(/create\s+(unique\s+)?index/i.test(sql),false,"La cola no debe crear índices sin evidencia de necesidad");
