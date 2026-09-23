@@ -27,6 +27,12 @@ assert.equal(workforce.includes("Causa de desviación, si aplica"),false,"El tra
 assert.equal(workforce.includes("Resultado / observación"),false,"El cierre normal no debe exigir observación manual");
 assert.equal(/agenda-main[^\n]*estimatedMinutes/.test(workforce),false,"La agenda del trabajador no debe mostrar una estimación manual de minutos");
 
+const drive=fs.readFileSync(new URL("../assets/js/services/drive.js",import.meta.url),"utf8");
+for(const token of ["uploadWorkEvidence","submitToBridge","WORK_EVIDENCE_","api.workRegisterEvidence","uploadMode: \"INSTITUTIONAL_APPS_SCRIPT\""]){
+  assert.equal(drive.includes(token),true,`La foto de Mi jornada debe conservar el puente Apps Script/Drive: ${token}`);
+}
+assert.equal(drive.includes("supabase.storage"),false,"La evidencia de Mi jornada no debe migrarse silenciosamente a Supabase Storage");
+
 const migrationPath=new URL("../supabase/migrations/116_workforce_my_day_automation_v11_34_0.sql",import.meta.url);
 assert.equal(fs.existsSync(migrationPath),true,"Debe existir la migración V11.34.0 de Mi jornada");
 const sql=fs.readFileSync(migrationPath,"utf8");
