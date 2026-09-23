@@ -236,6 +236,22 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v5
 
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: TruffleHog · verified secrets
+        uses: trufflesecurity/trufflehog@v3.97.5
+        with:
+          extra_args: --results=verified
+
   dependency-review:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
