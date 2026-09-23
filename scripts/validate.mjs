@@ -61,6 +61,7 @@ const workforcePlannerMigration=read("supabase/migrations/115_workforce_planner_
 const workforceTodayMigration=read("supabase/migrations/116_workforce_my_day_automation_v11_34_0.sql");
 const workforceManagerMigration=read("supabase/migrations/117_workforce_manager_review_v11_34_1.sql");
 const workforceCatalogMigration=read("supabase/migrations/118_workforce_catalog_taxonomy_v11_34_3.sql");
+const workforceTimelineMigration=read("supabase/migrations/119_workforce_timeline_evidence_v11_35_0.sql");
 const workforce=read("assets/js/modules/workforce.js");
 const workforcePlanner=read("assets/js/modules/workforce-planner-v11330.js");
 const workforceToday=read("assets/js/modules/workforce-today-v11340.js");
@@ -68,6 +69,8 @@ const workforceManager=read("assets/js/modules/workforce-time-review-v11340.js")
 const workforceCatalog=read("assets/js/modules/workforce-catalog-v11343.js");
 const workforceExperience=read("assets/js/modules/workforce-experience-v11344.js");
 const workforceExperienceCss=read("assets/runtime-css/workforce-experience-v11344.css");
+const workforceTimeline=read("assets/js/modules/workforce-timeline-v11350.js");
+const workforceTimelineCss=read("assets/runtime-css/workforce-timeline-v11350.css");
 const approvalsModule=read("assets/js/modules/approvals.js");
 const operational=read("assets/js/modules/operational-v112.js");
 const coreUi=read("assets/js/core/ui.js");
@@ -90,13 +93,21 @@ const normalizedJsRuntime=jsRuntime
   .replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
 // Release identity.
-check(version==="11.34.5","CONFIG.version debe ser 11.34.5.");
-check(build==="2026-09-23.09","CONFIG.build debe ser 2026-09-23.09.");
+check(version==="11.35.0","CONFIG.version debe ser 11.35.0.");
+check(build==="2026-09-23.10","CONFIG.build debe ser 2026-09-23.10.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
 check((index.match(/<script\s+type="module"\s+src="\.\/assets\/js\//g)||[]).length===1,"index.html debe tener un único entrypoint ES Module local.");
 check(entry.includes('import "./main.js";'),"app-entry.js debe delegar a main.js.");
+check(exists("assets/js/modules/workforce-timeline-v11350.js"),"Falta módulo timeline V11.35.0.");
+check(exists("assets/runtime-css/workforce-timeline-v11350.css"),"Falta CSS timeline V11.35.0.");
+check(sw.includes("./assets/js/modules/workforce-timeline-v11350.js"),"PWA debe precachear el módulo timeline.");
+check(sw.includes("./assets/runtime-css/workforce-timeline-v11350.css"),"PWA debe precachear el CSS timeline.");
+check(workforce.includes("composePlannerTimeline")&&workforce.includes("openWorkTimelineCard"),"Workforce debe integrar el cronograma unificado.");
+check(workforceTimelineMigration.includes("erp_x_work_planner_detail")&&workforceTimelineMigration.includes("erp_x_work_evidence_preview_allowed"),"Migración V11.35.0 incompleta.");
+check(!/create\\s+table/i.test(workforceTimelineMigration)&&!/create\\s+(unique\\s+)?index/i.test(workforceTimelineMigration),"V11.35.0 no debe crear tablas ni índices redundantes.");
+check(workforceTimeline.includes("loadPreview")&&workforceTimelineCss.includes("work-timeline-sheet-v11350"),"Tarjeta timeline/evidencia bajo demanda incompleta.");
 check(entry.includes('import "./modules/inventory-dialogs-v11260.js";'),"app-entry.js debe instalar el sistema único de diálogos guiados de Inventario.");
 check(entry.includes('import "./modules/inventory-visual-v11270.js";'),"app-entry.js debe instalar la capa visual vigente de Inventario.");
 check(!entry.includes("inventory-modal-v11253.js")&&!entry.includes("inventory-modal-workspace-v11254.js"),"app-entry.js no debe cargar propietarios modales históricos.");
@@ -126,8 +137,8 @@ check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía instit
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
 // PWA and Vercel routing.
-check(sw.includes('// previous-cache: crm-suministros-v11-34-4-20260923-08'),"previous-cache PWA debe apuntar a V11.34.4.");
-check(sw.includes('const CACHE="crm-suministros-v11-34-5-20260923-09";'),"CACHE activo PWA no corresponde a V11.34.5.");
+check(sw.includes('// previous-cache: crm-suministros-v11-34-5-20260923-09'),"previous-cache PWA debe apuntar a V11.34.5.");
+check(sw.includes('const CACHE="crm-suministros-v11-35-0-20260923-10";'),"CACHE activo PWA no corresponde a V11.35.0.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
 check(vercel.includes('manifest\\\\.webmanifest')||vercel.includes('/manifest.webmanifest'),"Vercel debe excluir o tratar explícitamente el manifest real.");
