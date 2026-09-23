@@ -93,11 +93,12 @@ const normalizedJsRuntime=jsRuntime
   .replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
 // Release identity.
-check(version==="11.35.1","CONFIG.version debe ser 11.35.1.");
-check(build==="2026-09-23.11","CONFIG.build debe ser 2026-09-23.11.");
+check(version==="11.35.2","CONFIG.version debe ser 11.35.2.");
+check(build==="2026-09-23.12","CONFIG.build debe ser 2026-09-23.12.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
+check(config.includes("https://script.google.com/macros/s/AKfycbztKVA2sdUV87WZ9dWyf9gFHKodDaBbw-sIJ6pPdSPV9g98efpD_T3jE3CS1x-8DTaS/exec"),"CONFIG.drive.bridgeUrl debe apuntar a la implementación Apps Script 3.5.0 vigente.");
 check((index.match(/<script\s+type="module"\s+src="\.\/assets\/js\//g)||[]).length===1,"index.html debe tener un único entrypoint ES Module local.");
 check(entry.includes('import "./main.js";'),"app-entry.js debe delegar a main.js.");
 check(exists("assets/js/modules/workforce-timeline-v11350.js"),"Falta módulo timeline V11.35.0.");
@@ -137,8 +138,8 @@ check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía instit
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
 // PWA and Vercel routing.
-check(sw.includes('// previous-cache: crm-suministros-v11-35-0-20260923-10'),"previous-cache PWA debe apuntar a V11.35.0.");
-check(sw.includes('const CACHE="crm-suministros-v11-35-1-20260923-11";'),"CACHE activo PWA no corresponde a V11.35.1.");
+check(sw.includes('// previous-cache: crm-suministros-v11-35-1-20260923-11'),"previous-cache PWA debe apuntar a V11.35.1.");
+check(sw.includes('const CACHE="crm-suministros-v11-35-2-20260923-12";'),"CACHE activo PWA no corresponde a V11.35.2.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
 check(vercel.includes('manifest\\\\.webmanifest')||vercel.includes('/manifest.webmanifest'),"Vercel debe excluir o tratar explícitamente el manifest real.");
