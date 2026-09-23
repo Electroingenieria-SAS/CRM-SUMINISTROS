@@ -859,18 +859,83 @@ async function renderAnalytics(root,content){
   const people=canManage?await api.workPeople(null).catch(()=>[]):[];
   const selected=content.dataset.analyticsProfile||"";
   const data=await api.workAnalytics(analyticsRange.from,analyticsRange.to,selected||null);
+  const summary=data.summary||{};
+  const scopeName=selected?(people.find(person=>String(person.id)===String(selected))?.name||"Trabajador seleccionado"):(canManage?"Ámbito completo":"Mi jornada");
+  const utilization=Math.max(0,Math.min(100,Number(summary.utilizationPct||0)));
+  const utilizationTone=utilization>=80?"good":utilization>=55?"medium":"low";
+
   content.innerHTML=`
-    <section class="card work-analytics-toolbar"><div class="form-grid"><div class="field"><label>Desde</label><input class="control" type="date" data-analytics-from value="${analyticsRange.from}"></div><div class="field"><label>Hasta</label><input class="control" type="date" data-analytics-to value="${analyticsRange.to}"></div>${canManage?`<div class="field"><label>Persona / equipo</label><select class="control" data-analytics-profile><option value="">Mi ámbito completo</option>${people.map(p=>`<option value="${fmt.escape(p.id)}" ${selected===p.id?"selected":""}>${fmt.escape(p.name)}</option>`).join("")}</select></div>`:""}<div class="field analytics-apply"><label>&nbsp;</label><button class="btn btn-primary" data-analytics-apply>Aplicar</button></div></div></section>
-    ${analyticsSummary(data.summary)}
-    <div class="grid grid-2 work-analytics-grid">
-      <section class="card"><header class="card-head"><div><h3>Distribución del trabajo adicional</h3><p>Tiempo activo por familia de actividad.</p></div></header><div class="card-body">${barList(data.activityGroups||[],x=>GROUP_LABELS[x.group]||fmt.label(x.group),x=>x.activeSeconds)}</div></section>
-      <section class="card"><header class="card-head"><div><h3>Tiempos de referencia aprendidos</h3><p>Mediana y percentil 80 a partir de ejecuciones reales.</p></div></header><div class="card-body">${activityStandardsHtml(data.topActivities||[])}</div></section>
-      <section class="card"><header class="card-head"><div><h3>Causas de desviación</h3><p>Pareto de razones registradas cuando una actividad tomó más o menos de lo esperado.</p></div></header><div class="card-body">${causeList(data.deviationCauses||[])}</div></section>
-      <section class="card"><header class="card-head"><div><h3>Equipo ahora</h3><p>Quién tiene una actividad adicional en ejecución. Los procesos del CRM siguen visibles en sus propias colas.</p></div></header><div class="card-body">${teamNowHtml(data.teamNow||[])}</div></section>
-    </div>
-    ${data.pendingReviews?.length?`<section class="card work-review-card"><header class="card-head"><div><h3>Entregables pendientes de revisión</h3><p>Aceptar confirma el resultado; devolver exige una nota para corrección.</p></div></header><div class="card-body">${pendingReviewsHtml(data.pendingReviews)}</div></section>`:""}
-    <section class="work-ethics-note"><strong>Cómo leer estos indicadores</strong><span>Utilización, puntualidad y duración describen procesos y capacidad; no constituyen por sí solos una calificación de desempeño. El CRM conserva tiempo no clasificado como “sin categoría”, no como improductividad.</span></section>`;
-  content.querySelector("[data-analytics-apply]").onclick=()=>{analyticsRange={from:content.querySelector('[data-analytics-from]').value,to:content.querySelector('[data-analytics-to]').value};content.dataset.analyticsProfile=content.querySelector('[data-analytics-profile]')?.value||"";renderAnalytics(root,content)};
+    <section class="work-indicators-v11363">
+      <section class="work-indicator-hero-v11363">
+        <div class="work-indicator-hero-copy-v11363">
+          <span class="work-indicator-kicker-v11363">INDICADORES DE JORNADA</span>
+          <h2>Pulso operativo</h2>
+          <p>Capacidad, cumplimiento, tiempos y distribución del trabajo en una lectura visual y verificable.</p>
+          <div class="work-indicator-context-v11363">
+            <span><b>Periodo</b>${fmt.escape(analyticsRange.from)} → ${fmt.escape(analyticsRange.to)}</span>
+            <span><b>Vista</b>${fmt.escape(scopeName)}</span>
+            <span class="tone-${utilizationTone}"><b>Clasificación</b>${fmt.number(utilization,1)}%</span>
+          </div>
+        </div>
+
+        <div class="work-indicator-hero-side-v11363">
+          <div class="work-indicator-ring-v11363" style="--indicator-value:${utilization}">
+            <div><strong>${fmt.number(utilization,1)}%</strong><span>jornada<br>clasificada</span></div>
+          </div>
+          <details class="work-indicator-filter-v11363">
+            <summary>${icon("filter")}<span><strong>Ajustar análisis</strong><small>Periodo y persona</small></span><b>⌄</b></summary>
+            <div class="work-indicator-filter-panel-v11363">
+              <label><span>Desde</span><input class="control" type="date" data-analytics-from value="${analyticsRange.from}"></label>
+              <label><span>Hasta</span><input class="control" type="date" data-analytics-to value="${analyticsRange.to}"></label>
+              ${canManage?`<label class="wide"><span>Persona / equipo</span><select class="control" data-analytics-profile><option value="">Mi ámbito completo</option>${people.map(person=>`<option value="${fmt.escape(person.id)}" ${selected===person.id?"selected":""}>${fmt.escape(person.name)}</option>`).join("")}</select></label>`:""}
+              <button type="button" class="btn btn-primary wide" data-analytics-apply>Aplicar filtros</button>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      ${analyticsSummary(summary)}
+
+      <section class="work-indicator-layout-v11363">
+        <section class="work-indicator-panel-v11363 span-2">
+          <header><div><span>BALANCE DE JORNADA</span><h3>¿Cómo se distribuyó el tiempo disponible?</h3><p>Contrasta tiempo clasificado y tiempo que todavía no tiene categoría operativa.</p></div></header>
+          <div class="work-indicator-panel-body-v11363">${analyticsBalance(summary)}</div>
+        </section>
+
+        <section class="work-indicator-panel-v11363">
+          <header><div><span>DISTRIBUCIÓN</span><h3>Mapa del trabajo adicional</h3><p>Participación del tiempo activo por familia de actividad.</p></div></header>
+          <div class="work-indicator-panel-body-v11363">${barList(data.activityGroups||[],x=>GROUP_LABELS[x.group]||fmt.label(x.group),x=>x.activeSeconds)}</div>
+        </section>
+
+        <section class="work-indicator-panel-v11363">
+          <header><div><span>DESVIACIONES</span><h3>Qué explica los desvíos</h3><p>Pareto visual de las causas documentadas en el periodo.</p></div></header>
+          <div class="work-indicator-panel-body-v11363">${causeList(data.deviationCauses||[])}</div>
+        </section>
+
+        <section class="work-indicator-panel-v11363 span-2">
+          <header><div><span>TIEMPOS APRENDIDOS</span><h3>Referencias reales por actividad</h3><p>Mediana y P80 construidos con ejecuciones registradas, sin convertirlos en una calificación individual.</p></div></header>
+          <div class="work-indicator-panel-body-v11363">${activityStandardsHtml(data.topActivities||[])}</div>
+        </section>
+
+        <section class="work-indicator-panel-v11363 span-2">
+          <header><div><span>EN ESTE MOMENTO</span><h3>Equipo activo</h3><p>Actividades adicionales que están corriendo o pausadas ahora.</p></div></header>
+          <div class="work-indicator-panel-body-v11363">${teamNowHtml(data.teamNow||[])}</div>
+        </section>
+      </section>
+
+      ${data.pendingReviews?.length?`<section class="work-indicator-panel-v11363 work-review-card-v11363"><header><div><span>REVISIÓN</span><h3>Entregables pendientes</h3><p>Aceptar confirma el resultado; devolver exige una nota para corrección.</p></div><b>${fmt.number(data.pendingReviews.length)}</b></header><div class="work-indicator-panel-body-v11363">${pendingReviewsHtml(data.pendingReviews)}</div></section>`:""}
+
+      <details class="work-indicator-method-v11363">
+        <summary>${icon("info")}<div><strong>Cómo leer estos indicadores</strong><small>Metodología y límites de interpretación</small></div><b>⌄</b></summary>
+        <div><p><strong>Utilización, puntualidad y duración describen procesos y capacidad.</strong> No constituyen por sí solos una calificación de desempeño.</p><p>El CRM conserva tiempo no clasificado como <b>“sin categoría”</b>; no lo interpreta automáticamente como improductividad. Las referencias de tiempo se construyen con ejecuciones históricas.</p></div>
+      </details>
+    </section>`;
+
+  content.querySelector("[data-analytics-apply]").onclick=()=>{
+    analyticsRange={from:content.querySelector("[data-analytics-from]").value,to:content.querySelector("[data-analytics-to]").value};
+    content.dataset.analyticsProfile=content.querySelector("[data-analytics-profile]")?.value||"";
+    renderAnalytics(root,content);
+  };
   content.querySelectorAll("[data-review-accept]").forEach(button=>button.onclick=()=>reviewDelivery(button.dataset.reviewAccept,"ACCEPTED",content,root));
   content.querySelectorAll("[data-review-return]").forEach(button=>button.onclick=()=>reviewDelivery(button.dataset.reviewReturn,"RETURNED",content,root));
 }
