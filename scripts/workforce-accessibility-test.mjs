@@ -32,4 +32,12 @@ const core=fs.readFileSync(new URL("../assets/css/core-shell.css",import.meta.ur
 assert.equal(core.includes("V11.34.2 · Mi jornada visual"),false,"core-shell no debe conservar la implementación visual V11.34.2");
 assert.equal(core.includes("V11.34.3 · Mi jornada jerárquica"),false,"core-shell no debe conservar la implementación visual V11.34.3");
 
+const operations=fs.readFileSync(new URL("../assets/css/operations.css",import.meta.url),"utf8");
+for(const token of ["workforce-quick-card","workforce-main-grid","work-catalog-group","work-catalog-list","work-catalog-item","Desliza para explorar"]){
+  assert.equal(operations.includes(token),false,`operations.css no debe reintroducir visual legado de Jornada: ${token}`);
+}
+const bootstrap=fs.readFileSync(new URL("../assets/js/modules/bootstrap-v113.js",import.meta.url),"utf8");
+assert.equal(bootstrap.includes("activity-browser-v113"),false,"bootstrap no debe volver a instalar el navegador legado de Jornada");
+assert.equal(fs.existsSync(new URL("../assets/js/modules/activity-browser-v113.js",import.meta.url)),false,"El navegador legado activity-browser-v113.js debe permanecer eliminado");
+
 console.log("workforce accessibility UX tests: OK");
