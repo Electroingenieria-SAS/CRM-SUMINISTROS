@@ -4,12 +4,17 @@ import {empty,loading,wizard,toast,guide,modal} from "../core/ui.js";
 import {summaryItem} from "../core/guided.js";
 import {state} from "../core/state.js";
 import {openOrder} from "./orders.js";
+import {timeReviewDialogHtml,durationText} from "./workforce-time-review-v11340.js";
+import {ensureWorkforceExperienceStyles} from "./workforce-experience-v11344.js";
 
 let activeMode="CENTER";
 let activeState="OPEN";
 let activeKind=null;
+let workforceQueueCache=null;
+let workforceQueueLoadedAt=0;
 
 export async function renderApprovals(root){
+  ensureWorkforceExperienceStyles();
   activeMode="CENTER";activeState="OPEN";activeKind=null;
   root.innerHTML=`
     <section class="page-head exception-page-head">
@@ -17,8 +22,10 @@ export async function renderApprovals(root){
       <div class="page-actions"><button class="btn btn-ghost" id="exceptions-refresh">Actualizar SLA</button><button class="btn btn-help" id="approvals-help">Guía</button></div>
     </section>
     <section class="grid grid-kpi exception-summary" id="exception-summary">${loading("Calculando excepciones…")}</section>
+    <section id="workforce-alert-banner"></section>
     <section class="exception-mode-bar">
       <button class="exception-mode active" data-mode="CENTER"><strong>Excepciones abiertas</strong><span>Novedades, reportes y aprobaciones</span></button>
+      <button class="exception-mode" data-mode="WORKFORCE" hidden><strong>Alertas de jornada</strong><span>Actividades con tiempo en rojo</span><b class="workforce-mode-count" data-workforce-mode-count>0</b></button>
       <button class="exception-mode" data-mode="APPROVALS"><strong>Aprobaciones</strong><span>Decisiones pendientes e históricas</span></button>
       <button class="exception-mode" data-mode="ESCALATED"><strong>Escaladas</strong><span>Casos por encima del SLA</span></button>
       <button class="exception-mode" data-mode="HISTORY"><strong>Historial</strong><span>Situaciones ya cerradas</span></button>
@@ -37,7 +44,7 @@ export async function renderApprovals(root){
     try{await api.refreshOperationalSla();toast("SLA y escalamiento actualizados.","success",4500);await Promise.all([loadSummary(root),loadWorkspace(root)]);}catch(error){toast(error.message,"error",7000)}
   });
   root.querySelector("#approvals-help")?.addEventListener("click",()=>guide({title:"Centro de excepciones",description:"La bandeja prioriza lo que puede afectar el flujo y separa las notas operativas de las verdaderas excepciones.",items:[{title:"Atiende primero lo escalado",detail:"Los casos en nivel Alto o Crítico ya superaron el SLA laboral configurado."},{title:"Cierra la causa, no solo la alerta",detail:"Una Novedad o Reporte desaparece del bloqueo cuando registras la solución."},{title:"Decide las aprobaciones",detail:"Solo los perfiles con capacidad de aprobación pueden decidir; Auditoría permanece en consulta."},{title:"Revisa el historial",detail:"Todas las decisiones y tiempos quedan trazados para análisis posterior."}]}));
-  await Promise.all([loadSummary(root),loadWorkspace(root)]);
+  await Promise.all([loadSummary(root),loadWorkforceAlertState(root),loadWorkspace(root)]);
 }
 
 async function loadSummary(root){
@@ -60,6 +67,7 @@ async function loadWorkspace(root){
   const target=root.querySelector("#exception-result");
   target.innerHTML=loading("Organizando la bandeja…");
   if(activeMode==="APPROVALS")return loadApprovals(root);
+  if(activeMode==="WORKFORCE")return loadWorkforceAlerts(root);
 
   activeState=activeMode==="HISTORY"?"CLOSED":"OPEN";
   toolbar.innerHTML=`<div class="exception-filter-group"><button class="filter-chip ${!activeKind?"active":""}" data-kind="">Todo</button><button class="filter-chip ${activeKind==="NOVELTY"?"active":""}" data-kind="NOVELTY">Novedades</button><button class="filter-chip ${activeKind==="REPORT"?"active":""}" data-kind="REPORT">Reportes</button><button class="filter-chip ${activeKind==="APPROVAL"?"active":""}" data-kind="APPROVAL">Aprobaciones</button></div><span class="muted">Ordenado por SLA, prioridad y antigüedad laboral</span>`;
@@ -116,6 +124,107 @@ function resolveIssue(issueId,root){
     toast("Excepción solucionada. El flujo fue actualizado.","success",6000);
     await Promise.all([loadSummary(root),loadWorkspace(root)]);
   }});
+}
+
+async function getWorkforceQueue(force=false){
+  if(!force&&workforceQueueCache&&(Date.now()-workforceQueueLoadedAt)<30000)return workforceQueueCache;
+  try{
+    workforceQueueCache=await api.workManagerQueue(50);
+    workforceQueueLoadedAt=Date.now();
+    return workforceQueueCache;
+  }catch(error){
+    console.info("[Workforce alerts] sin acceso a cola gerencial",error?.message||error);
+    workforceQueueCache=null;
+    workforceQueueLoadedAt=Date.now();
+    return null;
+  }
+}
+
+function invalidateWorkforceQueue(){
+  workforceQueueCache=null;
+  workforceQueueLoadedAt=0;
+}
+
+async function loadWorkforceAlertState(root){
+  const mode=root.querySelector('[data-mode="WORKFORCE"]');
+  const banner=root.querySelector("#workforce-alert-banner");
+  if(!mode||!banner)return;
+  const queue=await getWorkforceQueue();
+  if(!queue){
+    mode.hidden=true;
+    banner.innerHTML="";
+    return;
+  }
+  mode.hidden=false;
+  const count=(queue.timeReviews||[]).length;
+  const badge=mode.querySelector("[data-workforce-mode-count]");
+  if(badge)badge.textContent=String(count);
+  mode.classList.toggle("has-alerts",count>0);
+  if(!count){
+    banner.innerHTML="";
+    return;
+  }
+  banner.innerHTML=`<button type="button" class="workforce-alert-banner" data-open-workforce-alerts>
+    <span class="workforce-alert-banner-light"><i></i></span>
+    <span class="workforce-alert-banner-copy"><strong>${count} alerta${count===1?"":"s"} de jornada requiere${count===1?"":"n"} revisión</strong><small>Actividad${count===1?"":"es"} con más de 60 minutos. Revisa tiempo real y foto final.</small></span>
+    <b>Revisar ahora →</b>
+  </button>`;
+  banner.querySelector("[data-open-workforce-alerts]")?.addEventListener("click",()=>{
+    activeMode="WORKFORCE";
+    root.querySelectorAll("[data-mode]").forEach(item=>item.classList.toggle("active",item.dataset.mode==="WORKFORCE"));
+    loadWorkspace(root);
+  });
+}
+
+async function loadWorkforceAlerts(root){
+  const toolbar=root.querySelector("#exception-toolbar");
+  const target=root.querySelector("#exception-result");
+  toolbar.innerHTML=`<div class="exception-filter-group"><span class="filter-chip active">Semáforo rojo · &gt; 60 min</span></div><span class="muted">Solo se muestran actividades finalizadas con foto y pendientes de revisión</span>`;
+  target.innerHTML=loading("Consultando alertas de jornada…");
+  const queue=await getWorkforceQueue(true);
+  if(!queue){
+    target.innerHTML=empty("Sin acceso a alertas de jornada","Tu perfil no tiene permisos para revisar tiempos del equipo.");
+    return;
+  }
+  const rows=queue.timeReviews||[];
+  target.innerHTML=rows.length?`<section class="workforce-alert-workspace"><header><div><h3>Alertas de jornada</h3><p>El rojo no bloquea el trabajo: señala actividades que superaron 60 minutos y deben ser revisadas después.</p></div><span class="workforce-alert-count">${rows.length}</span></header><div class="workforce-alert-list">${rows.map(workforceAlertCard).join("")}</div></section>`:empty("Sin alertas de jornada","No hay actividades con tiempo superior a 60 minutos pendientes de revisión.");
+  target.querySelectorAll("[data-workforce-review]").forEach(button=>button.addEventListener("click",()=>{
+    const row=rows.find(item=>item.executionId===button.dataset.workforceReview);
+    if(row)openWorkforceTimeReview(row,root);
+  }));
+}
+
+function workforceAlertCard(row){
+  const photo=(row.evidence||[]).find(item=>["FINAL_PHOTO","AFTER_PHOTO"].includes(String(item.type||"").toUpperCase()))||(row.evidence||[]).find(item=>item.webViewLink);
+  return `<article class="workforce-alert-card">
+    <span class="workforce-alert-light" title="Semáforo rojo"><i></i></span>
+    <div class="workforce-alert-person"><strong>${fmt.escape(row.profileName||"Funcionario")}</strong><small>${fmt.escape(row.catalogName||"Actividad")}</small></div>
+    <div class="workforce-alert-main"><span>Revisión requerida</span><strong>${fmt.escape(row.title||"Actividad")}</strong><small>${fmt.date(row.startedAt)} → ${fmt.date(row.endedAt)}</small></div>
+    <div class="workforce-alert-time"><strong>${durationText(row.activeSeconds)}</strong><small>${Number(row.pausedSeconds||0)>0?`${durationText(row.pausedSeconds)} en pausa`:"Sin pausas"}</small></div>
+    <div class="workforce-alert-actions">${photo?.webViewLink?`<a class="btn btn-ghost" href="${fmt.escape(photo.webViewLink)}" target="_blank" rel="noopener noreferrer">Ver foto</a>`:""}<button type="button" class="btn btn-primary" data-workforce-review="${fmt.escape(row.executionId)}">Revisar alerta</button></div>
+  </article>`;
+}
+
+function openWorkforceTimeReview(row,root){
+  const view=modal({
+    title:"Revisar alerta de jornada",
+    confirmLabel:"Guardar revisión",
+    size:"wide",
+    body:timeReviewDialogHtml(row),
+    onConfirm:async dialog=>{
+      const decision=dialog.querySelector('[name="timeReviewDecision"]:checked')?.value||"REVIEWED";
+      const note=dialog.querySelector('[name="timeReviewNote"]').value.trim()||null;
+      if(decision==="OBSERVED"&&(!note||note.length<5))throw new Error("Escribe una observación breve para cerrar como Observado.");
+      await api.workReviewTime(row.executionId,decision,note);
+      invalidateWorkforceQueue();
+      toast(decision==="REVIEWED"?"Alerta revisada y actividad cerrada.":"Alerta cerrada con observación.","success",6000);
+      view.close();
+      await Promise.all([loadWorkforceAlertState(root),loadWorkforceAlerts(root)]);
+    }
+  });
+  view.root.querySelectorAll('[name="timeReviewDecision"]').forEach(input=>input.addEventListener("change",()=>{
+    view.root.querySelectorAll(".work-time-review-choice .choice").forEach(label=>label.classList.toggle("active",Boolean(label.querySelector("input")?.checked)));
+  }));
 }
 
 async function loadApprovals(root){
