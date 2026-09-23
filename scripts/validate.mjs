@@ -90,8 +90,8 @@ const normalizedJsRuntime=jsRuntime
   .replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
 // Release identity.
-check(version==="11.34.3","CONFIG.version debe ser 11.34.3.");
-check(build==="2026-09-23.07","CONFIG.build debe ser 2026-09-23.07.");
+check(version==="11.34.4","CONFIG.version debe ser 11.34.4.");
+check(build==="2026-09-23.08","CONFIG.build debe ser 2026-09-23.08.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
@@ -126,8 +126,8 @@ check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía instit
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
 // PWA and Vercel routing.
-check(sw.includes('// previous-cache: crm-suministros-v11-34-2-20260923-06'),"previous-cache PWA debe apuntar a V11.34.2.");
-check(sw.includes('const CACHE="crm-suministros-v11-34-3-20260923-07";'),"CACHE activo PWA no corresponde a V11.34.3.");
+check(sw.includes('// previous-cache: crm-suministros-v11-34-3-20260923-07'),"previous-cache PWA debe apuntar a V11.34.3.");
+check(sw.includes('const CACHE="crm-suministros-v11-34-4-20260923-08";'),"CACHE activo PWA no corresponde a V11.34.4.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
 check(vercel.includes('manifest\\\\.webmanifest')||vercel.includes('/manifest.webmanifest'),"Vercel debe excluir o tratar explícitamente el manifest real.");
@@ -322,7 +322,7 @@ console.log(`VALIDACIÓN CRM ${version} CORRECTA`);
 console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
 console.log("- Inventario conserva captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
-console.log("- V11.34.3 elimina aprobación previa y deja foto obligatoria + revisión posterior > 60 min.");
+console.log("- V11.34.4 consolida Mi jornada accesible y alertas rojas en Excepciones.");
 console.log("- Observers responsive y popup procesan únicamente el ámbito dinámico afectado.");
 console.log("- PWA, Vercel, RLS y hotpaths SQL quedan incorporados al contrato canónico.");
 console.log("- Conteo ciego, RLS granular y aprobación contable permanecen como contratos obligatorios.");
