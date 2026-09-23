@@ -143,6 +143,8 @@ function timelineFromAssignment(assignment,execution,canPlanTeam){
     activeSeconds:Number(execution?.activeSeconds||0),
     evidenceCount:Number(execution?.evidenceCount||0),
     hasPhoto:Boolean(execution?.hasPhoto),
+    previewEvidenceId:execution?.previewEvidenceId||null,
+    previewDriveFileId:execution?.previewDriveFileId||null,
     canCancel:Boolean(canPlanTeam&&!execution&&!FINAL_STATES.has(String(status).toUpperCase()))
   };
 }
@@ -174,6 +176,8 @@ function timelineFromExecution(execution){
     activeSeconds:Number(execution.activeSeconds||0),
     evidenceCount:Number(execution.evidenceCount||0),
     hasPhoto:Boolean(execution.hasPhoto),
+    previewEvidenceId:execution.previewEvidenceId||null,
+    previewDriveFileId:execution.previewDriveFileId||null,
     canCancel:false
   };
 }
