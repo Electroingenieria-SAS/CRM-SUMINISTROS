@@ -34,7 +34,7 @@ test("shared HTML boundary sanitizes executable markup",async({page})=>{
     const dirty='<img src="x" onerror="window.__xss=1"><a href="javascript:alert(1)">X</a><iframe srcdoc="<script>alert(1)<\\/script>"></iframe><strong data-safe="1">Seguro</strong>';
     return sanitizeHtml(dirty);
   });
-  expect(result).not.toMatch(/onerror|javascript:|iframe|srcdoc|<script/i);
+  expect(result).not.toMatch(/onerror|javascript:|iframe|srcdoc|<script|<style|<link|background:url/i);
   expect(result).toContain('data-safe="1"');
   expect(result).toContain("Seguro");
 });
