@@ -1091,3 +1091,70 @@ button.work-month-day-v11330:hover,.work-month-day-v11330[role="button"]:hover{b
   .work-photo-required{grid-template-columns:38px minmax(0,1fr)}
   .work-photo-required-icon{width:38px;height:38px}
 }
+
+
+/* ==========================================================================
+   V11.34.1 · Revisión gerencial de tiempos prolongados
+   ========================================================================== */
+.work-time-review-group{padding:12px;border:1px solid #ecd8ab;border-radius:14px;background:linear-gradient(180deg,#fffdf8,#fff)}
+.v112-group-title>div{display:grid;gap:2px}
+.v112-group-title>div>small{font-size:8px;color:#8d7b59}
+.work-time-review-list{display:grid;gap:8px}
+.work-time-review-card{display:grid;grid-template-columns:minmax(180px,.8fr) minmax(240px,1.2fr) 120px auto;gap:12px;align-items:center;padding:11px 12px;border:1px solid #e5ddd0;border-radius:12px;background:#fff;box-shadow:0 4px 12px rgba(65,49,25,.04)}
+.work-time-review-person{display:grid;grid-template-columns:38px minmax(0,1fr);gap:9px;align-items:center;min-width:0}
+.work-time-review-person .avatar{width:38px;height:38px}
+.work-time-review-person>div{display:grid;gap:2px;min-width:0}
+.work-time-review-person strong{font-size:9.5px;color:#284965;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.work-time-review-person small{font-size:8px;color:#8291a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.work-time-review-main{min-width:0;display:grid;gap:3px}
+.work-time-review-state{width:max-content;max-width:100%;padding:3px 7px;border-radius:999px;background:#fff1e3;color:#a05d19;font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.05em}
+.work-time-review-main>strong{font-size:10px;color:#173d63;line-height:1.3;overflow-wrap:anywhere}
+.work-time-review-main>small{font-size:8px;color:#7d8d9e;line-height:1.35}
+.work-time-review-duration{display:grid;gap:1px;text-align:right}
+.work-time-review-duration>strong{font-size:15px;color:#a34a4d;font-variant-numeric:tabular-nums}
+.work-time-review-duration>small{font-size:7.5px;color:#8a98a6}
+.work-time-review-actions{display:flex;gap:6px;justify-content:flex-end;align-items:center;flex-wrap:wrap}
+.work-time-review-actions .btn{min-height:36px;padding:7px 10px;font-size:9px}
+.work-time-review-no-photo{font-size:8px;color:#9a7e7e}
+.work-time-review-dialog{display:grid;gap:13px}
+.work-time-review-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px;border:1px solid #ead9b8;border-radius:13px;background:linear-gradient(135deg,#fffdf8,#fff7e9)}
+.work-time-review-hero>div:first-child{min-width:0;display:grid;gap:3px}
+.work-time-review-hero span{font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:#a67b32}
+.work-time-review-hero strong{font-size:15px;color:#29445e;line-height:1.25}
+.work-time-review-hero p{margin:0;font-size:9px;color:#748394}
+.work-time-review-clock{min-width:130px;text-align:right}
+.work-time-review-clock>strong{display:block;font-size:24px;color:#a2484b;letter-spacing:-.03em}
+.work-time-review-clock>span{font-size:7.5px;color:#8a98a7}
+.work-time-review-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.work-time-review-metrics article{padding:10px;border:1px solid #e0e7ee;border-radius:10px;background:#fbfdff;display:grid;gap:2px}
+.work-time-review-metrics span{font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:#8997a5}
+.work-time-review-metrics strong{font-size:9px;color:#31516e;line-height:1.35}
+.work-time-review-photo{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 12px;border:1px solid #d8e6f1;border-radius:11px;background:#f7fbff}
+.work-time-review-photo>div{display:grid;gap:2px;min-width:0}
+.work-time-review-photo span{font-size:7px;font-weight:900;text-transform:uppercase;color:#6b88a3}
+.work-time-review-photo strong{font-size:9.5px;color:#274d6f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.work-time-review-photo small{font-size:7.5px;color:#8393a2}
+.work-time-review-choice{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.work-time-review-choice .choice{display:grid;grid-template-columns:18px minmax(0,1fr);gap:8px;align-items:start;padding:11px;border:1px solid #dce5ed;border-radius:11px;background:#fff;cursor:pointer}
+.work-time-review-choice .choice.active{border-color:#6ea4cf;background:#f2f8fd;box-shadow:0 0 0 2px rgba(50,119,174,.08)}
+.work-time-review-choice .choice input{margin-top:2px}
+.work-time-review-choice .choice span{display:grid;gap:2px}
+.work-time-review-choice .choice strong{font-size:9.5px;color:#244c6e}
+.work-time-review-choice .choice small{font-size:8px;line-height:1.35;color:#7d8e9f}
+@media(max-width:980px){
+  .work-time-review-card{grid-template-columns:minmax(170px,.8fr) minmax(220px,1.2fr) 110px}
+  .work-time-review-actions{grid-column:1/-1}
+}
+@media(max-width:720px){
+  .work-time-review-card{grid-template-columns:1fr}
+  .work-time-review-duration{text-align:left}
+  .work-time-review-actions{justify-content:stretch}
+  .work-time-review-actions .btn{flex:1 1 140px}
+  .work-time-review-hero{grid-template-columns:1fr}
+  .work-time-review-clock{text-align:left}
+  .work-time-review-metrics{grid-template-columns:1fr 1fr}
+  .work-time-review-photo{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .work-time-review-metrics,.work-time-review-choice{grid-template-columns:1fr}
+}
