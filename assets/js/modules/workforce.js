@@ -2,13 +2,15 @@ import {api} from "../services/api.js";
 import {fmt,statusBadge,priorityBadge} from "../core/format.js";
 import {loading,empty,modal,wizard,toast} from "../core/ui.js";
 import {state} from "../core/state.js";
-import {uploadWorkEvidence,loadWorkEvidencePreview,prefetchWorkEvidencePreview} from "../services/drive.js";
+import {uploadWorkEvidence,loadWorkEvidencePreview} from "../services/drive.js";
 import {icon} from "../core/icons.js";
-import {normalizePlannerCalendar,plannerRangeForMode,nextBusinessAnchor,plannerTitleForMode,renderPlannerBoard,teamCapacityHtml} from "./workforce-planner-v11330.js";
+import {normalizePlannerCalendar,plannerRangeForMode,nextBusinessAnchor,plannerTitleForMode,teamCapacityHtml} from "./workforce-planner-v11330.js";
 import {timeTrafficLight,trafficHelp,elapsedActiveSeconds,finalEvidenceType} from "./workforce-today-v11340.js";
 import {catalogTaxonomy,catalogBrowserHtml,categoryStageHtml,subcategoryStageHtml,activityStageHtml,selectedActivityHtml,catalogBreadcrumbHtml} from "./workforce-catalog-v11343.js";
 import {ensureWorkforceExperienceStyles} from "./workforce-experience-v11344.js";
-import {ensureWorkforceTimelineStyles,composePlannerTimeline,timelineDetailRequest,openWorkTimelineCard} from "./workforce-timeline-v11350.js";
+import {ensureWorkforceTimelineStyles,composePlannerTimeline} from "./workforce-timeline-v11350.js";
+import {createWorkEvidenceManager} from "./workforce-evidence-manager-v11360.js";
+import {ensureWorkforceCalendarStyles,renderWorkforceCalendarBoard,bindWorkforceCalendar} from "./workforce-calendar-v11360.js";
 
 let liveTimer=null;
 let currentView="today";
@@ -16,6 +18,8 @@ let plannerMode="week";
 let plannerAnchor=new Date();
 let plannerCalendarCache=null;
 let plannerCatalogCache=null;
+let plannerCalendarCleanup=null;
+const workEvidenceManager=createWorkEvidenceManager(loadWorkEvidencePreview,{maxBytes:8*1024*1024,maxEntries:5});
 let analyticsRange={from:isoDate(addDays(new Date(),-29)),to:isoDate(new Date())};
 
 const GROUP_LABELS={LOGISTICS:"Operación logística",COMMERCIAL:"Comercial",FINANCE:"Financiera",PURCHASING:"Compras",MANAGEMENT:"Gestión",GENERAL:"General",IMPROVEMENT:"Mejora continua"};
@@ -25,6 +29,7 @@ const DEVIATION_REASONS={"":"Sin causa especial",MATERIAL:"Material no disponibl
 export async function renderWorkforce(root){
   ensureWorkforceExperienceStyles();
   ensureWorkforceTimelineStyles();
+  ensureWorkforceCalendarStyles();
   clearInterval(liveTimer);
   root.innerHTML=`
     <section class="page-head workforce-page-head">
@@ -49,6 +54,8 @@ export async function renderWorkforce(root){
 
 async function renderCurrent(root,force=false){
   clearInterval(liveTimer);
+  plannerCalendarCleanup?.();
+  plannerCalendarCleanup=null;
   const content=root.querySelector("#workforce-content");
   if(!content)return;
   content.innerHTML=loading();
@@ -475,10 +482,10 @@ async function renderPlanner(root,content){
     <section class="work-planner-context-strip">
       <span><b>Horario</b> 07:00–12:00 · 13:40–17:30</span>
       <span><b>Calendario</b> ${canViewTeam?"equipo visible según permisos":"solo tus actividades"}</span>
-      <span><b>Registro real</b> actividades espontáneas y programadas en una sola línea de tiempo</span>
+      <span><b>Vista rápida</b> la primera evidencia visible se anticipa sin cargar el detalle completo</span>
     </section>
 
-    ${renderPlannerBoard({mode:plannerMode,anchor:plannerAnchor,data:plannerData,calendar})}
+    ${renderWorkforceCalendarBoard({mode:plannerMode,anchor:plannerAnchor,data:plannerData,calendar})}
 
     ${canViewTeam?`<section class="card work-team-now">
       <header class="card-head"><div><h3>Capacidad del equipo</h3><p>Se calcula únicamente con asignaciones planificadas; las actividades espontáneas no inflan la carga futura.</p></div></header>
@@ -520,98 +527,23 @@ async function renderPlanner(root,content){
     content.querySelector("[data-plan-new-custom]").onclick=async()=>assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),null,{newCatalog:true,startNow:true});
   }
 
-  const detailCache=new Map();
-
-  const detailKey=item=>`${item.assignmentId||""}:${item.executionId||""}:${item.profileId||""}`;
-
-  const loadTimelineDetail=item=>{
-    const key=detailKey(item);
-    if(detailCache.has(key))return detailCache.get(key);
-    const request=api.workPlannerDetail(timelineDetailRequest(item))
-      .then(detail=>{
-        const firstPhoto=(Array.isArray(detail?.evidence)?detail.evidence:[]).find(row=>{
-          const type=String(row?.type||"").toUpperCase();
-          const mime=String(row?.mimeType||"").toLowerCase();
-          return ["BEFORE_PHOTO","AFTER_PHOTO","FINAL_PHOTO"].includes(type)||mime.startsWith("image/");
-        });
-        if(firstPhoto?.id&&firstPhoto?.driveFileId){
-          prefetchWorkEvidencePreview(firstPhoto.id,firstPhoto.driveFileId);
-        }
-        return detail;
-      })
-      .catch(error=>{
-        detailCache.delete(key);
-        throw error;
-      });
-    detailCache.set(key,request);
-    return request;
-  };
-
-  const primeItem=id=>{
-    const item=timeline.find(row=>String(row.id)===String(id));
-    if(item)loadTimelineDetail(item).catch(()=>{});
-  };
-
-  const openItem=id=>{
-    const item=timeline.find(row=>String(row.id)===String(id));
-    if(!item)return toast("No se encontró el detalle de esta actividad.","warning");
-    return openWorkTimelineCard(
-      item,
-      ()=>loadTimelineDetail(item),
-      loadWorkEvidencePreview
-    );
-  };
-
-  content.querySelectorAll("[data-assignment-open]").forEach(element=>{
-    element.addEventListener("pointerdown",()=>{
-      primeItem(element.dataset.assignmentOpen);
-    },{passive:true});
-
-    element.addEventListener("focus",()=>{
-      primeItem(element.dataset.assignmentOpen);
-    },{passive:true});
-
-    element.onclick=event=>{
-      if(event.target.closest("[data-assignment-cancel]"))return;
-      event.stopPropagation();
-      openItem(element.dataset.assignmentOpen);
-    };
-    element.onkeydown=event=>{
-      if(event.key==="Enter"||event.key===" "){
-        event.preventDefault();
-        event.stopPropagation();
-        openItem(element.dataset.assignmentOpen);
-      }
-    };
+  plannerCalendarCleanup=bindWorkforceCalendar({
+    container:content,
+    items:timeline,
+    api,
+    evidenceManager:workEvidenceManager,
+    canPlanTeam,
+    notify:toast,
+    onPlanDay:async day=>{
+      assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),day);
+    },
+    onCancel:assignmentId=>{
+      cancelAssignmentDialog(assignmentId,()=>renderPlanner(root,content));
+    },
+    onActiveProfile:()=>{
+      toast("La actividad actual todavía no tiene detalle disponible en este rango.","warning");
+    }
   });
-
-  content.querySelectorAll("[data-active-profile]").forEach(button=>button.onclick=event=>{
-    event.stopPropagation();
-    const profileId=button.dataset.activeProfile;
-    const activeItem=timeline.find(row=>row.profileId===profileId&&["IN_PROGRESS","PAUSED"].includes(String(row.memberStatus||"").toUpperCase()));
-    if(activeItem)return openItem(activeItem.id);
-    toast("La actividad actual todavía no tiene detalle disponible en este rango.","warning");
-  });
-
-  if(canPlanTeam){
-    content.querySelectorAll("[data-plan-day]").forEach(day=>{
-      day.onclick=async event=>{
-        if(event.target.closest("[data-assignment-open],[data-active-profile],[data-assignment-cancel]"))return;
-        assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),day.dataset.planDay);
-      };
-      day.onkeydown=async event=>{
-        if((event.key==="Enter"||event.key===" ")&&event.target===day){
-          event.preventDefault();
-          assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),day.dataset.planDay);
-        }
-      };
-    });
-
-    content.querySelectorAll("[data-assignment-cancel]").forEach(button=>button.onclick=event=>{
-      event.stopPropagation();
-      cancelAssignmentDialog(button.dataset.assignmentCancel,()=>renderPlanner(root,content));
-    });
-  }
 }
 
 async function resolvePlannerCalendar(data){
