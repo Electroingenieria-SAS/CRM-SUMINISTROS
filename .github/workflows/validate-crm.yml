@@ -36,6 +36,9 @@ jobs:
       - name: Workforce planner · business calendar contract
         run: node scripts/workforce-planner-test.mjs
 
+      - name: Workforce today · automatic execution contract
+        run: node scripts/workforce-today-test.mjs
+
       - name: Security contract
         id: security
         continue-on-error: true
