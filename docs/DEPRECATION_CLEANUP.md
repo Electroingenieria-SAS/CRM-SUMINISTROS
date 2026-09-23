@@ -42,3 +42,16 @@ Eliminarlo sin producir primero un baseline reproducible de esquema sería una p
 ## Próxima deprecación recomendada
 
 El Security Advisor todavía identifica una superficie amplia de RPC `SECURITY DEFINER`, en especial familias heredadas `erp_v9_*` y helpers antiguos. No se eliminaron automáticamente porque la ausencia de referencias en el frontend no demuestra que no exista consumo externo. Antes de retirarlos se debe revisar telemetría/logs de PostgREST, crear una lista de consumidores y ejecutar una ventana de deprecación controlada.
+
+
+## Saneamiento V11.32.0 · 2026-09-23
+
+Se volvió a recorrer el árbol completo y el grafo ES Modules.
+
+- No existen módulos JavaScript huérfanos: `scripts/link-check.mjs` falla si aparece uno.
+- Los archivos con sufijos de versión no se eliminan por nombre: varios siguen siendo dependencias reales del composition root.
+- El único duplicado binario exacto encontrado corresponde a los `deno.json` equivalentes de dos Edge Functions y se conserva porque cada función necesita su manifiesto local.
+- Se retiró `sql/LEEME_SQL.txt` porque quedó sin consumidores y ordenaba ejecutar un instalador que ya no existe.
+- No se borran migraciones/SQL históricos mientras el rebuild source-only no esté certificado.
+- `admin-center-v11160.js` comienza un refactor progresivo: impersonación y helpers visuales ya tienen propietarios separados.
+- La deuda de migraciones aplicadas fuera de Git queda congelada en `supabase/production-migration-ledger.json`.
