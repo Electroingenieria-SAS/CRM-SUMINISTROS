@@ -189,58 +189,58 @@ function timelineDetailHtml(detail={}){
   const planned=detail.plannedStart?timeRange(detail.plannedStart,detail.plannedEnd):"Sin bloque previo";
   const actual=detail.startedAt?timeRange(detail.startedAt,detail.endedAt):"Aún no iniciada";
 
-  return \`
-    <section class="work-timeline-hero-v11350 \${cover?"has-photo":""}">
-      \${cover?\`
-        <button type="button" class="work-timeline-photo-v11350 is-loading" data-timeline-photo-main data-drive-file-id="\${fmt.escape(cover.driveFileId||"")}" aria-label="Ver evidencia fotográfica">
+  return `
+    <section class="work-timeline-hero-v11350 ${cover?"has-photo":""}">
+      ${cover?`
+        <button type="button" class="work-timeline-photo-v11350 is-loading" data-timeline-photo-main data-drive-file-id="${fmt.escape(cover.driveFileId||"")}" aria-label="Ver evidencia fotográfica">
           <span class="work-timeline-photo-loader-v11350">Cargando evidencia…</span>
-          <img alt="Evidencia fotográfica de \${fmt.escape(detail.title||"actividad")}" hidden>
+          <img alt="Evidencia fotográfica de ${fmt.escape(detail.title||"actividad")}" hidden>
           <em>Fotografía de evidencia</em>
-        </button>\`:
-        \`<div class="work-timeline-photo-empty-v11350"><span>✓</span><div><strong>\${fmt.escape(statusLabel(status))}</strong><small>\${evidence.length?"Evidencia registrada":"Sin fotografía disponible"}</small></div></div>\`}
+        </button>`:
+        `<div class="work-timeline-photo-empty-v11350"><span>✓</span><div><strong>${fmt.escape(statusLabel(status))}</strong><small>${evidence.length?"Evidencia registrada":"Sin fotografía disponible"}</small></div></div>`}
       <div class="work-timeline-hero-copy-v11350">
         <div class="work-timeline-badges-v11350">
-          <span class="state \${statusTone(status)}">\${fmt.escape(statusLabel(status))}</span>
-          <span>\${fmt.escape(detail.source==="MANUAL"?"Registro espontáneo":"Actividad programada")}</span>
-          \${evidence.length?\`<span class="photo">📷 \${evidence.length} evidencia\${evidence.length===1?"":"s"}</span>\`:""}
+          <span class="state ${statusTone(status)}">${fmt.escape(statusLabel(status))}</span>
+          <span>${fmt.escape(detail.source==="MANUAL"?"Registro espontáneo":"Actividad programada")}</span>
+          ${evidence.length?`<span class="photo">📷 ${evidence.length} evidencia${evidence.length===1?"":"s"}</span>`:""}
         </div>
-        <h4>\${fmt.escape(detail.title||"Actividad")}</h4>
-        <p>\${fmt.escape(detail.description||detail.resultNote||"Actividad registrada en la jornada de trabajo.")}</p>
+        <h4>${fmt.escape(detail.title||"Actividad")}</h4>
+        <p>${fmt.escape(detail.description||detail.resultNote||"Actividad registrada en la jornada de trabajo.")}</p>
       </div>
     </section>
 
-    \${images.length>1?\`<div class="work-timeline-gallery-v11350">\${images.map((row,index)=>\`
-      <button type="button" class="\${index===0?"active":""}" data-timeline-thumb data-drive-file-id="\${fmt.escape(row.driveFileId||"")}" aria-label="Ver evidencia \${index+1}">
-        <span>\${index+1}</span>
-      </button>\`).join("")}</div>\`:""}
+    ${images.length>1?`<div class="work-timeline-gallery-v11350">${images.map((row,index)=>`
+      <button type="button" class="${index===0?"active":""}" data-timeline-thumb data-drive-file-id="${fmt.escape(row.driveFileId||"")}" aria-label="Ver evidencia ${index+1}">
+        <span>${index+1}</span>
+      </button>`).join("")}</div>`:""}
 
     <section class="work-timeline-facts-v11350">
-      \${fact("Responsable",detail.profileName||"—")}
-      \${fact("Programación",planned)}
-      \${fact("Ejecución real",actual)}
-      \${fact("Tiempo activo",durationLabel(activeSeconds))}
-      \${fact("Pausas",durationLabel(Number(detail.pausedSeconds||0)))}
-      \${fact("Catálogo",detail.catalogName||fmt.label(detail.kind||"ACTIVITY"))}
+      ${fact("Responsable",detail.profileName||"—")}
+      ${fact("Programación",planned)}
+      ${fact("Ejecución real",actual)}
+      ${fact("Tiempo activo",durationLabel(activeSeconds))}
+      ${fact("Pausas",durationLabel(Number(detail.pausedSeconds||0)))}
+      ${fact("Catálogo",detail.catalogName||fmt.label(detail.kind||"ACTIVITY"))}
     </section>
 
-    \${Array.isArray(detail.participants)&&detail.participants.length>1?\`<section class="work-timeline-section-v11350"><header><span>Equipo</span><strong>Participantes</strong></header><div class="work-timeline-people-v11350">\${detail.participants.map(person=>\`<span><b class="avatar">\${fmt.initials(person.profileName)}</b><em>\${fmt.escape(person.profileName)}</em><small>\${fmt.escape(statusLabel(person.status))}</small></span>\`).join("")}</div></section>\`:""}
+    ${Array.isArray(detail.participants)&&detail.participants.length>1?`<section class="work-timeline-section-v11350"><header><span>Equipo</span><strong>Participantes</strong></header><div class="work-timeline-people-v11350">${detail.participants.map(person=>`<span><b class="avatar">${fmt.initials(person.profileName)}</b><em>${fmt.escape(person.profileName)}</em><small>${fmt.escape(statusLabel(person.status))}</small></span>`).join("")}</div></section>`:""}
 
-    \${evidence.length?\`<section class="work-timeline-section-v11350"><header><span>Evidencia</span><strong>Registro de la actividad</strong></header><div class="work-timeline-evidence-v11350">\${evidence.map(evidenceRow).join("")}</div></section>\`:""}
+    ${evidence.length?`<section class="work-timeline-section-v11350"><header><span>Evidencia</span><strong>Registro de la actividad</strong></header><div class="work-timeline-evidence-v11350">${evidence.map(evidenceRow).join("")}</div></section>`:""}
 
-    <footer class="work-timeline-foot-v11350"><span>La actividad y su evidencia se conservan en la trazabilidad institucional.</span></footer>\`;
+    <footer class="work-timeline-foot-v11350"><span>La actividad y su evidencia se conservan en la trazabilidad institucional.</span></footer>`;
 }
 
 function evidenceRow(row){
   const photo=isPhotoEvidence(row);
   const link=safeHttpUrl(row?.webViewLink);
-  return \`<article>
-    <span class="work-timeline-evidence-icon-v11350">\${photo?"📷":"◫"}</span>
-    <div><strong>\${fmt.escape(evidenceLabel(row?.type))}</strong><small>\${fmt.escape(row?.fileName||row?.externalValue||"Registro de evidencia")}</small></div>
+  return `<article>
+    <span class="work-timeline-evidence-icon-v11350">${photo?"📷":"◫"}</span>
+    <div><strong>${fmt.escape(evidenceLabel(row?.type))}</strong><small>${fmt.escape(row?.fileName||row?.externalValue||"Registro de evidencia")}</small></div>
     <div class="work-timeline-evidence-actions-v11350">
-      \${photo&&row?.driveFileId?\`<button type="button" data-timeline-evidence-preview data-drive-file-id="\${fmt.escape(row.driveFileId)}">Ver foto</button>\`:""}
-      \${link?\`<a href="\${link}" target="_blank" rel="noopener noreferrer">Original</a>\`:""}
+      ${photo&&row?.driveFileId?`<button type="button" data-timeline-evidence-preview data-drive-file-id="${fmt.escape(row.driveFileId)}">Ver foto</button>`:""}
+      ${link?`<a href="${link}" target="_blank" rel="noopener noreferrer">Original</a>`:""}
     </div>
-  </article>\`;
+  </article>`;
 }
 
 function bindEvidenceGallery(layer,detail,loadPreview){
