@@ -1,6 +1,6 @@
 # CRM Suministros — Electroingeniería S.A.S.
 
-> Versión candidata: **V11.32.0** · build **2026-09-23.01**  
+> Versión candidata: **V11.33.0** · build **2026-09-23.02**  
 > Producción: Vercel + Supabase `hezjxcxxcjlpmyalftam`  
 > Auditoría integral vigente: `docs/AUDITORIA_INTEGRAL_2026-09-14.md`
 
@@ -27,9 +27,24 @@ SPA HTML/CSS/ES Modules
 
 El browser no accede directamente a tablas operativas. El esquema `erp_supply` permanece detrás de RLS y contratos RPC. `scripts/validate.mjs` y `scripts/link-check.mjs` hacen cumplir esta frontera.
 
-## 3. Estado V11.32.0
+## 3. Estado V11.33.0
 
-La línea base productiva V11.31.2 fue auditada nuevamente el 23 de septiembre de 2026. V11.32.0 prepara una fase de saneamiento y hardening sin cambiar el flujo funcional de pedidos/inventario:
+La línea base productiva V11.31.2 fue auditada nuevamente el 23 de septiembre de 2026. V11.32.0 introdujo el saneamiento y hardening de la candidata; V11.33.0 añade el rediseño de **Jornada y actividades → Cronograma** sin promover todavía cambios a Vercel ni a la base productiva.
+
+### Cronograma laboral V11.33.0
+
+- vistas **Día, Semana y Mes laboral**;
+- Día usa los segmentos institucionales 07:00–12:00 y 13:40–17:30;
+- Semana usa exclusivamente lunes a viernes;
+- Mes usa una grilla laboral de cinco columnas, sin sábados ni domingos;
+- festivos del calendario institucional se muestran bloqueados y no consumen capacidad;
+- cada persona muestra **Disponible / Ocupado / En pausa** y, cuando aplica, la actividad actual;
+- capacidad usa minutos laborales reales (530 min por día configurado);
+- catálogo de actividades se carga bajo demanda y se conserva en memoria;
+- calendario se reutiliza en memoria; tras promover la migración 115, el RPC del planner entregará equipo, asignaciones, segmentos y festivos en una sola respuesta;
+- la migración `115_workforce_planner_calendar_v11_33_0.sql` está versionada pero **no aplicada todavía a Supabase productivo**.
+
+El hardening acumulado conserva además:
 
 - health check de backend **21/21 OK**;
 - 0 pedidos finalizados con tareas activas;
