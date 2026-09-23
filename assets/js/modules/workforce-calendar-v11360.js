@@ -22,13 +22,13 @@ export function ensureWorkforceCalendarStyles(){
   const link=document.createElement("link");
   link.id=STYLE_ID;
   link.rel="stylesheet";
-  link.href="./assets/runtime-css/workforce-calendar-v11360.css?v=11.36.0";
+  link.href="./assets/runtime-css/workforce-calendar-v11360.css?v=11.36.1";
   document.head.appendChild(link);
 }
 
-export function renderWorkforceCalendarBoard({mode,anchor,data,calendar}){
-  const safeData=data||{};
-  if(mode==="day")return dayBoard(safeData,calendar,anchor);
+export function renderWorkforceCalendarBoard({mode,anchor,data,calendar,filters={}}){
+  const safeData=filterCalendarData(data||{},filters,mode);
+  if(mode==="day")return dayBoard(safeData,calendar,anchor,filters);
   if(mode==="month")return monthBoard(safeData,calendar,anchor);
   return weekBoard(safeData,calendar,anchor);
 }
@@ -102,29 +102,62 @@ export function bindWorkforceCalendar({
     const id=element.dataset.assignmentOpen;
     const item=byId.get(String(id||""));
 
-    const pointerHandler=()=>{ if(item)primePreview(item); };
-    const focusHandler=()=>{ if(item)primePreview(item); };
+    const pointerHandler=()=>{
+      if(!item)return;
+      primePreview(item);
+      showCalendarCloud(item,element,openItem);
+    };
+    const pointerLeaveHandler=()=>scheduleCalendarCloudClose();
+    const focusHandler=()=>{
+      if(!item)return;
+      primePreview(item);
+      showCalendarCloud(item,element,openItem);
+    };
+    const blurHandler=event=>{
+      if(calendarCloudContains(event.relatedTarget))return;
+      scheduleCalendarCloudClose();
+    };
     const clickHandler=event=>{
       if(event.target.closest("[data-assignment-cancel]"))return;
       event.stopPropagation();
-      openItem(id);
+      if(item)showCalendarCloud(item,element,openItem);
     };
-    const keyHandler=event=>{
-      if(event.key!=="Enter"&&event.key!==" ")return;
+    const doubleClickHandler=event=>{
+      if(event.target.closest("[data-assignment-cancel]"))return;
       event.preventDefault();
       event.stopPropagation();
       openItem(id);
     };
+    const keyHandler=event=>{
+      if(event.key==="Enter"){
+        event.preventDefault();
+        event.stopPropagation();
+        openItem(id);
+        return;
+      }
+      if(event.key===" "){
+        event.preventDefault();
+        event.stopPropagation();
+        if(item)showCalendarCloud(item,element,openItem);
+      }
+      if(event.key==="Escape")closeCalendarCloud();
+    };
 
-    element.addEventListener("pointerdown",pointerHandler,{passive:true});
+    element.addEventListener("pointerenter",pointerHandler,{passive:true});
+    element.addEventListener("pointerleave",pointerLeaveHandler,{passive:true});
     element.addEventListener("focus",focusHandler,{passive:true});
+    element.addEventListener("blur",blurHandler,{passive:true});
     element.addEventListener("click",clickHandler);
+    element.addEventListener("dblclick",doubleClickHandler);
     element.addEventListener("keydown",keyHandler);
 
     cleanup.push(()=>{
-      element.removeEventListener("pointerdown",pointerHandler);
+      element.removeEventListener("pointerenter",pointerHandler);
+      element.removeEventListener("pointerleave",pointerLeaveHandler);
       element.removeEventListener("focus",focusHandler);
+      element.removeEventListener("blur",blurHandler);
       element.removeEventListener("click",clickHandler);
+      element.removeEventListener("dblclick",doubleClickHandler);
       element.removeEventListener("keydown",keyHandler);
     });
   }
@@ -194,17 +227,25 @@ export function bindWorkforceCalendar({
     });
   }
 
+  const closeOnViewportMove=()=>closeCalendarCloud();
+  window.addEventListener("scroll",closeOnViewportMove,{passive:true,capture:true});
+  window.addEventListener("resize",closeOnViewportMove,{passive:true});
+  cleanup.push(()=>{
+    window.removeEventListener("scroll",closeOnViewportMove,true);
+    window.removeEventListener("resize",closeOnViewportMove);
+    closeCalendarCloud();
+  });
   return ()=>cleanup.splice(0).forEach(fn=>fn());
 }
 
-function dayBoard(data,calendar,anchor){
+function dayBoard(data,calendar,anchor,filters={}){
   const date=isoDate(anchor);
   const day=businessDaysForRange(date,date,calendar)[0];
 
   if(!day)return nonWorking("Fin de semana","Este día no pertenece a la jornada laboral.");
   if(day.isHoliday)return nonWorking(day.holidayName||"Festivo","Día no laborable. No se permiten asignaciones.");
 
-  const segments=(calendar?.segments||[]).filter(x=>x.isoWeekday===isoWeekday(anchor));
+  const segments=clipCalendarSegments((calendar?.segments||[]).filter(x=>x.isoWeekday===isoWeekday(anchor)),filters);
   const people=data.people||[];
   const assignments=data.assignments||[];
 
@@ -485,6 +526,158 @@ function personIdentity(person){
     </div>`;
 }
 
+let calendarCloud=null;
+let calendarCloudHideTimer=null;
+
+function filterCalendarData(data,filters={},mode="week"){
+  const profileId=String(filters.profileId||"ALL");
+  const weekday=String(filters.weekday||"ALL");
+  const from=toMinutes(filters.fromTime||"07:00");
+  const to=toMinutes(filters.toTime||"17:30");
+
+  const people=(data.people||[]).filter(person=>profileId==="ALL"||String(person.id)===profileId);
+  const assignments=(data.assignments||[]).filter(item=>{
+    if(profileId!=="ALL"&&String(item.profileId)!==profileId)return false;
+    const stamp=item.plannedStart||item.dueAt||item.actualStart||null;
+    if(mode!=="day"&&weekday!=="ALL"&&stamp&&String(isoWeekday(new Date(stamp)))!==weekday)return false;
+    if(item.plannedStart){
+      const start=bogotaMinutes(item.plannedStart);
+      const end=item.plannedEnd?bogotaMinutes(item.plannedEnd):start+1;
+      if(end<=from||start>=to)return false;
+    }
+    return true;
+  });
+
+  return {...data,people,assignments};
+}
+
+function clipCalendarSegments(segments,filters={}){
+  const from=toMinutes(filters.fromTime||"07:00");
+  const to=toMinutes(filters.toTime||"17:30");
+  if(to<=from)return segments;
+  return (segments||[]).map(segment=>{
+    const start=Math.max(from,toMinutes(segment.startTime));
+    const end=Math.min(to,toMinutes(segment.endTime));
+    if(end<=start)return null;
+    return {...segment,startTime:minutesToClock(start),endTime:minutesToClock(end)};
+  }).filter(Boolean);
+}
+
+function showCalendarCloud(item,anchor,openItem){
+  if(typeof document==="undefined"||!item||!anchor?.isConnected)return;
+  clearTimeout(calendarCloudHideTimer);
+  closeCalendarCloud(false);
+
+  const cloud=document.createElement("aside");
+  cloud.className="work-calendar-cloud-v11361";
+  cloud.setAttribute("role","dialog");
+  cloud.setAttribute("aria-label","Resumen de actividad");
+  cloud.innerHTML=calendarCloudHtml(item);
+  document.body.appendChild(cloud);
+  calendarCloud=cloud;
+
+  cloud.addEventListener("pointerenter",()=>clearTimeout(calendarCloudHideTimer));
+  cloud.addEventListener("pointerleave",()=>scheduleCalendarCloudClose());
+  cloud.querySelector("[data-calendar-cloud-open]")?.addEventListener("click",()=>openItem(item.id));
+
+  requestAnimationFrame(()=>{
+    if(!cloud.isConnected)return;
+    positionCalendarCloud(cloud,anchor);
+    cloud.classList.add("is-visible");
+  });
+}
+
+function calendarCloudContains(node){
+  return Boolean(node&&calendarCloud?.contains(node));
+}
+
+function scheduleCalendarCloudClose(delay=180){
+  clearTimeout(calendarCloudHideTimer);
+  calendarCloudHideTimer=setTimeout(()=>closeCalendarCloud(),delay);
+}
+
+function closeCalendarCloud(remove=true){
+  clearTimeout(calendarCloudHideTimer);
+  if(!calendarCloud)return;
+  const current=calendarCloud;
+  current.classList.remove("is-visible");
+  if(remove){
+    setTimeout(()=>{
+      if(current===calendarCloud)calendarCloud=null;
+      current.remove();
+    },120);
+  }else{
+    current.remove();
+    calendarCloud=null;
+  }
+}
+
+function positionCalendarCloud(cloud,anchor){
+  const rect=anchor.getBoundingClientRect();
+  const margin=12;
+  const width=Math.min(340,Math.max(286,window.innerWidth-margin*2));
+  cloud.style.width=`${width}px`;
+  const height=cloud.offsetHeight||250;
+  let left=rect.left+(rect.width-width)/2;
+  left=Math.max(margin,Math.min(left,window.innerWidth-width-margin));
+  let top=rect.bottom+9;
+  if(top+height>window.innerHeight-margin)top=rect.top-height-9;
+  top=Math.max(margin,Math.min(top,window.innerHeight-height-margin));
+  cloud.style.left=`${Math.round(left)}px`;
+  cloud.style.top=`${Math.round(top)}px`;
+}
+
+function calendarCloudHtml(item){
+  const status=eventStatus(item);
+  const planned=item.plannedStart?`${timeOnly(item.plannedStart)}${item.plannedEnd?`–${timeOnly(item.plannedEnd)}`:""}`:"Sin hora";
+  const duration=item.activeSeconds?cloudDuration(item.activeSeconds):cloudPlannedDuration(item.plannedStart,item.plannedEnd);
+  return `
+    <div class="work-calendar-cloud-head-v11361">
+      <div><span>${clockSvg()}${fmt.escape(planned)}</span><h4>${fmt.escape(item.title||"Actividad")}</h4></div>
+      <b class="tone-${status.tone}">${fmt.escape(status.label)}</b>
+    </div>
+    <div class="work-calendar-cloud-worker-v11361">
+      <span>${fmt.initials(item.profileName||"")}</span>
+      <div><small>Responsable</small><strong>${fmt.escape(item.profileName||"—")}</strong></div>
+    </div>
+    <div class="work-calendar-cloud-grid-v11361">
+      <span><small>Actividad</small><strong>${fmt.escape(item.catalogName||fmt.label(item.kind||"ACTIVITY"))}</strong></span>
+      <span><small>Duración</small><strong>${fmt.escape(duration)}</strong></span>
+      <span><small>Origen</small><strong>${fmt.escape(item.source==="MANUAL"?"Registro espontáneo":"Programada")}</strong></span>
+      <span><small>Evidencia</small><strong>${item.hasPhoto?"Fotografía disponible":item.evidenceCount?`${item.evidenceCount} registro${item.evidenceCount===1?"":"s"}`:"Sin evidencia"}</strong></span>
+    </div>
+    <div class="work-calendar-cloud-foot-v11361">
+      <span>${item.hasPhoto?`${cameraSvg()} Precargando evidencia`:"Doble clic para abrir"}</span>
+      <button type="button" data-calendar-cloud-open>Abrir detalle</button>
+    </div>`;
+}
+
+function cloudPlannedDuration(start,end){
+  if(!start||!end)return "—";
+  const minutes=Math.max(1,Math.round((new Date(end)-new Date(start))/60000));
+  return minutes>=60?`${Math.floor(minutes/60)} h${minutes%60?` ${minutes%60} min`:""}`:`${minutes} min`;
+}
+
+function cloudDuration(seconds){
+  const total=Math.max(0,Math.round(Number(seconds||0)));
+  if(!total)return "—";
+  const hours=Math.floor(total/3600);
+  const minutes=Math.round((total%3600)/60);
+  return hours?`${hours} h ${minutes} min`:`${Math.max(1,minutes)} min`;
+}
+
+function minutesToClock(total){
+  const value=Math.max(0,Math.min(1440,Number(total||0)));
+  return `${String(Math.floor(value/60)).padStart(2,"0")}:${String(value%60).padStart(2,"0")}`;
+}
+
+function clockSvg(){
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm1 10.4V6h-2v7.2l4.5 2.7 1-1.7Z"/></svg>';
+}
+
+function cameraSvg(){
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.4 5 10.8 3h2.4l1.4 2H18a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3h3.4ZM12 8a4 4 0 1 0 4 4 4 4 0 0 0-4-4Z"/></svg>';
+}
 function personState(person){
   const status=String(person?.activeStatus||"").toUpperCase();
   if(status==="PAUSED")return {label:"En pausa",tone:"paused"};

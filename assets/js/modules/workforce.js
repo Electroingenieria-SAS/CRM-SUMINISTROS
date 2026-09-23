@@ -16,6 +16,7 @@ let liveTimer=null;
 let currentView="today";
 let plannerMode="week";
 let plannerAnchor=new Date();
+let plannerFilters={profileId:"ALL",weekday:"ALL",fromTime:"07:00",toTime:"17:30"};
 let plannerCalendarCache=null;
 let plannerCatalogCache=null;
 let plannerCalendarCleanup=null;
@@ -479,18 +480,96 @@ async function renderPlanner(root,content){
       </div>
     </section>
 
+    <section class="work-calendar-filterbar-v11361" aria-label="Filtros del cronograma">
+      <div class="work-calendar-filter-top-v11361">
+        <span class="work-calendar-filter-label-v11361">Trabajador</span>
+        <div class="work-calendar-worker-chips-v11361">
+          <button type="button" class="work-calendar-worker-chip-v11361 ${plannerFilters.profileId==="ALL"?"active":""}" data-plan-filter-worker="ALL"><i>ALL</i><span>Todos</span></button>
+          ${(data.people||[]).map(person=>{
+            const count=timeline.filter(item=>item.profileId===person.id).length;
+            return `<button type="button" class="work-calendar-worker-chip-v11361 ${plannerFilters.profileId===person.id?"active":""}" data-plan-filter-worker="${fmt.escape(person.id)}"><i>${fmt.initials(person.name)}</i><span>${fmt.escape(person.name)} · ${count}</span></button>`;
+          }).join("")}
+        </div>
+      </div>
+      <div class="work-calendar-filter-fields-v11361">
+        <div class="work-calendar-filter-field-v11361">
+          <label>Desde</label>
+          <input type="time" value="${fmt.escape(plannerFilters.fromTime)}" min="07:00" max="17:30" step="300" data-plan-filter-from>
+        </div>
+        <div class="work-calendar-filter-field-v11361">
+          <label>Hasta</label>
+          <input type="time" value="${fmt.escape(plannerFilters.toTime)}" min="07:00" max="17:30" step="300" data-plan-filter-to>
+        </div>
+        ${plannerMode==="day"?`
+          <div class="work-calendar-filter-field-v11361">
+            <label>Fecha</label>
+            <input type="date" value="${isoDate(plannerAnchor)}" data-plan-filter-date>
+          </div>`:`
+          <div class="work-calendar-filter-field-v11361">
+            <label>Día</label>
+            <select data-plan-filter-weekday>
+              <option value="ALL" ${plannerFilters.weekday==="ALL"?"selected":""}>Todos los días</option>
+              <option value="1" ${plannerFilters.weekday==="1"?"selected":""}>Lunes</option>
+              <option value="2" ${plannerFilters.weekday==="2"?"selected":""}>Martes</option>
+              <option value="3" ${plannerFilters.weekday==="3"?"selected":""}>Miércoles</option>
+              <option value="4" ${plannerFilters.weekday==="4"?"selected":""}>Jueves</option>
+              <option value="5" ${plannerFilters.weekday==="5"?"selected":""}>Viernes</option>
+            </select>
+          </div>`}
+        <button type="button" class="work-calendar-filter-reset-v11361" data-plan-filter-reset>Limpiar filtros</button>
+      </div>
+    </section>
+
     <section class="work-planner-context-strip">
       <span><b>Horario</b> 07:00–12:00 · 13:40–17:30</span>
       <span><b>Calendario</b> ${canViewTeam?"equipo visible según permisos":"solo tus actividades"}</span>
-      <span><b>Vista rápida</b> la primera evidencia visible se anticipa sin cargar el detalle completo</span>
+      <span><b>Interacción</b> toca o pasa el mouse para resumen · doble clic para detalle</span>
     </section>
 
-    ${renderWorkforceCalendarBoard({mode:plannerMode,anchor:plannerAnchor,data:plannerData,calendar})}
+    <div data-planner-calendar-host>${renderWorkforceCalendarBoard({mode:plannerMode,anchor:plannerAnchor,data:plannerData,calendar,filters:plannerFilters})}</div>
 
     ${canViewTeam?`<section class="card work-team-now">
       <header class="card-head"><div><h3>Capacidad del equipo</h3><p>Se calcula únicamente con asignaciones planificadas; las actividades espontáneas no inflan la carga futura.</p></div></header>
       <div class="card-body">${teamCapacityHtml(data.people||[],data.assignments||[],range,calendar)}</div>
     </section>`:""}`;
+
+  const calendarHost=content.querySelector("[data-planner-calendar-host]");
+
+  const bindCalendar=()=>{
+    plannerCalendarCleanup?.();
+    plannerCalendarCleanup=bindWorkforceCalendar({
+      container:calendarHost,
+      items:timeline,
+      api,
+      evidenceManager:workEvidenceManager,
+      canPlanTeam,
+      notify:toast,
+      onPlanDay:async day=>{
+        assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),day);
+      },
+      onCancel:assignmentId=>{
+        cancelAssignmentDialog(assignmentId,()=>renderPlanner(root,content));
+      },
+      onActiveProfile:()=>{
+        toast("La actividad actual todavía no tiene detalle disponible en este rango.","warning");
+      }
+    });
+  };
+
+  const repaintCalendar=()=>{
+    if(!calendarHost)return;
+    calendarHost.innerHTML=renderWorkforceCalendarBoard({
+      mode:plannerMode,
+      anchor:plannerAnchor,
+      data:plannerData,
+      calendar,
+      filters:plannerFilters
+    });
+    content.querySelectorAll("[data-plan-filter-worker]").forEach(button=>{
+      button.classList.toggle("active",button.dataset.planFilterWorker===plannerFilters.profileId);
+    });
+    bindCalendar();
+  };
 
   const move=direction=>{
     if(plannerMode==="day")plannerAnchor=nextBusinessAnchor(plannerAnchor,direction,calendar);
@@ -522,28 +601,55 @@ async function renderPlanner(root,content){
     renderPlanner(root,content);
   });
 
+  content.querySelectorAll("[data-plan-filter-worker]").forEach(button=>button.onclick=()=>{
+    plannerFilters.profileId=button.dataset.planFilterWorker||"ALL";
+    repaintCalendar();
+  });
+
+  const fromFilter=content.querySelector("[data-plan-filter-from]");
+  const toFilter=content.querySelector("[data-plan-filter-to]");
+  const applyTimeFilters=()=>{
+    const from=fromFilter?.value||"07:00";
+    const to=toFilter?.value||"17:30";
+    if(from>=to){
+      toast("La hora inicial debe ser anterior a la hora final.","warning");
+      if(fromFilter)fromFilter.value=plannerFilters.fromTime;
+      if(toFilter)toFilter.value=plannerFilters.toTime;
+      return;
+    }
+    plannerFilters.fromTime=from;
+    plannerFilters.toTime=to;
+    repaintCalendar();
+  };
+  if(fromFilter)fromFilter.onchange=applyTimeFilters;
+  if(toFilter)toFilter.onchange=applyTimeFilters;
+
+  const weekdayFilter=content.querySelector("[data-plan-filter-weekday]");
+  if(weekdayFilter)weekdayFilter.onchange=()=>{
+    plannerFilters.weekday=weekdayFilter.value||"ALL";
+    repaintCalendar();
+  };
+
+  const dateFilter=content.querySelector("[data-plan-filter-date]");
+  if(dateFilter)dateFilter.onchange=()=>{
+    const [year,month,day]=String(dateFilter.value||"").split("-").map(Number);
+    if(!year||!month||!day)return;
+    plannerAnchor=new Date(year,month-1,day);
+    renderPlanner(root,content);
+  };
+
+  const resetFilters=content.querySelector("[data-plan-filter-reset]");
+  if(resetFilters)resetFilters.onclick=()=>{
+    plannerFilters={profileId:"ALL",weekday:"ALL",fromTime:"07:00",toTime:"17:30"};
+    renderPlanner(root,content);
+  };
+
   if(canPlanTeam){
     content.querySelector("[data-plan-new]").onclick=async()=>assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),null,{newCatalog:false});
     content.querySelector("[data-plan-new-custom]").onclick=async()=>assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),null,{newCatalog:true,startNow:true});
   }
 
-  plannerCalendarCleanup=bindWorkforceCalendar({
-    container:content,
-    items:timeline,
-    api,
-    evidenceManager:workEvidenceManager,
-    canPlanTeam,
-    notify:toast,
-    onPlanDay:async day=>{
-      assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),day);
-    },
-    onCancel:assignmentId=>{
-      cancelAssignmentDialog(assignmentId,()=>renderPlanner(root,content));
-    },
-    onActiveProfile:()=>{
-      toast("La actividad actual todavía no tiene detalle disponible en este rango.","warning");
-    }
-  });
+  bindCalendar();
 }
 
 async function resolvePlannerCalendar(data){

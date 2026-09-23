@@ -89,7 +89,25 @@ const dayHtml=renderWorkforceCalendarBoard({
 });
 assert.equal(dayHtml.includes("work-calendar-event-day-v11360"),true);
 assert.equal(dayHtml.includes("Alistamiento de mercancía"),true);
-assert.equal(dayHtml.includes("Evidencia"),true);
+assert.equal(dayHtml.includes("11:06"),true);
+
+const hiddenByWorker=renderWorkforceCalendarBoard({
+  mode:"day",
+  anchor:monday,
+  data,
+  calendar,
+  filters:{profileId:"otro",fromTime:"07:00",toTime:"17:30",weekday:"ALL"}
+});
+assert.equal(hiddenByWorker.includes("11:06"),false,"Filtro por trabajador debe ocultar actividades ajenas.");
+
+const hiddenByHour=renderWorkforceCalendarBoard({
+  mode:"day",
+  anchor:monday,
+  data,
+  calendar,
+  filters:{profileId:"ALL",fromTime:"13:40",toTime:"17:30",weekday:"ALL"}
+});
+assert.equal(hiddenByHour.includes("11:06"),false,"Filtro horario debe ocultar actividades fuera del rango.");
 assert.equal(dayHtml.includes("11:06"),true);
 
 const weekHtml=renderWorkforceCalendarBoard({
@@ -99,7 +117,16 @@ const weekHtml=renderWorkforceCalendarBoard({
   calendar
 });
 assert.equal(weekHtml.includes("work-calendar-event-week-v11360"),true);
-assert.equal(weekHtml.includes("work-calendar-status-v11360"),true);
+
+const hiddenByWeekday=renderWorkforceCalendarBoard({
+  mode:"week",
+  anchor:monday,
+  data,
+  calendar,
+  filters:{profileId:"ALL",fromTime:"07:00",toTime:"17:30",weekday:"2"}
+});
+assert.equal(hiddenByWeekday.includes("Alistamiento de mercancía"),false,"Filtro por día debe ocultar actividades de otros días.");
+assert.equal(weekHtml.includes("work-calendar-event-week-v11360"),true);
 
 const migration=fs.readFileSync(
   new URL("../supabase/migrations/120_workforce_calendar_feed_v11_36_0.sql",import.meta.url),
@@ -129,15 +156,40 @@ for(const token of [
 
 const css=fs.readFileSync(new URL("../assets/runtime-css/workforce-calendar-v11360.css",import.meta.url),"utf8");
 for(const token of [
-  "min-height:144px",
-  "font-size:18px",
-  "work-calendar-event-title-v11360",
-  "work-calendar-photo-badge-v11360",
-  "font-size:13px",
-  "min-height:28px",
+  "min-height:82px",
+  "height:32px",
+  "work-calendar-cloud-v11361",
+  "work-calendar-filterbar-v11361",
+  "overflow-x:auto",
+  "overscroll-behavior-y:auto",
+  "work-calendar-worker-chip-v11361",
   "@media(hover:hover) and (pointer:fine)"
 ]){
   assert.equal(css.includes(token),true,`CSS calendario debe conservar ${token}`);
 }
 
-console.log("workforce calendar v11.36.0 tests: OK");
+const calendarModule=fs.readFileSync(new URL("../assets/js/modules/workforce-calendar-v11360.js",import.meta.url),"utf8");
+for(const token of [
+  "dblclick",
+  "showCalendarCloud",
+  "filterCalendarData",
+  "clipCalendarSegments",
+  "pointerenter",
+  "closeOnViewportMove"
+]){
+  assert.equal(calendarModule.includes(token),true,`Calendario compacto debe conservar ${token}`);
+}
+assert.equal(calendarModule.includes('clickHandler=event=>{\n      if(event.target.closest("[data-assignment-cancel]"))return;\n      event.stopPropagation();\n      openItem(id);'),false,"El clic simple no debe abrir directamente la ficha completa.");
+
+for(const token of [
+  "plannerFilters",
+  "data-plan-filter-worker",
+  "data-plan-filter-from",
+  "data-plan-filter-to",
+  "data-plan-filter-weekday",
+  "repaintCalendar"
+]){
+  assert.equal(workforce.includes(token),true,`Workforce debe conservar filtro ${token}`);
+}
+
+console.log("workforce calendar v11.36.1 tests: OK");
