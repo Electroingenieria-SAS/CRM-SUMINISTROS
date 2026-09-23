@@ -61,6 +61,9 @@ jobs:
       - name: Integration contract · CRM → AuditoriaERP Recepción
         run: node scripts/integration-contract-check.mjs
 
+      - name: Migration provenance / DR ledger
+        run: npm run db:ledger
+
       - name: Release invariants
         shell: bash
         run: |
