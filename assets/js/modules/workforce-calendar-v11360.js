@@ -27,7 +27,7 @@ export function ensureWorkforceCalendarStyles(){
 }
 
 export function renderWorkforceCalendarBoard({mode,anchor,data,calendar,filters={}}){
-  const safeData=filterCalendarData(data||{},filters);
+  const safeData=filterCalendarData(data||{},filters,mode);
   if(mode==="day")return dayBoard(safeData,calendar,anchor,filters);
   if(mode==="month")return monthBoard(safeData,calendar,anchor);
   return weekBoard(safeData,calendar,anchor);
@@ -529,7 +529,7 @@ function personIdentity(person){
 let calendarCloud=null;
 let calendarCloudHideTimer=null;
 
-function filterCalendarData(data,filters={}){
+function filterCalendarData(data,filters={},mode="week"){
   const profileId=String(filters.profileId||"ALL");
   const weekday=String(filters.weekday||"ALL");
   const from=toMinutes(filters.fromTime||"07:00");
@@ -539,7 +539,7 @@ function filterCalendarData(data,filters={}){
   const assignments=(data.assignments||[]).filter(item=>{
     if(profileId!=="ALL"&&String(item.profileId)!==profileId)return false;
     const stamp=item.plannedStart||item.dueAt||item.actualStart||null;
-    if(weekday!=="ALL"&&stamp&&String(isoWeekday(new Date(stamp)))!==weekday)return false;
+    if(mode!=="day"&&weekday!=="ALL"&&stamp&&String(isoWeekday(new Date(stamp)))!==weekday)return false;
     if(item.plannedStart){
       const start=bogotaMinutes(item.plannedStart);
       const end=item.plannedEnd?bogotaMinutes(item.plannedEnd):start+1;
