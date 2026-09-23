@@ -8,7 +8,7 @@ returns trigger
 language plpgsql
 security invoker
 set search_path=erp_supply,public,auth,pg_catalog
-as $work_people$$
+as $validate_window$
 declare
   v_raw_seconds bigint;
   v_business_seconds bigint;
@@ -26,7 +26,7 @@ begin
   end if;
   return new;
 end;
-$$work_people$;
+$validate_window$;
 
 revoke all on function erp_supply.validate_work_assignment_business_window() from public,anon,authenticated;
 
@@ -42,7 +42,7 @@ language plpgsql
 stable
 security definer
 set search_path=erp_supply,public,auth,pg_catalog
-as $
+as $work_people$
 declare
   v_actor uuid:=erp_supply.require_profile();
   v_org uuid:=erp_supply.current_org_id();
@@ -85,7 +85,7 @@ begin
     ) x
   ),'[]'::jsonb);
 end;
-$;
+$work_people$;
 
 revoke all on function public.erp_x_work_people(text) from public,anon;
 grant execute on function public.erp_x_work_people(text) to authenticated;
