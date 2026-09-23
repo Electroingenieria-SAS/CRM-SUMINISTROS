@@ -179,8 +179,9 @@ function weekCell(assignments,profileId,day){
 function monthPlannerHtml(data,calendar,anchor){
   const first=new Date(anchor.getFullYear(),anchor.getMonth(),1),last=new Date(anchor.getFullYear(),anchor.getMonth()+1,0);
   const days=businessDaysForRange(isoDate(first),isoDate(last),calendar);
-  const leading=Math.max(0,isoWeekday(first)-1);
-  const cells=[...Array(Math.min(leading,5)).keys()].map(()=>null).concat(days);
+  const firstVisible=days[0]?.dateObject||first;
+  const leading=Math.max(0,Math.min(4,isoWeekday(firstVisible)-1));
+  const cells=[...Array(leading).keys()].map(()=>null).concat(days);
   while(cells.length%5)cells.push(null);
   const assignments=data.assignments||[];
   return `<section class="work-month-board card"><div class="work-month-weekdays-v11330">${["Lun","Mar","Mié","Jue","Vie"].map(x=>`<span>${x}</span>`).join("")}</div><div class="work-month-grid-v11330">${cells.map(day=>{
