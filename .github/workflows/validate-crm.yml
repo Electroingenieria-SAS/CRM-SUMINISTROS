@@ -83,13 +83,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'version: "11.34.3"' assets/js/config.js
-          grep -q 'build: "2026-09-23.07"' assets/js/config.js
-          grep -q '"version": "11.34.3"' package.json
-          grep -q '"version": "11.34.3"' package-lock.json
-          grep -q 'app-entry.js?v=11.34.3' index.html
-          grep -Fxq '// previous-cache: crm-suministros-v11-34-2-20260923-06' service-worker.js
-          grep -Fxq 'const CACHE="crm-suministros-v11-34-3-20260923-07";' service-worker.js
+          grep -q 'version: "11.34.4"' assets/js/config.js
+          grep -q 'build: "2026-09-23.08"' assets/js/config.js
+          grep -q '"version": "11.34.4"' package.json
+          grep -q '"version": "11.34.4"' package-lock.json
+          grep -q 'app-entry.js?v=11.34.4' index.html
+          grep -Fxq '// previous-cache: crm-suministros-v11-34-4-20260923-08' service-worker.js
+          grep -Fxq 'const CACHE="crm-suministros-v11-34-4-20260923-08";' service-worker.js
           grep -q 'manifest.webmanifest' vercel.json
           test "$(grep -c '<link rel="stylesheet" href="./assets/css/' index.html)" -eq 4
           test "$(find assets/css -maxdepth 1 -type f -name '*.css' | wc -l)" -eq 4
@@ -99,7 +99,7 @@ jobs:
             grep -q "./assets/css/${css}.css" service-worker.js
           done
 
-          for css in guides-layout-v11291 receiving-workspace-v11290 inventory-dialogs-v11260 inventory-visual-v11270 inventory-ui-v11240 inventory-workspace-v11251; do
+          for css in guides-layout-v11291 receiving-workspace-v11290 inventory-dialogs-v11260 inventory-visual-v11270 inventory-ui-v11240 inventory-workspace-v11251 workforce-experience-v11344; do
             test -s "assets/runtime-css/${css}.css"
             grep -q "./assets/runtime-css/${css}.css" service-worker.js
           done
@@ -202,15 +202,15 @@ jobs:
           touch dist-deployable/.nojekyll
           printf '%s\n' \
             "commit=${GITHUB_SHA}" \
-            "version=11.34.3" \
-            "build=2026-09-23.07" \
+            "version=11.34.4" \
+            "build=2026-09-23.08" \
             "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v7
         with:
-          name: crm-suministros-v11.34.3-build01-deployable
+          name: crm-suministros-v11.34.4-build01-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
@@ -341,7 +341,7 @@ jobs:
       - name: Preserve SBOM
         uses: actions/upload-artifact@v7
         with:
-          name: crm-suministros-v11.34.3-sbom
+          name: crm-suministros-v11.34.4-sbom
           path: crm-suministros-sbom.cdx.json
           if-no-files-found: error
           retention-days: 90
