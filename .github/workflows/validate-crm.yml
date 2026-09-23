@@ -33,6 +33,9 @@ jobs:
       - name: ES module dependency graph
         run: node --experimental-vm-modules scripts/link-check.mjs
 
+      - name: Workforce planner · business calendar contract
+        run: node scripts/workforce-planner-test.mjs
+
       - name: Security contract
         id: security
         continue-on-error: true
