@@ -7,18 +7,9 @@ import {icon} from "../core/icons.js";
 import {normalizePlannerCalendar,plannerRangeForMode,nextBusinessAnchor,plannerTitleForMode,renderPlannerBoard,teamCapacityHtml,assignmentDetailHtml} from "./workforce-planner-v11330.js";
 import {timeTrafficLight,trafficHelp,elapsedActiveSeconds,finalEvidenceType} from "./workforce-today-v11340.js";
 import {catalogTaxonomy,catalogBrowserHtml,categoryStageHtml,subcategoryStageHtml,activityStageHtml,selectedActivityHtml,catalogBreadcrumbHtml} from "./workforce-catalog-v11343.js";
+import {ensureWorkforceExperienceStyles} from "./workforce-experience-v11344.js";
 
-const WORKFORCE_STYLE_ID="workforce-experience-v11344-style";
 let liveTimer=null;
-
-function ensureWorkforceStyles(){
-  if(typeof document==="undefined"||document.getElementById(WORKFORCE_STYLE_ID))return;
-  const link=document.createElement("link");
-  link.id=WORKFORCE_STYLE_ID;
-  link.rel="stylesheet";
-  link.href="./assets/runtime-css/workforce-experience-v11344.css?v=11.34.4";
-  document.head.appendChild(link);
-}
 let currentView="today";
 let plannerMode="week";
 let plannerAnchor=new Date();
@@ -31,7 +22,7 @@ const PAUSE_REASONS={OTHER:"Otra causa",WAIT_MATERIAL:"Espera de material",WAIT_
 const DEVIATION_REASONS={"":"Sin causa especial",MATERIAL:"Material no disponible",INTERRUPTION:"Interrupción / prioridad urgente",EQUIPMENT:"Equipo o herramienta",COMPLEXITY:"Mayor complejidad",REWORK:"Corrección o retrabajo",WAITING:"Espera de tercero",OTHER:"Otra causa"};
 
 export async function renderWorkforce(root){
-  ensureWorkforceStyles();
+  ensureWorkforceExperienceStyles();
   clearInterval(liveTimer);
   root.innerHTML=`
     <section class="page-head workforce-page-head">
