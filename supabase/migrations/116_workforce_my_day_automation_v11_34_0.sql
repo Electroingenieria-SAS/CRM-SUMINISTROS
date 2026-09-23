@@ -9,7 +9,7 @@ language plpgsql
 stable
 security definer
 set search_path=erp_supply,public,auth,pg_catalog
-as $
+as $work_catalog$
 declare
   v_actor uuid:=erp_supply.require_profile();
   v_org uuid:=erp_supply.current_org_id();
@@ -38,7 +38,7 @@ begin
     ) x
   ),'[]'::jsonb);
 end;
-$;
+$work_catalog$;
 
 revoke all on function public.erp_x_work_catalog() from public,anon;
 grant execute on function public.erp_x_work_catalog() to authenticated;
