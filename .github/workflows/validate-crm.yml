@@ -42,6 +42,9 @@ jobs:
       - name: Workforce manager · time review contract
         run: node scripts/workforce-manager-review-test.mjs
 
+      - name: Workforce catalog · hierarchy and safe start contract
+        run: node scripts/workforce-catalog-hierarchy-test.mjs
+
       - name: Security contract
         id: security
         continue-on-error: true
@@ -133,7 +136,7 @@ jobs:
           grep -q '"main"[[:space:]]*:[[:space:]]*true' vercel.json
           grep -q '"\*"[[:space:]]*:[[:space:]]*false' vercel.json
 
-          for migration in 098_profiles_rls_scope_v11_27_0 099_work_my_day_role_cache_v11_27_0 100_inventory_filtered_hotpath_v11_27_0 101_inventory_count_plan_hotpath_v11_27_0 108_integral_health_audit_v11_30_0 109_auditoria_erp_contract_health_v11_30_0 110_security_definer_contract_v11_30_1 111_security_definer_contract_regex_fix_v11_30_1 112_delivery_satisfaction_distance_v11_31_0 113_delivery_satisfaction_fk_indexes_v11_31_0 114_impersonation_metrics_security_v11_32_0 115_workforce_planner_calendar_v11_33_0 116_workforce_my_day_automation_v11_34_0 117_workforce_manager_review_v11_34_1; do
+          for migration in 098_profiles_rls_scope_v11_27_0 099_work_my_day_role_cache_v11_27_0 100_inventory_filtered_hotpath_v11_27_0 101_inventory_count_plan_hotpath_v11_27_0 108_integral_health_audit_v11_30_0 109_auditoria_erp_contract_health_v11_30_0 110_security_definer_contract_v11_30_1 111_security_definer_contract_regex_fix_v11_30_1 112_delivery_satisfaction_distance_v11_31_0 113_delivery_satisfaction_fk_indexes_v11_31_0 114_impersonation_metrics_security_v11_32_0 115_workforce_planner_calendar_v11_33_0 116_workforce_my_day_automation_v11_34_0 117_workforce_manager_review_v11_34_1 118_workforce_catalog_taxonomy_v11_34_3; do
             test -s "supabase/migrations/${migration}.sql"
           done
 
