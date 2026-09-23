@@ -129,10 +129,12 @@ for(const token of [
 
 const css=fs.readFileSync(new URL("../assets/runtime-css/workforce-calendar-v11360.css",import.meta.url),"utf8");
 for(const token of [
-  "min-height:126px",
-  "font-size:17px",
+  "min-height:144px",
+  "font-size:18px",
   "work-calendar-event-title-v11360",
   "work-calendar-photo-badge-v11360",
+  "font-size:13px",
+  "min-height:28px",
   "@media(hover:hover) and (pointer:fine)"
 ]){
   assert.equal(css.includes(token),true,`CSS calendario debe conservar ${token}`);
