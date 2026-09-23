@@ -12,7 +12,7 @@ Este documento define el contrato operativo para que CRM Suministros mantenga un
 - No se deben permitir force-push ni eliminación de `main`.
 - El método preferido de integración es **squash merge** para mantener trazabilidad clara.
 
-> La configuración de rulesets/branch protection es un control de plataforma y debe mantenerse activa en GitHub. El repositorio también ejecuta validaciones post-merge para detectar cualquier desviación si un administrador omite accidentalmente el flujo esperado.
+> **Estado verificado 23/09/2026:** GitHub continúa reportando `main` sin protección y sin rulesets. La configuración requerida es un control administrativo de plataforma pendiente; hasta activarlo, esta política es obligatoria por proceso pero no está forzada por GitHub.
 
 ## Ciclo de ramas
 
@@ -34,7 +34,7 @@ Política de cierre:
 
 ## Historial y secretos
 
-La CI revisa el árbol actual y el historial Git completo con patrones para:
+La CI combina scanner propio, historial Git completo, TruffleHog, CodeQL, Dependency Review, npm audit y Dependabot. El scanner propio cubre:
 
 - claves privadas;
 - Supabase secret keys;
@@ -61,4 +61,4 @@ La función `public.erp_x_security_definer_contract_check()` verifica este contr
 - Dependencias CDN deben permanecer fijadas a versión exacta cuando el proveedor lo permita.
 - No se permite `unsafe-eval`.
 - El bootstrap inline de Speed Insights se autoriza con hash CSP específico, no con `unsafe-inline` en `script-src`.
-- `style-src 'unsafe-inline'` permanece como compatibilidad temporal porque varios componentes heredados usan estilos inline/dinámicos. Su eliminación requiere migrar esos estilos a las cuatro familias CSS canónicas y probar regresiones visuales; no se retirará mediante un cambio ciego.
+- `style-src` general no permite `'unsafe-inline'`; la única compatibilidad restante está confinada a `style-src-attr` para valores visuales dinámicos.\n- El E2E autenticado desktop/móvil es un release gate y requiere `ERP_QA_EMAIL` + `ERP_QA_PASSWORD`.\n- Todo DDL nuevo debe existir primero en `supabase/migrations/` y pasar el ledger de procedencia.
