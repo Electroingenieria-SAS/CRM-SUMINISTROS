@@ -101,15 +101,17 @@ assert.equal(/create\s+(unique\s+)?index/i.test(migration),false,"V11.35.0 no de
 assert.equal(migration.includes("'preview'"),false,"La base no debe almacenar ni devolver miniaturas embebidas.");
 
 const drive=fs.readFileSync(new URL("../assets/js/services/drive.js",import.meta.url),"utf8");
-for(const token of ["loadWorkEvidencePreview","PREVIEW_WORK_EVIDENCE","workEvidencePreviewCache"]){
-  assert.equal(drive.includes(token),true,`Drive bajo demanda debe conservar: ${token}`);
+for(const token of ["loadWorkEvidencePreview","PREVIEW_WORK_EVIDENCE"]){
+  assert.equal(drive.includes(token),true,`Drive transport debe conservar: ${token}`);
 }
+assert.equal(drive.includes("workEvidencePreviewCache"),false,"Drive debe ser transporte sin caché de Workforce.");
+assert.equal(drive.includes("prefetchWorkEvidencePreview"),false,"La estrategia de precarga no debe vivir en drive.js.");
 assert.equal(drive.includes("buildWorkEvidencePreview"),false,"El navegador no debe generar miniaturas para guardarlas en PostgreSQL.");
 assert.equal(drive.includes("metadata: preview"),false,"No se deben persistir previews Base64 en metadata.");
 
 
 const timelineUi=fs.readFileSync(new URL("../assets/js/modules/workforce-timeline-v11350.js",import.meta.url),"utf8");
-assert.equal(timelineUi.includes("bindEvidenceGallery(layer,resolvedDetail,loadPreview,firstPreviewPromise)"),true,"La tarjeta debe iniciar la evidencia en paralelo con el render del detalle.");
+assert.equal(timelineUi.includes("bindEvidenceGallery(layer,resolvedDetail,loadPreview,firstPreviewPromise)"),true,"La tarjeta debe reutilizar un preview ya iniciado cuando exista.");
 assert.equal(timelineUi.includes("work-timeline-preview-btn-v11351"),true,"La evidencia debe usar el botón visual V11.35.1.");
 const timelineCss=fs.readFileSync(new URL("../assets/runtime-css/workforce-timeline-v11350.css",import.meta.url),"utf8");
 assert.equal(timelineCss.includes("\\n"),false,"El CSS timeline no debe contener saltos de línea escapados literales.");
@@ -118,14 +120,20 @@ assert.equal(timelineCss.includes(".work-timeline-photo-v11350.is-ready img"),tr
 assert.equal(timelineCss.includes(".work-timeline-photo-loader-v11350[hidden]{display:none!important}"),true,"El loader debe desaparecer por completo cuando la foto esté lista.");
 assert.equal(timelineCss.includes("@media(hover:hover) and (pointer:fine)"),true,"El hover debe ser solo una mejora opcional para puntero fino.");
 assert.equal(drive.includes("PREVIEW_TIMEOUT_MS = 30000"),true,"La vista previa debe fallar rápido si el bridge no responde.");
-assert.equal(drive.includes("workEvidencePreviewPending"),true,"Las solicitudes simultáneas de la misma evidencia deben deduplicarse.");
-assert.equal(drive.includes("WORK_EVIDENCE_PREVIEW_CACHE_LIMIT=8"),true,"El caché de evidencia debe permanecer acotado.");
-assert.equal(drive.includes("prefetchWorkEvidencePreview"),true,"Debe existir precarga explícita de evidencia.");
 
 const workforce=fs.readFileSync(new URL("../assets/js/modules/workforce.js",import.meta.url),"utf8");
-for(const token of ["composePlannerTimeline","openWorkTimelineCard","loadWorkEvidencePreview","prefetchWorkEvidencePreview","pointerdown","detailCache","canPlanTeam","Mi cronograma"]){
+for(const token of [
+  "composePlannerTimeline",
+  "createWorkEvidenceManager",
+  "renderWorkforceCalendarBoard",
+  "bindWorkforceCalendar",
+  "canPlanTeam",
+  "Mi cronograma"
+]){
   assert.equal(workforce.includes(token),true,`Integración cronograma debe conservar: ${token}`);
 }
+assert.equal(workforce.includes("detailCache=new Map()"),false,"El caché de detalle no debe volver a dispersarse dentro de workforce.js.");
+assert.equal(workforce.includes("prefetchWorkEvidencePreview"),false,"Workforce no debe administrar el transporte de precarga directamente.");
 
 const appsScript=fs.readFileSync(new URL("../google-apps-script/Code.gs",import.meta.url),"utf8");
 assert.doesNotThrow(()=>new Function(appsScript),"Code.gs 3.5.1 debe conservar sintaxis JavaScript válida.");
@@ -136,4 +144,4 @@ assert.equal(appsScript.includes("SHARING_MODE: 'PRIVATE'"),true,"La evidencia d
 
 assert.equal(appsScript.includes("window.top"),true,"Apps Script debe responder al CRM superior cuando HtmlService introduce un iframe intermedio.");
 assert.equal(appsScript.includes("window.parent"),true,"Apps Script debe conservar parent como fallback de compatibilidad.");
-console.log("workforce timeline v11.35.4 tests: OK");
+console.log("workforce timeline compatibility tests: OK");
