@@ -50,11 +50,13 @@ for(const token of ["Observado","Ana Gómez","1 h 18 min","Jefe Logística","Val
 }
 
 const operational=fs.readFileSync(new URL("../assets/js/modules/operational-v112.js",import.meta.url),"utf8");
-assert.equal(operational.includes('data-start-catalog'),false,"Operational no debe interceptar Inicio rápido: workforce.js inicia directamente");
+assert.equal(operational.includes("workManagerQueue"),false,"Mi jornada no debe duplicar la cola de revisión del jefe");
+assert.equal(operational.includes("openTimeReviewDialog"),false,"La revisión de tiempos debe centralizarse en Excepciones y aprobaciones");
 assert.equal(operational.includes("workQuickRequest"),false,"No debe existir solicitud rápida ni aprobación previa para auxiliares");
-assert.equal(operational.includes("data-v112-approval"),false,"La bandeja de Mi jornada no debe mostrar aprobaciones previas");
-for(const token of ["workManagerQueue","data-time-review","openTimeReviewDialog"]){
-  assert.equal(operational.includes(token),true,`Operational debe integrar: ${token}`);
+
+const approvals=fs.readFileSync(new URL("../assets/js/modules/approvals.js",import.meta.url),"utf8");
+for(const token of ['data-mode="WORKFORCE"',"workManagerQueue","workforce-alert-banner","openWorkforceTimeReview","workReviewTime","timeReviewDialogHtml"]){
+  assert.equal(approvals.includes(token),true,`Excepciones y aprobaciones debe integrar alertas de jornada: ${token}`);
 }
 
 const api=fs.readFileSync(new URL("../assets/js/services/api.js",import.meta.url),"utf8");
