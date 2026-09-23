@@ -1,6 +1,10 @@
 -- CRM Suministros V11.35.0
--- Cronograma unificado y detalle de evidencia bajo demanda.
--- Optimización: cero tablas nuevas; reutiliza assignments, executions y evidence.
+-- Cronograma unificado + detalle de actividad/evidencia bajo demanda.
+-- Optimización:
+--   * cero tablas nuevas;
+--   * cero índices redundantes;
+--   * payload inicial sin metadata ni archivos;
+--   * evidencia completa solo cuando se abre una tarjeta.
 begin;
 
 create or replace function public.erp_x_work_planner(p_from date,p_to date)
@@ -74,7 +78,6 @@ begin
           a.id,
           a.title,
           a.assignment_kind "kind",
-          a.status,
           a.priority,
           a.planned_start "plannedStart",
           a.planned_end "plannedEnd",
@@ -84,7 +87,6 @@ begin
           c.name "catalogName",
           p.id "profileId",
           p.display_name "profileName",
-          m.id "memberId",
           m.status "memberStatus"
         from erp_supply.work_assignments a
         join erp_supply.work_assignment_members m on m.assignment_id=a.id
@@ -189,6 +191,7 @@ begin
     'permissions',jsonb_build_object(
       'scope',case when v_can_team then 'TEAM' else 'SELF' end,
       'canViewTeam',v_can_team,
+      'canPlanTeam',v_can_team,
       'logistics',v_can_logistics,
       'management',v_is_management or v_is_super,
       'deliverables',v_is_management or v_is_super,
@@ -203,6 +206,7 @@ $$;
 
 revoke all on function public.erp_x_work_planner(date,date) from public,anon;
 grant execute on function public.erp_x_work_planner(date,date) to authenticated;
+
 
 create or replace function public.erp_x_work_planner_detail(
   p_assignment_id uuid default null,
@@ -237,9 +241,7 @@ begin
     where id=p_execution_id
       and organization_id=v_org;
 
-    if not found then
-      raise exception 'Actividad no disponible';
-    end if;
+    if not found then raise exception 'Actividad no disponible'; end if;
 
     select c.activity_kind into v_kind
     from erp_supply.work_activity_catalog c
@@ -257,13 +259,6 @@ begin
       )
     ) then
       raise exception 'No autorizado para consultar esta actividad' using errcode='42501';
-    end if;
-
-    if v_exec.assignment_id is not null then
-      select * into v_assignment
-      from erp_supply.work_assignments
-      where id=v_exec.assignment_id
-        and organization_id=v_org;
     end if;
 
     return (
@@ -293,16 +288,13 @@ begin
             jsonb_build_object(
               'id',z.id,
               'type',z.evidence_type,
+              'driveFileId',z.drive_file_id,
               'fileName',z.file_name,
               'mimeType',z.mime_type,
               'sizeBytes',z.size_bytes,
               'webViewLink',z.web_view_link,
               'externalValue',z.external_value,
               'note',z.note,
-              'preview',case
-                when jsonb_typeof(z.metadata->'preview')='object' then z.metadata->'preview'
-                else null
-              end,
               'createdAt',z.created_at
             )
             order by z.sort_order,z.created_at desc
@@ -336,9 +328,7 @@ begin
   where id=p_assignment_id
     and organization_id=v_org;
 
-  if not found then
-    raise exception 'Asignación no disponible';
-  end if;
+  if not found then raise exception 'Asignación no disponible'; end if;
 
   v_profile_id:=coalesce(
     p_profile_id,
@@ -358,9 +348,7 @@ begin
     )
   );
 
-  if v_profile_id is null then
-    raise exception 'La asignación no tiene responsable';
-  end if;
+  if v_profile_id is null then raise exception 'La asignación no tiene responsable'; end if;
 
   if not (
     v_profile_id=v_actor
@@ -423,16 +411,13 @@ begin
             jsonb_build_object(
               'id',z.id,
               'type',z.evidence_type,
+              'driveFileId',z.drive_file_id,
               'fileName',z.file_name,
               'mimeType',z.mime_type,
               'sizeBytes',z.size_bytes,
               'webViewLink',z.web_view_link,
               'externalValue',z.external_value,
               'note',z.note,
-              'preview',case
-                when jsonb_typeof(z.metadata->'preview')='object' then z.metadata->'preview'
-                else null
-              end,
               'createdAt',z.created_at
             )
             order by z.sort_order,z.created_at desc
@@ -476,11 +461,78 @@ $$;
 revoke all on function public.erp_x_work_planner_detail(uuid,uuid,uuid) from public,anon;
 grant execute on function public.erp_x_work_planner_detail(uuid,uuid,uuid) to authenticated;
 
+
+create or replace function public.erp_x_work_evidence_preview_allowed(p_drive_file_id text)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path=erp_supply,public,auth,pg_catalog
+as $$
+declare
+  v_actor uuid:=erp_supply.require_profile();
+  v_org uuid:=erp_supply.current_org_id();
+  v_roles text[]:=erp_supply.current_roles();
+  v_can_team boolean:=v_roles && array['jefe_logistica','lider_logistica','coordinador_logistico','gerencia','super_admin']::text[];
+  v_is_super boolean:='super_admin'=any(v_roles);
+  v_is_management boolean:='gerencia'=any(v_roles);
+  v_row record;
+begin
+  select
+    w.drive_file_id,
+    w.file_name,
+    w.mime_type,
+    w.size_bytes,
+    e.profile_id,
+    c.activity_kind
+  into v_row
+  from erp_supply.work_evidence w
+  join erp_supply.work_executions e on e.id=w.execution_id
+  join erp_supply.work_activity_catalog c on c.id=e.catalog_id
+  where w.organization_id=v_org
+    and w.drive_file_id=nullif(trim(coalesce(p_drive_file_id,'')),'')
+  order by w.created_at desc
+  limit 1;
+
+  if not found then
+    return jsonb_build_object('allowed',false);
+  end if;
+
+  if not (
+    v_row.profile_id=v_actor
+    or (
+      v_can_team
+      and (
+        v_is_super
+        or v_is_management
+        or erp_supply.can_manage_work_profile(v_row.profile_id,v_row.activity_kind)
+      )
+    )
+  ) then
+    return jsonb_build_object('allowed',false);
+  end if;
+
+  return jsonb_build_object(
+    'allowed',true,
+    'fileName',v_row.file_name,
+    'mimeType',v_row.mime_type,
+    'sizeBytes',v_row.size_bytes
+  );
+end;
+$$;
+
+revoke all on function public.erp_x_work_evidence_preview_allowed(text) from public,anon;
+grant execute on function public.erp_x_work_evidence_preview_allowed(text) to authenticated;
+
+
 comment on function public.erp_x_work_planner(date,date)
-is 'V11.35.0: cronograma compacto, unifica asignaciones y ejecuciones sin tabla materializada adicional.';
+is 'V11.35.0: cronograma compacto para ámbito personal/equipo; combina planificación y ejecuciones sin materialización adicional.';
 
 comment on function public.erp_x_work_planner_detail(uuid,uuid,uuid)
-is 'V11.35.0: detalle de cronograma bajo demanda para minimizar payload inicial y traer evidencia solo al abrir una tarjeta.';
+is 'V11.35.0: detalle bajo demanda; la evidencia solo viaja al abrir una tarjeta.';
+
+comment on function public.erp_x_work_evidence_preview_allowed(text)
+is 'V11.35.0: autorización mínima para previsualizar en Drive una evidencia registrada, sin exponer el archivo en SQL.';
 
 notify pgrst,'reload schema';
 commit;
