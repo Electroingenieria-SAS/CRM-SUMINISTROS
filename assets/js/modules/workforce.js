@@ -585,7 +585,7 @@ async function renderPlanner(root,content){
       <div class="work-team-capacity-body-v11362" data-team-capacity-host>
         ${capacityMarkupFor(plannerFilters.profileId)}
       </div>
-    </details>`:""}`;;
+    </details>`:""}`;
 
   const calendarHost=content.querySelector("[data-planner-calendar-host]");
 
