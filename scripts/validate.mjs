@@ -66,6 +66,9 @@ const workforcePlanner=read("assets/js/modules/workforce-planner-v11330.js");
 const workforceToday=read("assets/js/modules/workforce-today-v11340.js");
 const workforceManager=read("assets/js/modules/workforce-time-review-v11340.js");
 const workforceCatalog=read("assets/js/modules/workforce-catalog-v11343.js");
+const workforceExperience=read("assets/js/modules/workforce-experience-v11344.js");
+const workforceExperienceCss=read("assets/runtime-css/workforce-experience-v11344.css");
+const approvalsModule=read("assets/js/modules/approvals.js");
 const operational=read("assets/js/modules/operational-v112.js");
 const coreUi=read("assets/js/core/ui.js");
 const adminWrapper=read("assets/js/modules/admin.js");
@@ -137,16 +140,23 @@ const bannedRuntime=/\b(QA_BOT|erp_x_qa_|erp_x_run_qa_|erp_x_sandbox_|sandboxMod
 check(!bannedRuntime.test(jsRuntime),"El frontend productivo conserva referencias QA/Sandbox.");
 check(!/\.from\s*\(/.test(normalizedJsRuntime),"El navegador no debe acceder a tablas directamente; use RPC.");
 
-// Workforce V11.34.3.
+// Workforce V11.34.4.
 check(workforcePlanner.includes('plannerRangeForMode')&&workforcePlanner.includes('businessDaysForRange'),"Cronograma debe separar lógica laboral del módulo principal.");
 check(workforcePlannerMigration.includes("'calendar'")&&workforcePlannerMigration.includes("activeStatus"),"RPC planner debe devolver calendario y estado activo en una sola respuesta.");
 check(workforcePlannerMigration.includes("validate_work_assignment_business_window")&&workforcePlannerMigration.includes("OUTSIDE_WORKING_TIME"),"Base debe bloquear asignaciones fuera de jornada.");
 check(coreCss.includes(".work-day-timeline-head")&&coreCss.includes(".work-week-grid-v11330")&&coreCss.includes(".work-month-grid-v11330"),"Falta capa visual Día/Semana/Mes del cronograma.");
 check(workforceToday.includes("timeTrafficLight")&&workforceToday.includes("finalEvidenceType"),"Mi jornada debe separar semáforo y evidencia final en un módulo dedicado.");
-check(workforce.includes("workday-guide")&&workforce.includes("catalogBrowserHtml")&&workforce.includes("work-active-console"),"Mi jornada V11.34.3 debe componer jerarquía segura y cronómetro compacto.");
+check(workforce.includes("workday-guide")&&workforce.includes("catalogBrowserHtml")&&workforce.includes("work-active-console"),"Mi jornada V11.34.4 debe componer jerarquía segura y cronómetro legible.");
 check(workforceCatalog.includes("catalogTaxonomy")&&workforceCatalog.includes("data-work-start-confirmed"),"Falta contrato de selección categoría → subcategoría → actividad.");
 check(workforceCatalogMigration.includes('"uiCategoryLabel"')&&workforceCatalogMigration.includes('"uiSubcategory"'),"Migración 118 debe exponer taxonomía UI ligera.");
 check(!workforce.includes("data-start-catalog"),"Mi jornada no debe reintroducir inicio directo por clic/touch.");
+check(workforce.includes("workday-traffic-legend")&&workforce.includes("Más de 60 min · genera alerta"),"Mi jornada debe explicar el semáforo antes y durante la ejecución.");
+check(workforce.includes("workday-no-schedule")&&!workforce.includes("workday-layout"),"Mi jornada debe evitar tarjetas vacías grandes y layouts estrechos heredados.");
+check(workforceExperience.includes("ensureWorkforceExperienceStyles")&&workforceExperienceCss.includes("#workforce-content .btn{min-height:52px"),"Workforce debe tener una capa visual aislada con touch targets accesibles.");
+check(workforceExperienceCss.includes(".work-catalog-choice-copy strong{font-size:16px")&&workforceExperienceCss.includes(".work-start-confirm-actions .btn{min-height:56px"),"Catálogo debe conservar tipografía y botones legibles para todas las edades.");
+check(!coreCss.includes("V11.34.2 · Mi jornada visual")&&!coreCss.includes("V11.34.3 · Mi jornada jerárquica"),"core-shell no debe conservar implementaciones visuales duplicadas de Mi jornada.");
+check(approvalsModule.includes('data-mode="WORKFORCE"')&&approvalsModule.includes("workforce-alert-banner")&&approvalsModule.includes("openWorkforceTimeReview"),"Excepciones debe mostrar alertas rojas de jornada y permitir revisarlas.");
+check(!operational.includes("workManagerQueue")&&!operational.includes("openTimeReviewDialog"),"La revisión de tiempos no debe estar duplicada dentro de Mi jornada.");
 check(workforceTodayMigration.includes("timeReviewRequired")&&workforceTodayMigration.includes("3600")&&workforceTodayMigration.includes("PHOTO_REQUIRED"),"Migración 116 debe automatizar revisión por tiempo y foto obligatoria.");
 check(api.includes("workReviewTime")&&api.includes("erp_x_work_review_time"),"API frontend debe exponer la resolución de tiempos pendientes de revisión.");
 check(workforceTodayMigration.includes("erp_x_work_review_time")&&workforceTodayMigration.includes("TIME_REVIEWED"),"Migración 116 debe permitir cerrar la revisión de tiempos con trazabilidad.");
