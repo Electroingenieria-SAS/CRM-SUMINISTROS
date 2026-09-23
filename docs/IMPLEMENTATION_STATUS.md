@@ -1,12 +1,13 @@
 # Estado de implementación
 
-## Release candidata — V11.34.1 · 2026-09-23
+## Release candidata — V11.34.2 · 2026-09-23
 
 CRM Suministros mantiene la línea productiva V11.31.2. La candidata V11.33.0 acumula el hardening V11.32.0 y añade el nuevo cronograma laboral. **No se ha promovido esta candidata a Vercel ni se ha aplicado la migración 115 en Supabase productivo.**
 
-## Mi jornada V11.34.1
+## Mi jornada V11.34.2
 
 - Flujo simplificado: elegir → iniciar → trabajar → finalizar con foto, sin aprobación previa para auxiliares ni otros roles autorizados por catálogo.
+- Rediseño visual V11.34.2: encabezado guiado de tres pasos, acciones grandes de un toque y métricas secundarias compactas.
 - Sin captura manual de duración ni causa de desviación en el cierre normal.
 - Semáforo por tiempo activo: verde <45 min, amarillo 45–60 min, rojo >60 min.
 - Las actividades rojas se envían a revisión posterior mediante `erp_x_work_review_time`; el jefe no aprueba antes de iniciar.
