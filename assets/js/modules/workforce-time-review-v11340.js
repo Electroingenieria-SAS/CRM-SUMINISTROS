@@ -65,6 +65,15 @@ export function timeReviewDialogHtml(row={}){
   </div>`;
 }
 
+export function recentTimeReviewHtml(row={}){
+  const observed=String(row.decision||"").toUpperCase()==="OBSERVED";
+  return `<article class="work-time-review-recent ${observed?"observed":"reviewed"}">
+    <div><span>${observed?"Observado":"Revisado"}</span><strong>${fmt.escape(row.title||"Actividad")}</strong><small>${fmt.escape(row.profileName||"Sin responsable")} · ${durationText(row.activeSeconds)}</small></div>
+    <div><strong>${fmt.escape(row.reviewedBy||"Revisor")}</strong><small>${row.reviewedAt?fmt.date(row.reviewedAt):"—"}</small></div>
+    ${row.note?`<p>${fmt.escape(row.note)}</p>`:""}
+  </article>`;
+}
+
 export function durationText(seconds=0){
   const total=Math.max(0,Math.round(Number(seconds)||0));
   const h=Math.floor(total/3600);
