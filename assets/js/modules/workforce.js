@@ -4,7 +4,7 @@ import {loading,empty,modal,wizard,toast} from "../core/ui.js";
 import {state} from "../core/state.js";
 import {uploadWorkEvidence} from "../services/drive.js";
 import {icon} from "../core/icons.js";
-import {normalizePlannerCalendar,plannerRangeForMode,nextBusinessAnchor,plannerTitleForMode,renderPlannerBoard,teamCapacityHtml} from "./workforce-planner-v11330.js";
+import {normalizePlannerCalendar,plannerRangeForMode,nextBusinessAnchor,plannerTitleForMode,renderPlannerBoard,teamCapacityHtml,assignmentDetailHtml} from "./workforce-planner-v11330.js";
 
 let liveTimer=null;
 let currentView="today";
@@ -273,8 +273,75 @@ async function renderPlanner(root,content){
   });
   content.querySelector("[data-plan-new]").onclick=async()=>assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),null,{newCatalog:false});
   content.querySelector("[data-plan-new-custom]").onclick=async()=>assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),null,{newCatalog:true,startNow:true});
-  content.querySelectorAll("[data-plan-day]").forEach(button=>button.onclick=async()=>assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),button.dataset.planDay));
-  content.querySelectorAll("[data-assignment-cancel]").forEach(button=>button.onclick=()=>cancelAssignmentDialog(button.dataset.assignmentCancel,()=>renderPlanner(root,content)));
+
+  const openAssignment=id=>{
+    const assignment=(data.assignments||[]).find(row=>row.id===id);
+    if(!assignment)return toast("No se encontró el detalle de esta actividad.","warning");
+    modal({
+      title:"Detalle de actividad",
+      body:assignmentDetailHtml(assignment,data.assignments||[]),
+      confirmLabel:"",
+      cancelLabel:"Cerrar",
+      size:"wide"
+    });
+  };
+
+  content.querySelectorAll("[data-assignment-open]").forEach(element=>{
+    element.onclick=event=>{
+      if(event.target.closest("[data-assignment-cancel]"))return;
+      event.stopPropagation();
+      openAssignment(element.dataset.assignmentOpen);
+    };
+    element.onkeydown=event=>{
+      if(event.key==="Enter"||event.key===" "){
+        event.preventDefault();
+        event.stopPropagation();
+        openAssignment(element.dataset.assignmentOpen);
+      }
+    };
+  });
+
+  content.querySelectorAll("[data-active-profile]").forEach(button=>button.onclick=event=>{
+    event.stopPropagation();
+    const profileId=button.dataset.activeProfile;
+    const person=(data.people||[]).find(row=>row.id===profileId);
+    const assignment=(data.assignments||[]).find(row=>row.profileId===profileId&&["IN_PROGRESS","PAUSED"].includes(String(row.memberStatus||"").toUpperCase()))
+      ||(data.assignments||[]).find(row=>row.profileId===profileId&&row.title===person?.activeTitle);
+    if(assignment)return openAssignment(assignment.id);
+    if(person?.activeTitle){
+      modal({
+        title:"Actividad actual",
+        body:assignmentDetailHtml({
+          title:person.activeTitle,
+          profileId:person.id,
+          profileName:person.name,
+          memberStatus:person.activeStatus||"IN_PROGRESS",
+          plannedStart:person.activeStartedAt||null,
+          kind:"ACTIVITY"
+        },[]),
+        confirmLabel:"",
+        cancelLabel:"Cerrar",
+        size:"wide"
+      });
+    }
+  });
+
+  content.querySelectorAll("[data-plan-day]").forEach(day=>{
+    day.onclick=async event=>{
+      if(event.target.closest("[data-assignment-open],[data-active-profile],[data-assignment-cancel]"))return;
+      assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),day.dataset.planDay);
+    };
+    day.onkeydown=async event=>{
+      if((event.key==="Enter"||event.key===" ")&&event.target===day){
+        event.preventDefault();
+        assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),day.dataset.planDay);
+      }
+    };
+  });
+  content.querySelectorAll("[data-assignment-cancel]").forEach(button=>button.onclick=event=>{
+    event.stopPropagation();
+    cancelAssignmentDialog(button.dataset.assignmentCancel,()=>renderPlanner(root,content));
+  });
 }
 
 async function resolvePlannerCalendar(data){
