@@ -393,7 +393,7 @@ function startLiveClock(content,active){
     if(target)target.textContent=clock(seconds);
     if(trafficRoot){
       const traffic=timeTrafficLight(seconds);
-      trafficRoot.className=`work-time-traffic tone-${traffic.tone}`;
+      trafficRoot.className=`work-timer-traffic tone-${traffic.tone}`;
       trafficRoot.dataset.tone=traffic.tone;
       const label=trafficRoot.querySelector("[data-traffic-label]");if(label)label.textContent=traffic.label;
       const help=trafficRoot.querySelector("[data-traffic-help]");if(help)help.textContent=trafficHelp(seconds);
