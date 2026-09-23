@@ -4,7 +4,7 @@ import {uploadOrderFile} from "../services/drive.js";
 import {modal,toast,empty,loading} from "../core/ui.js";
 import {fmt,statusBadge} from "../core/format.js";
 import {state} from "../core/state.js";
-import {managerQueueSummary,timeReviewCardHtml,timeReviewDialogHtml} from "./workforce-time-review-v11340.js";
+import {managerQueueSummary,timeReviewCardHtml,timeReviewDialogHtml,recentTimeReviewHtml} from "./workforce-time-review-v11340.js";
 
 const REVIEWER_ROLES=new Set(["super_admin","jefe_logistica","lider_logistica","coordinador_logistico","gerencia"]);
 const OPS_MODULES=[
@@ -86,7 +86,8 @@ export async function enhanceWorkforce(root){
   try{
     const queue=await api.workManagerQueue(50);
     const timeReviews=queue?.timeReviews||[];
-    if(!timeReviews.length)return;
+    const recentReviews=queue?.recentReviews||[];
+    if(!timeReviews.length&&!recentReviews.length)return;
     const reviewSummary=managerQueueSummary(timeReviews);
     const section=document.createElement("section");
     section.className="card v112-work-requests";
@@ -97,10 +98,11 @@ export async function enhanceWorkforce(root){
         <span class="workforce-count attention" title="Tiempos pendientes de revisión">${reviewSummary.pending}</span>
       </header>
       <div class="card-body v112-work-requests-body">
-        <div class="v112-request-group work-time-review-group">
+        ${timeReviews.length?`<div class="v112-request-group work-time-review-group">
           <div class="v112-group-title"><div><strong>Tiempos por revisar</strong><small>Revisa evidencia y tiempo real. No existe aprobación previa para iniciar actividades.</small></div><span>${timeReviews.length}</span></div>
           <div class="work-time-review-list">${timeReviews.map(timeReviewCardHtml).join("")}</div>
-        </div>
+        </div>`:""}
+        ${recentReviews.length?`<div class="v112-request-group work-time-review-history"><div class="v112-group-title"><div><strong>Revisiones recientes</strong><small>Últimas decisiones trazables del equipo.</small></div><span>${recentReviews.length}</span></div><div class="work-time-review-recent-list">${recentReviews.map(recentTimeReviewHtml).join("")}</div></div>`:""}
       </div>`;
     const historyCard=content.querySelector(".workforce-history-card");
     if(historyCard)historyCard.before(section);else content.append(section);
