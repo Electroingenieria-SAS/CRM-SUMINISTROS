@@ -1210,37 +1210,13 @@ button.work-month-day-v11330:hover,.work-month-day-v11330[role="button"]:hover{b
 .workday-layout{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(320px,.88fr);gap:14px;align-items:start}
 .workday-launch-card{border:1px solid #cfe0ed;box-shadow:0 10px 26px rgba(28,75,111,.06)}
 .workday-one-tap{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:#e9f4fc;color:#2c6e9e;font-size:7.5px;font-weight:950;text-transform:uppercase;letter-spacing:.06em}
-.workday-launch-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.workday-launch-tile{appearance:none;position:relative;display:grid;grid-template-columns:46px minmax(0,1fr) 24px;gap:10px;align-items:center;min-height:82px;padding:11px;border:1px solid #d8e4ee;border-radius:14px;background:linear-gradient(145deg,#fff,#f7fbfe);font-family:inherit;text-align:left;cursor:pointer;transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease,background .15s ease}
-.workday-launch-tile:hover:not(:disabled),.workday-launch-tile:focus-visible:not(:disabled){transform:translateY(-2px);border-color:#87b5d8;background:#f4faff;box-shadow:0 10px 20px rgba(34,92,137,.09);outline:none}
-.workday-launch-tile:active:not(:disabled){transform:scale(.985)}
-.workday-launch-tile:disabled{cursor:not-allowed;opacity:.52;filter:saturate(.7)}
-.workday-launch-icon{width:46px;height:46px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,#eaf4fc,#dcecf8);color:#226ca7;font-size:19px}
-.workday-launch-copy{min-width:0;display:grid;gap:2px}
-.workday-launch-copy>small{font-size:7px;font-weight:900;color:#7c93a8;text-transform:uppercase;letter-spacing:.055em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.workday-launch-copy>strong{font-size:10px;line-height:1.25;color:#214867;overflow-wrap:anywhere}
-.workday-launch-copy>em{font-size:8px;font-style:normal;font-weight:850;color:#26805f}
-.workday-launch-tile:disabled .workday-launch-copy>em{color:#8b98a5}
-.workday-launch-arrow{font-size:22px;line-height:1;color:#7fa4bf;text-align:right}
-
 .workday-agenda-card{box-shadow:none}
 .workday-history-card{margin-top:14px}
 .workday-history-card>.card-head{background:linear-gradient(180deg,#fbfcfd,#fff)}
 
-.work-now{border-radius:18px!important;margin-bottom:12px!important}
-.work-now.running{box-shadow:0 14px 32px rgba(28,115,83,.09)}
-.work-now.idle{border:1px dashed #c9d9e6;background:#fbfdff}
-.work-now-clock>strong{font-size:27px!important;letter-spacing:-.035em!important}
-.work-now-actions .btn-success{min-height:42px;box-shadow:0 6px 14px rgba(31,145,100,.14)}
-.work-time-traffic{border-radius:12px}
-
 @media(max-width:1050px){
   .workday-guide{grid-template-columns:1fr}
   .workday-layout{grid-template-columns:1fr}
-  .workday-launch-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-}
-@media(max-width:820px){
-  .workday-launch-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:680px){
   .workday-guide{padding:18px;border-radius:16px}
@@ -1249,11 +1225,6 @@ button.work-month-day-v11330:hover,.work-month-day-v11330[role="button"]:hover{b
   .workday-step:not(:last-child):after{display:none}
   .workday-step{min-height:54px}
   .workday-status-strip{grid-template-columns:1fr}
-  .workday-launch-grid{grid-template-columns:1fr}
-  .workday-launch-tile{min-height:74px}
-}
-@media(prefers-reduced-motion:reduce){
-  .workday-step,.workday-launch-tile{transition:none!important}
 }
 
 
