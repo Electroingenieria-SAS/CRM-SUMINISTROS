@@ -6,10 +6,10 @@ El navegador se considera **no confiable**. Puede validar para UX, pero nunca de
 
 ## Matriz de controles
 
-| # | Control | Estado V11.30.1 | Implementación / criterio |
+| # | Control | Estado V11.32.0 | Implementación / criterio |
 |---|---|---|---|
 | 1 | Separar claves públicas y privadas | Cumplido | Browser usa únicamente `sb_publishable_...`; secretos permanecen fuera del frontend. |
-| 2 | Evitar secretos en Git | Reforzado | `.gitignore`, `.env.example`, scanner del árbol actual y `security:history` sobre historial completo. |
+| 2 | Evitar secretos en Git | Reforzado | Scanner local/histórico + TruffleHog de secretos verificados + CodeQL/Dependency Review. |
 | 3 | RLS | Verificado | Todas las tablas base de `erp_supply` tienen RLS habilitado. |
 | 4 | Cero RPC ERP para `anon` | Verificado | Health check productivo y migración 108. |
 | 5 | SECURITY DEFINER gobernado | Reforzado | Auditoría explícita de funciones autenticadas y health contract service-role-only V11.30.1. |
@@ -23,11 +23,11 @@ El navegador se considera **no confiable**. Puede validar para UX, pero nunca de
 | 13 | Leaked Password Protection | Pendiente de plataforma | El Security Advisor sigue reportándola deshabilitada. |
 | 14 | Monitorización de DB | Cumplido | Advisors, health checks, `pg_stat_statements`, logs y runbook. |
 | 15 | Validación de entradas | Reforzado | Validación en UI, Edge y RPC. |
-| 16 | Escape de contenido | Reforzado | Escapes de salida + CSP; no ejecutar HTML de usuario. |
+| 16 | Escape de contenido | Reforzado | Escape de salida + `sanitizeHtml()` en primitivas reutilizables + CSP. |
 | 17 | Uploads | Cumplido en dos capas | Máx. 15 MB, allowlist y denylist en browser y Apps Script. |
 | 18 | Security headers | Reforzado | HSTS, CSP, nosniff, anti-frame, Referrer Policy, Permissions Policy. |
-| 19 | Dependencias | Reforzado | CDN con versiones exactas cuando el proveedor lo permite y CI que impide `latest/next`. |
-| 20 | Historial y gobernanza Git | Reforzado | Política formal de ramas, PR obligatorio recomendado y secret scan histórico. |
+| 19 | Dependencias | Reforzado | CDN versionada + Dependency Review + npm audit + Dependabot. |
+| 20 | Historial y gobernanza Git | Parcial | PR/CI formalizados; ruleset real de `main` sigue pendiente a nivel GitHub. |
 
 ## Contraseñas y autenticación
 
@@ -57,7 +57,7 @@ El SPA usa el cliente oficial Supabase con PKCE, persistencia de sesión y refre
 
 ## CORS
 
-`erp-admin-users` debe usar `ERP_ALLOWED_ORIGINS` y nunca `*` para operaciones administrativas. Los orígenes de producción y previews autorizados deben declararse explícitamente.
+`erp-admin-users`, `erp-admin-impersonate` y `erp-auditoria-metrics` usan allowlist de origen. `erp-auditoria-metrics` exige JWT desde V11.32.0 y no puede volver a CORS wildcard. El bridge de AuditoriaERP conserva autenticación propia porque recibe tráfico server-to-server desde PostgreSQL.
 
 ## CSP y dependencias
 
@@ -95,3 +95,12 @@ Nunca asumir que borrar un commit vuelve segura una credencial ya expuesta.
 ## Gobierno de cambios
 
 Consultar `docs/REPOSITORY_GOVERNANCE.md`. El objetivo operativo es que `main` quede protegido por ruleset/branch protection, exija `Validate CRM Suministros`, bloquee force-push y bloquee eliminación.
+
+
+## Impersonación administrativa
+
+V11.32.0 registra cada verificación privilegiada como una sesión con actor original, actor efectivo, motivo y expiración. El identificador viaja en el header `x-erp-impersonation-session`, pero PostgreSQL solo lo acepta si corresponde al `auth.uid()` efectivo y continúa vigente. Los eventos insertados en `system_audit` se enriquecen con ambos actores.
+
+## Métricas internas
+
+`erp-auditoria-metrics` no es un endpoint público. La Edge valida JWT y el RPC de usuario restringe los agregados por `organization_id` y permiso de Reportes/Auditoría/Super Admin.
