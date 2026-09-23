@@ -15,7 +15,6 @@ const workforce=fs.readFileSync(new URL("../assets/js/modules/workforce.js",impo
 for(const token of [
   "workday-guide",
   "workday-step",
-  "work-catalog-browser",
   "work-active-console",
   "workday-status-strip",
   "data-work-finish",
