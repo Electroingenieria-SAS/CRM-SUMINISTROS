@@ -22,7 +22,7 @@ export function ensureWorkforceCalendarStyles(){
   const link=document.createElement("link");
   link.id=STYLE_ID;
   link.rel="stylesheet";
-  link.href="./assets/runtime-css/workforce-calendar-v11360.css?v=11.36.2";
+  link.href="./assets/runtime-css/workforce-calendar-v11360.css?v=11.36.3";
   document.head.appendChild(link);
 }
 
@@ -257,7 +257,7 @@ function dayBoard(data,calendar,anchor,filters={}){
             <span>Equipo</span>
             <strong>Actividad y estado</strong>
           </div>
-          <div class="work-calendar-segment-heads-v11360">
+          <div class="work-calendar-segment-heads-v11360" style="grid-template-columns:${segmentGridTemplate(segments)}">
             ${segments.map(segmentHeader).join("")}
           </div>
         </header>
@@ -270,16 +270,31 @@ function dayBoard(data,calendar,anchor,filters={}){
     </section>`;
 }
 
+function segmentGridTemplate(segments){
+  const weights=(segments||[]).map(segment=>
+    Math.max(1,toMinutes(segment.endTime)-toMinutes(segment.startTime))
+  );
+  return weights.length
+    ? weights.map(weight=>`minmax(0,${weight}fr)`).join(" ")
+    : "minmax(0,1fr)";
+}
+
 function segmentHeader(segment){
-  const marks=hourMarks(segment.startTime,segment.endTime);
+  const marks=timeAxisMarks(segment.startTime,segment.endTime);
+  const period=toMinutes(segment.startTime)<12*60?"Mañana":"Tarde";
   return `
     <div class="work-calendar-segment-head-v11360">
       <div class="work-calendar-segment-title-v11360">
-        <strong>${fmt.escape(segment.startTime)}</strong>
-        <span>hasta ${fmt.escape(segment.endTime)}</span>
+        <strong>${period}</strong>
+        <span>${fmt.escape(segment.startTime)}–${fmt.escape(segment.endTime)}</span>
       </div>
-      <div class="work-calendar-hour-marks-v11360">
-        ${marks.map(mark=>`<span style="left:${mark.left}%">${fmt.escape(mark.label)}</span>`).join("")}
+      <div class="work-calendar-hour-axis-v11363" aria-label="Escala horaria ${fmt.escape(segment.startTime)} a ${fmt.escape(segment.endTime)}">
+        ${marks.map((mark,index)=>`
+          <span
+            class="work-calendar-hour-tick-v11363${index===0?" is-first":index===marks.length-1?" is-last":""}"
+            style="left:${mark.left}%">
+            <i></i><b>${fmt.escape(mark.label)}</b>
+          </span>`).join("")}
       </div>
     </div>`;
 }
@@ -294,7 +309,7 @@ function dayPersonRow(person,assignments,segments,day){
         ${personIdentity(person)}
       </div>
 
-      <div class="work-calendar-segments-v11360">
+      <div class="work-calendar-segments-v11360" style="grid-template-columns:${segmentGridTemplate(segments)}">
         ${segments.map(segment=>daySegment(rows,segment)).join("")}
         ${noTime.length?`<div class="work-calendar-floating-v11360">${noTime.map(compactEvent).join("")}</div>`:""}
       </div>
@@ -305,6 +320,7 @@ function daySegment(rows,segment){
   const start=toMinutes(segment.startTime);
   const end=toMinutes(segment.endTime);
   const duration=Math.max(1,end-start);
+  const marks=timeAxisMarks(segment.startTime,segment.endTime);
 
   const events=rows
     .filter(row=>row.plannedStart&&row.plannedEnd)
@@ -325,6 +341,9 @@ function daySegment(rows,segment){
 
   return `
     <div class="work-calendar-segment-cell-v11360">
+      <div class="work-calendar-time-guides-v11363" aria-hidden="true">
+        ${marks.slice(1,-1).map(mark=>`<i style="left:${mark.left}%"></i>`).join("")}
+      </div>
       ${events.map(({row,left,width},index)=>dayEvent(row,left,width,index)).join("")}
     </div>`;
 }
@@ -721,22 +740,24 @@ function assignmentsForDay(rows,profileId,day){
     .sort((a,b)=>new Date(a.plannedStart||a.dueAt)-new Date(b.plannedStart||b.dueAt));
 }
 
-function hourMarks(start,end){
+function timeAxisMarks(start,end){
   const from=toMinutes(start);
   const to=toMinutes(end);
   const duration=Math.max(1,to-from);
-  const result=[];
+  const points=[from];
 
-  let mark=Math.ceil(from/60)*60;
+  let mark=Math.floor(from/60)*60+60;
   while(mark<to){
-    result.push({
-      left:100*(mark-from)/duration,
-      label:`${String(Math.floor(mark/60)).padStart(2,"0")}:${String(mark%60).padStart(2,"0")}`
-    });
+    points.push(mark);
     mark+=60;
   }
 
-  return result;
+  if(points[points.length-1]!==to)points.push(to);
+
+  return points.map(value=>({
+    left:100*(value-from)/duration,
+    label:minutesToClock(value)
+  }));
 }
 
 function bogotaMinutes(value){
