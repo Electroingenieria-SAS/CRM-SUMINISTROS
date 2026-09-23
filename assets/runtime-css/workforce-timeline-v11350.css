@@ -1,4 +1,4 @@
-/* CRM Suministros · Workforce Timeline V11.35.0
+/* CRM Suministros · Workforce Timeline V11.35.1
    Tarjeta de actividad ejecutada + evidencia visual bajo demanda. */
 
 .work-assignment-card-v11330.has-execution,
@@ -10,7 +10,8 @@
 .work-month-item-v11330.manual-execution,
 .work-floating-assignment.manual-execution{box-shadow:inset 3px 0 0 #2d86ba}
 .work-timeline-evidence-dot-v11350{display:inline-flex;align-items:center;gap:4px;margin-left:auto;color:#237759;font-size:11px;font-weight:900}
-.work-timeline-evidence-dot-v11350:before{content:"";width:7px;height:7px;border-radius:50%;background:#25a774;box-shadow:0 0 0 4px rgba(37,167,116,.12)}\n.work-timeline-scope-v11350{display:inline-flex;min-height:42px;align-items:center;padding:8px 12px;border:1px solid #c9ddea;border-radius:12px;background:#f5faff;color:#256e9e;font-size:12px;font-weight:900}
+.work-timeline-evidence-dot-v11350:before{content:"";width:7px;height:7px;border-radius:50%;background:#25a774;box-shadow:0 0 0 4px rgba(37,167,116,.12)}
+.work-timeline-scope-v11350{display:inline-flex;min-height:42px;align-items:center;padding:8px 12px;border:1px solid #c9ddea;border-radius:12px;background:#f5faff;color:#256e9e;font-size:12px;font-weight:900}
 .work-assignment-card-v11330 .work-timeline-evidence-dot-v11350{margin:4px 0 0}
 .work-month-item-v11330 .work-timeline-evidence-dot-v11350{font-size:0;margin:0 0 0 4px}
 
@@ -33,7 +34,11 @@
 .work-timeline-photo-v11350{appearance:none;position:relative;width:100%;height:250px;padding:0;border:0;background:#eaf1f5;cursor:zoom-in;overflow:hidden}
 .work-timeline-photo-v11350 img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .28s ease,filter .28s ease}
 .work-timeline-photo-v11350:hover img{transform:scale(1.025);filter:saturate(1.04)}
-.work-timeline-photo-v11350>em{position:absolute;left:14px;bottom:14px;display:inline-flex;min-height:31px;align-items:center;padding:6px 10px;border-radius:999px;background:rgba(10,37,58,.78);color:#fff;font-size:11px;font-weight:900;font-style:normal;backdrop-filter:blur(8px)}\n.work-timeline-photo-loader-v11350{position:absolute;inset:0;display:grid;place-items:center;padding:18px;color:#58768c;font-size:12px;font-weight:900;letter-spacing:.025em;background:linear-gradient(110deg,#eaf1f5 15%,#f8fbfd 42%,#eaf1f5 68%);background-size:220% 100%;animation:workTimelineShimmer 1.15s linear infinite}\n.work-timeline-photo-v11350.is-loading img{opacity:.15}\n.work-timeline-photo-v11350.is-error{background:#fff7f7}\n.work-timeline-photo-v11350.is-error .work-timeline-photo-loader-v11350{color:#a04449;background:#fff2f2;animation:none}
+.work-timeline-photo-v11350>em{position:absolute;left:14px;bottom:14px;display:inline-flex;min-height:31px;align-items:center;padding:6px 10px;border-radius:999px;background:rgba(10,37,58,.78);color:#fff;font-size:11px;font-weight:900;font-style:normal;backdrop-filter:blur(8px)}
+.work-timeline-photo-loader-v11350{position:absolute;inset:0;display:grid;place-items:center;padding:18px;color:#58768c;font-size:12px;font-weight:900;letter-spacing:.025em;background:linear-gradient(110deg,#eaf1f5 15%,#f8fbfd 42%,#eaf1f5 68%);background-size:220% 100%;animation:workTimelineShimmer 1.15s linear infinite}
+.work-timeline-photo-v11350.is-loading img{opacity:.15}
+.work-timeline-photo-v11350.is-error{background:#fff7f7}
+.work-timeline-photo-v11350.is-error .work-timeline-photo-loader-v11350{color:#a04449;background:#fff2f2;animation:none}
 .work-timeline-hero-v11350.has-photo .work-timeline-hero-copy-v11350{padding:0 16px 16px}
 .work-timeline-photo-empty-v11350{display:grid;grid-template-columns:54px minmax(0,1fr);gap:12px;align-items:center;min-height:94px;padding:14px;border:1px dashed #c8d9e5;border-radius:16px;background:#fbfdff}
 .work-timeline-photo-empty-v11350>span{width:54px;height:54px;display:grid;place-items:center;border-radius:16px;background:#e9f7f0;color:#24815f;font-size:24px;font-weight:900}
@@ -55,7 +60,8 @@
 .work-timeline-gallery-v11350{display:flex;gap:8px;overflow:auto;padding:2px 1px 6px;scrollbar-width:thin}
 .work-timeline-gallery-v11350 button{flex:0 0 76px;width:76px;height:62px;padding:2px;border:2px solid transparent;border-radius:12px;background:#fff;overflow:hidden;cursor:pointer}
 .work-timeline-gallery-v11350 button.active{border-color:#2c7daf}
-.work-timeline-gallery-v11350 button>span{width:100%;height:100%;display:grid;place-items:center;border-radius:8px;background:linear-gradient(145deg,#edf5fa,#f8fbfd);color:#2b75a6;font-size:13px;font-weight:950}\n.work-timeline-gallery-v11350 button.active>span{background:#dff0fa;color:#175f91}
+.work-timeline-gallery-v11350 button>span{width:100%;height:100%;display:grid;place-items:center;border-radius:8px;background:linear-gradient(145deg,#edf5fa,#f8fbfd);color:#2b75a6;font-size:13px;font-weight:950}
+.work-timeline-gallery-v11350 button.active>span{background:#dff0fa;color:#175f91}
 
 .work-timeline-facts-v11350{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
 .work-timeline-facts-v11350>div{display:grid;gap:3px;min-height:68px;padding:11px 12px;border:1px solid #dce6ed;border-radius:14px;background:#fff}
@@ -77,7 +83,9 @@
 .work-timeline-evidence-v11350 article>div{display:grid;gap:2px;min-width:0}
 .work-timeline-evidence-v11350 strong{font-size:12px;color:#31516a}
 .work-timeline-evidence-v11350 small{font-size:11px;color:#7a8c9b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.work-timeline-evidence-actions-v11350{display:flex!important;grid-template-columns:none!important;flex-direction:row;align-items:center;justify-content:flex-end;gap:6px}\n.work-timeline-evidence-actions-v11350 button,.work-timeline-evidence-v11350 a{display:inline-flex;min-height:38px;align-items:center;justify-content:center;padding:7px 10px;border:1px solid #d5e3ec;border-radius:10px;background:#edf5fa;color:#236b9b;text-decoration:none;font:inherit;font-size:11px;font-weight:900;cursor:pointer}\n.work-timeline-evidence-actions-v11350 button:hover,.work-timeline-evidence-v11350 a:hover{background:#e3f0f8;border-color:#a9c9dc}
+.work-timeline-evidence-actions-v11350{display:flex!important;grid-template-columns:none!important;flex-direction:row;align-items:center;justify-content:flex-end;gap:6px}
+.work-timeline-evidence-actions-v11350 button,.work-timeline-evidence-v11350 a{display:inline-flex;min-height:38px;align-items:center;justify-content:center;padding:7px 10px;border:1px solid #d5e3ec;border-radius:10px;background:#edf5fa;color:#236b9b;text-decoration:none;font:inherit;font-size:11px;font-weight:900;cursor:pointer}
+.work-timeline-evidence-actions-v11350 button:hover,.work-timeline-evidence-v11350 a:hover{background:#e3f0f8;border-color:#a9c9dc}
 .work-timeline-foot-v11350{padding:4px 2px 10px;color:#8092a1;font-size:11px;line-height:1.45;text-align:center}
 
 .work-timeline-summary-v11350{display:grid;gap:14px;padding:15px;border:1px solid #dae5ec;border-radius:16px;background:#fff}
@@ -111,4 +119,19 @@
 @keyframes workTimelineSheetMobileIn{from{opacity:.7;transform:translateY(48px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){
   .work-timeline-layer-v11350 *{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+}
+
+.work-timeline-photo-v11350 img[hidden]{display:none!important}
+.work-timeline-photo-v11350.is-error{cursor:pointer}
+.work-timeline-photo-v11350.is-error .work-timeline-photo-loader-v11350{padding:24px;text-align:center;line-height:1.45}
+.work-timeline-preview-btn-v11351{appearance:none;display:inline-flex!important;min-height:40px!important;align-items:center!important;justify-content:center!important;gap:7px!important;padding:8px 12px!important;border:1px solid #b9d6e7!important;border-radius:12px!important;background:linear-gradient(180deg,#f8fcff,#eaf5fb)!important;color:#1f6897!important;box-shadow:0 4px 12px rgba(24,91,135,.08)!important;font:inherit!important;font-size:11px!important;font-weight:900!important;cursor:pointer!important;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease,background .16s ease!important}
+.work-timeline-preview-btn-v11351:hover{transform:translateY(-1px);border-color:#7fb6d5!important;background:linear-gradient(180deg,#fff,#e1f1fa)!important;box-shadow:0 7px 16px rgba(24,91,135,.13)!important}
+.work-timeline-preview-btn-v11351:active{transform:translateY(0) scale(.98)}
+.work-timeline-preview-btn-v11351:disabled{cursor:wait!important;opacity:.72}
+.work-timeline-preview-icon-v11351{width:17px;height:17px;display:grid;place-items:center;flex:0 0 17px}
+.work-timeline-preview-icon-v11351 svg{width:17px;height:17px;fill:currentColor}
+.work-timeline-preview-btn-v11351.is-loading .work-timeline-preview-icon-v11351{animation:workTimelinePhotoPulse .8s ease-in-out infinite alternate}
+@keyframes workTimelinePhotoPulse{from{opacity:.42;transform:scale(.9)}to{opacity:1;transform:scale(1.05)}}
+@media(max-width:720px){
+  .work-timeline-preview-btn-v11351{min-height:44px!important;padding:9px 13px!important;font-size:12px!important}
 }

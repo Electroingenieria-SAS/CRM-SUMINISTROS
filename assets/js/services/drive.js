@@ -12,6 +12,7 @@ import {api} from "./api.js";
  */
 const MAX_FILE_BYTES = Number(CONFIG.drive.maxFileBytes || 15 * 1024 * 1024);
 const BRIDGE_TIMEOUT_MS = 180000;
+const PREVIEW_TIMEOUT_MS = 30000;
 const BLOCKED_FILE_EXTENSIONS = new Set(["html","htm","svg","js","mjs","cjs","exe","dll","msi","bat","cmd","com","scr","ps1","sh","jar","apk","app","dmg","iso"]);
 const ALLOWED_FILE_EXTENSIONS = new Set(["jpg","jpeg","png","webp","heic","heif","pdf","txt","csv","xls","xlsx","doc","docx","ppt","pptx"]);
 const ALLOWED_MIME_PREFIXES = ["image/jpeg","image/png","image/webp","image/heic","image/heif","application/pdf","text/plain","text/csv","application/vnd.ms-excel","application/vnd.openxmlformats-officedocument","application/msword","application/vnd.ms-powerpoint"];
@@ -98,7 +99,7 @@ function isBridgeOrigin(origin) {
   }
 }
 
-function postToBridge(payload) {
+function postToBridge(payload, options = {}) {
   return new Promise((resolve, reject) => {
     const requestId = String(payload.requestId || payload.uploadId || (typeof crypto?.randomUUID === "function" ? crypto.randomUUID() : `drive_${Date.now()}_${Math.random().toString(36).slice(2)}`));
     payload.requestId = requestId;
@@ -150,9 +151,12 @@ function postToBridge(payload) {
       else finish(reject, new Error(data.error || "No fue posible completar la operación con Google Drive."));
     };
 
+    const timeoutMs = Math.max(5000, Number(options.timeoutMs || BRIDGE_TIMEOUT_MS));
     timer = setTimeout(() => {
-      finish(reject, new Error("La operación institucional tardó demasiado. Revisa que el Apps Script siga desplegado e inténtalo nuevamente."));
-    }, BRIDGE_TIMEOUT_MS);
+      finish(reject, new Error(payload.action === "PREVIEW_WORK_EVIDENCE"
+        ? "La vista previa no respondió. Verifica que Apps Script esté desplegado en versión 3.5.0 o superior."
+        : "La operación institucional tardó demasiado. Revisa que el Apps Script siga desplegado e inténtalo nuevamente."));
+    }, timeoutMs);
 
     window.addEventListener("message", onMessage);
     document.body.appendChild(iframe);
@@ -335,7 +339,7 @@ export async function loadWorkEvidencePreview(evidenceId,fileId){
     evidenceId:evidence,
     driveFileId:id,
     clientVersion:CONFIG.version||"ERP_EI"
-  });
+  },{timeoutMs:PREVIEW_TIMEOUT_MS});
 
   const preview=response?.preview;
   if(!preview?.dataUrl||!/^data:image\//i.test(preview.dataUrl)){

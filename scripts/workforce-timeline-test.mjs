@@ -107,6 +107,15 @@ for(const token of ["loadWorkEvidencePreview","PREVIEW_WORK_EVIDENCE","workEvide
 assert.equal(drive.includes("buildWorkEvidencePreview"),false,"El navegador no debe generar miniaturas para guardarlas en PostgreSQL.");
 assert.equal(drive.includes("metadata: preview"),false,"No se deben persistir previews Base64 en metadata.");
 
+
+const timelineUi=fs.readFileSync(new URL("../assets/js/modules/workforce-timeline-v11350.js",import.meta.url),"utf8");
+assert.equal(timelineUi.includes("bindEvidenceGallery(layer,detail||item,loadPreview)"),true,"La tarjeta debe enlazar detalle y loader de evidencia.");
+assert.equal(timelineUi.includes("work-timeline-preview-btn-v11351"),true,"La evidencia debe usar el botón visual V11.35.1.");
+const timelineCss=fs.readFileSync(new URL("../assets/runtime-css/workforce-timeline-v11350.css",import.meta.url),"utf8");
+assert.equal(timelineCss.includes("\\n"),false,"El CSS timeline no debe contener saltos de línea escapados literales.");
+assert.equal(timelineCss.includes("work-timeline-preview-btn-v11351"),true,"Falta estilo del botón de vista previa.");
+assert.equal(drive.includes("PREVIEW_TIMEOUT_MS = 30000"),true,"La vista previa debe fallar rápido si el bridge no responde.");
+
 const workforce=fs.readFileSync(new URL("../assets/js/modules/workforce.js",import.meta.url),"utf8");
 for(const token of ["composePlannerTimeline","openWorkTimelineCard","loadWorkEvidencePreview","canPlanTeam","Mi cronograma"]){
   assert.equal(workforce.includes(token),true,`Integración cronograma debe conservar: ${token}`);
@@ -119,4 +128,4 @@ for(const token of ["VERSION: '3.5.0'","PREVIEW_WORK_EVIDENCE","erp_x_work_evide
 }
 assert.equal(appsScript.includes("SHARING_MODE: 'PRIVATE'"),true,"La evidencia debe permanecer privada en Drive.");
 
-console.log("workforce timeline v11.35.0 tests: OK");
+console.log("workforce timeline v11.35.1 tests: OK");
