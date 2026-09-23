@@ -1,6 +1,6 @@
 # CRM Suministros — Electroingeniería S.A.S.
 
-> Versión candidata: **V11.34.3** · build **2026-09-23.07**  
+> Versión candidata: **V11.34.4** · build **2026-09-23.08**  
 > Producción: Vercel + Supabase `hezjxcxxcjlpmyalftam`  
 > Auditoría integral vigente: `docs/AUDITORIA_INTEGRAL_2026-09-14.md`
 
@@ -31,14 +31,14 @@ El browser no accede directamente a tablas operativas. El esquema `erp_supply` p
 
 La línea base productiva V11.31.2 fue auditada nuevamente el 23 de septiembre de 2026. V11.32.0 introdujo el saneamiento y hardening de la candidata; V11.33.0 añade el rediseño de **Jornada y actividades → Cronograma** sin promover todavía cambios a Vercel ni a la base productiva.
 
-### Sincronización backend V11.34.3
+### Sincronización backend V11.34.4
 
 - migraciones 115, 116 y 117 aplicadas correctamente en Supabase `hezjxcxxcjlpmyalftam`;
 - `erp_x_work_manager_queue(integer)`, `erp_x_work_review_time(uuid,text,text)` y `erp_x_work_start(uuid,uuid,jsonb)` verificados en esquema;
 - schema cache de PostgREST recargado para eliminar el error `PGRST202`;
 - **Vercel no fue desplegado**; el frontend continúa únicamente en GitHub Pages.
 
-### Mi jornada V11.34.3
+### Mi jornada V11.34.4
 
 - iniciar una actividad requiere un solo toque desde agenda o inicio rápido, **sin aprobación previa del jefe**;
 - flujo visual guiado de tres pasos: **Elige → Trabaja → Finaliza con foto**;
@@ -46,6 +46,12 @@ La línea base productiva V11.31.2 fue auditada nuevamente el 23 de septiembre d
 - tocar una actividad solo la selecciona; el cronómetro inicia únicamente con confirmación explícita **Iniciar actividad**;
 - las actividades programadas también requieren confirmación antes de iniciar;
 - cronómetro compacto con actividad, tiempo, semáforo y acciones sin espacio vacío excesivo;
+- V11.34.4 reemplaza los tres paneles simultáneos por un único flujo progresivo; no se renderizan cajas vacías;
+- tipografía operativa de 12–20 px y botones/touch targets de 52–86 px según jerarquía;
+- semáforo visible también antes de iniciar, con leyenda Verde <45 min / Amarillo 45–60 / Rojo >60;
+- tiempos rojos aparecen en **Excepciones y aprobaciones → Alertas de jornada**, con contador, foto y revisión;
+- la revisión gerencial se retiró de Mi jornada para evitar duplicidad de interfaces;
+- la presentación vive en `assets/runtime-css/workforce-experience-v11344.css`; las capas V11.34.2/V11.34.3 se retiraron de `core-shell.css`;
 - actividades disponibles se muestran como botones grandes de inicio inmediato; métricas pasan a segundo plano;
 - el usuario **no informa duración estimada**: el cronómetro mide el tiempo real;
 - semáforo automático: verde < 45 min, amarillo 45–60 min, rojo > 60 min;
