@@ -9,7 +9,7 @@ export function ensureWorkforceTimelineStyles(){
   const link=document.createElement("link");
   link.id=STYLE_ID;
   link.rel="stylesheet";
-  link.href="./assets/runtime-css/workforce-timeline-v11350.css?v=11.35.0";
+  link.href="./assets/runtime-css/workforce-timeline-v11350.css?v=11.35.1";
   document.head.appendChild(link);
 }
 
@@ -97,7 +97,7 @@ export async function openWorkTimelineCard(item,loadDetail,loadPreview){
     const detail=await loadDetail();
     if(!layer.isConnected)return;
     layer.querySelector("[data-timeline-body]").innerHTML=timelineDetailHtml(detail||item);
-    bindEvidenceGallery(layer);
+    bindEvidenceGallery(layer,detail||item,loadPreview);
   }catch(error){
     if(!layer.isConnected)return;
     layer.querySelector("[data-timeline-body]").innerHTML=`
@@ -109,7 +109,8 @@ export async function openWorkTimelineCard(item,loadDetail,loadPreview){
 }
 
 export function closeWorkTimelineCard(){
-  document?.querySelector?.("[data-work-timeline-layer]")?.remove();
+  if(typeof document==="undefined")return;
+  document.querySelector("[data-work-timeline-layer]")?.remove();
 }
 
 function timelineFromAssignment(assignment,execution,canPlanTeam){
@@ -193,7 +194,7 @@ function timelineDetailHtml(detail={}){
   return `
     <section class="work-timeline-hero-v11350 ${cover?"has-photo":""}">
       ${cover?`
-        <button type="button" class="work-timeline-photo-v11350 is-loading" data-timeline-photo-main data-drive-file-id="${fmt.escape(cover.driveFileId||"")}" aria-label="Ver evidencia fotográfica">
+        <button type="button" class="work-timeline-photo-v11350 is-loading" data-timeline-photo-main data-evidence-id="${fmt.escape(cover.id||"")}" data-drive-file-id="${fmt.escape(cover.driveFileId||"")}" aria-label="Ver evidencia fotográfica">
           <span class="work-timeline-photo-loader-v11350">Cargando evidencia…</span>
           <img alt="Evidencia fotográfica de ${fmt.escape(detail.title||"actividad")}" hidden>
           <em>Fotografía de evidencia</em>
@@ -238,40 +239,79 @@ function evidenceRow(row){
     <span class="work-timeline-evidence-icon-v11350">${photo?"📷":"◫"}</span>
     <div><strong>${fmt.escape(evidenceLabel(row?.type))}</strong><small>${fmt.escape(row?.fileName||row?.externalValue||"Registro de evidencia")}</small></div>
     <div class="work-timeline-evidence-actions-v11350">
-      ${photo&&row?.driveFileId?`<button type="button" data-timeline-evidence-preview data-evidence-id="${fmt.escape(row.id||"")}" data-drive-file-id="${fmt.escape(row.driveFileId)}">Ver foto</button>`:""}
+      ${photo&&row?.driveFileId?`<button type="button" class="work-timeline-preview-btn-v11351" data-timeline-evidence-preview data-evidence-id="${fmt.escape(row.id||"")}" data-drive-file-id="${fmt.escape(row.driveFileId)}"><span class="work-timeline-preview-icon-v11351" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M9 5.5 10.3 4h3.4L15 5.5h2.75A2.25 2.25 0 0 1 20 7.75v8.5a2.25 2.25 0 0 1-2.25 2.25H6.25A2.25 2.25 0 0 1 4 16.25v-8.5A2.25 2.25 0 0 1 6.25 5.5H9Zm3 2.25A4.25 4.25 0 1 0 12 16.25 4.25 4.25 0 0 0 12 7.75Zm0 1.75A2.5 2.5 0 1 1 12 14.5 2.5 2.5 0 0 1 12 9.5Z"/></svg></span><span data-preview-label>Ver foto</span></button>`:""}
       ${link?`<a href="${link}" target="_blank" rel="noopener noreferrer">Original</a>`:""}
     </div>
   </article>`;
 }
 
 function bindEvidenceGallery(layer,detail,loadPreview){
-  if(typeof loadPreview!=="function")return;
   const evidence=Array.isArray(detail?.evidence)?detail.evidence:[];
   const first=evidence.find(isPhotoEvidence);
   const cover=layer.querySelector("[data-timeline-photo-main]");
+  if(!cover)return;
+
+  const setActionState=(evidenceId,state)=>{
+    layer.querySelectorAll("[data-timeline-evidence-preview]").forEach(button=>{
+      if(String(button.dataset.evidenceId||"")!==String(evidenceId||""))return;
+      const label=button.querySelector("[data-preview-label]");
+      button.disabled=state==="loading";
+      button.classList.toggle("is-loading",state==="loading");
+      if(label)label.textContent=state==="loading"?"Cargando…":state==="error"?"Reintentar":"Ver foto";
+    });
+  };
 
   const show=async(evidenceId,fileId)=>{
-    const evidence=String(evidenceId||"").trim();
-    const id=String(fileId||"").trim();
-    if(!evidence||!id||!cover)return;
+    const evidenceKey=String(evidenceId||"").trim();
+    const driveId=String(fileId||"").trim();
+    if(!evidenceKey||!driveId)return;
+
     const image=cover.querySelector("img");
     const loader=cover.querySelector(".work-timeline-photo-loader-v11350");
+    cover.dataset.evidenceId=evidenceKey;
+    cover.dataset.driveFileId=driveId;
     cover.classList.add("is-loading");
-    if(loader){loader.hidden=false;loader.textContent="Cargando evidencia…";}
+    cover.classList.remove("is-error");
+    setActionState(evidenceKey,"loading");
+    if(loader){
+      loader.hidden=false;
+      loader.textContent="Cargando evidencia…";
+    }
+
     try{
-      const preview=await loadPreview(evidence,id);
+      if(typeof loadPreview!=="function")throw new Error("El visor de evidencia no está disponible. Actualiza la aplicación.");
+      const preview=await loadPreview(evidenceKey,driveId);
       if(!layer.isConnected)return;
-      image.src=preview.dataUrl;
+      if(!preview?.dataUrl)throw new Error("Drive no devolvió una vista previa válida.");
+
+      await new Promise((resolve,reject)=>{
+        image.onload=()=>resolve();
+        image.onerror=()=>reject(new Error("La fotografía recibida no pudo mostrarse."));
+        image.src=preview.dataUrl;
+      });
+
+      if(!layer.isConnected)return;
       image.hidden=false;
       cover.classList.remove("is-loading","is-error");
+      setActionState(evidenceKey,"ready");
       if(loader)loader.hidden=true;
     }catch(error){
       if(!layer.isConnected)return;
+      image.hidden=true;
+      image.removeAttribute("src");
       cover.classList.remove("is-loading");
       cover.classList.add("is-error");
-      if(loader){loader.hidden=false;loader.textContent=error?.message||"No fue posible cargar la fotografía.";}
+      setActionState(evidenceKey,"error");
+      if(loader){
+        loader.hidden=false;
+        loader.textContent=(error?.message||"No fue posible cargar la fotografía.")+" Toca aquí para reintentar.";
+      }
     }
   };
+
+  cover.addEventListener("click",()=>{
+    show(cover.dataset.evidenceId,cover.dataset.driveFileId);
+  });
 
   if(first?.id&&first?.driveFileId)show(first.id,first.driveFileId);
 
@@ -285,7 +325,7 @@ function bindEvidenceGallery(layer,detail,loadPreview){
     const thumb=[...layer.querySelectorAll("[data-timeline-thumb]")].find(node=>node.dataset.driveFileId===fileId);
     if(thumb)layer.querySelectorAll("[data-timeline-thumb]").forEach(node=>node.classList.toggle("active",node===thumb));
     await show(button.dataset.evidenceId,fileId);
-    cover?.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"nearest"});
+    cover.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"nearest"});
   }));
 }
 
