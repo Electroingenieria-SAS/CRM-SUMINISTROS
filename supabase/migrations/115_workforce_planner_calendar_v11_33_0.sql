@@ -8,7 +8,7 @@ returns trigger
 language plpgsql
 security invoker
 set search_path=erp_supply,public,auth,pg_catalog
-as $$
+as $work_people$$
 declare
   v_raw_seconds bigint;
   v_business_seconds bigint;
@@ -26,7 +26,7 @@ begin
   end if;
   return new;
 end;
-$$;
+$$work_people$;
 
 revoke all on function erp_supply.validate_work_assignment_business_window() from public,anon,authenticated;
 
