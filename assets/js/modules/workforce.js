@@ -859,28 +859,186 @@ async function renderAnalytics(root,content){
   const people=canManage?await api.workPeople(null).catch(()=>[]):[];
   const selected=content.dataset.analyticsProfile||"";
   const data=await api.workAnalytics(analyticsRange.from,analyticsRange.to,selected||null);
+  const summary=data.summary||{};
+  const scopeName=selected?(people.find(person=>String(person.id)===String(selected))?.name||"Trabajador seleccionado"):(canManage?"Ámbito completo":"Mi jornada");
+  const utilization=Math.max(0,Math.min(100,Number(summary.utilizationPct||0)));
+  const utilizationTone=utilization>=80?"good":utilization>=55?"medium":"low";
+
   content.innerHTML=`
-    <section class="card work-analytics-toolbar"><div class="form-grid"><div class="field"><label>Desde</label><input class="control" type="date" data-analytics-from value="${analyticsRange.from}"></div><div class="field"><label>Hasta</label><input class="control" type="date" data-analytics-to value="${analyticsRange.to}"></div>${canManage?`<div class="field"><label>Persona / equipo</label><select class="control" data-analytics-profile><option value="">Mi ámbito completo</option>${people.map(p=>`<option value="${fmt.escape(p.id)}" ${selected===p.id?"selected":""}>${fmt.escape(p.name)}</option>`).join("")}</select></div>`:""}<div class="field analytics-apply"><label>&nbsp;</label><button class="btn btn-primary" data-analytics-apply>Aplicar</button></div></div></section>
-    ${analyticsSummary(data.summary)}
-    <div class="grid grid-2 work-analytics-grid">
-      <section class="card"><header class="card-head"><div><h3>Distribución del trabajo adicional</h3><p>Tiempo activo por familia de actividad.</p></div></header><div class="card-body">${barList(data.activityGroups||[],x=>GROUP_LABELS[x.group]||fmt.label(x.group),x=>x.activeSeconds)}</div></section>
-      <section class="card"><header class="card-head"><div><h3>Tiempos de referencia aprendidos</h3><p>Mediana y percentil 80 a partir de ejecuciones reales.</p></div></header><div class="card-body">${activityStandardsHtml(data.topActivities||[])}</div></section>
-      <section class="card"><header class="card-head"><div><h3>Causas de desviación</h3><p>Pareto de razones registradas cuando una actividad tomó más o menos de lo esperado.</p></div></header><div class="card-body">${causeList(data.deviationCauses||[])}</div></section>
-      <section class="card"><header class="card-head"><div><h3>Equipo ahora</h3><p>Quién tiene una actividad adicional en ejecución. Los procesos del CRM siguen visibles en sus propias colas.</p></div></header><div class="card-body">${teamNowHtml(data.teamNow||[])}</div></section>
-    </div>
-    ${data.pendingReviews?.length?`<section class="card work-review-card"><header class="card-head"><div><h3>Entregables pendientes de revisión</h3><p>Aceptar confirma el resultado; devolver exige una nota para corrección.</p></div></header><div class="card-body">${pendingReviewsHtml(data.pendingReviews)}</div></section>`:""}
-    <section class="work-ethics-note"><strong>Cómo leer estos indicadores</strong><span>Utilización, puntualidad y duración describen procesos y capacidad; no constituyen por sí solos una calificación de desempeño. El CRM conserva tiempo no clasificado como “sin categoría”, no como improductividad.</span></section>`;
-  content.querySelector("[data-analytics-apply]").onclick=()=>{analyticsRange={from:content.querySelector('[data-analytics-from]').value,to:content.querySelector('[data-analytics-to]').value};content.dataset.analyticsProfile=content.querySelector('[data-analytics-profile]')?.value||"";renderAnalytics(root,content)};
+    <section class="work-indicators-v11363">
+      <section class="work-indicator-hero-v11363">
+        <div class="work-indicator-hero-copy-v11363">
+          <span class="work-indicator-kicker-v11363">INDICADORES DE JORNADA</span>
+          <h2>Pulso operativo</h2>
+          <p>Capacidad, cumplimiento, tiempos y distribución del trabajo en una lectura visual y verificable.</p>
+          <div class="work-indicator-context-v11363">
+            <span><b>Periodo</b>${fmt.escape(analyticsRange.from)} → ${fmt.escape(analyticsRange.to)}</span>
+            <span><b>Vista</b>${fmt.escape(scopeName)}</span>
+            <span class="tone-${utilizationTone}"><b>Clasificación</b>${fmt.number(utilization,1)}%</span>
+          </div>
+        </div>
+
+        <div class="work-indicator-hero-side-v11363">
+          <div class="work-indicator-ring-v11363" style="--indicator-value:${utilization}">
+            <div><strong>${fmt.number(utilization,1)}%</strong><span>jornada<br>clasificada</span></div>
+          </div>
+          <details class="work-indicator-filter-v11363">
+            <summary>${icon("search")}<span><strong>Ajustar análisis</strong><small>Periodo y persona</small></span><b>⌄</b></summary>
+            <div class="work-indicator-filter-panel-v11363">
+              <label><span>Desde</span><input class="control" type="date" data-analytics-from value="${analyticsRange.from}"></label>
+              <label><span>Hasta</span><input class="control" type="date" data-analytics-to value="${analyticsRange.to}"></label>
+              ${canManage?`<label class="wide"><span>Persona / equipo</span><select class="control" data-analytics-profile><option value="">Mi ámbito completo</option>${people.map(person=>`<option value="${fmt.escape(person.id)}" ${selected===person.id?"selected":""}>${fmt.escape(person.name)}</option>`).join("")}</select></label>`:""}
+              <button type="button" class="btn btn-primary wide" data-analytics-apply>Aplicar filtros</button>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      ${analyticsSummary(summary)}
+
+      <section class="work-indicator-layout-v11363">
+        <section class="work-indicator-panel-v11363 span-2">
+          <header><div><span>BALANCE DE JORNADA</span><h3>¿Cómo se distribuyó el tiempo disponible?</h3><p>Contrasta tiempo clasificado y tiempo que todavía no tiene categoría operativa.</p></div></header>
+          <div class="work-indicator-panel-body-v11363">${analyticsBalance(summary)}</div>
+        </section>
+
+        <section class="work-indicator-panel-v11363">
+          <header><div><span>DISTRIBUCIÓN</span><h3>Mapa del trabajo adicional</h3><p>Participación del tiempo activo por familia de actividad.</p></div></header>
+          <div class="work-indicator-panel-body-v11363">${barList(data.activityGroups||[],x=>GROUP_LABELS[x.group]||fmt.label(x.group),x=>x.activeSeconds)}</div>
+        </section>
+
+        <section class="work-indicator-panel-v11363">
+          <header><div><span>DESVIACIONES</span><h3>Qué explica los desvíos</h3><p>Pareto visual de las causas documentadas en el periodo.</p></div></header>
+          <div class="work-indicator-panel-body-v11363">${causeList(data.deviationCauses||[])}</div>
+        </section>
+
+        <section class="work-indicator-panel-v11363 span-2">
+          <header><div><span>TIEMPOS APRENDIDOS</span><h3>Referencias reales por actividad</h3><p>Mediana y P80 construidos con ejecuciones registradas, sin convertirlos en una calificación individual.</p></div></header>
+          <div class="work-indicator-panel-body-v11363">${activityStandardsHtml(data.topActivities||[])}</div>
+        </section>
+
+        <section class="work-indicator-panel-v11363 span-2">
+          <header><div><span>EN ESTE MOMENTO</span><h3>Equipo activo</h3><p>Actividades adicionales que están corriendo o pausadas ahora.</p></div></header>
+          <div class="work-indicator-panel-body-v11363">${teamNowHtml(data.teamNow||[])}</div>
+        </section>
+      </section>
+
+      ${data.pendingReviews?.length?`<section class="work-indicator-panel-v11363 work-review-card-v11363"><header><div><span>REVISIÓN</span><h3>Entregables pendientes</h3><p>Aceptar confirma el resultado; devolver exige una nota para corrección.</p></div><b>${fmt.number(data.pendingReviews.length)}</b></header><div class="work-indicator-panel-body-v11363">${pendingReviewsHtml(data.pendingReviews)}</div></section>`:""}
+
+      <details class="work-indicator-method-v11363">
+        <summary>${icon("audit")}<div><strong>Cómo leer estos indicadores</strong><small>Metodología y límites de interpretación</small></div><b>⌄</b></summary>
+        <div><p><strong>Utilización, puntualidad y duración describen procesos y capacidad.</strong> No constituyen por sí solos una calificación de desempeño.</p><p>El CRM conserva tiempo no clasificado como <b>“sin categoría”</b>; no lo interpreta automáticamente como improductividad. Las referencias de tiempo se construyen con ejecuciones históricas.</p></div>
+      </details>
+    </section>`;
+
+  content.querySelector("[data-analytics-apply]").onclick=()=>{
+    analyticsRange={from:content.querySelector("[data-analytics-from]").value,to:content.querySelector("[data-analytics-to]").value};
+    content.dataset.analyticsProfile=content.querySelector("[data-analytics-profile]")?.value||"";
+    renderAnalytics(root,content);
+  };
   content.querySelectorAll("[data-review-accept]").forEach(button=>button.onclick=()=>reviewDelivery(button.dataset.reviewAccept,"ACCEPTED",content,root));
   content.querySelectorAll("[data-review-return]").forEach(button=>button.onclick=()=>reviewDelivery(button.dataset.reviewReturn,"RETURNED",content,root));
 }
 
-function analyticsSummary(s={}){return `<section class="workforce-summary-grid analytics"><article class="workforce-summary-card"><span>Jornada clasificada</span><strong>${fmt.number(s.utilizationPct,1)}%</strong><small>${fmt.hours(s.classifiedBusinessSeconds)} de ${fmt.hours(s.scheduledBusinessSeconds)}</small></article><article class="workforce-summary-card"><span>Tiempo sin categoría</span><strong>${fmt.hours(s.unclassifiedBusinessSeconds)}</strong><small>No se interpreta automáticamente como improductivo</small></article><article class="workforce-summary-card"><span>Cumplimiento de fecha</span><strong>${fmt.number(s.onTimePct,1)}%</strong><small>Asignaciones terminadas dentro del compromiso</small></article><article class="workforce-summary-card"><span>Inicio según plan</span><strong>${fmt.number(s.startAdherencePct,1)}%</strong><small>Inicio dentro de ±5 min del bloque programado</small></article></section>`}
-function barList(rows,label,value){if(!rows.length)return empty("Sin datos","Todavía no existen ejecuciones para el periodo.");const max=Math.max(...rows.map(value),1);return `<div class="work-bar-list">${rows.map(r=>`<div class="work-bar-row"><div><strong>${fmt.escape(label(r))}</strong><span>${fmt.hours(value(r))} · ${fmt.number(r.executions)} ejecución(es)</span></div><div class="work-bar-track"><span style="width:${Math.max(3,100*value(r)/max)}%"></span></div></div>`).join("")}</div>`}
-function activityStandardsHtml(rows){if(!rows.length)return empty("Sin estándar aprendido","Con cinco o más ejecuciones, el CRM empieza a mostrar referencias históricas.");return `<div class="work-standard-list">${rows.map(r=>`<article><div><strong>${fmt.escape(r.name)}</strong><span>${fmt.escape(GROUP_LABELS[r.group]||fmt.label(r.group))} · ${fmt.number(r.executions)} muestras</span></div><div><b>${fmt.number(r.medianMinutes,1)} min</b><small>mediana</small></div><div><b>${fmt.number(r.p80Minutes,1)} min</b><small>P80</small></div></article>`).join("")}</div>`}
-function causeList(rows){if(!rows.length)return empty("Sin causas registradas","Las causas aparecerán cuando el equipo las indique al finalizar una actividad.");return `<div class="work-cause-list">${rows.map(r=>`<article><strong>${fmt.escape(DEVIATION_REASONS[r.reason]||fmt.label(r.reason))}</strong><span>${fmt.number(r.executions)} caso(s)</span><b>${fmt.hours(r.activeSeconds)}</b></article>`).join("")}</div>`}
-function teamNowHtml(rows){if(!rows.length)return empty("Sin actividades adicionales activas","El equipo puede estar trabajando en procesos normales del CRM o sin una actividad adicional iniciada.");return `<div class="team-now-list">${rows.map(r=>`<article><span class="avatar">${fmt.initials(r.profileName)}</span><div><strong>${fmt.escape(r.profileName)}</strong><small>${fmt.escape(r.title)} · desde ${timeOnly(r.startedAt)}</small></div>${statusBadge(r.status)}</article>`).join("")}</div>`}
-function pendingReviewsHtml(rows){return `<div class="work-review-list">${rows.map(r=>`<article><div><strong>${fmt.escape(r.title)}</strong><span>${fmt.escape(r.profileName)} · ${r.dueAt?`vencía ${fmt.date(r.dueAt)}`:"sin fecha"}</span><small>${fmt.escape(r.resultNote||"Sin nota de resultado")}</small></div><div class="work-review-evidence">${(r.evidence||[]).map(e=>e.webViewLink?`<a href="${fmt.escape(e.webViewLink)}" target="_blank" rel="noopener">${fmt.escape(e.fileName||fmt.label(e.type))}</a>`:`<span>${fmt.escape(e.value||fmt.label(e.type))}</span>`).join("")}</div><div class="work-review-actions"><button class="btn btn-ghost" data-review-return="${fmt.escape(r.executionId)}">Devolver</button><button class="btn btn-primary" data-review-accept="${fmt.escape(r.executionId)}">Aceptar</button></div></article>`).join("")}</div>`}
+function analyticsSummary(s={}){
+  const scheduled=Math.max(0,Number(s.scheduledBusinessSeconds||0));
+  const classified=Math.max(0,Number(s.classifiedBusinessSeconds||0));
+  const unclassified=Math.max(0,Number(s.unclassifiedBusinessSeconds||0));
+  const util=Math.max(0,Math.min(100,Number(s.utilizationPct||0)));
+  const onTime=Math.max(0,Math.min(100,Number(s.onTimePct||0)));
+  const adherence=Math.max(0,Math.min(100,Number(s.startAdherencePct||0)));
+  const completed=Number(s.completedAssignments||0);
+  const reviews=Number(s.pendingReviews||0);
+  const uncPct=scheduled>0?Math.max(0,Math.min(100,100*unclassified/scheduled)):0;
+  return `<section class="work-indicator-metrics-v11363">
+    ${indicatorMetric("Jornada clasificada",`${fmt.number(util,1)}%`,`${fmt.hours(classified)} de ${fmt.hours(scheduled)}`,"blue",util,"Tiempo identificado dentro de la jornada laboral")}
+    ${indicatorMetric("Sin categoría",fmt.hours(unclassified),`${fmt.number(uncPct,1)}% de la jornada`,"amber",uncPct,"No equivale automáticamente a improductividad")}
+    ${indicatorMetric("Cumplimiento",`${fmt.number(onTime,1)}%`,`${fmt.number(completed)} completada${completed===1?"":"s"}`,"green",onTime,"Finalizadas dentro del compromiso")}
+    ${indicatorMetric("Inicio según plan",`${fmt.number(adherence,1)}%`,"Ventana de ±5 minutos","violet",adherence,"Adherencia al bloque programado")}
+    ${indicatorMetric("Actividad completada",fmt.number(completed),s.people?`${fmt.number(s.people)} persona${Number(s.people)===1?"":"s"} en el ámbito`:"Periodo seleccionado","cyan",Math.min(100,completed*10),"Volumen de asignaciones terminadas")}
+    ${indicatorMetric("En revisión",fmt.number(reviews),reviews?"Requieren decisión":"Sin entregables pendientes","rose",reviews?Math.min(100,25+reviews*15):0,"Entregables enviados para aceptación")}
+  </section>`;
+}
+
+function indicatorMetric(label,value,detail,tone,progress,help){
+  return `<article class="work-indicator-metric-v11363 tone-${tone}">
+    <div class="work-indicator-metric-top-v11363"><span>${fmt.escape(label)}</span><i></i></div>
+    <strong>${value}</strong>
+    <small>${detail}</small>
+    <div class="work-indicator-metric-progress-v11363"><span style="--metric-progress:${Math.max(0,Math.min(100,Number(progress||0)))}%"></span></div>
+    <p>${fmt.escape(help)}</p>
+  </article>`;
+}
+
+function analyticsBalance(s={}){
+  const scheduled=Math.max(0,Number(s.scheduledBusinessSeconds||0));
+  const classified=Math.max(0,Number(s.classifiedBusinessSeconds||0));
+  const unclassified=Math.max(0,Number(s.unclassifiedBusinessSeconds||0));
+  const total=Math.max(1,scheduled||classified+unclassified);
+  const classifiedPct=Math.max(0,Math.min(100,100*classified/total));
+  const unclassifiedPct=Math.max(0,Math.min(100,100*unclassified/total));
+  return `<div class="work-indicator-balance-visual-v11363">
+    <div class="work-indicator-balance-bar-v11363"><span class="classified" style="--balance-size:${classifiedPct}%"></span><span class="unclassified" style="--balance-size:${unclassifiedPct}%"></span></div>
+    <div class="work-indicator-balance-legend-v11363">
+      <div><i class="classified"></i><span>Clasificado</span><strong>${fmt.hours(classified)}</strong><small>${fmt.number(classifiedPct,1)}%</small></div>
+      <div><i class="unclassified"></i><span>Sin categoría</span><strong>${fmt.hours(unclassified)}</strong><small>${fmt.number(unclassifiedPct,1)}%</small></div>
+      <div><i class="scheduled"></i><span>Jornada programada</span><strong>${fmt.hours(scheduled)}</strong><small>base</small></div>
+    </div>
+  </div>`;
+}
+
+function barList(rows,label,value){
+  if(!rows.length)return indicatorEmpty("Sin distribución todavía","Cuando existan ejecuciones aparecerá la participación por familia.");
+  const total=rows.reduce((sum,row)=>sum+Number(value(row)||0),0);
+  const max=Math.max(...rows.map(row=>Number(value(row)||0)),1);
+  return `<div class="work-indicator-bars-v11363">${rows.map((row,index)=>{
+    const current=Number(value(row)||0);
+    const share=total?100*current/total:0;
+    const width=Math.max(4,100*current/max);
+    return `<div class="work-indicator-bar-v11363 tone-${index%6}">
+      <div class="work-indicator-bar-copy-v11363"><span><strong>${fmt.escape(label(row))}</strong><small>${fmt.number(row.executions)} ejecución${Number(row.executions)===1?"":"es"}</small></span><b>${fmt.hours(current)}</b></div>
+      <div class="work-indicator-bar-track-v11363"><span style="--bar-size:${width}%"></span></div>
+      <small>${fmt.number(share,1)}% del tiempo activo adicional</small>
+    </div>`;
+  }).join("")}</div>`;
+}
+
+function activityStandardsHtml(rows){
+  if(!rows.length)return indicatorEmpty("Aún no hay referencias suficientes","Con ejecuciones reales el CRM aprende medianas y percentil 80 por actividad.");
+  return `<div class="work-indicator-standards-v11363">${rows.slice(0,8).map((row,index)=>{
+    const median=Math.max(0,Number(row.medianMinutes||0));
+    const p80=Math.max(median,Number(row.p80Minutes||0));
+    const max=Math.max(1,p80);
+    return `<article>
+      <span class="work-indicator-rank-v11363">${String(index+1).padStart(2,"0")}</span>
+      <div class="work-indicator-standard-copy-v11363"><strong>${fmt.escape(row.name)}</strong><small>${fmt.escape(GROUP_LABELS[row.group]||fmt.label(row.group))} · ${fmt.number(row.executions)} muestras</small><div class="work-indicator-standard-bars-v11363"><span class="median" style="--standard-size:${Math.max(6,100*median/max)}%"></span><span class="p80" style="--standard-size:100%"></span></div></div>
+      <div class="work-indicator-standard-values-v11363"><span><b>${fmt.number(median,1)}</b><small>min mediana</small></span><span><b>${fmt.number(p80,1)}</b><small>min P80</small></span></div>
+    </article>`;
+  }).join("")}</div>`;
+}
+
+function causeList(rows){
+  if(!rows.length)return indicatorEmpty("Sin causas registradas","Las causas aparecerán cuando el equipo las indique al finalizar una actividad.");
+  const max=Math.max(...rows.map(row=>Number(row.executions||0)),1);
+  return `<div class="work-indicator-deviations-v11363">${rows.slice(0,7).map((row,index)=>{
+    const width=Math.max(8,100*Number(row.executions||0)/max);
+    return `<article><span class="work-indicator-deviation-index-v11363">${index+1}</span><div><strong>${fmt.escape(DEVIATION_REASONS[row.reason]||fmt.label(row.reason))}</strong><small>${fmt.number(row.executions)} caso${Number(row.executions)===1?"":"s"} · ${fmt.hours(row.activeSeconds)}</small><div><span style="--cause-size:${width}%"></span></div></div></article>`;
+  }).join("")}</div>`;
+}
+
+function teamNowHtml(rows){
+  if(!rows.length)return indicatorEmpty("Sin actividades adicionales activas","El equipo puede estar en procesos normales del CRM o sin actividad adicional iniciada.");
+  return `<div class="work-indicator-team-v11363">${rows.map(row=>`<article class="tone-${String(row.status||"").toLowerCase()}"><span class="work-indicator-team-avatar-v11363">${fmt.initials(row.profileName)}</span><div><strong>${fmt.escape(row.profileName)}</strong><span>${fmt.escape(row.title||"Actividad")}</span><small>Desde ${timeOnly(row.startedAt)} · ${fmt.escape(GROUP_LABELS[row.group]||fmt.label(row.group||"GENERAL"))}</small></div>${statusBadge(row.status)}</article>`).join("")}</div>`;
+}
+
+function pendingReviewsHtml(rows){
+  return `<div class="work-review-list-v11363">${rows.map(row=>`<article><div class="work-review-copy-v11363"><strong>${fmt.escape(row.title)}</strong><span>${fmt.escape(row.profileName)} · ${row.dueAt?`vencía ${fmt.date(row.dueAt)}`:"sin fecha"}</span><small>${fmt.escape(row.resultNote||"Sin nota de resultado")}</small></div><div class="work-review-evidence-v11363">${(row.evidence||[]).map(evidence=>evidence.webViewLink?`<a href="${fmt.escape(evidence.webViewLink)}" target="_blank" rel="noopener">${fmt.escape(evidence.fileName||fmt.label(evidence.type))}</a>`:`<span>${fmt.escape(evidence.value||fmt.label(evidence.type))}</span>`).join("")}</div><div class="work-review-actions-v11363"><button class="btn btn-ghost" data-review-return="${fmt.escape(row.executionId)}">Devolver</button><button class="btn btn-primary" data-review-accept="${fmt.escape(row.executionId)}">Aceptar</button></div></article>`).join("")}</div>`;
+}
+
+function indicatorEmpty(title,detail){
+  return `<div class="work-indicator-empty-v11363"><span>◇</span><div><strong>${fmt.escape(title)}</strong><p>${fmt.escape(detail)}</p></div></div>`;
+}
+
 function reviewDelivery(id,decision,content,root){modal({title:decision==="ACCEPTED"?"Aceptar entregable":"Devolver entregable",confirmLabel:decision==="ACCEPTED"?"Aceptar resultado":"Devolver para corrección",body:`<div class="field"><label>${decision==="RETURNED"?"Qué debe corregirse *":"Nota opcional"}</label><textarea class="control" name="note" rows="4" ${decision==="RETURNED"?"required":""}></textarea></div>`,onConfirm:async dialog=>{await api.workReviewDelivery(id,decision,dialog.querySelector('[name="note"]').value||null);toast(decision==="ACCEPTED"?"Entregable aceptado.":"Entregable devuelto para corrección.");await renderAnalytics(root,content)}})}
 
 // ---------------------------------------------------------------------------
