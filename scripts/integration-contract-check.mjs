@@ -44,7 +44,7 @@ const expectedModes={
   "erp-admin-users":true,
   "erp-admin-impersonate":true,
   "erp-auditoria-bridge":false,
-  "erp-auditoria-metrics":false
+  "erp-auditoria-metrics":true
 };
 for(const [slug,verify] of Object.entries(expectedModes)){
   const section=`[functions.${slug}]`;
@@ -55,7 +55,7 @@ for(const [slug,verify] of Object.entries(expectedModes)){
   check(new RegExp(`verify_jwt\\s*=\\s*${verify}`).test(next),`${slug} tiene verify_jwt distinto del contrato productivo.`);
 }
 check(configToml.includes("custom authentication"),"config.toml debe documentar por qué el bridge usa verify_jwt=false.");
-check(configToml.includes("aggregate-only"),"config.toml debe documentar por qué metrics usa verify_jwt=false.");
+check(configToml.includes("métricas internas autenticadas"),"config.toml debe documentar que metrics exige JWT.");
 check(/aggregate|privacy|PII/i.test(metrics),"La función de métricas debe conservar el contrato agregado/no PII.");
 
 if(failures.length){
