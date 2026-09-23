@@ -16,11 +16,18 @@ const SETTINGS = Object.freeze({
   // Carpeta institucional suministrada.
   ROOT_FOLDER_ID: '1B9IsvURgsDWxLP84Z7uD3wsDNhh43n_x',
 
-  // Dominio desde el que actualmente se ejecuta el ERP.
-  // Cuando el ERP cambie de dominio, agrega el nuevo origen exacto aquí,
-  // siempre sin slash al final.
+  // Orígenes autorizados para utilizar el puente institucional.
+  // IMPORTANTE: aquí van ORIGINS (protocolo + host), nunca rutas.
+  // Ejemplo GitHub Pages:
+  // URL pública: https://electroingenieria-sas.github.io/CRM-SUMINISTROS/
+  // Origin real: https://electroingenieria-sas.github.io
   ALLOWED_ORIGINS: [
-    'https://ei-erp-google-auth.vercel.app'
+    'https://electroingenieria-sas.github.io',
+    'https://crm-suministros-amber.vercel.app',
+    'https://crm-suministros-jeptacs-projects.vercel.app',
+    'https://crm-suministros-git-main-jeptacs-projects.vercel.app',
+    'https://ei-erp-google-auth.vercel.app',
+    'https://borrador-erp-ei.vercel.app'
   ],
 
   // Máximo por archivo. Apps Script no es adecuado para archivos gigantes.
