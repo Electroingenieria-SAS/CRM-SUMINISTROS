@@ -1,7 +1,8 @@
 import {fmt} from "../core/format.js";
 
 const STYLE_ID="workforce-timeline-v11350-style";
-const FINAL_STATES=new Set(["COMPLETED","SUBMITTED","WAITING_EVIDENCE","RETURNED","CANCELLED"]);\nconst PHOTO_TYPES=new Set(["BEFORE_PHOTO","AFTER_PHOTO","FINAL_PHOTO"]);
+const FINAL_STATES=new Set(["COMPLETED","SUBMITTED","WAITING_EVIDENCE","RETURNED","CANCELLED"]);
+const PHOTO_TYPES=new Set(["BEFORE_PHOTO","AFTER_PHOTO","FINAL_PHOTO"]);
 
 export function ensureWorkforceTimelineStyles(){
   if(typeof document==="undefined"||document.getElementById(STYLE_ID))return;
