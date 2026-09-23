@@ -462,6 +462,35 @@ async function renderPlanner(root,content){
     month:"Mes laboral · sin fines de semana"
   }[plannerMode]||"Cronograma laboral";
 
+  const activeFilterCount=()=>[
+    plannerFilters.profileId!=="ALL",
+    plannerFilters.fromTime!=="07:00",
+    plannerFilters.toTime!=="17:30",
+    plannerMode!=="day"&&plannerFilters.weekday!=="ALL"
+  ].filter(Boolean).length;
+
+  const selectedWorker=()=>plannerFilters.profileId==="ALL"
+    ? null
+    : (data.people||[]).find(person=>String(person.id)===String(plannerFilters.profileId))||null;
+
+  const capacityMarkupFor=profileId=>{
+    const person=String(profileId||"ALL")==="ALL"
+      ? null
+      : (data.people||[]).find(row=>String(row.id)===String(profileId));
+
+    if(!person){
+      return `<div class="work-capacity-empty-v11362">
+        <span class="work-capacity-empty-icon-v11362">◎</span>
+        <div><strong>Selecciona un trabajador</strong><p>Usa el filtro de trabajador para consultar su capacidad planificada sin mostrar toda la lista.</p></div>
+      </div>`;
+    }
+
+    const assignments=(data.assignments||[]).filter(row=>String(row.profileId)===String(person.id));
+    return `<div class="work-capacity-focus-v11362">${teamCapacityHtml([person],assignments,range,calendar)}</div>`;
+  };
+
+  const filterWorkerName=()=>selectedWorker()?.name||"Todos";
+
   content.innerHTML=`
     <section class="work-planner-toolbar card">
       <div class="work-planner-nav">
@@ -480,26 +509,38 @@ async function renderPlanner(root,content){
       </div>
     </section>
 
-    <section class="work-calendar-filterbar-v11361" aria-label="Filtros del cronograma">
-      <div class="work-calendar-filter-top-v11361">
-        <span class="work-calendar-filter-label-v11361">Trabajador</span>
-        <div class="work-calendar-worker-chips-v11361">
-          <button type="button" class="work-calendar-worker-chip-v11361 ${plannerFilters.profileId==="ALL"?"active":""}" data-plan-filter-worker="ALL"><i>ALL</i><span>Todos</span></button>
-          ${(data.people||[]).map(person=>{
-            const count=timeline.filter(item=>item.profileId===person.id).length;
-            return `<button type="button" class="work-calendar-worker-chip-v11361 ${plannerFilters.profileId===person.id?"active":""}" data-plan-filter-worker="${fmt.escape(person.id)}"><i>${fmt.initials(person.name)}</i><span>${fmt.escape(person.name)} · ${count}</span></button>`;
-          }).join("")}
+    <details class="work-calendar-filterbox-v11362" data-plan-filter-box>
+      <summary class="work-calendar-filter-trigger-v11362">
+        <span class="work-calendar-filter-trigger-icon-v11362">⌁</span>
+        <span>
+          <strong>Filtros</strong>
+          <small data-plan-filter-summary>${activeFilterCount()?`${activeFilterCount()} activos · ${fmt.escape(filterWorkerName())}`:"Sin filtros activos"}</small>
+        </span>
+        <b data-plan-filter-count ${activeFilterCount()?"":"hidden"}>${activeFilterCount()}</b>
+      </summary>
+
+      <div class="work-calendar-filter-panel-v11362">
+        <div class="work-calendar-filter-field-v11361 work-calendar-filter-worker-v11362">
+          <label>Trabajador</label>
+          <select data-plan-filter-worker>
+            <option value="ALL" ${plannerFilters.profileId==="ALL"?"selected":""}>Todos los trabajadores</option>
+            ${(data.people||[]).map(person=>{
+              const count=timeline.filter(item=>item.profileId===person.id).length;
+              return `<option value="${fmt.escape(person.id)}" ${plannerFilters.profileId===person.id?"selected":""}>${fmt.escape(person.name)} · ${count} actividad${count===1?"":"es"}</option>`;
+            }).join("")}
+          </select>
         </div>
-      </div>
-      <div class="work-calendar-filter-fields-v11361">
+
         <div class="work-calendar-filter-field-v11361">
           <label>Desde</label>
           <input type="time" value="${fmt.escape(plannerFilters.fromTime)}" min="07:00" max="17:30" step="300" data-plan-filter-from>
         </div>
+
         <div class="work-calendar-filter-field-v11361">
           <label>Hasta</label>
           <input type="time" value="${fmt.escape(plannerFilters.toTime)}" min="07:00" max="17:30" step="300" data-plan-filter-to>
         </div>
+
         ${plannerMode==="day"?`
           <div class="work-calendar-filter-field-v11361">
             <label>Fecha</label>
@@ -516,9 +557,13 @@ async function renderPlanner(root,content){
               <option value="5" ${plannerFilters.weekday==="5"?"selected":""}>Viernes</option>
             </select>
           </div>`}
-        <button type="button" class="work-calendar-filter-reset-v11361" data-plan-filter-reset>Limpiar filtros</button>
+
+        <div class="work-calendar-filter-actions-v11362">
+          <button type="button" class="work-calendar-filter-reset-v11361" data-plan-filter-reset>Restablecer</button>
+          <button type="button" class="work-calendar-filter-close-v11362" data-plan-filter-close>Cerrar</button>
+        </div>
       </div>
-    </section>
+    </details>
 
     <section class="work-planner-context-strip">
       <span><b>Horario</b> 07:00–12:00 · 13:40–17:30</span>
@@ -528,10 +573,19 @@ async function renderPlanner(root,content){
 
     <div data-planner-calendar-host>${renderWorkforceCalendarBoard({mode:plannerMode,anchor:plannerAnchor,data:plannerData,calendar,filters:plannerFilters})}</div>
 
-    ${canViewTeam?`<section class="card work-team-now">
-      <header class="card-head"><div><h3>Capacidad del equipo</h3><p>Se calcula únicamente con asignaciones planificadas; las actividades espontáneas no inflan la carga futura.</p></div></header>
-      <div class="card-body">${teamCapacityHtml(data.people||[],data.assignments||[],range,calendar)}</div>
-    </section>`:""}`;
+    ${canViewTeam?`<details class="work-team-capacity-v11362 card">
+      <summary class="work-team-capacity-summary-v11362">
+        <span class="work-team-capacity-icon-v11362">◔</span>
+        <div>
+          <strong>Capacidad del equipo</strong>
+          <small data-team-capacity-label>${selectedWorker()?fmt.escape(selectedWorker().name):"Selecciona un trabajador en Filtros"}</small>
+        </div>
+        <span class="work-team-capacity-chevron-v11362">⌄</span>
+      </summary>
+      <div class="work-team-capacity-body-v11362" data-team-capacity-host>
+        ${capacityMarkupFor(plannerFilters.profileId)}
+      </div>
+    </details>`:""}`;;
 
   const calendarHost=content.querySelector("[data-planner-calendar-host]");
 
@@ -565,10 +619,29 @@ async function renderPlanner(root,content){
       calendar,
       filters:plannerFilters
     });
-    content.querySelectorAll("[data-plan-filter-worker]").forEach(button=>{
-      button.classList.toggle("active",button.dataset.planFilterWorker===plannerFilters.profileId);
-    });
     bindCalendar();
+    renderCapacityPanel();
+    syncFilterSummary();
+  };
+
+  const capacityHost=content.querySelector("[data-team-capacity-host]");
+  const capacityLabel=content.querySelector("[data-team-capacity-label]");
+
+  const renderCapacityPanel=()=>{
+    if(!capacityHost)return;
+    capacityHost.innerHTML=capacityMarkupFor(plannerFilters.profileId);
+    if(capacityLabel)capacityLabel.textContent=selectedWorker()?.name||"Selecciona un trabajador en Filtros";
+  };
+
+  const syncFilterSummary=()=>{
+    const count=activeFilterCount();
+    const countNode=content.querySelector("[data-plan-filter-count]");
+    const summaryNode=content.querySelector("[data-plan-filter-summary]");
+    if(countNode){
+      countNode.hidden=!count;
+      countNode.textContent=String(count);
+    }
+    if(summaryNode)summaryNode.textContent=count?`${count} activos · ${filterWorkerName()}`:"Sin filtros activos";
   };
 
   const move=direction=>{
@@ -601,10 +674,11 @@ async function renderPlanner(root,content){
     renderPlanner(root,content);
   });
 
-  content.querySelectorAll("[data-plan-filter-worker]").forEach(button=>button.onclick=()=>{
-    plannerFilters.profileId=button.dataset.planFilterWorker||"ALL";
+  const workerFilter=content.querySelector("[data-plan-filter-worker]");
+  if(workerFilter)workerFilter.onchange=()=>{
+    plannerFilters.profileId=workerFilter.value||"ALL";
     repaintCalendar();
-  });
+  };
 
   const fromFilter=content.querySelector("[data-plan-filter-from]");
   const toFilter=content.querySelector("[data-plan-filter-to]");
@@ -641,8 +715,16 @@ async function renderPlanner(root,content){
   const resetFilters=content.querySelector("[data-plan-filter-reset]");
   if(resetFilters)resetFilters.onclick=()=>{
     plannerFilters={profileId:"ALL",weekday:"ALL",fromTime:"07:00",toTime:"17:30"};
-    renderPlanner(root,content);
+    if(workerFilter)workerFilter.value="ALL";
+    if(fromFilter)fromFilter.value="07:00";
+    if(toFilter)toFilter.value="17:30";
+    if(weekdayFilter)weekdayFilter.value="ALL";
+    repaintCalendar();
   };
+
+  const filterBox=content.querySelector("[data-plan-filter-box]");
+  const filterClose=content.querySelector("[data-plan-filter-close]");
+  if(filterClose)filterClose.onclick=()=>{if(filterBox)filterBox.open=false;};
 
   if(canPlanTeam){
     content.querySelector("[data-plan-new]").onclick=async()=>assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),null,{newCatalog:false});
