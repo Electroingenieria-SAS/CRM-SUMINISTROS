@@ -1,6 +1,6 @@
 # CRM Suministros — Electroingeniería S.A.S.
 
-> Versión candidata: **V11.34.2** · build **2026-09-23.06**  
+> Versión candidata: **V11.34.3** · build **2026-09-23.07**  
 > Producción: Vercel + Supabase `hezjxcxxcjlpmyalftam`  
 > Auditoría integral vigente: `docs/AUDITORIA_INTEGRAL_2026-09-14.md`
 
@@ -31,17 +31,21 @@ El browser no accede directamente a tablas operativas. El esquema `erp_supply` p
 
 La línea base productiva V11.31.2 fue auditada nuevamente el 23 de septiembre de 2026. V11.32.0 introdujo el saneamiento y hardening de la candidata; V11.33.0 añade el rediseño de **Jornada y actividades → Cronograma** sin promover todavía cambios a Vercel ni a la base productiva.
 
-### Sincronización backend V11.34.2
+### Sincronización backend V11.34.3
 
 - migraciones 115, 116 y 117 aplicadas correctamente en Supabase `hezjxcxxcjlpmyalftam`;
 - `erp_x_work_manager_queue(integer)`, `erp_x_work_review_time(uuid,text,text)` y `erp_x_work_start(uuid,uuid,jsonb)` verificados en esquema;
 - schema cache de PostgREST recargado para eliminar el error `PGRST202`;
 - **Vercel no fue desplegado**; el frontend continúa únicamente en GitHub Pages.
 
-### Mi jornada V11.34.2
+### Mi jornada V11.34.3
 
 - iniciar una actividad requiere un solo toque desde agenda o inicio rápido, **sin aprobación previa del jefe**;
 - flujo visual guiado de tres pasos: **Elige → Trabaja → Finaliza con foto**;
+- selector jerárquico real: **Categoría → Subcategoría → Actividad específica**;
+- tocar una actividad solo la selecciona; el cronómetro inicia únicamente con confirmación explícita **Iniciar actividad**;
+- las actividades programadas también requieren confirmación antes de iniciar;
+- cronómetro compacto con actividad, tiempo, semáforo y acciones sin espacio vacío excesivo;
 - actividades disponibles se muestran como botones grandes de inicio inmediato; métricas pasan a segundo plano;
 - el usuario **no informa duración estimada**: el cronómetro mide el tiempo real;
 - semáforo automático: verde < 45 min, amarillo 45–60 min, rojo > 60 min;
@@ -50,7 +54,7 @@ La línea base productiva V11.31.2 fue auditada nuevamente el 23 de septiembre d
 - la foto se carga exclusivamente mediante el puente institucional **Google Apps Script → Google Drive** y luego se registra en el ERP;
 - las actividades operativas requieren foto final; `BEFORE_AFTER` conserva foto inicial + foto final;
 - el catálogo diario se vuelve liviano y deja de recalcular percentiles históricos al abrir Mi jornada;
-- migraciones `116_workforce_my_day_automation_v11_34_0.sql` y `117_workforce_manager_review_v11_34_1.sql` versionadas y **aplicadas a Supabase productivo el 23/09/2026 para sincronizar el backend de la candidata**.
+- migraciones `116_workforce_my_day_automation_v11_34_0.sql`, `117_workforce_manager_review_v11_34_1.sql` y `118_workforce_catalog_taxonomy_v11_34_3.sql` aplicadas a Supabase productivo el 23/09/2026 para sincronizar el backend de la candidata.
 - la bandeja gerencial muestra solo tiempos > 1 h, foto final y revisiones recientes; no existe cola de aprobación previa.
 
 ### Cronograma laboral V11.33.0
