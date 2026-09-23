@@ -258,26 +258,6 @@ $function$;
 revoke all on function public.erp_x_admin_impersonation_end(uuid) from public,anon;
 grant execute on function public.erp_x_admin_impersonation_end(uuid) to authenticated,service_role;
 
-create or replace function public.erp_x_auditoria_erp_metrics_authorize()
-returns boolean
-language plpgsql
-stable
-security definer
-set search_path = 'erp_supply','public','auth','pg_catalog'
-as $function$
-begin
-  perform erp_supply.require_profile();
-  return (
-    erp_supply.has_role('super_admin')
-    or erp_supply.can_access_module('reports','read')
-    or erp_supply.can_access_module('audit','read')
-  );
-end;
-$function$;
-
-revoke all on function public.erp_x_auditoria_erp_metrics_authorize() from public,anon;
-grant execute on function public.erp_x_auditoria_erp_metrics_authorize() to authenticated,service_role;
-
 create or replace function public.erp_x_auditoria_erp_metrics_user(
   p_from date default null,
   p_to date default null
