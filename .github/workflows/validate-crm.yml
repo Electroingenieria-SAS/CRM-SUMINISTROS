@@ -188,9 +188,6 @@ jobs:
           test -n "${ERP_TEST_PASSWORD:-}" || { echo "::error::Falta Repository Secret ERP_QA_PASSWORD"; exit 1; }
           npx playwright test tests/smoke.spec.js --project=chromium --project=mobile --grep "authenticated shell, critical modules and native API"
 
-      - name: Dependency audit · npm lockfile
-        run: npm audit --audit-level=high
-
       - name: Package deployable frontend
         shell: bash
         run: |
@@ -285,3 +282,30 @@ jobs:
       - name: Analyze JavaScript/TypeScript
         uses: github/codeql-action/analyze@v4
 
+
+  supply-chain:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: NPM audit · high severity gate
+        run: npm audit --audit-level=high
+
+      - name: Generate CycloneDX SBOM
+        run: npm sbom --sbom-format=cyclonedx > crm-suministros-sbom.cdx.json
+
+      - name: Preserve SBOM
+        uses: actions/upload-artifact@v7
+        with:
+          name: crm-suministros-v11.32.0-sbom
+          path: crm-suministros-sbom.cdx.json
+          if-no-files-found: error
+          retention-days: 90
