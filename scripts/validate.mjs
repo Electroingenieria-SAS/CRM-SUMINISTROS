@@ -60,6 +60,7 @@ const hardeningMigration=read("supabase/migrations/114_impersonation_metrics_sec
 const workforcePlannerMigration=read("supabase/migrations/115_workforce_planner_calendar_v11_33_0.sql");
 const workforceTodayMigration=read("supabase/migrations/116_workforce_my_day_automation_v11_34_0.sql");
 const workforceManagerMigration=read("supabase/migrations/117_workforce_manager_review_v11_34_1.sql");
+const workforce=read("assets/js/modules/workforce.js");
 const workforcePlanner=read("assets/js/modules/workforce-planner-v11330.js");
 const workforceToday=read("assets/js/modules/workforce-today-v11340.js");
 const workforceManager=read("assets/js/modules/workforce-time-review-v11340.js");
