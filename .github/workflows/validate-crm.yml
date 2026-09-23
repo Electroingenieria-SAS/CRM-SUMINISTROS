@@ -15,12 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
 
@@ -41,7 +41,7 @@ jobs:
 
       - name: Preserve security diagnostics
         if: steps.security.outcome == 'failure'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: security-check-diagnostics
           path: security-check.log
@@ -171,8 +171,22 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Browser smoke · desktop and mobile public shell
-        run: npx playwright test tests/smoke.spec.js --project=chromium --project=mobile --grep "login shell renders"
+      - name: Browser smoke · public shell + XSS trust boundary
+        run: npx playwright test tests/smoke.spec.js --project=chromium --project=mobile --grep "login shell renders|shared HTML boundary sanitizes executable markup"
+
+      - name: Authenticated E2E release gate · critical modules
+        env:
+          ERP_TEST_EMAIL: ${{ secrets.ERP_QA_EMAIL }}
+          ERP_TEST_PASSWORD: ${{ secrets.ERP_QA_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${ERP_TEST_EMAIL:-}" || { echo "::error::Falta Repository Secret ERP_QA_EMAIL"; exit 1; }
+          test -n "${ERP_TEST_PASSWORD:-}" || { echo "::error::Falta Repository Secret ERP_QA_PASSWORD"; exit 1; }
+          npx playwright test tests/smoke.spec.js --project=chromium --project=mobile --grep "authenticated shell, critical modules and native API"
+
+      - name: Dependency audit · npm lockfile
+        run: npm audit --audit-level=high
 
       - name: Package deployable frontend
         shell: bash
@@ -190,7 +204,7 @@ jobs:
             > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: crm-suministros-v11.31.2-build05-deployable
           path: dist-deployable/
@@ -199,7 +213,7 @@ jobs:
 
       - name: Prepare GitHub Pages preview artifact
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: dist-deployable
 
@@ -216,8 +230,39 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Deploy CRM preview to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
+
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v5
+        with:
+          fail-on-severity: high
+
+  codeql:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+          queries: security-extended
+
+      - name: Analyze JavaScript/TypeScript
+        uses: github/codeql-action/analyze@v4
+
