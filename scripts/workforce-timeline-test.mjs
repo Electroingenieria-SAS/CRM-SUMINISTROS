@@ -116,6 +116,6 @@ const appsScript=fs.readFileSync(new URL("../google-apps-script/Code.gs",import.
 for(const token of ["VERSION: '3.5.0'","PREVIEW_WORK_EVIDENCE","erp_x_work_evidence_preview_allowed","MAX_PREVIEW_BYTES"]){
   assert.equal(appsScript.includes(token),true,`Apps Script debe conservar: ${token}`);
 }
-assert.equal(appsScript.includes("ANYONE_WITH_LINK'"),false,"La vista previa no debe volver pública la evidencia.");
+assert.equal(appsScript.includes("SHARING_MODE: 'PRIVATE'"),true,"La evidencia debe permanecer privada en Drive.");
 
 console.log("workforce timeline v11.35.0 tests: OK");
