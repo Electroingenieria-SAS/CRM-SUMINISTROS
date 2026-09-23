@@ -27,7 +27,7 @@ export async function renderWorkforce(root){
     </section>
     <nav class="workforce-tabs" aria-label="Vistas de actividades">
       <button class="workforce-tab ${currentView==="today"?"active":""}" data-work-view="today">${icon("activity")}<span><strong>Mi jornada</strong><small>Agenda y cronómetro</small></span></button>
-      <button class="workforce-tab ${currentView==="planner"?"active":""}" data-work-view="planner" hidden>${icon("calendar")}<span><strong>Cronograma</strong><small>Semana y calendario</small></span></button>
+      <button class="workforce-tab ${currentView==="planner"?"active":""}" data-work-view="planner" hidden>${icon("calendar")}<span><strong>Cronograma</strong><small>Día · semana · mes</small></span></button>
       <button class="workforce-tab ${currentView==="analytics"?"active":""}" data-work-view="analytics">${icon("reports")}<span><strong>Indicadores</strong><small>Carga y resultados</small></span></button>
     </nav>
     <section id="workforce-content">${loading("Preparando tu jornada…")}</section>`;
@@ -437,10 +437,5 @@ function clock(seconds){const n=Math.max(0,Math.floor(Number(seconds||0))),h=Mat
 function isoDate(d){const date=new Date(d);const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,"0"),day=String(date.getDate()).padStart(2,"0");return `${y}-${m}-${day}`}
 function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
 function addMonths(d,n){const x=new Date(d);x.setMonth(x.getMonth()+n);return x}
-function startOfWeek(d){const x=new Date(d);x.setHours(0,0,0,0);const day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);return x}
-function sameDate(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate()}
-function isToday(d){return sameDate(new Date(),new Date(d))}
 function timeOnly(value){if(!value)return"—";return new Intl.DateTimeFormat("es-CO",{hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"America/Bogota"}).format(new Date(value))}
 function weekdayShort(value){return new Intl.DateTimeFormat("es-CO",{weekday:"short",timeZone:"America/Bogota"}).format(new Date(value)).replace(".","").replace(/^./,c=>c.toUpperCase())}
-function monthShort(value){return new Intl.DateTimeFormat("es-CO",{month:"short",timeZone:"America/Bogota"}).format(new Date(value)).replace(".","")}
-function firstName(name=""){return String(name).trim().split(/\s+/)[0]||""}
