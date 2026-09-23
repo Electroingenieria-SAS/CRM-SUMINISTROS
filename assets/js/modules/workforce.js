@@ -2,7 +2,7 @@ import {api} from "../services/api.js";
 import {fmt,statusBadge,priorityBadge} from "../core/format.js";
 import {loading,empty,modal,wizard,toast} from "../core/ui.js";
 import {state} from "../core/state.js";
-import {uploadWorkEvidence,loadWorkEvidencePreview} from "../services/drive.js";
+import {uploadWorkEvidence,loadWorkEvidencePreview,prefetchWorkEvidencePreview} from "../services/drive.js";
 import {icon} from "../core/icons.js";
 import {normalizePlannerCalendar,plannerRangeForMode,nextBusinessAnchor,plannerTitleForMode,renderPlannerBoard,teamCapacityHtml} from "./workforce-planner-v11330.js";
 import {timeTrafficLight,trafficHelp,elapsedActiveSeconds,finalEvidenceType} from "./workforce-today-v11340.js";
@@ -520,17 +520,57 @@ async function renderPlanner(root,content){
     content.querySelector("[data-plan-new-custom]").onclick=async()=>assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),null,{newCatalog:true,startNow:true});
   }
 
+  const detailCache=new Map();
+
+  const detailKey=item=>`${item.assignmentId||""}:${item.executionId||""}:${item.profileId||""}`;
+
+  const loadTimelineDetail=item=>{
+    const key=detailKey(item);
+    if(detailCache.has(key))return detailCache.get(key);
+    const request=api.workPlannerDetail(timelineDetailRequest(item))
+      .then(detail=>{
+        const firstPhoto=(Array.isArray(detail?.evidence)?detail.evidence:[]).find(row=>{
+          const type=String(row?.type||"").toUpperCase();
+          const mime=String(row?.mimeType||"").toLowerCase();
+          return ["BEFORE_PHOTO","AFTER_PHOTO","FINAL_PHOTO"].includes(type)||mime.startsWith("image/");
+        });
+        if(firstPhoto?.id&&firstPhoto?.driveFileId){
+          prefetchWorkEvidencePreview(firstPhoto.id,firstPhoto.driveFileId);
+        }
+        return detail;
+      })
+      .catch(error=>{
+        detailCache.delete(key);
+        throw error;
+      });
+    detailCache.set(key,request);
+    return request;
+  };
+
+  const primeItem=id=>{
+    const item=timeline.find(row=>String(row.id)===String(id));
+    if(item)loadTimelineDetail(item).catch(()=>{});
+  };
+
   const openItem=id=>{
     const item=timeline.find(row=>String(row.id)===String(id));
     if(!item)return toast("No se encontró el detalle de esta actividad.","warning");
     return openWorkTimelineCard(
       item,
-      ()=>api.workPlannerDetail(timelineDetailRequest(item)),
+      ()=>loadTimelineDetail(item),
       loadWorkEvidencePreview
     );
   };
 
   content.querySelectorAll("[data-assignment-open]").forEach(element=>{
+    element.addEventListener("pointerdown",()=>{
+      primeItem(element.dataset.assignmentOpen);
+    },{passive:true});
+
+    element.addEventListener("focus",()=>{
+      primeItem(element.dataset.assignmentOpen);
+    },{passive:true});
+
     element.onclick=event=>{
       if(event.target.closest("[data-assignment-cancel]"))return;
       event.stopPropagation();
