@@ -147,7 +147,9 @@ export function installDialogSystem(){
 
 function renderDialogShell(root,{title,body,footer="",size="",className="",subtitle="",kicker=""}){
   const titleId=`erp-dialog-title-${crypto.randomUUID?.()||Math.random().toString(36).slice(2)}`;
-  const safeBody=sanitizeHtml(body);\n  const safeFooter=sanitizeHtml(footer);\n  root.innerHTML=`<div class="modal-overlay"><section class="modal ${size} ${className}" role="dialog" aria-modal="true" aria-labelledby="${titleId}" tabindex="-1"><header class="modal-head"><div class="modal-title-group">${kicker?`<span class="modal-kicker">${fmt.escape(kicker)}</span>`:""}<h3 id="${titleId}">${fmt.escape(title)}</h3>${subtitle?`<p>${fmt.escape(subtitle)}</p>`:""}</div><button type="button" class="icon-btn icon-close" data-close aria-label="Cerrar ventana">×</button></header><div class="modal-body">${safeBody}</div>${safeFooter?`<footer class="modal-foot">${safeFooter}</footer>`:""}</section></div>`;
+  const safeBody=sanitizeHtml(body);
+  const safeFooter=sanitizeHtml(footer);
+  root.innerHTML=`<div class="modal-overlay"><section class="modal ${size} ${className}" role="dialog" aria-modal="true" aria-labelledby="${titleId}" tabindex="-1"><header class="modal-head"><div class="modal-title-group">${kicker?`<span class="modal-kicker">${fmt.escape(kicker)}</span>`:""}<h3 id="${titleId}">${fmt.escape(title)}</h3>${subtitle?`<p>${fmt.escape(subtitle)}</p>`:""}</div><button type="button" class="icon-btn icon-close" data-close aria-label="Cerrar ventana">×</button></header><div class="modal-body">${safeBody}</div>${safeFooter?`<footer class="modal-foot">${safeFooter}</footer>`:""}</section></div>`;
 }
 
 export function taskPanel(host,{title,body,confirmLabel="Confirmar",cancelLabel="Cancelar",kicker="Acción de la operación",tone="",onConfirm,onClose}={}){
