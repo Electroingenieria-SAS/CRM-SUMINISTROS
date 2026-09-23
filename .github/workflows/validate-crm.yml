@@ -45,6 +45,9 @@ jobs:
       - name: Workforce catalog · hierarchy and safe start contract
         run: node scripts/workforce-catalog-hierarchy-test.mjs
 
+      - name: Workforce UX · accessibility and touch contract
+        run: node scripts/workforce-accessibility-test.mjs
+
       - name: Security contract
         id: security
         continue-on-error: true
