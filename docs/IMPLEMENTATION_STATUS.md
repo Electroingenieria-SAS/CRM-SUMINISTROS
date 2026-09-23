@@ -1,19 +1,24 @@
 # Estado de implementación
 
-## Release candidata — V11.34.3 · 2026-09-23
+## Release candidata — V11.34.4 · 2026-09-23
 
 CRM Suministros mantiene la línea productiva V11.31.2. La candidata V11.33.0 acumula el hardening V11.32.0 y añade el nuevo cronograma laboral. **No se ha promovido esta candidata a Vercel ni se ha aplicado la migración 115 en Supabase productivo.**
 
-## Backend sincronizado V11.34.3
+## Backend sincronizado V11.34.4
 
 Las migraciones 115, 116 y 117 fueron aplicadas al proyecto Supabase productivo el 23/09/2026 para evitar divergencia entre la candidata Pages y PostgREST. Se verificó exposición autenticada de `erp_x_work_manager_queue`, `erp_x_work_review_time` y `erp_x_work_start`. El frontend sigue sin promoción a Vercel.
 
-## Mi jornada V11.34.3
+## Mi jornada V11.34.4
 
 - Flujo simplificado: elegir → iniciar → trabajar → finalizar con foto, sin aprobación previa para auxiliares ni otros roles autorizados por catálogo.
 - Rediseño visual V11.34.3: encabezado guiado de tres pasos, taxonomía **Categoría → Subcategoría → Actividad**, selección sin inicio automático y confirmación explícita antes del cronómetro.
 - Cronómetro reconstruido como consola compacta: actividad, tiempo activo, semáforo y acciones en un único bloque equilibrado.
 - Se retiró la grilla plana V11.34.2 y sus estilos obsoletos; no queda como implementación paralela.
+- **Workforce Experience V11.34.4:** CSS runtime aislado, controles táctiles ≥52 px, textos operativos 12–20 px y compatibilidad `prefers-reduced-motion`.
+- El selector muestra un solo nivel por vez: Categoría → Subcategoría → Actividad → Confirmación.
+- Cuando no hay programación se usa un estado compacto en lugar de una tarjeta vacía.
+- El semáforo permanece visible en Mi jornada y las excepciones rojas (>60 min) se centralizan en Excepciones y aprobaciones.
+- La cola gerencial fue retirada de Mi jornada; `operational-v112.js` ya no consulta `erp_x_work_manager_queue`.
 - Sin captura manual de duración ni causa de desviación en el cierre normal.
 - Semáforo por tiempo activo: verde <45 min, amarillo 45–60 min, rojo >60 min.
 - Las actividades rojas se envían a revisión posterior mediante `erp_x_work_review_time`; el jefe no aprueba antes de iniciar.
