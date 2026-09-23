@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main]
+    branches: [main, hardening/repository-cleanup-v11-32-0]
   workflow_dispatch:
 
 permissions:
@@ -204,12 +204,13 @@ jobs:
           retention-days: 90
 
       - name: Prepare GitHub Pages preview artifact
-        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/hardening/repository-cleanup-v11-32-0')
         uses: actions/upload-pages-artifact@v5
         with:
           path: dist-deployable
 
   authenticated-e2e:
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
     needs: validate
     runs-on: ubuntu-latest
     permissions:
