@@ -65,7 +65,7 @@ const november=renderPlannerBoard({
   data:{people:[],assignments:[]},
   calendar
 });
-assert.equal((november.match(/work-month-day-v11330 spacer/g)||[]).length,0,"Un mes que inicia en fin de semana debe comenzar visualmente en el primer lunes laboral");
+assert.equal((november.match(/work-month-day-v11330 spacer/g)||[]).length,4,"Un mes que inicia en fin de semana no debe crear una fila vacía inicial; solo conserva los 4 espacios finales para cerrar la última semana laboral");
 
 const migrationPath=new URL("../supabase/migrations/115_workforce_planner_calendar_v11_33_0.sql",import.meta.url);
 assert.equal(fs.existsSync(migrationPath),true,"Debe existir la migración V11.33.0 del cronograma");
