@@ -37,12 +37,15 @@ for(const token of ["Ana Gómez","Organización de inventario","Foto final","1 h
 assert.equal(dialog.includes("https://drive.google.com/file/d/abc/view"),true,"La revisión debe enlazar la evidencia de Drive");
 
 const operational=fs.readFileSync(new URL("../assets/js/modules/operational-v112.js",import.meta.url),"utf8");
-assert.equal(operational.includes('if(target.matches("[data-start-catalog]"))'),false,"Inicio rápido no debe ser interceptado por el formulario de programación");
+assert.equal(operational.includes('data-start-catalog'),false,"Operational no debe interceptar Inicio rápido: workforce.js inicia directamente");
+assert.equal(operational.includes("workQuickRequest"),false,"No debe existir solicitud rápida ni aprobación previa para auxiliares");
+assert.equal(operational.includes("data-v112-approval"),false,"La bandeja de Mi jornada no debe mostrar aprobaciones previas");
 for(const token of ["workManagerQueue","data-time-review","openTimeReviewDialog"]){
   assert.equal(operational.includes(token),true,`Operational debe integrar: ${token}`);
 }
 
 const api=fs.readFileSync(new URL("../assets/js/services/api.js",import.meta.url),"utf8");
+assert.equal(api.includes("workQuickRequest"),false,"API no debe conservar el flujo de aprobación previa");
 for(const token of ["workManagerQueue","erp_x_work_manager_queue","workReviewTime","erp_x_work_review_time"]){
   assert.equal(api.includes(token),true,`API debe exponer: ${token}`);
 }
@@ -52,6 +55,10 @@ assert.equal(fs.existsSync(migrationPath),true,"Debe existir migración 117 para
 const sql=fs.readFileSync(migrationPath,"utf8");
 for(const token of [
   "erp_x_work_manager_queue",
+  "erp_x_work_start",
+  "work_catalog_allowed",
+  "source",
+  "'MANUAL'",
   "timeReviewRequired",
   "PENDING",
   "webViewLink",
@@ -61,6 +68,9 @@ for(const token of [
 ]){
   assert.equal(sql.includes(token),true,`Migración 117 debe contener: ${token}`);
 }
+assert.equal(sql.includes("erp_x_work_quick_request"),false,"La migración no debe crear una solicitud rápida con aprobación previa");
+assert.equal(sql.includes("assignmentApprovals"),false,"La cola gerencial debe consultar solo revisiones de tiempo");
+assert.equal(sql.includes("Para iniciar una actividad adicional primero debes agregarla a tu jornada"),false,"El backend no debe exigir aprobación previa para iniciar manualmente");
 assert.equal(/create\s+(unique\s+)?index/i.test(sql),false,"La cola no debe crear índices sin evidencia de necesidad");
 
 console.log("workforce manager time-review tests: OK");
