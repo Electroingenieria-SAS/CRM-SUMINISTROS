@@ -1,9 +1,9 @@
-// previous-cache: crm-suministros-v11-31-2-20260918-05
-const CACHE="crm-suministros-v11-32-0-20260923-01";
+// previous-cache: crm-suministros-v11-32-0-20260923-01
+const CACHE="crm-suministros-v11-33-0-20260923-02";
 
 const APP_SHELL=[
   "./","./index.html","./404.html","./manifest.webmanifest","./templates/historical_orders.csv",
-  "./assets/js/app-entry.js","./assets/js/main.js","./assets/js/config.js",
+  "./assets/js/app-entry.js","./assets/js/main.js","./assets/js/config.js","./assets/js/modules/workforce.js","./assets/js/modules/workforce-planner-v11330.js",
   "./assets/css/core-shell.css","./assets/css/operations.css","./assets/css/analytics.css","./assets/css/experience.css",
   "./assets/runtime-css/guides-layout-v11291.css","./assets/runtime-css/receiving-workspace-v11290.css","./assets/runtime-css/inventory-dialogs-v11260.css","./assets/runtime-css/inventory-visual-v11270.css","./assets/runtime-css/inventory-ui-v11240.css","./assets/runtime-css/inventory-workspace-v11251.css",
   "./assets/img/logo-electroingenieria.png","./assets/img/iso-electroingenieria.png","./assets/img/ui/crm-psp-waves-v11180.webp",
