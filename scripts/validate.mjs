@@ -138,6 +138,8 @@ check(workforcePlannerMigration.includes("validate_work_assignment_business_wind
 check(coreCss.includes(".work-day-timeline-head")&&coreCss.includes(".work-week-grid-v11330")&&coreCss.includes(".work-month-grid-v11330"),"Falta capa visual Día/Semana/Mes del cronograma.");
 check(workforceToday.includes("timeTrafficLight")&&workforceToday.includes("finalEvidenceType"),"Mi jornada debe separar semáforo y evidencia final en un módulo dedicado.");
 check(workforceTodayMigration.includes("timeReviewRequired")&&workforceTodayMigration.includes("3600")&&workforceTodayMigration.includes("PHOTO_REQUIRED"),"Migración 116 debe automatizar revisión por tiempo y foto obligatoria.");
+check(api.includes("workReviewTime")&&api.includes("erp_x_work_review_time"),"API frontend debe exponer la resolución de tiempos pendientes de revisión.");
+check(workforceTodayMigration.includes("erp_x_work_review_time")&&workforceTodayMigration.includes("TIME_REVIEWED"),"Migración 116 debe permitir cerrar la revisión de tiempos con trazabilidad.");
 check(workforceTodayMigration.includes("catálogo operativo liviano")&&workforceTodayMigration.includes("erp_x_work_catalog"),"Mi jornada debe evitar percentiles históricos en el catálogo operativo.");
 check(coreCss.includes(".work-time-traffic")&&coreCss.includes(".work-photo-required"),"Falta capa visual de semáforo y cierre fotográfico.");
 
