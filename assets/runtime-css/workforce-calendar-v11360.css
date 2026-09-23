@@ -1142,18 +1142,10 @@
 @keyframes capacityFill{from{transform:scaleX(0);transform-origin:left}to{transform:scaleX(1);transform-origin:left}}
 /* Responsive */
 @media(max-width:760px){
-  .work-calendar-filterbar-v11361{padding:9px}
-  .work-calendar-worker-chips-v11361{
-    flex-wrap:nowrap;
-    overflow-x:auto;
-    padding-bottom:3px;
-  }
-  .work-calendar-worker-chip-v11361{flex:0 0 auto}
-  .work-calendar-filter-fields-v11361{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-  }
-  .work-calendar-filter-field-v11361:last-of-type{grid-column:1/-1}
+  .work-calendar-filterbox-v11362{width:100%}
+  .work-calendar-filter-panel-v11362{grid-template-columns:1fr 1fr}
+  .work-calendar-filter-worker-v11362{grid-column:1/-1}
+  .work-calendar-filter-actions-v11362{grid-column:1/-1}
   .work-calendar-day-head-v11360,
   .work-calendar-person-row-v11360{
     grid-template-columns:168px minmax(760px,1fr);
@@ -1168,6 +1160,14 @@
   }
 }
 
+@media(max-width:480px){
+  .work-calendar-filter-panel-v11362{grid-template-columns:1fr}
+  .work-calendar-filter-worker-v11362,
+  .work-calendar-filter-actions-v11362{grid-column:1}
+  .work-calendar-filter-actions-v11362{justify-content:stretch}
+  .work-calendar-filter-reset-v11361,
+  .work-calendar-filter-close-v11362{flex:1}
+}
 @media(prefers-reduced-motion:reduce){
   .work-calendar-cloud-v11361,
   .work-calendar-event-day-v11360,
