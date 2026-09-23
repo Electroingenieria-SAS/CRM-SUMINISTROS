@@ -242,7 +242,7 @@ jobs:
           npx playwright test tests/smoke.spec.js --project=chromium --project=mobile --grep "authenticated shell, critical modules and native API"
 
   deploy-preview:
-    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/hardening/repository-cleanup-v11-32-0')
     needs: validate
     runs-on: ubuntu-latest
     permissions:
