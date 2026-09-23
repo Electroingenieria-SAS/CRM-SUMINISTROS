@@ -318,10 +318,12 @@ export async function uploadWorkEvidence(
 
 const workEvidencePreviewCache=new Map();
 
-export async function loadWorkEvidencePreview(fileId){
+export async function loadWorkEvidencePreview(evidenceId,fileId){
+  const evidence=String(evidenceId||"").trim();
   const id=String(fileId||"").trim();
-  if(!id)throw new Error("La evidencia no tiene un archivo de Drive asociado.");
-  if(workEvidencePreviewCache.has(id))return workEvidencePreviewCache.get(id);
+  if(!evidence||!id)throw new Error("La evidencia no tiene un archivo de Drive asociado.");
+  const cacheKey=`${evidence}:${id}`;
+  if(workEvidencePreviewCache.has(cacheKey))return workEvidencePreviewCache.get(cacheKey);
 
   const session=await currentSession();
   if(!session?.access_token)throw new Error("Tu sesión venció. Ingresa nuevamente al ERP.");
@@ -330,6 +332,7 @@ export async function loadWorkEvidencePreview(fileId){
     action:"PREVIEW_WORK_EVIDENCE",
     origin:window.location.origin,
     accessToken:session.access_token,
+    evidenceId:evidence,
     driveFileId:id,
     clientVersion:CONFIG.version||"ERP_EI"
   });
@@ -339,7 +342,7 @@ export async function loadWorkEvidencePreview(fileId){
     throw new Error("No fue posible preparar la vista previa de la evidencia.");
   }
 
-  workEvidencePreviewCache.set(id,preview);
+  workEvidencePreviewCache.set(cacheKey,preview);
   return preview;
 }
 
