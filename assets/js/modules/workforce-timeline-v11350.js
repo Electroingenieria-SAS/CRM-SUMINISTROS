@@ -9,7 +9,7 @@ export function ensureWorkforceTimelineStyles(){
   const link=document.createElement("link");
   link.id=STYLE_ID;
   link.rel="stylesheet";
-  link.href="./assets/runtime-css/workforce-timeline-v11350.css?v=11.35.1";
+  link.href="./assets/runtime-css/workforce-timeline-v11350.css?v=11.35.4";
   document.head.appendChild(link);
 }
 
@@ -96,8 +96,15 @@ export async function openWorkTimelineCard(item,loadDetail,loadPreview){
   try{
     const detail=await loadDetail();
     if(!layer.isConnected)return;
-    layer.querySelector("[data-timeline-body]").innerHTML=timelineDetailHtml(detail||item);
-    bindEvidenceGallery(layer,detail||item,loadPreview);
+    const resolvedDetail=detail||item;
+    const firstPhoto=(Array.isArray(resolvedDetail?.evidence)?resolvedDetail.evidence:[]).find(isPhotoEvidence);
+    const firstPreviewPromise=
+      firstPhoto?.id&&firstPhoto?.driveFileId&&typeof loadPreview==="function"
+        ? loadPreview(firstPhoto.id,firstPhoto.driveFileId)
+        : null;
+
+    layer.querySelector("[data-timeline-body]").innerHTML=timelineDetailHtml(resolvedDetail);
+    bindEvidenceGallery(layer,resolvedDetail,loadPreview,firstPreviewPromise);
   }catch(error){
     if(!layer.isConnected)return;
     layer.querySelector("[data-timeline-body]").innerHTML=`
@@ -245,7 +252,7 @@ function evidenceRow(row){
   </article>`;
 }
 
-function bindEvidenceGallery(layer,detail,loadPreview){
+function bindEvidenceGallery(layer,detail,loadPreview,initialPreviewPromise=null){
   const evidence=Array.isArray(detail?.evidence)?detail.evidence:[];
   const first=evidence.find(isPhotoEvidence);
   const cover=layer.querySelector("[data-timeline-photo-main]");
@@ -271,7 +278,7 @@ function bindEvidenceGallery(layer,detail,loadPreview){
     cover.dataset.evidenceId=evidenceKey;
     cover.dataset.driveFileId=driveId;
     cover.classList.add("is-loading");
-    cover.classList.remove("is-error");
+    cover.classList.remove("is-error","is-ready");
     setActionState(evidenceKey,"loading");
     if(loader){
       loader.hidden=false;
@@ -280,21 +287,38 @@ function bindEvidenceGallery(layer,detail,loadPreview){
 
     try{
       if(typeof loadPreview!=="function")throw new Error("El visor de evidencia no está disponible. Actualiza la aplicación.");
-      const preview=await loadPreview(evidenceKey,driveId);
+      const preview=await (
+        initialPreviewPromise&&first?.id===evidenceKey&&first?.driveFileId===driveId
+          ? initialPreviewPromise
+          : loadPreview(evidenceKey,driveId)
+      );
+      initialPreviewPromise=null;
       if(!layer.isConnected)return;
       if(!preview?.dataUrl)throw new Error("Drive no devolvió una vista previa válida.");
 
-      await new Promise((resolve,reject)=>{
-        image.onload=()=>resolve();
-        image.onerror=()=>reject(new Error("La fotografía recibida no pudo mostrarse."));
-        image.src=preview.dataUrl;
-      });
+      image.hidden=false;
+      image.classList.remove("is-visible");
+      image.src=preview.dataUrl;
+
+      if(typeof image.decode==="function"){
+        await image.decode();
+      }else{
+        await new Promise((resolve,reject)=>{
+          if(image.complete&&image.naturalWidth>0)return resolve();
+          image.onload=()=>resolve();
+          image.onerror=()=>reject(new Error("La fotografía recibida no pudo mostrarse."));
+        });
+      }
 
       if(!layer.isConnected)return;
-      image.hidden=false;
-      cover.classList.remove("is-loading","is-error");
-      setActionState(evidenceKey,"ready");
-      if(loader)loader.hidden=true;
+      requestAnimationFrame(()=>{
+        if(!layer.isConnected)return;
+        cover.classList.remove("is-loading","is-error");
+        cover.classList.add("is-ready");
+        image.classList.add("is-visible");
+        setActionState(evidenceKey,"ready");
+        if(loader)loader.hidden=true;
+      });
     }catch(error){
       if(!layer.isConnected)return;
       image.hidden=true;
