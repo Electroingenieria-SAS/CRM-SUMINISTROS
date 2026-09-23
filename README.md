@@ -1,6 +1,6 @@
 # CRM Suministros — Electroingeniería S.A.S.
 
-> Versión canónica: **V11.31.2** · build **2026-09-18.05**  
+> Versión candidata: **V11.32.0** · build **2026-09-23.01**  
 > Producción: Vercel + Supabase `hezjxcxxcjlpmyalftam`  
 > Auditoría integral vigente: `docs/AUDITORIA_INTEGRAL_2026-09-14.md`
 
@@ -27,9 +27,9 @@ SPA HTML/CSS/ES Modules
 
 El browser no accede directamente a tablas operativas. El esquema `erp_supply` permanece detrás de RLS y contratos RPC. `scripts/validate.mjs` y `scripts/link-check.mjs` hacen cumplir esta frontera.
 
-## 3. Estado V11.31.2
+## 3. Estado V11.32.0
 
-La línea base productiva V11.30.0 fue auditada el 14 de septiembre de 2026. V11.31.2 conserva la trazabilidad post-entrega y el hardening de V11.31.1, y corrige la experiencia del popup **Gestión rápida**:
+La línea base productiva V11.31.2 fue auditada nuevamente el 23 de septiembre de 2026. V11.32.0 prepara una fase de saneamiento y hardening sin cambiar el flujo funcional de pedidos/inventario:
 
 - health check de backend **21/21 OK**;
 - 0 pedidos finalizados con tareas activas;
@@ -52,6 +52,12 @@ La línea base productiva V11.30.0 fue auditada el 14 de septiembre de 2026. V11
 - distancia recorrida y fuente de kilometraje por entrega;
 - tiempos separados: salida → entrega, salida → satisfacción y entrega → confirmación;
 - métricas de distancia/satisfacción disponibles en Pedidos enviados, detalle y Analítica → Entregas.
+- E2E autenticado obligatorio en desktop y móvil para módulos críticos;
+- CodeQL, Dependency Review, TruffleHog y Dependabot incorporados al gobierno CI;
+- métricas de AuditoriaERP autenticadas, sin CORS wildcard y limitadas por organización;
+- sesiones de impersonación con actor original, actor efectivo, motivo, vigencia y trazabilidad en auditoría;
+- barrera XSS central para HTML reutilizable de modales/wizards;
+- ledger de procedencia de migraciones y documentación DR realista;
 
 Estado detallado: `docs/IMPLEMENTATION_STATUS.md`.
 
@@ -175,7 +181,7 @@ Los secretos de integración se mantienen server-side/Vault. La configuración d
 - `erp-admin-users`: `verify_jwt=true`;
 - `erp-admin-impersonate`: `verify_jwt=true`;
 - `erp-auditoria-bridge`: `verify_jwt=false` deliberadamente, con autenticación propia para browser y token/claim server-to-server para PostgreSQL;
-- `erp-auditoria-metrics`: `verify_jwt=false`, endpoint agregado/no PII.
+- `erp-auditoria-metrics`: `verify_jwt=true`; la Edge valida sesión y el RPC limita los agregados a la organización autorizada.
 
 No cambiar estos modos sin revisar su contrato completo. En particular, activar gateway JWT sobre el bridge rompería el dispatcher `pg_net` de base de datos.
 
@@ -191,7 +197,7 @@ No cambiar estos modos sin revisar su contrato completo. En particular, activar 
 - Límite local de intentos de login como capa UX; la defensa principal pertenece a Supabase Auth.
 - Archivos restringidos por tamaño/tipo en browser y Apps Script.
 
-**Pendientes de plataforma:** Supabase Security Advisor reporta `Leaked Password Protection` deshabilitado; rate limiting y anti-bot también deben cerrarse en Auth. GitHub debe mantener ruleset/branch protection para `main`. Estos controles no se simulan desde código.
+**Pendientes administrativos de plataforma:** Supabase Security Advisor continúa reportando `Leaked Password Protection` deshabilitado y GitHub aún debe aplicar ruleset/branch protection efectivo a `main`. El código no simula estos controles ni afirma que estén activos mientras la plataforma no lo confirme.
 
 V11.30.1 añade además `.gitignore`, `.env.example`, escaneo del historial Git y `erp_x_security_definer_contract_check()` como control service-role-only.
 
@@ -231,7 +237,7 @@ No hacer bumps parciales.
 
 ## 14. QA y despliegue
 
-Todo cambio debe llegar a `main` mediante Pull Request con la CI canónica en verde. Vercel está configurado para desplegar producción únicamente desde `main`; la CI repite el smoke desktop/móvil después del merge como defensa adicional.
+Todo cambio debe llegar a `main` mediante Pull Request con la CI canónica en verde. El gate incluye E2E autenticado desktop/móvil y análisis de seguridad. Vercel continúa configurado para desplegar Production únicamente desde `main`.
 
 Después de un cambio de backend o integración, ejecutar los health checks y comprobar que no existan eventos de outbox fallidos/atascados.
 
@@ -248,4 +254,4 @@ Consultar:
 - `docs/DEPLOYMENT_VERCEL_SUPABASE.md`
 - `docs/OPERATIONS_RUNBOOK.md`
 
-El SQL histórico se conserva por trazabilidad. Cualquier squash futuro debe probarse primero sobre una base vacía antes de retirar migraciones históricas.
+El SQL histórico se conserva por trazabilidad. `supabase/production-migration-ledger.json` congela 27 migraciones históricas database-only; `docs/DISASTER_RECOVERY.md` define la ruta de recuperación vigente. No se retirará historia adicional hasta certificar un baseline source-only en una base vacía.
