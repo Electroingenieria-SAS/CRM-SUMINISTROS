@@ -13,7 +13,7 @@ verify_jwt = true
 [functions.erp-auditoria-bridge]
 verify_jwt = false
 
-# Endpoint GET aggregate-only para BI de AuditoriaERP. No expone filas ni PII;
-# la consulta detallada permanece en RPC service_role-only.
+# V11.32.0: métricas internas autenticadas. El gateway exige JWT y el RPC
+# vuelve a validar perfil/rol y limita los agregados a la organización de la sesión.
 [functions.erp-auditoria-metrics]
-verify_jwt = false
+verify_jwt = true
