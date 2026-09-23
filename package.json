@@ -1,14 +1,14 @@
 {
   "name": "crm-suministros-electroingenieria",
-  "version": "11.32.0",
+  "version": "11.33.0",
   "private": true,
   "type": "module",
   "scripts": {
     "serve": "node scripts/serve.mjs",
-    "validate": "node scripts/validate.mjs && node --experimental-vm-modules scripts/link-check.mjs && node scripts/security-check.mjs && node scripts/integration-contract-check.mjs && node scripts/migration-ledger-check.mjs",
+    "validate": "node scripts/validate.mjs && node --experimental-vm-modules scripts/link-check.mjs && node scripts/workforce-planner-test.mjs && node scripts/security-check.mjs && node scripts/integration-contract-check.mjs && node scripts/migration-ledger-check.mjs",
     "validate:integration": "node scripts/integration-contract-check.mjs",
     "security": "node scripts/security-check.mjs",
     "security:history": "node scripts/git-history-security-check.mjs",
-    "db:ledger": "node scripts/migration-ledger-check.mjs"
+    "db:ledger": "node scripts/migration-ledger-check.mjs",\n    "validate:workforce": "node scripts/workforce-planner-test.mjs"
   }
 }
