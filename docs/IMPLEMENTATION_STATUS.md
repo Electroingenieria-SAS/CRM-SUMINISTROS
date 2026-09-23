@@ -1,24 +1,27 @@
 # Estado de implementación
 
-## Release candidata — V11.34.2 · 2026-09-23
+## Release candidata — V11.34.3 · 2026-09-23
 
 CRM Suministros mantiene la línea productiva V11.31.2. La candidata V11.33.0 acumula el hardening V11.32.0 y añade el nuevo cronograma laboral. **No se ha promovido esta candidata a Vercel ni se ha aplicado la migración 115 en Supabase productivo.**
 
-## Backend sincronizado V11.34.2
+## Backend sincronizado V11.34.3
 
 Las migraciones 115, 116 y 117 fueron aplicadas al proyecto Supabase productivo el 23/09/2026 para evitar divergencia entre la candidata Pages y PostgREST. Se verificó exposición autenticada de `erp_x_work_manager_queue`, `erp_x_work_review_time` y `erp_x_work_start`. El frontend sigue sin promoción a Vercel.
 
-## Mi jornada V11.34.2
+## Mi jornada V11.34.3
 
 - Flujo simplificado: elegir → iniciar → trabajar → finalizar con foto, sin aprobación previa para auxiliares ni otros roles autorizados por catálogo.
-- Rediseño visual V11.34.2: encabezado guiado de tres pasos, acciones grandes de un toque y métricas secundarias compactas.
+- Rediseño visual V11.34.3: encabezado guiado de tres pasos, taxonomía **Categoría → Subcategoría → Actividad**, selección sin inicio automático y confirmación explícita antes del cronómetro.
+- Cronómetro reconstruido como consola compacta: actividad, tiempo activo, semáforo y acciones en un único bloque equilibrado.
+- Se retiró la grilla plana V11.34.2 y sus estilos obsoletos; no queda como implementación paralela.
 - Sin captura manual de duración ni causa de desviación en el cierre normal.
 - Semáforo por tiempo activo: verde <45 min, amarillo 45–60 min, rojo >60 min.
 - Las actividades rojas se envían a revisión posterior mediante `erp_x_work_review_time`; el jefe no aprueba antes de iniciar.
 - Foto final obligatoria para actividades; BEFORE_AFTER mantiene foto antes y después.
 - La evidencia continúa en Google Drive mediante el Apps Script institucional (`uploadWorkEvidence` / `submitToBridge`).
 - El catálogo operativo elimina el cálculo de percentiles en cada apertura de Mi jornada para reducir consumo de Supabase Free.
-- Migraciones 116 y 117 versionadas; aplicadas a Supabase productivo el 23/09/2026.
+- Migraciones 116, 117 y 118 versionadas y aplicadas a Supabase productivo el 23/09/2026.
+- Migración 118 restaura `uiCategory`, `uiCategoryLabel` y `uiSubcategory` en el catálogo operativo sin reintroducir medianas/P80.
 - La migración 117 redefine `erp_x_work_start` para permitir inicio directo, elimina el flujo de aprobación previa de Mi jornada y crea una única cola gerencial de excepciones > 60 min.
 - Las solicitudes `SELF_PROPOSED` antiguas que permanezcan DRAFT/PENDING se cancelarán como flujo legado al promover la migración 117.
 
