@@ -169,6 +169,16 @@
 .work-history-main>small{font-size:12px}
 .work-mini-traffic{font-size:11px}
 
+.workforce-alert-banner{appearance:none;width:100%;display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:13px;align-items:center;min-height:82px;margin:0;padding:13px 16px;border:1px solid #e6bfc2;border-left:5px solid #c5454b;border-radius:16px;background:linear-gradient(135deg,#fff8f8,#fff);font:inherit;text-align:left;cursor:pointer;box-shadow:0 8px 20px rgba(110,44,49,.07);transition:transform .17s ease,border-color .17s ease,box-shadow .17s ease}
+.workforce-alert-banner:hover{transform:translateY(-1px);border-color:#d9969b;box-shadow:0 12px 25px rgba(110,44,49,.11)}
+.workforce-alert-banner:focus-visible{outline:3px solid rgba(197,69,75,.22);outline-offset:2px}
+.workforce-alert-banner-light{width:52px;height:52px;display:grid;place-items:center;border-radius:15px;background:#fff0f1}
+.workforce-alert-banner-light i{width:15px;height:15px;border-radius:50%;background:#d64c52;box-shadow:0 0 0 6px rgba(214,76,82,.12)}
+.workforce-alert-banner-copy{display:grid;gap:3px}
+.workforce-alert-banner-copy strong{font-size:16px;color:#82383c}
+.workforce-alert-banner-copy small{font-size:13px;line-height:1.4;color:#7a686a}
+.workforce-alert-banner>b{color:#9e4045;font-size:14px;white-space:nowrap}
+
 .workforce-alert-workspace{display:grid;gap:12px;padding:14px;border:1px solid #ebc8ca;border-radius:16px;background:linear-gradient(180deg,#fffafa,#fff)}
 .workforce-alert-workspace>header{display:flex;align-items:center;justify-content:space-between;gap:14px}
 .workforce-alert-workspace h3{margin:0;color:#81363a;font-size:19px}
