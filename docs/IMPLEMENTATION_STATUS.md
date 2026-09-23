@@ -1,60 +1,118 @@
 # Estado de implementación
 
-## Estado de release — V11.31.0 · 2026-09-18
+## Release candidata — V11.32.0 · 2026-09-23
 
-CRM Suministros mantiene la línea funcional auditada y prepara V11.31.0 sobre Vercel + Supabase `hezjxcxxcjlpmyalftam`. La operación productiva usa Supabase Auth, RPC `public.erp_x_*`, esquema privado `erp_supply`, Edge Functions administrativas y la integración server-to-server CRM → AuditoriaERP.
+CRM Suministros mantiene la línea productiva V11.31.2 y prepara V11.32.0 como fase de saneamiento, seguridad y reproducibilidad. El cambio evita modificaciones masivas sobre datos/RLS/índices y se concentra en controles de release, trazabilidad y arquitectura.
 
-## Incluido y operativo
+## Arquitectura vigente
 
-- Esquema independiente `erp_supply` con RLS habilitado.
-- Supabase Auth, perfiles operativos, roles y permisos por módulo.
-- Motor transaccional de pedidos, tareas, sesiones y calendario laboral.
-- Cartera, Caja, Compras, Recepción, Alistamiento, Corte, Facturación, Despachos y Cierre.
-- Seguimiento post-entrega con confirmación de satisfacción, distancia recorrida, fuente del kilometraje y tiempos diferenciados.
-- Inventario con maestro Siesa, lotes, reservas, movimientos, conteos ciegos, revisión y trazabilidad.
-- Crédito, aprobaciones, comentarios, Drive y auditoría.
-- Importación histórica, VSM, reportes, Administración y Jornada/actividades.
-- Integración de novedades de Recepción hacia el módulo Recepción de AuditoriaERP mediante outbox, trigger, `pg_net`/dispatcher, Edge Function e idempotencia.
-- PWA network-first con cache versionada.
-- Vercel Speed Insights básico.
+- SPA HTML/CSS/ES Modules en Vercel.
+- Supabase Auth para identidad.
+- Browser RPC-only para datos operativos; sin DML directo a `erp_supply`.
+- Edge Functions para administración e integraciones privilegiadas.
+- Google Apps Script para Drive institucional.
+- PWA network-first con cache por release.
+- CI única en `.github/workflows/validate-crm.yml`.
 
-## Validación canónica
+## Verificación productiva previa a V11.32.0
 
-La CI `Validate CRM Suministros` exige:
+Auditoría del 23/09/2026 sobre V11.31.2:
 
-- sintaxis JavaScript;
-- grafo ES Modules completo y sin módulos huérfanos;
-- contrato de seguridad del árbol actual;
-- escaneo de secretos del historial Git completo;
-- arquitectura canónica y cuatro familias CSS;
-- invariantes de release/PWA;
-- contrato estático CRM → AuditoriaERP;
-- smoke público desktop y móvil en PR y nuevamente post-merge;
-- empaquetado del frontend desplegable.
-
-El backend productivo dispone de `erp_x_health_check()` con 21 canarios. Tras la auditoría integral del 14 de septiembre de 2026 el resultado fue **21/21 OK**. La integración AuditoriaERP dispone además de `erp_x_auditoria_erp_contract_check()` service-role-only. V11.30.1 añade `erp_x_security_definer_contract_check()` como control service-role-only de privilegios.
-
-## Integridad verificada
-
-En la auditoría V11.30.0 se comprobó:
-
-- 0 pedidos finalizados con tareas activas;
-- 0 números de pedido activos duplicados;
-- 0 ítems activos de inventario fuera del maestro oficial;
-- 0 saldos negativos de lote;
-- 0 reservas negativas;
-- 0 eventos de integración AuditoriaERP pendientes vencidos, fallidos o atascados;
-- 0 perfiles operativos activos sin identidad Auth válida;
+- Vercel Production READY sobre SHA `e4c47a15b6095828dfaa5fa3fe505cd97467bcea`;
+- Supabase `hezjxcxxcjlpmyalftam` ACTIVE_HEALTHY;
+- 75 tablas base en `erp_supply`;
+- 0 privilegios DML directos para `anon` o `authenticated`;
 - 0 RPC `erp_x_*` ejecutables por `anon`;
-- 0 triggers operativos deshabilitados.
+- 0 `SECURITY DEFINER` auditados sin `search_path` controlado;
+- 0 funciones autenticadas fuera del contrato de guardas V11.30.1;
+- 0 triggers de usuario deshabilitados;
+- 0 índices inválidos;
+- outbox CRM → AuditoriaERP sin eventos atascados en la verificación ejecutada.
 
-## Pendientes de plataforma, no de código
+## Cambios V11.32.0
 
-- **Supabase Auth · Leaked Password Protection:** el Security Advisor la reporta deshabilitada. Debe activarse en la configuración Auth del proyecto.
-- **GitHub · protección de `main`:** activar ruleset/branch protection con PR + `Validate CRM Suministros`, sin force-push ni borrado.
-- Los 11 usuarios Auth históricos asociados a perfiles inactivos nunca han iniciado sesión. Se conservan hasta definir formalmente una política de retención/eliminación; no constituyen perfiles operativos activos.
-- El Advisor informa FKs sin índice e índices sin uso. No se aplicarán cambios masivos: cualquier optimización debe justificarse con volumen y `pg_stat_statements` para evitar degradar escrituras.
+### E2E y CI
+
+- Playwright autenticado es gate obligatorio, no `skip`.
+- Recorre módulos críticos en Chromium desktop y emulación móvil.
+- Test específico protege la barrera XSS de HTML reutilizable.
+- CodeQL `security-extended`.
+- Dependency Review.
+- TruffleHog para secretos verificados.
+- Scanner histórico propio.
+- Dependabot para GitHub Actions y npm.
+- `npm audit --audit-level=high`.
+- Actions actualizadas a runtime Node 24.
+
+### Impersonación
+
+Nueva tabla `erp_supply.admin_impersonation_sessions`.
+
+La sesión registra:
+
+- Super Admin original;
+- perfil/identidad efectiva;
+- motivo;
+- origen;
+- inicio, última actividad, expiración y cierre.
+
+El cliente aislado propaga `x-erp-impersonation-session`. Un trigger de auditoría solo acepta el identificador cuando coincide con `auth.uid()` del perfil objetivo y la sesión continúa vigente.
+
+### Métricas AuditoriaERP
+
+`erp-auditoria-metrics` pasa de público a autenticado.
+
+- `verify_jwt=true`;
+- sin CORS `*`;
+- sin `service_role` dentro de la Edge Function;
+- perfil y permisos requeridos;
+- resultados filtrados por `organization_id`;
+- `Cache-Control: no-store`.
+
+### XSS
+
+`core/ui.js` establece una frontera común de sanitización para HTML estructurado de modales/wizard/task panels. El control elimina tags ejecutables, handlers `on*`, `srcdoc`, URLs activas y estilos ejecutables conocidos antes de insertar HTML reutilizable.
+
+### Administración
+
+Se inició refactor progresivo, sin reescribir toda la consola de una vez:
+
+- `admin-user-verification-v11320.js` es propietario de impersonación/verificación;
+- `admin-view-helpers-v11320.js` contiene helpers visuales reutilizables;
+- `admin.js` queda como composición ligera;
+- `admin-center-v11160.js` conserva temporalmente la lógica restante hasta nuevas extracciones con pruebas.
+
+## Reproducibilidad y DR
+
+La auditoría encontró historia de base aplicada fuera de Git.
+
+- El antiguo `sql/00_INSTALL_ALL.sql` existió hasta V11.5 y fue retirado en V11.21.
+- No representa el esquema actual y no se reintroduce como instalador.
+- `supabase/production-migration-ledger.json` congela 27 migraciones históricas database-only.
+- `npm run db:ledger` impide aumentar silenciosamente esa deuda.
+- `docs/DISASTER_RECOVERY.md` define DR operativo y el requisito para certificar un baseline source-only.
+
+Una reconstrucción desde PostgreSQL completamente vacío **todavía no está certificada**. Cerrarla exige generar/probar un baseline contra una base desechable y llevar el debt budget a cero.
+
+## Pendientes administrativos de plataforma
+
+Estos controles no pueden activarse desde los scopes actuales de los conectores utilizados por esta sesión:
+
+- GitHub: ruleset/branch protection real de `main`.
+- Supabase Auth: Leaked Password Protection.
+
+El código y la documentación los tratan como requisitos; no se marcan como cumplidos hasta que GitHub/Supabase lo confirmen.
+
+## Advisors no tratados masivamente
+
+No se crean/borran índices ni se cambian 148 funciones `SECURITY DEFINER` o policies RLS únicamente para reducir contadores de Advisor.
+
+La decisión se mantiene:
+
+- FKs/índices: intervenir con evidencia de hot path.
+- RLS sin policy: compatible con deny-by-default cuando no hay DML de cliente.
+- `SECURITY DEFINER`: evaluar autorización real, `search_path` y grants, no el nombre del lint aislado.
 
 ## Regla de cambio
 
-No modificar estados, inventario, permisos o tablas directamente para resolver incidencias si existe un RPC/transición. Todo cambio de esquema debe quedar como migración reproducible; toda modificación de frontend debe pasar la CI canónica antes de llegar a `main`.
+Todo cambio de código pasa por rama → PR → CI. Todo DDL nuevo debe existir como migración antes de producción. Mientras `main` no tenga ruleset de plataforma, el equipo debe evitar cualquier escritura directa y verificar manualmente el SHA que se promueve.
