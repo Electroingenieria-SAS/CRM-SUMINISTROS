@@ -64,26 +64,47 @@ async function renderToday(root,content,prefetchedData=null){
   const data=prefetchedData||await api.workMyDay();
   const plannerTab=root.querySelector('[data-work-view="planner"]');
   if(plannerTab)plannerTab.hidden=!data.permissions?.canViewTeam;
+  const active=Boolean(data.active);
+  const pending=(data.summary?.pendingEvidence||0)+(data.summary?.pendingReview||0);
   content.innerHTML=`
-    ${activeWorkCard(data.active)}
-    <section class="workforce-summary-grid">
-      ${summaryCard("Tiempo registrado",fmt.hours(data.summary?.activeSeconds),"Trabajo adicional de hoy","timer","blue")}
-      ${summaryCard("Completadas",fmt.number(data.summary?.completed),"Actividades cerradas hoy","check","green")}
-      ${summaryCard("Tiempo planificado",`${fmt.number(data.summary?.plannedMinutes)} min`,"Carga asignada para hoy","calendar","yellow")}
-      ${summaryCard("Pendientes",fmt.number((data.summary?.pendingEvidence||0)+(data.summary?.pendingReview||0)),"Evidencias o revisión","activity","violet")}
+    <section class="workday-guide ${active?"is-running":"is-ready"}">
+      <div class="workday-guide-copy">
+        <span class="workday-eyebrow">MI JORNADA · SIMPLE Y AUTOMÁTICA</span>
+        <h2>${active?"Sigue con tu actividad":"Empieza tu actividad en segundos"}</h2>
+        <p>${active?"El tiempo se registra solo. Cuando termines, toma o sube la foto final.":"Elige una actividad, pulsa iniciar y trabaja. No necesitas calcular tiempos ni llenar formularios."}</p>
+      </div>
+      <div class="workday-steps" aria-label="Flujo de Mi jornada">
+        <article class="workday-step ${active?"done":"current"}"><b>1</b><span><strong>Elige</strong><small>Actividad permitida</small></span></article>
+        <article class="workday-step ${active?"current":""}"><b>2</b><span><strong>Trabaja</strong><small>Tiempo automático</small></span></article>
+        <article class="workday-step"><b>3</b><span><strong>Finaliza</strong><small>Foto obligatoria</small></span></article>
+      </div>
     </section>
-    <div class="workforce-main-grid">
-      <section class="card workforce-agenda-card">
-        <header class="card-head"><div><h3>Mi agenda de hoy</h3><p>Solo elige una actividad y pulsa Iniciar. El CRM mide el tiempo por ti.</p></div><span class="workforce-count">${(data.today||[]).length}</span></header>
+
+    ${activeWorkCard(data.active)}
+
+    <section class="workday-status-strip">
+      <article><span class="workday-status-icon">◷</span><div><small>Tiempo activo hoy</small><strong>${fmt.hours(data.summary?.activeSeconds)}</strong></div></article>
+      <article><span class="workday-status-icon">✓</span><div><small>Completadas</small><strong>${fmt.number(data.summary?.completed)}</strong></div></article>
+      <article class="${pending?"attention":""}"><span class="workday-status-icon">!</span><div><small>Pendientes</small><strong>${fmt.number(pending)}</strong></div></article>
+    </section>
+
+    <div class="workday-layout">
+      <section class="card workday-launch-card">
+        <header class="card-head">
+          <div><h3>${active?"Actividad en curso":"¿Qué vas a hacer ahora?"}</h3><p>${active?"Finaliza o pausa la actividad actual para iniciar otra.":"Un toque inicia el cronómetro. No hay aprobación previa ni tiempo estimado."}</p></div>
+          <span class="workday-one-tap">1 toque</span>
+        </header>
+        <div class="card-body">${catalogHtml(data.catalog||[],active)}</div>
+      </section>
+
+      <section class="card workforce-agenda-card workday-agenda-card">
+        <header class="card-head"><div><h3>Programado para ti</h3><p>Si tienes actividades planificadas, también puedes iniciarlas directamente.</p></div><span class="workforce-count">${(data.today||[]).length}</span></header>
         <div class="card-body workforce-agenda-list">${agendaHtml(data)}</div>
       </section>
-      <section class="card workforce-quick-card">
-        <header class="card-head"><div><h3>Inicio rápido</h3><p>Un toque para comenzar. Sin estimar minutos ni llenar formularios.</p></div></header>
-        <div class="card-body">${catalogHtml(data.catalog||[],Boolean(data.active))}</div>
-      </section>
     </div>
-    <section class="card workforce-history-card">
-      <header class="card-head"><div><h3>Lo registrado hoy</h3><p>El sistema conserva tiempo real, foto final y revisión cuando supera una hora.</p></div></header>
+
+    <section class="card workforce-history-card workday-history-card">
+      <header class="card-head"><div><h3>Hoy</h3><p>Historial automático de tiempo, foto final y revisiones.</p></div></header>
       <div class="card-body">${historyHtml(data.history||[])}</div>
     </section>`;
 
@@ -140,8 +161,16 @@ function upcomingRow(a){return `<article class="agenda-row compact"><div class="
 function catalogHtml(catalog,disabled){
   const activities=catalog.filter(c=>c.activityKind==="ACTIVITY");
   if(!activities.length)return empty("Sin actividades habilitadas","Solicita al administrador revisar el catálogo de tu rol.");
-  const grouped=Object.groupBy?Object.groupBy(activities,x=>x.activityGroup):activities.reduce((acc,x)=>((acc[x.activityGroup]??=[]).push(x),acc),{});
-  return Object.entries(grouped).map(([group,items])=>`<div class="work-catalog-group"><div class="work-catalog-title">${fmt.escape(GROUP_LABELS[group]||fmt.label(group))}</div><div class="work-catalog-list">${items.map(c=>`<button class="work-catalog-item" data-start-catalog="${fmt.escape(c.id)}" ${disabled?"disabled":""}><span class="work-catalog-icon">${activityGlyph(c.code)}</span><span><strong>${fmt.escape(c.name)}</strong><small>Un toque para iniciar · Foto al finalizar</small></span><b>›</b></button>`).join("")}</div></div>`).join("");
+  return `<div class="workday-launch-grid">${activities.map(item=>`
+    <button class="workday-launch-tile" data-start-catalog="${fmt.escape(item.id)}" ${disabled?"disabled":""}>
+      <span class="workday-launch-icon">${activityGlyph(item.code)}</span>
+      <span class="workday-launch-copy">
+        <small>${fmt.escape(GROUP_LABELS[item.activityGroup]||fmt.label(item.activityGroup))}</small>
+        <strong>${fmt.escape(item.name)}</strong>
+        <em>${disabled?"Finaliza la actividad actual":"Iniciar ahora"}</em>
+      </span>
+      <span class="workday-launch-arrow">›</span>
+    </button>`).join("")}</div>`;
 }
 
 function historyHtml(rows){
