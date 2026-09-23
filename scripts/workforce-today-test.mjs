@@ -17,6 +17,8 @@ for(const token of [
   "workday-step",
   "work-active-console",
   "workday-status-strip",
+  "workday-traffic-legend",
+  "Sin actividades programadas para hoy",
   "data-work-finish",
   "Tomar foto",
   "Subir foto",
@@ -30,6 +32,7 @@ for(const token of [
 assert.equal(workforce.includes("Causa de desviación, si aplica"),false,"El trabajador no debe llenar causa de desviación al finalizar");
 assert.equal(workforce.includes("Resultado / observación"),false,"El cierre normal no debe exigir observación manual");
 assert.equal(/agenda-main[^\n]*estimatedMinutes/.test(workforce),false,"La agenda del trabajador no debe mostrar una estimación manual de minutos");
+assert.equal(workforce.includes("workday-layout"),false,"Mi jornada no debe volver al layout estrecho de dos columnas que desperdiciaba ancho");
 
 const drive=fs.readFileSync(new URL("../assets/js/services/drive.js",import.meta.url),"utf8");
 for(const token of ["uploadWorkEvidence","submitToBridge","WORK_EVIDENCE_","api.workRegisterEvidence","uploadMode: \"INSTITUTIONAL_APPS_SCRIPT\""]){
