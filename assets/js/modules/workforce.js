@@ -990,7 +990,7 @@ function analyticsBalance(s={}){
 function barList(rows,label,value){
   if(!rows.length)return indicatorEmpty("Sin distribución todavía","Cuando existan ejecuciones aparecerá la participación por familia.");
   const total=rows.reduce((sum,row)=>sum+Number(value(row)||0),0);
-  const max=Math.max(...rows.map(row=>Number(value(row)||0),1);
+  const max=Math.max(...rows.map(row=>Number(value(row)||0)),1);
   return `<div class="work-indicator-bars-v11363">${rows.map((row,index)=>{
     const current=Number(value(row)||0);
     const share=total?100*current/total:0;
