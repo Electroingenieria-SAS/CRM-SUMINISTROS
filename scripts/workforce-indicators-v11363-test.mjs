@@ -32,9 +32,9 @@ for(const token of [
 
 assert.equal(workforce.includes("erp_x_work_analytics"),false,"Workforce UI no debe invocar RPC directo.");
 assert.equal(/create\s+table/i.test(workforce),false,"Indicadores frontend no debe contener DDL.");
-assert.equal(css.includes("Workforce Indicators V11.36.3"),true);
+assert.equal(css.includes("Workforce Indicators V11.36.4"),true);
 
 const metrics=(workforce.match(/indicatorMetric\(/g)||[]).length;
 assert.ok(metrics>=7,"El dashboard debe conservar seis KPIs además del helper.");
 
-console.log("workforce indicators v11.36.3 tests: OK");
+console.log("workforce indicators v11.36.4 tests: OK");
