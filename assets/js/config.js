@@ -1,6 +1,6 @@
 export const CONFIG = Object.freeze({
   version: "11.31.2",
-  build: "2026-09-18.05",
+  build: "2026-09-23.01",
   appName: "CRM Suministros",
   company: "Electroingeniería S.A.S.",
   supabase: {
@@ -11,7 +11,7 @@ export const CONFIG = Object.freeze({
     clientId: "125993982318-gn2177d3muf2iip0co9pf9mii7d12cre.apps.googleusercontent.com",
     scope: "https://www.googleapis.com/auth/drive.file",
     rootFolderName: "ERP_SUPPLY_ENTERPRISE",
-    bridgeUrl: "https://script.google.com/macros/s/AKfycbygBt_yd5vQXIIZKZux_YCqhm37VSR3tKG109e_ED8NvmZzrUp179jkKSA6DnHNf2N3/exec",
+    bridgeUrl: "https://script.google.com/macros/s/AKfycbyX2UkQcZKbdZJXGgC6XZQwn7blASGUxwsIUzOG1Sf03mIDsaB1NJDCtnK6QzxOpEh9/exec",
     maxFileBytes: 15728640,
     uploadMode: "INSTITUTIONAL_APPS_SCRIPT"
   },
