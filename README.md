@@ -1,6 +1,6 @@
 # CRM Suministros — Electroingeniería S.A.S.
 
-> Versión candidata: **V11.34.4** · build **2026-09-23.08**  
+> Versión candidata: **V11.34.5** · build **2026-09-23.09**  
 > Producción: Vercel + Supabase `hezjxcxxcjlpmyalftam`  
 > Auditoría integral vigente: `docs/AUDITORIA_INTEGRAL_2026-09-14.md`
 
@@ -38,7 +38,7 @@ La línea base productiva V11.31.2 fue auditada nuevamente el 23 de septiembre d
 - schema cache de PostgREST recargado para eliminar el error `PGRST202`;
 - **Vercel no fue desplegado**; el frontend continúa únicamente en GitHub Pages.
 
-### Mi jornada V11.34.4
+### Mi jornada V11.34.5
 
 - iniciar una actividad requiere un solo toque desde agenda o inicio rápido, **sin aprobación previa del jefe**;
 - flujo visual guiado de tres pasos: **Elige → Trabaja → Finaliza con foto**;
@@ -52,6 +52,8 @@ La línea base productiva V11.31.2 fue auditada nuevamente el 23 de septiembre d
 - tiempos rojos aparecen en **Excepciones y aprobaciones → Alertas de jornada**, con contador, foto y revisión;
 - la revisión gerencial se retiró de Mi jornada para evitar duplicidad de interfaces;
 - la presentación vive en `assets/runtime-css/workforce-experience-v11344.css`; las capas V11.34.2/V11.34.3 se retiraron de `core-shell.css`;
+- **V11.34.5 elimina el navegador legado `activity-browser-v113.js` y el bloque horizontal V11.8 de `operations.css`**, evitando que otra visual reemplace el catálogo progresivo después del render;
+- GitHub Actions usa concurrencia **latest-wins** y un grupo exclusivo para Pages, evitando que un push antiguo publique después del más reciente;
 - actividades disponibles se muestran como botones grandes de inicio inmediato; métricas pasan a segundo plano;
 - el usuario **no informa duración estimada**: el cronómetro mide el tiempo real;
 - semáforo automático: verde < 45 min, amarillo 45–60 min, rojo > 60 min;

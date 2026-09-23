@@ -1,6 +1,6 @@
 # Estado de implementación
 
-## Release candidata — V11.34.4 · 2026-09-23
+## Release candidata — V11.34.5 · 2026-09-23
 
 CRM Suministros mantiene la línea productiva V11.31.2. La candidata V11.33.0 acumula el hardening V11.32.0 y añade el nuevo cronograma laboral. **No se ha promovido esta candidata a Vercel ni se ha aplicado la migración 115 en Supabase productivo.**
 
@@ -8,7 +8,7 @@ CRM Suministros mantiene la línea productiva V11.31.2. La candidata V11.33.0 ac
 
 Las migraciones 115, 116 y 117 fueron aplicadas al proyecto Supabase productivo el 23/09/2026 para evitar divergencia entre la candidata Pages y PostgREST. Se verificó exposición autenticada de `erp_x_work_manager_queue`, `erp_x_work_review_time` y `erp_x_work_start`. El frontend sigue sin promoción a Vercel.
 
-## Mi jornada V11.34.4
+## Mi jornada V11.34.5
 
 - Flujo simplificado: elegir → iniciar → trabajar → finalizar con foto, sin aprobación previa para auxiliares ni otros roles autorizados por catálogo.
 - Rediseño visual V11.34.3: encabezado guiado de tres pasos, taxonomía **Categoría → Subcategoría → Actividad**, selección sin inicio automático y confirmación explícita antes del cronómetro.
@@ -19,6 +19,8 @@ Las migraciones 115, 116 y 117 fueron aplicadas al proyecto Supabase productivo 
 - Cuando no hay programación se usa un estado compacto en lugar de una tarjeta vacía.
 - El semáforo permanece visible en Mi jornada y las excepciones rojas (>60 min) se centralizan en Excepciones y aprobaciones.
 - La cola gerencial fue retirada de Mi jornada; `operational-v112.js` ya no consulta `erp_x_work_manager_queue`.
+- V11.34.5 elimina `activity-browser-v113.js`, su instalación desde `bootstrap-v113.js` y el CSS horizontal V11.8 de Jornada.
+- El workflow aplica `cancel-in-progress` por rama/evento y concurrencia exclusiva en Pages para impedir despliegues fuera de orden.
 - Sin captura manual de duración ni causa de desviación en el cierre normal.
 - Semáforo por tiempo activo: verde <45 min, amarillo 45–60 min, rojo >60 min.
 - Las actividades rojas se envían a revisión posterior mediante `erp_x_work_review_time`; el jefe no aprueba antes de iniciar.

@@ -90,8 +90,8 @@ const normalizedJsRuntime=jsRuntime
   .replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
 // Release identity.
-check(version==="11.34.4","CONFIG.version debe ser 11.34.4.");
-check(build==="2026-09-23.08","CONFIG.build debe ser 2026-09-23.08.");
+check(version==="11.34.5","CONFIG.version debe ser 11.34.5.");
+check(build==="2026-09-23.09","CONFIG.build debe ser 2026-09-23.09.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
@@ -126,8 +126,8 @@ check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía instit
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
 // PWA and Vercel routing.
-check(sw.includes('// previous-cache: crm-suministros-v11-34-3-20260923-07'),"previous-cache PWA debe apuntar a V11.34.3.");
-check(sw.includes('const CACHE="crm-suministros-v11-34-4-20260923-08";'),"CACHE activo PWA no corresponde a V11.34.4.");
+check(sw.includes('// previous-cache: crm-suministros-v11-34-4-20260923-08'),"previous-cache PWA debe apuntar a V11.34.4.");
+check(sw.includes('const CACHE="crm-suministros-v11-34-5-20260923-09";'),"CACHE activo PWA no corresponde a V11.34.5.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
 check(vercel.includes('manifest\\\\.webmanifest')||vercel.includes('/manifest.webmanifest'),"Vercel debe excluir o tratar explícitamente el manifest real.");
@@ -140,13 +140,13 @@ const bannedRuntime=/\b(QA_BOT|erp_x_qa_|erp_x_run_qa_|erp_x_sandbox_|sandboxMod
 check(!bannedRuntime.test(jsRuntime),"El frontend productivo conserva referencias QA/Sandbox.");
 check(!/\.from\s*\(/.test(normalizedJsRuntime),"El navegador no debe acceder a tablas directamente; use RPC.");
 
-// Workforce V11.34.4.
+// Workforce V11.34.5.
 check(workforcePlanner.includes('plannerRangeForMode')&&workforcePlanner.includes('businessDaysForRange'),"Cronograma debe separar lógica laboral del módulo principal.");
 check(workforcePlannerMigration.includes("'calendar'")&&workforcePlannerMigration.includes("activeStatus"),"RPC planner debe devolver calendario y estado activo en una sola respuesta.");
 check(workforcePlannerMigration.includes("validate_work_assignment_business_window")&&workforcePlannerMigration.includes("OUTSIDE_WORKING_TIME"),"Base debe bloquear asignaciones fuera de jornada.");
 check(coreCss.includes(".work-day-timeline-head")&&coreCss.includes(".work-week-grid-v11330")&&coreCss.includes(".work-month-grid-v11330"),"Falta capa visual Día/Semana/Mes del cronograma.");
 check(workforceToday.includes("timeTrafficLight")&&workforceToday.includes("finalEvidenceType"),"Mi jornada debe separar semáforo y evidencia final en un módulo dedicado.");
-check(workforce.includes("workday-guide")&&workforce.includes("catalogBrowserHtml")&&workforce.includes("work-active-console"),"Mi jornada V11.34.4 debe componer jerarquía segura y cronómetro legible.");
+check(workforce.includes("workday-guide")&&workforce.includes("catalogBrowserHtml")&&workforce.includes("work-active-console"),"Mi jornada V11.34.5 debe componer jerarquía segura y cronómetro legible.");
 check(workforceCatalog.includes("catalogTaxonomy")&&workforceCatalog.includes("data-work-start-confirmed"),"Falta contrato de selección categoría → subcategoría → actividad.");
 check(workforceCatalogMigration.includes('"uiCategoryLabel"')&&workforceCatalogMigration.includes('"uiSubcategory"'),"Migración 118 debe exponer taxonomía UI ligera.");
 check(!workforce.includes("data-start-catalog"),"Mi jornada no debe reintroducir inicio directo por clic/touch.");
@@ -160,6 +160,7 @@ check(!read("assets/js/modules/bootstrap-v113.js").includes("activity-browser-v1
 check(!read("assets/css/operations.css").includes("workforce-quick-card")&&!read("assets/css/operations.css").includes("work-catalog-item")&&!read("assets/css/operations.css").includes("Desliza para explorar"),"operations.css no debe conservar el catálogo horizontal legado de Jornada.");
 check(approvalsModule.includes('data-mode="WORKFORCE"')&&approvalsModule.includes("workforce-alert-banner")&&approvalsModule.includes("openWorkforceTimeReview"),"Excepciones debe mostrar alertas rojas de jornada y permitir revisarlas.");
 check(!operational.includes("workManagerQueue")&&!operational.includes("openTimeReviewDialog"),"La revisión de tiempos no debe estar duplicada dentro de Mi jornada.");
+check(workflow.includes("cancel-in-progress: true")&&workflow.includes("group: crm-suministros-github-pages"),"GitHub Actions debe impedir carreras de despliegue en Pages.");
 check(workforceTodayMigration.includes("timeReviewRequired")&&workforceTodayMigration.includes("3600")&&workforceTodayMigration.includes("PHOTO_REQUIRED"),"Migración 116 debe automatizar revisión por tiempo y foto obligatoria.");
 check(api.includes("workReviewTime")&&api.includes("erp_x_work_review_time"),"API frontend debe exponer la resolución de tiempos pendientes de revisión.");
 check(workforceTodayMigration.includes("erp_x_work_review_time")&&workforceTodayMigration.includes("TIME_REVIEWED"),"Migración 116 debe permitir cerrar la revisión de tiempos con trazabilidad.");
@@ -325,7 +326,7 @@ console.log(`VALIDACIÓN CRM ${version} CORRECTA`);
 console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
 console.log("- Inventario conserva captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
-console.log("- V11.34.4 consolida Mi jornada accesible y alertas rojas en Excepciones.");
+console.log("- V11.34.5 elimina visuales legadas de Jornada y estabiliza GitHub Pages con latest-wins.");
 console.log("- Observers responsive y popup procesan únicamente el ámbito dinámico afectado.");
 console.log("- PWA, Vercel, RLS y hotpaths SQL quedan incorporados al contrato canónico.");
 console.log("- Conteo ciego, RLS granular y aprobación contable permanecen como contratos obligatorios.");
