@@ -218,7 +218,7 @@ function daySegmentCell(rows,segment){
     if(overlapEnd<=overlapStart)return null;
     return {a,left:100*(overlapStart-start)/duration,width:100*(overlapEnd-overlapStart)/duration};
   }).filter(Boolean);
-  return `<div class="work-day-segment-cell">${timed.map(({a,left,width},i)=>`<div class="work-day-task ${statusTone(a.memberStatus)} ${a.kind==="DELIVERABLE"?"deliverable":""}" data-assignment-open="${fmt.escape(a.id)}" role="button" tabindex="0" style="left:${left.toFixed(2)}%;width:${Math.max(width,7).toFixed(2)}%;top:${6+(i%2)*31}px" title="Ver detalle · ${fmt.escape(a.title)}"><span>${timeOnly(a.plannedStart)}–${timeOnly(a.plannedEnd)}</span><strong>${fmt.escape(a.title)}</strong><small>${statusLabel(a.memberStatus)}</small><button data-assignment-cancel="${fmt.escape(a.id)}" aria-label="Cancelar asignación">×</button></div>`).join("")}</div>`;
+  return `<div class="work-day-segment-cell">${timed.map(({a,left,width},i)=>`<div class="work-day-task ${statusTone(a.memberStatus)} ${a.kind==="DELIVERABLE"?"deliverable":""}${timelineVisualClass(a)}" data-assignment-open="${fmt.escape(a.id)}" role="button" tabindex="0" style="left:${left.toFixed(2)}%;width:${Math.max(width,7).toFixed(2)}%;top:${6+(i%2)*31}px" title="Ver detalle · ${fmt.escape(a.title)}"><span>${timeOnly(a.plannedStart)}–${timeOnly(a.plannedEnd)}</span><strong>${fmt.escape(a.title)}</strong><small>${statusLabel(a.memberStatus)}${a.hasPhoto?" · 📷":""}</small>${cancelControl(a)}</div>`).join("")}</div>`;
 }
 
 function weekPlannerHtml(data,calendar,anchor){
@@ -264,18 +264,31 @@ function monthPlannerHtml(data,calendar,anchor){
 }
 
 function assignmentCard(a){
-  return `<article class="work-assignment-card-v11330 ${statusTone(a.memberStatus)} ${a.kind==="DELIVERABLE"?"deliverable":""}" data-assignment-open="${fmt.escape(a.id)}" role="button" tabindex="0" aria-label="Ver detalle de ${fmt.escape(a.title)}">
+  return `<article class="work-assignment-card-v11330 ${statusTone(a.memberStatus)} ${a.kind==="DELIVERABLE"?"deliverable":""}${timelineVisualClass(a)}" data-assignment-open="${fmt.escape(a.id)}" role="button" tabindex="0" aria-label="Ver detalle de ${fmt.escape(a.title)}">
     <div class="work-assignment-card-head"><span>${a.plannedStart?timeOnly(a.plannedStart):"Entregable"}${a.plannedEnd?`–${timeOnly(a.plannedEnd)}`:""}</span><em>${statusLabel(a.memberStatus)}</em></div>
     <strong>${fmt.escape(a.title)}</strong>
     <small>${fmt.escape(a.catalogName||fmt.label(a.kind))} · ${fmt.number(a.estimatedMinutes||0)} min</small>
-    <button data-assignment-cancel="${fmt.escape(a.id)}" title="Cancelar asignación" aria-label="Cancelar asignación">×</button>
+    ${evidenceMark(a)}
+    ${cancelControl(a)}
   </article>`;
 }
 
-function compactAssignment(a){return `<button type="button" class="work-floating-assignment ${statusTone(a.memberStatus)}" data-assignment-open="${fmt.escape(a.id)}"><b>${fmt.escape(a.title)}</b><small>${statusLabel(a.memberStatus)}</small></button>`}
+function compactAssignment(a){return `<button type="button" class="work-floating-assignment ${statusTone(a.memberStatus)}${timelineVisualClass(a)}" data-assignment-open="${fmt.escape(a.id)}"><b>${fmt.escape(a.title)}</b><small>${statusLabel(a.memberStatus)}${a.hasPhoto?" · 📷":""}</small></button>`}
 
 function monthAssignment(a){
-  return `<button type="button" class="work-month-item-v11330 ${statusTone(a.memberStatus)} ${a.kind==="DELIVERABLE"?"deliverable":""}" data-assignment-open="${fmt.escape(a.id)}"><b>${a.plannedStart?timeOnly(a.plannedStart):"Límite"}</b><span>${fmt.escape(a.title)}</span><small>${fmt.escape(firstName(a.profileName))}</small></button>`;
+  return `<button type="button" class="work-month-item-v11330 ${statusTone(a.memberStatus)} ${a.kind==="DELIVERABLE"?"deliverable":""}${timelineVisualClass(a)}" data-assignment-open="${fmt.escape(a.id)}"><b>${a.plannedStart?timeOnly(a.plannedStart):"Límite"}</b><span>${fmt.escape(a.title)}</span><small>${fmt.escape(firstName(a.profileName))}${a.hasPhoto?" · 📷":""}</small></button>`;
+}
+
+function timelineVisualClass(a){
+  return `${a.executionId?" has-execution":""}${a.sourceType==="EXECUTION"?" manual-execution":""}`;
+}
+
+function evidenceMark(a){
+  return a.hasPhoto?'<span class="work-timeline-evidence-dot-v11350">Foto</span>':"";
+}
+
+function cancelControl(a){
+  return a.canCancel?`<button data-assignment-cancel="${fmt.escape(a.assignmentId||a.id)}" title="Cancelar asignación" aria-label="Cancelar asignación">×</button>`:"";
 }
 
 function personIdentity(person,state){
