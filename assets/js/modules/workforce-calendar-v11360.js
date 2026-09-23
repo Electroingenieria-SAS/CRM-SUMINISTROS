@@ -257,7 +257,7 @@ function dayBoard(data,calendar,anchor,filters={}){
             <span>Equipo</span>
             <strong>Actividad y estado</strong>
           </div>
-          <div class="work-calendar-segment-heads-v11360">
+          <div class="work-calendar-segment-heads-v11360" style="grid-template-columns:${segmentGridTemplate(segments)}">
             ${segments.map(segmentHeader).join("")}
           </div>
         </header>
@@ -268,6 +268,15 @@ function dayBoard(data,calendar,anchor,filters={}){
         </div>
       </div>
     </section>`;
+}
+
+function segmentGridTemplate(segments){
+  const weights=(segments||[]).map(segment=>
+    Math.max(1,toMinutes(segment.endTime)-toMinutes(segment.startTime))
+  );
+  return weights.length
+    ? weights.map(weight=>`minmax(0,${weight}fr)`).join(" ")
+    : "minmax(0,1fr)";
 }
 
 function segmentHeader(segment){
@@ -300,7 +309,7 @@ function dayPersonRow(person,assignments,segments,day){
         ${personIdentity(person)}
       </div>
 
-      <div class="work-calendar-segments-v11360">
+      <div class="work-calendar-segments-v11360" style="grid-template-columns:${segmentGridTemplate(segments)}">
         ${segments.map(segment=>daySegment(rows,segment)).join("")}
         ${noTime.length?`<div class="work-calendar-floating-v11360">${noTime.map(compactEvent).join("")}</div>`:""}
       </div>
