@@ -39,6 +39,9 @@ jobs:
       - name: Workforce today · automatic execution contract
         run: node scripts/workforce-today-test.mjs
 
+      - name: Workforce manager · time review contract
+        run: node scripts/workforce-manager-review-test.mjs
+
       - name: Security contract
         id: security
         continue-on-error: true
