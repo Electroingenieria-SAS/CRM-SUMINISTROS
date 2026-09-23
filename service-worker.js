@@ -3,7 +3,7 @@ const CACHE="crm-suministros-v11-34-5-20260923-09";
 
 const APP_SHELL=[
   "./","./index.html","./404.html","./manifest.webmanifest","./templates/historical_orders.csv",
-  "./assets/js/app-entry.js","./assets/js/main.js","./assets/js/config.js","./assets/js/modules/workforce.js","./assets/js/modules/workforce-planner-v11330.js","./assets/js/modules/workforce-today-v11340.js","./assets/js/modules/workforce-time-review-v11340.js","./assets/js/modules/workforce-catalog-v11343.js","./assets/js/modules/workforce-experience-v11344.js",
+  "./assets/js/app-entry.js","./assets/js/main.js","./assets/js/config.js","./assets/js/platform-observability.js","./assets/js/modules/workforce.js","./assets/js/modules/workforce-planner-v11330.js","./assets/js/modules/workforce-today-v11340.js","./assets/js/modules/workforce-time-review-v11340.js","./assets/js/modules/workforce-catalog-v11343.js","./assets/js/modules/workforce-experience-v11344.js",
   "./assets/css/core-shell.css","./assets/css/operations.css","./assets/css/analytics.css","./assets/css/experience.css",
   "./assets/runtime-css/guides-layout-v11291.css","./assets/runtime-css/receiving-workspace-v11290.css","./assets/runtime-css/inventory-dialogs-v11260.css","./assets/runtime-css/inventory-visual-v11270.css","./assets/runtime-css/inventory-ui-v11240.css","./assets/runtime-css/inventory-workspace-v11251.css","./assets/runtime-css/workforce-experience-v11344.css",
   "./assets/img/logo-electroingenieria.png","./assets/img/iso-electroingenieria.png","./assets/img/ui/crm-psp-waves-v11180.webp",
