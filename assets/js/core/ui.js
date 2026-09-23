@@ -5,6 +5,39 @@ let dialogSystemInstalled=false;
 let dialogPreviousFocus=null;
 let dialogMutation=null;
 
+const BLOCKED_HTML_TAGS=new Set(["SCRIPT","IFRAME","OBJECT","EMBED","META","BASE"]);
+const URL_ATTRIBUTES=new Set(["href","src","action","formaction","xlink:href"]);
+const UNSAFE_URL=/^\s*(?:javascript|vbscript|data\s*:\s*text\/html)/i;
+const UNSAFE_STYLE=/(?:expression\s*\(|behavior\s*:|url\s*\(\s*['"]?\s*javascript\s*:)/i;
+
+/* Trust boundary for reusable UI primitives.
+   Callers may provide structured HTML, but executable markup, event handlers
+   and active URL/style payloads are removed before insertion into the DOM. */
+export function sanitizeHtml(value=""){
+  const template=document.createElement("template");
+  template.innerHTML=String(value??"");
+  template.content.querySelectorAll("*").forEach(node=>{
+    if(BLOCKED_HTML_TAGS.has(node.tagName)){
+      node.remove();
+      return;
+    }
+    for(const attribute of [...node.attributes]){
+      const name=attribute.name.toLowerCase();
+      const raw=String(attribute.value||"");
+      if(name.startsWith("on")||name==="srcdoc"){
+        node.removeAttribute(attribute.name);
+        continue;
+      }
+      if(URL_ATTRIBUTES.has(name)&&UNSAFE_URL.test(raw)){
+        node.removeAttribute(attribute.name);
+        continue;
+      }
+      if(name==="style"&&UNSAFE_STYLE.test(raw))node.removeAttribute(attribute.name);
+    }
+  });
+  return template.innerHTML;
+}
+
 export function loading(message="Cargando información operativa…"){
   return `<div class="loading" role="status" aria-live="polite"><span class="spinner" aria-hidden="true"></span>${fmt.escape(message)}</div>`;
 }
@@ -114,7 +147,7 @@ export function installDialogSystem(){
 
 function renderDialogShell(root,{title,body,footer="",size="",className="",subtitle="",kicker=""}){
   const titleId=`erp-dialog-title-${crypto.randomUUID?.()||Math.random().toString(36).slice(2)}`;
-  root.innerHTML=`<div class="modal-overlay"><section class="modal ${size} ${className}" role="dialog" aria-modal="true" aria-labelledby="${titleId}" tabindex="-1"><header class="modal-head"><div class="modal-title-group">${kicker?`<span class="modal-kicker">${fmt.escape(kicker)}</span>`:""}<h3 id="${titleId}">${fmt.escape(title)}</h3>${subtitle?`<p>${fmt.escape(subtitle)}</p>`:""}</div><button type="button" class="icon-btn icon-close" data-close aria-label="Cerrar ventana">×</button></header><div class="modal-body">${body}</div>${footer?`<footer class="modal-foot">${footer}</footer>`:""}</section></div>`;
+  const safeBody=sanitizeHtml(body);\n  const safeFooter=sanitizeHtml(footer);\n  root.innerHTML=`<div class="modal-overlay"><section class="modal ${size} ${className}" role="dialog" aria-modal="true" aria-labelledby="${titleId}" tabindex="-1"><header class="modal-head"><div class="modal-title-group">${kicker?`<span class="modal-kicker">${fmt.escape(kicker)}</span>`:""}<h3 id="${titleId}">${fmt.escape(title)}</h3>${subtitle?`<p>${fmt.escape(subtitle)}</p>`:""}</div><button type="button" class="icon-btn icon-close" data-close aria-label="Cerrar ventana">×</button></header><div class="modal-body">${safeBody}</div>${safeFooter?`<footer class="modal-foot">${safeFooter}</footer>`:""}</section></div>`;
 }
 
 export function taskPanel(host,{title,body,confirmLabel="Confirmar",cancelLabel="Cancelar",kicker="Acción de la operación",tone="",onConfirm,onClose}={}){
@@ -126,7 +159,7 @@ export function taskPanel(host,{title,body,confirmLabel="Confirmar",cancelLabel=
   const wrapper=document.createElement("div");
   wrapper.className="modal-task-panel-shell";
   wrapper.dataset.modalTaskPanel="1";
-  wrapper.innerHTML=`<div class="modal-task-panel-scrim" aria-hidden="true"></div><section class="modal-task-panel ${fmt.escape(tone)}" role="region" aria-labelledby="${titleId}" tabindex="-1"><header><div><span>${fmt.escape(kicker)}</span><h4 id="${titleId}">${fmt.escape(title||"Acción")}</h4></div><button type="button" class="icon-btn icon-close" data-task-panel-close aria-label="Cerrar acción">×</button></header><div class="modal-task-panel-body">${body||""}</div><footer><button type="button" class="btn btn-ghost" data-task-panel-close>${fmt.escape(cancelLabel)}</button>${confirmLabel?`<button type="button" class="btn ${semanticActionClass(confirmLabel)}" data-task-panel-confirm>${fmt.escape(confirmLabel)}</button>`:""}</footer></section>`;
+  wrapper.innerHTML=`<div class="modal-task-panel-scrim" aria-hidden="true"></div><section class="modal-task-panel ${fmt.escape(tone)}" role="region" aria-labelledby="${titleId}" tabindex="-1"><header><div><span>${fmt.escape(kicker)}</span><h4 id="${titleId}">${fmt.escape(title||"Acción")}</h4></div><button type="button" class="icon-btn icon-close" data-task-panel-close aria-label="Cerrar acción">×</button></header><div class="modal-task-panel-body">${sanitizeHtml(body||"")}</div><footer><button type="button" class="btn btn-ghost" data-task-panel-close>${fmt.escape(cancelLabel)}</button>${confirmLabel?`<button type="button" class="btn ${semanticActionClass(confirmLabel)}" data-task-panel-confirm>${fmt.escape(confirmLabel)}</button>`:""}</footer></section>`;
   parent.append(wrapper);
   parent.classList.add("has-task-panel");
   const contextState=[...parent.children].filter(node=>node!==wrapper).map(node=>({node,inert:node.hasAttribute("inert"),ariaHidden:node.getAttribute("aria-hidden")}));
@@ -225,7 +258,7 @@ export function wizard({
         </div>
         <form class="wizard-form" novalidate>
           <div class="modal-body wizard-body">
-            ${steps.map((step,index)=>`<section class="wizard-panel ${index===0?"active":""}" data-wizard-panel="${index}"><div class="wizard-step-intro"><span>Paso ${index+1} de ${steps.length}</span><h4>${fmt.escape(step.title)}</h4>${step.description?`<p>${fmt.escape(step.description)}</p>`:""}</div><div class="wizard-step-content">${step.content||""}</div></section>`).join("")}
+            ${steps.map((step,index)=>`<section class="wizard-panel ${index===0?"active":""}" data-wizard-panel="${index}"><div class="wizard-step-intro"><span>Paso ${index+1} de ${steps.length}</span><h4>${fmt.escape(step.title)}</h4>${step.description?`<p>${fmt.escape(step.description)}</p>`:""}</div><div class="wizard-step-content">${sanitizeHtml(step.content||"")}</div></section>`).join("")}
           </div>
           <footer class="modal-foot wizard-foot">
             <button class="btn btn-ghost" type="button" data-close>${fmt.escape(cancelLabel)}</button>
@@ -297,7 +330,7 @@ export function guide({title,description,items=[],confirmLabel="Entendido"}){
 export function actionCards(cards=[]){
   return `<section class="guided-action-grid">${cards.map(card=>`
     <button type="button" class="guided-action-card ${card.tone||""}" ${card.disabled?"disabled":""} ${card.id?`id="${fmt.escape(card.id)}"`:""} ${card.data?Object.entries(card.data).map(([key,value])=>`data-${fmt.escape(key)}="${fmt.escape(value)}"`).join(" "):""}>
-      <span class="guided-action-icon">${card.icon||"→"}</span>
+      <span class="guided-action-icon">${sanitizeHtml(card.icon||"→")}</span>
       <span class="guided-action-copy"><strong>${fmt.escape(card.title)}</strong><small>${fmt.escape(card.description||"")}</small></span>
       <span class="guided-action-arrow">›</span>
     </button>`).join("")}</section>`;
