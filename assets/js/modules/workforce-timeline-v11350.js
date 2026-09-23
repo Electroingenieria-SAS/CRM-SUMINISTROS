@@ -211,7 +211,7 @@ function timelineDetailHtml(detail={}){
     </section>
 
     ${images.length>1?`<div class="work-timeline-gallery-v11350">${images.map((row,index)=>`
-      <button type="button" class="${index===0?"active":""}" data-timeline-thumb data-drive-file-id="${fmt.escape(row.driveFileId||"")}" aria-label="Ver evidencia ${index+1}">
+      <button type="button" class="${index===0?"active":""}" data-timeline-thumb data-evidence-id="${fmt.escape(row.id||"")}" data-drive-file-id="${fmt.escape(row.driveFileId||"")}" aria-label="Ver evidencia ${index+1}">
         <span>${index+1}</span>
       </button>`).join("")}</div>`:""}
 
@@ -238,7 +238,7 @@ function evidenceRow(row){
     <span class="work-timeline-evidence-icon-v11350">${photo?"📷":"◫"}</span>
     <div><strong>${fmt.escape(evidenceLabel(row?.type))}</strong><small>${fmt.escape(row?.fileName||row?.externalValue||"Registro de evidencia")}</small></div>
     <div class="work-timeline-evidence-actions-v11350">
-      ${photo&&row?.driveFileId?`<button type="button" data-timeline-evidence-preview data-drive-file-id="${fmt.escape(row.driveFileId)}">Ver foto</button>`:""}
+      ${photo&&row?.driveFileId?`<button type="button" data-timeline-evidence-preview data-evidence-id="${fmt.escape(row.id||"")}" data-drive-file-id="${fmt.escape(row.driveFileId)}">Ver foto</button>`:""}
       ${link?`<a href="${link}" target="_blank" rel="noopener noreferrer">Original</a>`:""}
     </div>
   </article>`;
@@ -250,15 +250,16 @@ function bindEvidenceGallery(layer,detail,loadPreview){
   const first=evidence.find(isPhotoEvidence);
   const cover=layer.querySelector("[data-timeline-photo-main]");
 
-  const show=async fileId=>{
+  const show=async(evidenceId,fileId)=>{
+    const evidence=String(evidenceId||"").trim();
     const id=String(fileId||"").trim();
-    if(!id||!cover)return;
+    if(!evidence||!id||!cover)return;
     const image=cover.querySelector("img");
     const loader=cover.querySelector(".work-timeline-photo-loader-v11350");
     cover.classList.add("is-loading");
     if(loader){loader.hidden=false;loader.textContent="Cargando evidencia…";}
     try{
-      const preview=await loadPreview(id);
+      const preview=await loadPreview(evidence,id);
       if(!layer.isConnected)return;
       image.src=preview.dataUrl;
       image.hidden=false;
@@ -272,18 +273,18 @@ function bindEvidenceGallery(layer,detail,loadPreview){
     }
   };
 
-  if(first?.driveFileId)show(first.driveFileId);
+  if(first?.id&&first?.driveFileId)show(first.id,first.driveFileId);
 
   layer.querySelectorAll("[data-timeline-thumb]").forEach(button=>button.addEventListener("click",async()=>{
     layer.querySelectorAll("[data-timeline-thumb]").forEach(node=>node.classList.toggle("active",node===button));
-    await show(button.dataset.driveFileId);
+    await show(button.dataset.evidenceId,button.dataset.driveFileId);
   }));
 
   layer.querySelectorAll("[data-timeline-evidence-preview]").forEach(button=>button.addEventListener("click",async()=>{
     const fileId=button.dataset.driveFileId;
     const thumb=[...layer.querySelectorAll("[data-timeline-thumb]")].find(node=>node.dataset.driveFileId===fileId);
     if(thumb)layer.querySelectorAll("[data-timeline-thumb]").forEach(node=>node.classList.toggle("active",node===thumb));
-    await show(fileId);
+    await show(button.dataset.evidenceId,fileId);
     cover?.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"nearest"});
   }));
 }
