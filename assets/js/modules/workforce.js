@@ -444,4 +444,3 @@ function timeOnly(value){if(!value)return"—";return new Intl.DateTimeFormat("e
 function weekdayShort(value){return new Intl.DateTimeFormat("es-CO",{weekday:"short",timeZone:"America/Bogota"}).format(new Date(value)).replace(".","").replace(/^./,c=>c.toUpperCase())}
 function monthShort(value){return new Intl.DateTimeFormat("es-CO",{month:"short",timeZone:"America/Bogota"}).format(new Date(value)).replace(".","")}
 function firstName(name=""){return String(name).trim().split(/\s+/)[0]||""}
-T12:00:00`),end=new Date(`${to}T12:00:00`);while(d<=end){if(d.getDay()!==0&&d.getDay()!==6)count++;d=addDays(d,1)}return count}
