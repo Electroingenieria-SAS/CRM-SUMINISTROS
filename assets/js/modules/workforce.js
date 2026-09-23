@@ -2,12 +2,13 @@ import {api} from "../services/api.js";
 import {fmt,statusBadge,priorityBadge} from "../core/format.js";
 import {loading,empty,modal,wizard,toast} from "../core/ui.js";
 import {state} from "../core/state.js";
-import {uploadWorkEvidence} from "../services/drive.js";
+import {uploadWorkEvidence,loadWorkEvidencePreview} from "../services/drive.js";
 import {icon} from "../core/icons.js";
-import {normalizePlannerCalendar,plannerRangeForMode,nextBusinessAnchor,plannerTitleForMode,renderPlannerBoard,teamCapacityHtml,assignmentDetailHtml} from "./workforce-planner-v11330.js";
+import {normalizePlannerCalendar,plannerRangeForMode,nextBusinessAnchor,plannerTitleForMode,renderPlannerBoard,teamCapacityHtml} from "./workforce-planner-v11330.js";
 import {timeTrafficLight,trafficHelp,elapsedActiveSeconds,finalEvidenceType} from "./workforce-today-v11340.js";
 import {catalogTaxonomy,catalogBrowserHtml,categoryStageHtml,subcategoryStageHtml,activityStageHtml,selectedActivityHtml,catalogBreadcrumbHtml} from "./workforce-catalog-v11343.js";
 import {ensureWorkforceExperienceStyles} from "./workforce-experience-v11344.js";
+import {ensureWorkforceTimelineStyles,composePlannerTimeline,timelineDetailRequest,openWorkTimelineCard} from "./workforce-timeline-v11350.js";
 
 let liveTimer=null;
 let currentView="today";
@@ -23,6 +24,7 @@ const DEVIATION_REASONS={"":"Sin causa especial",MATERIAL:"Material no disponibl
 
 export async function renderWorkforce(root){
   ensureWorkforceExperienceStyles();
+  ensureWorkforceTimelineStyles();
   clearInterval(liveTimer);
   root.innerHTML=`
     <section class="page-head workforce-page-head">
@@ -31,7 +33,7 @@ export async function renderWorkforce(root){
     </section>
     <nav class="workforce-tabs" aria-label="Vistas de actividades">
       <button class="workforce-tab ${currentView==="today"?"active":""}" data-work-view="today">${icon("activity")}<span><strong>Mi jornada</strong><small>Elegir · iniciar · foto</small></span></button>
-      <button class="workforce-tab ${currentView==="planner"?"active":""}" data-work-view="planner" hidden>${icon("calendar")}<span><strong>Cronograma</strong><small>Día · semana · mes</small></span></button>
+      <button class="workforce-tab ${currentView==="planner"?"active":""}" data-work-view="planner">${icon("calendar")}<span><strong>Cronograma</strong><small>Día · semana · mes</small></span></button>
       <button class="workforce-tab ${currentView==="analytics"?"active":""}" data-work-view="analytics">${icon("reports")}<span><strong>Indicadores</strong><small>Carga y resultados</small></span></button>
     </nav>
     <section id="workforce-content">${loading("Preparando tu jornada…")}</section>`;
@@ -50,15 +52,7 @@ async function renderCurrent(root,force=false){
   const content=root.querySelector("#workforce-content");
   if(!content)return;
   content.innerHTML=loading();
-  if(currentView==="planner"){
-    const access=await api.workMyDay();
-    if(!access.permissions?.canViewTeam){
-      currentView="today";
-      root.querySelectorAll("[data-work-view]").forEach(button=>button.classList.toggle("active",button.dataset.workView==="today"));
-      return renderToday(root,content,access);
-    }
-    return renderPlanner(root,content);
-  }
+  if(currentView==="planner")return renderPlanner(root,content);
   if(currentView==="analytics")return renderAnalytics(root,content);
   return renderToday(root,content,force);
 }
@@ -66,7 +60,7 @@ async function renderCurrent(root,force=false){
 async function renderToday(root,content,prefetchedData=null){
   const data=prefetchedData||await api.workMyDay();
   const plannerTab=root.querySelector('[data-work-view="planner"]');
-  if(plannerTab)plannerTab.hidden=!data.permissions?.canViewTeam;
+  if(plannerTab)plannerTab.hidden=false;
   const active=Boolean(data.active);
   const pending=(data.summary?.pendingEvidence||0)+(data.summary?.pendingReview||0);
   const scheduled=[...(data.overdue||[]),...(data.today||[])];
@@ -449,8 +443,17 @@ function startLiveClock(content,active){
 async function renderPlanner(root,content){
   const range=plannerRangeForMode(plannerMode,plannerAnchor);
   const data=await api.workPlanner(range.from,range.to);
+  const timeline=composePlannerTimeline(data);
+  const plannerData={...data,assignments:timeline};
   const calendar=await resolvePlannerCalendar(data);
-  const subtitle={day:"Jornada laboral por horas",week:"Semana laboral · lunes a viernes",month:"Mes laboral · sin fines de semana"}[plannerMode]||"Cronograma laboral";
+  const canViewTeam=Boolean(data.permissions?.canViewTeam);
+  const canPlanTeam=Boolean(data.permissions?.canPlanTeam);
+  const subtitle={
+    day:"Jornada laboral por horas",
+    week:"Semana laboral · lunes a viernes",
+    month:"Mes laboral · sin fines de semana"
+  }[plannerMode]||"Cronograma laboral";
+
   content.innerHTML=`
     <section class="work-planner-toolbar card">
       <div class="work-planner-nav">
@@ -465,20 +468,22 @@ async function renderPlanner(root,content){
           <button class="${plannerMode==="week"?"active":""}" data-plan-mode="week">Semana</button>
           <button class="${plannerMode==="month"?"active":""}" data-plan-mode="month">Mes</button>
         </div>
-        <button class="btn btn-create" data-plan-new-custom>Nueva actividad</button>
-        <button class="btn btn-primary" data-plan-new>Asignar del catálogo</button>
+        ${canPlanTeam?'<button class="btn btn-create" data-plan-new-custom>Nueva actividad</button><button class="btn btn-primary" data-plan-new>Asignar del catálogo</button>':'<span class="work-timeline-scope-v11350">Mi cronograma</span>'}
       </div>
     </section>
+
     <section class="work-planner-context-strip">
       <span><b>Horario</b> 07:00–12:00 · 13:40–17:30</span>
-      <span><b>Calendario</b> fines de semana excluidos · festivos bloqueados</span>
-      <span><b>Rendimiento</b> catálogo bajo demanda · calendario en caché</span>
+      <span><b>Calendario</b> ${canViewTeam?"equipo visible según permisos":"solo tus actividades"}</span>
+      <span><b>Registro real</b> actividades espontáneas y programadas en una sola línea de tiempo</span>
     </section>
-    ${renderPlannerBoard({mode:plannerMode,anchor:plannerAnchor,data,calendar})}
-    <section class="card work-team-now">
-      <header class="card-head"><div><h3>Capacidad del equipo</h3><p>Se calcula con minutos laborales reales del rango; festivos y fines de semana no consumen capacidad.</p></div></header>
+
+    ${renderPlannerBoard({mode:plannerMode,anchor:plannerAnchor,data:plannerData,calendar})}
+
+    ${canViewTeam?`<section class="card work-team-now">
+      <header class="card-head"><div><h3>Capacidad del equipo</h3><p>Se calcula únicamente con asignaciones planificadas; las actividades espontáneas no inflan la carga futura.</p></div></header>
       <div class="card-body">${teamCapacityHtml(data.people||[],data.assignments||[],range,calendar)}</div>
-    </section>`;
+    </section>`:""}`;
 
   const move=direction=>{
     if(plannerMode==="day")plannerAnchor=nextBusinessAnchor(plannerAnchor,direction,calendar);
@@ -486,6 +491,7 @@ async function renderPlanner(root,content){
     else plannerAnchor=addMonths(plannerAnchor,direction);
     return renderPlanner(root,content);
   };
+
   content.querySelector("[data-plan-prev]").onclick=()=>move(-1);
   content.querySelector("[data-plan-next]").onclick=()=>move(1);
   content.querySelector("[data-plan-today]").onclick=()=>{
@@ -497,6 +503,7 @@ async function renderPlanner(root,content){
     }
     renderPlanner(root,content);
   };
+
   content.querySelectorAll("[data-plan-mode]").forEach(button=>button.onclick=()=>{
     plannerMode=button.dataset.planMode;
     if(plannerMode==="month")plannerAnchor=new Date(plannerAnchor.getFullYear(),plannerAnchor.getMonth(),1);
@@ -507,32 +514,33 @@ async function renderPlanner(root,content){
     }
     renderPlanner(root,content);
   });
-  content.querySelector("[data-plan-new]").onclick=async()=>assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),null,{newCatalog:false});
-  content.querySelector("[data-plan-new-custom]").onclick=async()=>assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),null,{newCatalog:true,startNow:true});
 
-  const openAssignment=id=>{
-    const assignment=(data.assignments||[]).find(row=>row.id===id);
-    if(!assignment)return toast("No se encontró el detalle de esta actividad.","warning");
-    modal({
-      title:"Detalle de actividad",
-      body:assignmentDetailHtml(assignment,data.assignments||[]),
-      confirmLabel:"",
-      cancelLabel:"Cerrar",
-      size:"wide"
-    });
+  if(canPlanTeam){
+    content.querySelector("[data-plan-new]").onclick=async()=>assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),null,{newCatalog:false});
+    content.querySelector("[data-plan-new-custom]").onclick=async()=>assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),null,{newCatalog:true,startNow:true});
+  }
+
+  const openItem=id=>{
+    const item=timeline.find(row=>String(row.id)===String(id));
+    if(!item)return toast("No se encontró el detalle de esta actividad.","warning");
+    return openWorkTimelineCard(
+      item,
+      ()=>api.workPlannerDetail(timelineDetailRequest(item)),
+      loadWorkEvidencePreview
+    );
   };
 
   content.querySelectorAll("[data-assignment-open]").forEach(element=>{
     element.onclick=event=>{
       if(event.target.closest("[data-assignment-cancel]"))return;
       event.stopPropagation();
-      openAssignment(element.dataset.assignmentOpen);
+      openItem(element.dataset.assignmentOpen);
     };
     element.onkeydown=event=>{
       if(event.key==="Enter"||event.key===" "){
         event.preventDefault();
         event.stopPropagation();
-        openAssignment(element.dataset.assignmentOpen);
+        openItem(element.dataset.assignmentOpen);
       }
     };
   });
@@ -540,44 +548,30 @@ async function renderPlanner(root,content){
   content.querySelectorAll("[data-active-profile]").forEach(button=>button.onclick=event=>{
     event.stopPropagation();
     const profileId=button.dataset.activeProfile;
-    const person=(data.people||[]).find(row=>row.id===profileId);
-    const assignment=(data.assignments||[]).find(row=>row.profileId===profileId&&["IN_PROGRESS","PAUSED"].includes(String(row.memberStatus||"").toUpperCase()))
-      ||(data.assignments||[]).find(row=>row.profileId===profileId&&row.title===person?.activeTitle);
-    if(assignment)return openAssignment(assignment.id);
-    if(person?.activeTitle){
-      modal({
-        title:"Actividad actual",
-        body:assignmentDetailHtml({
-          title:person.activeTitle,
-          profileId:person.id,
-          profileName:person.name,
-          memberStatus:person.activeStatus||"IN_PROGRESS",
-          plannedStart:person.activeStartedAt||null,
-          kind:"ACTIVITY"
-        },[]),
-        confirmLabel:"",
-        cancelLabel:"Cerrar",
-        size:"wide"
-      });
-    }
+    const activeItem=timeline.find(row=>row.profileId===profileId&&["IN_PROGRESS","PAUSED"].includes(String(row.memberStatus||"").toUpperCase()));
+    if(activeItem)return openItem(activeItem.id);
+    toast("La actividad actual todavía no tiene detalle disponible en este rango.","warning");
   });
 
-  content.querySelectorAll("[data-plan-day]").forEach(day=>{
-    day.onclick=async event=>{
-      if(event.target.closest("[data-assignment-open],[data-active-profile],[data-assignment-cancel]"))return;
-      assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),day.dataset.planDay);
-    };
-    day.onkeydown=async event=>{
-      if((event.key==="Enter"||event.key===" ")&&event.target===day){
-        event.preventDefault();
+  if(canPlanTeam){
+    content.querySelectorAll("[data-plan-day]").forEach(day=>{
+      day.onclick=async event=>{
+        if(event.target.closest("[data-assignment-open],[data-active-profile],[data-assignment-cancel]"))return;
         assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),day.dataset.planDay);
-      }
-    };
-  });
-  content.querySelectorAll("[data-assignment-cancel]").forEach(button=>button.onclick=event=>{
-    event.stopPropagation();
-    cancelAssignmentDialog(button.dataset.assignmentCancel,()=>renderPlanner(root,content));
-  });
+      };
+      day.onkeydown=async event=>{
+        if((event.key==="Enter"||event.key===" ")&&event.target===day){
+          event.preventDefault();
+          assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),day.dataset.planDay);
+        }
+      };
+    });
+
+    content.querySelectorAll("[data-assignment-cancel]").forEach(button=>button.onclick=event=>{
+      event.stopPropagation();
+      cancelAssignmentDialog(button.dataset.assignmentCancel,()=>renderPlanner(root,content));
+    });
+  }
 }
 
 async function resolvePlannerCalendar(data){

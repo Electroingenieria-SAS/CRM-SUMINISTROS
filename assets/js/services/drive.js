@@ -98,7 +98,7 @@ function isBridgeOrigin(origin) {
   }
 }
 
-function submitToBridge(payload) {
+function postToBridge(payload) {
   return new Promise((resolve, reject) => {
     const requestId = String(payload.requestId || payload.uploadId || (typeof crypto?.randomUUID === "function" ? crypto.randomUUID() : `drive_${Date.now()}_${Math.random().toString(36).slice(2)}`));
     payload.requestId = requestId;
@@ -146,12 +146,12 @@ function submitToBridge(payload) {
         ![data?.requestId, data?.uploadId].filter(Boolean).includes(requestId)
       ) return;
 
-      if (data.ok && data.file) finish(resolve, data.file);
-      else finish(reject, new Error(data.error || "No fue posible cargar el archivo en Google Drive."));
+      if (data.ok) finish(resolve, data);
+      else finish(reject, new Error(data.error || "No fue posible completar la operación con Google Drive."));
     };
 
     timer = setTimeout(() => {
-      finish(reject, new Error("La carga institucional tardó demasiado. Revisa que el Apps Script siga desplegado e inténtalo nuevamente."));
+      finish(reject, new Error("La operación institucional tardó demasiado. Revisa que el Apps Script siga desplegado e inténtalo nuevamente."));
     }, BRIDGE_TIMEOUT_MS);
 
     window.addEventListener("message", onMessage);
@@ -159,6 +159,12 @@ function submitToBridge(payload) {
     document.body.appendChild(form);
     form.submit();
   });
+}
+
+async function submitToBridge(payload) {
+  const response = await postToBridge(payload);
+  if (!response?.file) throw new Error("Google Drive no devolvió el archivo esperado.");
+  return response.file;
 }
 
 export async function uploadOrderFile(
@@ -308,6 +314,36 @@ export async function uploadWorkEvidence(
     progress.error(error);
     throw error;
   }
+}
+
+const workEvidencePreviewCache=new Map();
+
+export async function loadWorkEvidencePreview(evidenceId,fileId){
+  const evidence=String(evidenceId||"").trim();
+  const id=String(fileId||"").trim();
+  if(!evidence||!id)throw new Error("La evidencia no tiene un archivo de Drive asociado.");
+  const cacheKey=`${evidence}:${id}`;
+  if(workEvidencePreviewCache.has(cacheKey))return workEvidencePreviewCache.get(cacheKey);
+
+  const session=await currentSession();
+  if(!session?.access_token)throw new Error("Tu sesión venció. Ingresa nuevamente al ERP.");
+
+  const response=await postToBridge({
+    action:"PREVIEW_WORK_EVIDENCE",
+    origin:window.location.origin,
+    accessToken:session.access_token,
+    evidenceId:evidence,
+    driveFileId:id,
+    clientVersion:CONFIG.version||"ERP_EI"
+  });
+
+  const preview=response?.preview;
+  if(!preview?.dataUrl||!/^data:image\//i.test(preview.dataUrl)){
+    throw new Error("No fue posible preparar la vista previa de la evidencia.");
+  }
+
+  workEvidencePreviewCache.set(cacheKey,preview);
+  return preview;
 }
 
 /* Compatibilidad exclusiva para el lector PDF de Recepción. */
