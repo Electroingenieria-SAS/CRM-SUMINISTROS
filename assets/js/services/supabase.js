@@ -6,6 +6,8 @@ const IMPERSONATION_MODE=URL_PARAMS.get("impersonation")==="1";
 const IMPERSONATION_SLOT=String(URL_PARAMS.get("slot")||"single").replace(/[^a-zA-Z0-9_-]/g,"").slice(0,80)||"single";
 const BASE_AUTH_STORAGE_KEY="ei-erp-supply-v10";
 const AUTH_STORAGE_KEY=IMPERSONATION_MODE?`${BASE_AUTH_STORAGE_KEY}-verify-${IMPERSONATION_SLOT}`:BASE_AUTH_STORAGE_KEY;
+const IMPERSONATION_SESSION_KEY=`erp-impersonation-session-${IMPERSONATION_SLOT}`;
+const UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const PROJECT_REF=(()=>{try{return new URL(CONFIG.supabase.url).hostname.split(".")[0]||""}catch{return ""}})();
 let impersonationPromise=null;
 
@@ -44,6 +46,21 @@ function removeStoredAuth(){
 function impersonationHash(){
   try{return new URLSearchParams(String(window.location.hash||"").replace(/^#/,""))}catch{return new URLSearchParams()}
 }
+function currentImpersonationSessionId(){
+  if(!IMPERSONATION_MODE)return "";
+  try{
+    const incoming=String(impersonationHash().get("impersonation_session")||"").trim();
+    if(UUID_RE.test(incoming)){
+      sessionStorage.setItem(IMPERSONATION_SESSION_KEY,incoming);
+      return incoming;
+    }
+    const stored=String(sessionStorage.getItem(IMPERSONATION_SESSION_KEY)||"").trim();
+    return UUID_RE.test(stored)?stored:"";
+  }catch{return ""}
+}
+function clearImpersonationContext(){
+  try{sessionStorage.removeItem(IMPERSONATION_SESSION_KEY)}catch{}
+}
 function ensureImpersonationBanner(label=""){
   if(!IMPERSONATION_MODE)return;
   const mount=()=>{
@@ -64,8 +81,13 @@ function ensureImpersonationBanner(label=""){
     close.textContent="Cerrar prueba";
     Object.assign(close.style,{border:"1px solid rgba(255,255,255,.35)",background:"transparent",color:"#fff",borderRadius:"8px",padding:"7px 9px",cursor:"pointer",whiteSpace:"nowrap"});
     close.addEventListener("click",async()=>{
+      const sessionId=currentImpersonationSessionId();
+      if(sessionId){
+        try{await getSupabase().rpc("erp_x_admin_impersonation_end",{p_session_id:sessionId})}catch(error){console.warn("[IMPERSONATION END]",error?.message||error)}
+      }
       try{await getSupabase().auth.signOut({scope:"local"})}catch{}
       removeStoredAuth();
+      clearImpersonationContext();
       try{window.close()}catch{}
       if(!window.closed)window.location.replace(window.location.pathname);
     });
@@ -95,9 +117,11 @@ async function consumeImpersonationToken(){
 export function getSupabase(){
   if(client)return client;
   if(!window.supabase?.createClient)throw new Error("No fue posible iniciar el servicio del ERP. Recarga la página e inténtalo nuevamente.");
+  const impersonationSessionId=currentImpersonationSessionId();
   client=window.supabase.createClient(CONFIG.supabase.url,CONFIG.supabase.publishableKey,{
     auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:!IMPERSONATION_MODE,flowType:"pkce",storageKey:AUTH_STORAGE_KEY},
-    db:{retry:false}
+    db:{retry:false},
+    ...(impersonationSessionId?{global:{headers:{"x-erp-impersonation-session":impersonationSessionId}}}:{})
   });
   return client;
 }
