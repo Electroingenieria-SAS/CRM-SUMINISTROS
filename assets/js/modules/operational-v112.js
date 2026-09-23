@@ -34,8 +34,6 @@ function activeTask(data){return (data?.tasks||[]).find(t=>["QUEUED","ASSIGNED",
 function actionCodes(data){return new Set((data?.actions?.actions||[]).map(x=>x.code))}
 function refreshLists(){window.__erpQueueRefresh?.();window.__erpOrderListRefresh?.()}
 function reopenOrder(orderId){refreshLists();setTimeout(()=>window.dispatchEvent(new CustomEvent("erp:open-order",{detail:orderId})),90)}
-function localDateTime(date){const d=new Date(date);const pad=n=>String(n).padStart(2,"0");return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`}
-function roundFive(date=new Date()){const d=new Date(date);d.setSeconds(0,0);d.setMinutes(Math.ceil(d.getMinutes()/5)*5);return d}
 function escapeText(value){return fmt.escape(String(value??""))}
 function num(value){const n=Number(value);return Number.isFinite(n)?n:0}
 function money(value,currency="COP"){try{return new Intl.NumberFormat("es-CO",{style:"currency",currency:currency||"COP",maximumFractionDigits:0}).format(num(value))}catch{return fmt.number(value)}}
@@ -96,64 +94,6 @@ async function handleCapturedClick(event){
       return;
     }
   }
-}
-
-async function openScheduleActivityDialog(catalogId){
-  try{
-    const catalog=await api.workCatalog();
-    const item=(catalog||[]).find(x=>x.id===catalogId);
-    if(!item)throw new Error("La actividad ya no está disponible en el catálogo.");
-    const start=roundFive();
-    const minutes=Math.max(1,Number(item.medianMinutes&&item.samples>=5?item.medianMinutes:item.standardMinutes||60));
-    const end=new Date(start.getTime()+minutes*60000);
-    const auxiliary=isAuxiliary();
-    const title=auxiliary?"Solicitar actividad":"Programar actividad";
-    const view=modal({
-      title,
-      confirmLabel:auxiliary?"Enviar para aprobación":"Programar actividad",
-      size:"wide",
-      body:`
-        <section class="v112-dialog-intro">
-          <span>${auxiliary?"Requiere autorización":"No inicia el cronómetro"}</span>
-          <strong>${escapeText(item.name)}</strong>
-          <p>${auxiliary?"La actividad quedará pendiente hasta que Jefe, Líder o Coordinación Logística la apruebe.":"La actividad quedará en tu agenda. El cronómetro solo iniciará cuando pulses Iniciar."}</p>
-        </section>
-        <div class="form-grid v112-schedule-grid">
-          <div class="field"><label>Inicio programado *</label><input class="control" type="datetime-local" name="plannedStart" value="${localDateTime(start)}" required></div>
-          <div class="field" data-v112-end-field><label>Final estimado *</label><input class="control" type="datetime-local" name="plannedEnd" value="${localDateTime(end)}" required></div>
-          <label class="v112-open-ended full"><input type="checkbox" name="openEnded"><span><strong>Sin hora final estimada</strong><small>La actividad se finalizará manualmente desde Mi Jornada.</small></span></label>
-          <div class="field"><label>Prioridad</label><select class="control" name="priority"><option value="MEDIUM" selected>Media</option><option value="HIGH">Alta</option><option value="URGENT">Urgente</option><option value="CRITICAL">Crítica</option><option value="LOW">Baja</option></select></div>
-          <div class="field"><label>Duración de referencia</label><input class="control" value="${fmt.number(minutes)} min" readonly aria-readonly="true"></div>
-          <div class="field full"><label>Motivo / alcance *</label><textarea class="control" name="reason" minlength="10" required>${auxiliary?"Solicito programar esta actividad dentro de mi jornada.":"Actividad programada desde Mi Jornada."}</textarea><small class="field-help">Puedes escoger fechas de esta semana o de semanas posteriores.</small></div>
-        </div>`,
-      onConfirm:async dialog=>{
-        const plannedStart=dialog.querySelector('[name="plannedStart"]').value;
-        const openEnded=dialog.querySelector('[name="openEnded"]').checked;
-        const plannedEnd=openEnded?null:dialog.querySelector('[name="plannedEnd"]').value;
-        const priority=dialog.querySelector('[name="priority"]').value;
-        const reason=dialog.querySelector('[name="reason"]').value.trim();
-        if(!plannedStart)throw new Error("Indica la fecha y hora de inicio.");
-        if(!openEnded&&!plannedEnd)throw new Error("Indica una hora final o marca Sin hora final estimada.");
-        if(!openEnded&&new Date(plannedEnd)<=new Date(plannedStart))throw new Error("La hora final debe ser posterior al inicio.");
-        const payload={catalogId,plannedStart:new Date(plannedStart).toISOString(),plannedEnd:plannedEnd?new Date(plannedEnd).toISOString():null,openEnded,priority,estimatedMinutes:minutes,reason};
-        if(auxiliary||!canApproveWork()){
-          await api.workProposeAssignment(payload);
-          toast("Actividad enviada para aprobación. No podrá iniciarse hasta ser autorizada.","success",6500);
-        }else{
-          await rpc("erp_x_work_schedule",{p_payload:{...payload,profileIds:[state.profile.id],title:item.name,description:item.description||null}});
-          toast("Actividad programada. Iníciala manualmente desde Mi Jornada cuando corresponda.","success",6500);
-        }
-        window.dispatchEvent(new HashChangeEvent("hashchange"));
-      }
-    });
-    const open=view.root.querySelector('[name="openEnded"]');
-    const endInput=view.root.querySelector('[name="plannedEnd"]');
-    open?.addEventListener("change",()=>{
-      endInput.disabled=open.checked;
-      endInput.required=!open.checked;
-      view.root.querySelector('[data-v112-end-field]')?.classList.toggle("disabled",open.checked);
-    });
-  }catch(error){toast(error.message||String(error),"error",7500)}
 }
 
 export async function enhanceWorkforce(root){
