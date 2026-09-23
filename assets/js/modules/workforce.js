@@ -6,9 +6,19 @@ import {uploadWorkEvidence} from "../services/drive.js";
 import {icon} from "../core/icons.js";
 import {normalizePlannerCalendar,plannerRangeForMode,nextBusinessAnchor,plannerTitleForMode,renderPlannerBoard,teamCapacityHtml,assignmentDetailHtml} from "./workforce-planner-v11330.js";
 import {timeTrafficLight,trafficHelp,elapsedActiveSeconds,finalEvidenceType} from "./workforce-today-v11340.js";
-import {catalogTaxonomy,catalogBrowserHtml,subcategoryHtml,activityListHtml,selectedActivityHtml} from "./workforce-catalog-v11343.js";
+import {catalogTaxonomy,catalogBrowserHtml,categoryStageHtml,subcategoryStageHtml,activityStageHtml,selectedActivityHtml,catalogBreadcrumbHtml} from "./workforce-catalog-v11343.js";
 
+const WORKFORCE_STYLE_ID="workforce-experience-v11344-style";
 let liveTimer=null;
+
+function ensureWorkforceStyles(){
+  if(typeof document==="undefined"||document.getElementById(WORKFORCE_STYLE_ID))return;
+  const link=document.createElement("link");
+  link.id=WORKFORCE_STYLE_ID;
+  link.rel="stylesheet";
+  link.href="./assets/runtime-css/workforce-experience-v11344.css?v=11.34.4";
+  document.head.appendChild(link);
+}
 let currentView="today";
 let plannerMode="week";
 let plannerAnchor=new Date();
@@ -21,6 +31,7 @@ const PAUSE_REASONS={OTHER:"Otra causa",WAIT_MATERIAL:"Espera de material",WAIT_
 const DEVIATION_REASONS={"":"Sin causa especial",MATERIAL:"Material no disponible",INTERRUPTION:"Interrupción / prioridad urgente",EQUIPMENT:"Equipo o herramienta",COMPLEXITY:"Mayor complejidad",REWORK:"Corrección o retrabajo",WAITING:"Espera de tercero",OTHER:"Otra causa"};
 
 export async function renderWorkforce(root){
+  ensureWorkforceStyles();
   clearInterval(liveTimer);
   root.innerHTML=`
     <section class="page-head workforce-page-head">
@@ -67,18 +78,25 @@ async function renderToday(root,content,prefetchedData=null){
   if(plannerTab)plannerTab.hidden=!data.permissions?.canViewTeam;
   const active=Boolean(data.active);
   const pending=(data.summary?.pendingEvidence||0)+(data.summary?.pendingReview||0);
+  const scheduled=[...(data.overdue||[]),...(data.today||[])];
   content.innerHTML=`
     <section class="workday-guide ${active?"is-running":"is-ready"}">
       <div class="workday-guide-copy">
-        <span class="workday-eyebrow">MI JORNADA · SIMPLE Y AUTOMÁTICA</span>
-        <h2>${active?"Sigue con tu actividad":"Empieza tu actividad en segundos"}</h2>
-        <p>${active?"El tiempo se registra solo. Cuando termines, toma o sube la foto final.":"Elige una actividad, pulsa iniciar y trabaja. No necesitas calcular tiempos ni llenar formularios."}</p>
+        <span class="workday-eyebrow">MI JORNADA</span>
+        <h2>${active?"Actividad en curso":"Elige con calma. Inicia cuando estés seguro."}</h2>
+        <p>${active?"El CRM registra el tiempo automáticamente y te avisará con el semáforo.":"Navega por categoría, subcategoría y actividad. Nada empieza hasta que confirmes “Iniciar actividad”."}</p>
       </div>
-      <div class="workday-steps" aria-label="Flujo de Mi jornada">
-        <article class="workday-step ${active?"done":"current"}"><b>1</b><span><strong>Elige</strong><small>Actividad permitida</small></span></article>
-        <article class="workday-step ${active?"current":""}"><b>2</b><span><strong>Trabaja</strong><small>Tiempo automático</small></span></article>
-        <article class="workday-step"><b>3</b><span><strong>Finaliza</strong><small>Foto obligatoria</small></span></article>
+      <div class="workday-traffic-legend" aria-label="Semáforo de tiempo de actividad">
+        <span class="green"><i></i><b>Verde</b><small>Menos de 45 min</small></span>
+        <span class="yellow"><i></i><b>Amarillo</b><small>45 a 60 min</small></span>
+        <span class="red"><i></i><b>Rojo</b><small>Más de 60 min · genera alerta</small></span>
       </div>
+    </section>
+
+    <section class="workday-steps" aria-label="Pasos de Mi jornada">
+      <article class="workday-step ${active?"done":"current"}"><b>1</b><span><strong>Elige</strong><small>Categoría → subcategoría → actividad</small></span></article>
+      <article class="workday-step ${active?"current":""}"><b>2</b><span><strong>Trabaja</strong><small>El tiempo se registra solo</small></span></article>
+      <article class="workday-step"><b>3</b><span><strong>Finaliza</strong><small>Foto obligatoria en Drive</small></span></article>
     </section>
 
     ${activeWorkCard(data.active)}
@@ -89,23 +107,21 @@ async function renderToday(root,content,prefetchedData=null){
       <article class="${pending?"attention":""}"><span class="workday-status-icon">!</span><div><small>Pendientes</small><strong>${fmt.number(pending)}</strong></div></article>
     </section>
 
-    <div class="workday-layout">
-      <section class="card workday-launch-card">
-        <header class="card-head">
-          <div><h3>${active?"Actividad en curso":"¿Qué vas a hacer ahora?"}</h3><p>${active?"Finaliza o pausa la actividad actual para iniciar otra.":"Navega por categoría y subcategoría. Seleccionar no inicia el cronómetro."}</p></div>
-          <span class="workday-one-tap">Selección segura</span>
-        </header>
-        <div class="card-body">${catalogHtml(data.catalog||[],active)}</div>
-      </section>
+    <section class="card workday-launch-card">
+      <header class="card-head">
+        <div><h3>${active?"Selecciona tu próxima actividad":"¿Qué vas a hacer ahora?"}</h3><p>${active?"Puedes revisar el catálogo, pero no podrás iniciar otra hasta cerrar la actual.":"Solo seleccionarás opciones. El cronómetro inicia después de una confirmación explícita."}</p></div>
+        <span class="workday-safe-chip">Selección segura</span>
+      </header>
+      <div class="card-body">${catalogHtml(data.catalog||[],active)}</div>
+    </section>
 
-      <section class="card workforce-agenda-card workday-agenda-card">
-        <header class="card-head"><div><h3>Programado para ti</h3><p>Si tienes actividades planificadas, también puedes iniciarlas directamente.</p></div><span class="workforce-count">${(data.today||[]).length}</span></header>
-        <div class="card-body workforce-agenda-list">${agendaHtml(data)}</div>
-      </section>
-    </div>
+    ${scheduled.length?`<section class="card workforce-agenda-card workday-agenda-card">
+      <header class="card-head"><div><h3>Programado para ti</h3><p>Actividades planificadas para hoy. También requieren confirmación antes de iniciar.</p></div><span class="workforce-count">${scheduled.length}</span></header>
+      <div class="card-body workforce-agenda-list">${agendaHtml(data)}</div>
+    </section>`:`<section class="workday-no-schedule"><span>✓</span><div><strong>Sin actividades programadas para hoy</strong><small>Puedes trabajar normalmente desde el catálogo superior.</small></div></section>`}
 
     <section class="card workforce-history-card workday-history-card">
-      <header class="card-head"><div><h3>Hoy</h3><p>Historial automático de tiempo, foto final y revisiones.</p></div></header>
+      <header class="card-head"><div><h3>Actividad de hoy</h3><p>Tiempo real, semáforo, evidencia fotográfica y revisiones.</p></div></header>
       <div class="card-body">${historyHtml(data.history||[])}</div>
     </section>`;
 
@@ -223,38 +239,69 @@ function bindCatalogBrowser(content,data){
   const browser=content.querySelector("[data-work-catalog-browser]");
   if(!browser)return;
   const tree=catalogTaxonomy(data.catalog||[]);
-  const subPanel=browser.querySelector("[data-work-subcategory-panel]");
-  const activityPanel=browser.querySelector("[data-work-activity-panel]");
-  const subList=browser.querySelector("[data-work-subcategory-list]");
-  const activityList=browser.querySelector("[data-work-activity-list]");
+  const stage=browser.querySelector("[data-work-catalog-stage]");
   const selected=browser.querySelector("[data-work-selected]");
+  const breadcrumb=browser.querySelector("[data-work-catalog-breadcrumb]");
+  let currentCategory=null;
+  let currentSubcategory=null;
 
-  const clearAfterCategory=()=>{activityPanel.hidden=true;activityList.innerHTML="";selected.innerHTML="";browser.dataset.subcategory="";};
-  const clearSelection=()=>{selected.innerHTML="";browser.querySelectorAll("[data-work-activity-select]").forEach(x=>x.classList.remove("selected"));};
+  const setProgress=level=>{
+    browser.dataset.level=level;
+    const levels=["category","subcategory","activity"];
+    const index=levels.indexOf(level);
+    browser.querySelectorAll("[data-catalog-progress]").forEach(node=>{
+      const nodeIndex=levels.indexOf(node.dataset.catalogProgress);
+      node.classList.toggle("active",nodeIndex===index);
+      node.classList.toggle("done",nodeIndex<index);
+    });
+  };
+
+  const renderCategories=()=>{
+    currentCategory=null;
+    currentSubcategory=null;
+    stage.innerHTML=categoryStageHtml(tree,Boolean(data.active));
+    selected.innerHTML="";
+    breadcrumb.innerHTML=catalogBreadcrumbHtml();
+    setProgress("category");
+  };
+
+  const renderSubcategories=category=>{
+    currentCategory=category;
+    currentSubcategory=null;
+    stage.innerHTML=subcategoryStageHtml(category);
+    selected.innerHTML="";
+    breadcrumb.innerHTML=catalogBreadcrumbHtml({category});
+    setProgress("subcategory");
+  };
+
+  const renderActivities=(category,subcategory)=>{
+    currentCategory=category;
+    currentSubcategory=subcategory;
+    stage.innerHTML=activityStageHtml(category,subcategory);
+    selected.innerHTML="";
+    breadcrumb.innerHTML=catalogBreadcrumbHtml({category,subcategory});
+    setProgress("activity");
+  };
 
   browser.addEventListener("click",async event=>{
+    const back=event.target.closest("[data-work-level-back]");
+    if(back){
+      if(back.dataset.workLevelBack==="category")renderCategories();
+      else if(back.dataset.workLevelBack==="subcategory"&&currentCategory)renderSubcategories(currentCategory);
+      return;
+    }
+
     const categoryButton=event.target.closest("[data-work-category]");
     if(categoryButton){
       const category=tree.find(row=>row.key===categoryButton.dataset.workCategory);
-      if(!category)return;
-      browser.dataset.category=category.key;
-      browser.querySelectorAll("[data-work-category]").forEach(x=>x.classList.toggle("selected",x===categoryButton));
-      subList.innerHTML=subcategoryHtml(category);
-      subPanel.hidden=false;
-      clearAfterCategory();
+      if(category)renderSubcategories(category);
       return;
     }
 
     const subButton=event.target.closest("[data-work-subcategory]");
-    if(subButton){
-      const category=tree.find(row=>row.key===browser.dataset.category);
-      const subcategory=category?.subcategories.find(row=>row.label===subButton.dataset.workSubcategory);
-      if(!subcategory)return;
-      browser.dataset.subcategory=subcategory.label;
-      subList.querySelectorAll("[data-work-subcategory]").forEach(x=>x.classList.toggle("selected",x===subButton));
-      activityList.innerHTML=activityListHtml(subcategory);
-      activityPanel.hidden=false;
-      clearSelection();
+    if(subButton&&currentCategory){
+      const subcategory=currentCategory.subcategories.find(row=>row.label===subButton.dataset.workSubcategory);
+      if(subcategory)renderActivities(currentCategory,subcategory);
       return;
     }
 
@@ -262,13 +309,15 @@ function bindCatalogBrowser(content,data){
     if(activityButton){
       const item=(data.catalog||[]).find(row=>row.id===activityButton.dataset.workActivitySelect);
       if(!item)return;
-      activityList.querySelectorAll("[data-work-activity-select]").forEach(x=>x.classList.toggle("selected",x===activityButton));
+      stage.querySelectorAll("[data-work-activity-select]").forEach(node=>node.classList.toggle("selected",node===activityButton));
       selected.innerHTML=selectedActivityHtml(item);
+      requestAnimationFrame(()=>selected.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"nearest"}));
       return;
     }
 
     if(event.target.closest("[data-work-selection-cancel]")){
-      clearSelection();
+      selected.innerHTML="";
+      stage.querySelectorAll("[data-work-activity-select]").forEach(node=>node.classList.remove("selected"));
       return;
     }
 
@@ -277,7 +326,7 @@ function bindCatalogBrowser(content,data){
       confirmButton.disabled=true;
       try{
         await api.workStart(confirmButton.dataset.workStartConfirmed,null,{});
-        toast("Actividad iniciada.");
+        toast("Actividad iniciada. El cronómetro ya está registrando tu tiempo.");
         await rerenderWorkforceContent(content);
       }catch(error){
         toast(error.message,"error",7000);
