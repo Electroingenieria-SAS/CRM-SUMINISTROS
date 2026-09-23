@@ -258,8 +258,9 @@ function validateErpSession_(accessToken) {
 }
 
 function validateWorkEvidencePreview_(request, session) {
+  const evidenceId = String(request.evidenceId || '').trim();
   const fileId = String(request.driveFileId || '').trim();
-  if (!fileId) {
+  if (!evidenceId || !fileId) {
     throw new Error('No se recibió la evidencia que se desea visualizar.');
   }
 
@@ -270,7 +271,7 @@ function validateWorkEvidencePreview_(request, session) {
   const response = UrlFetchApp.fetch(url, {
     method: 'post',
     contentType: 'application/json',
-    payload: JSON.stringify({p_drive_file_id: fileId}),
+    payload: JSON.stringify({p_evidence_id: evidenceId, p_drive_file_id: fileId}),
     muteHttpExceptions: true,
     headers: {
       apikey: SETTINGS.SUPABASE_PUBLISHABLE_KEY,
