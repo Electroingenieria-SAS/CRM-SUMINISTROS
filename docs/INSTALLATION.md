@@ -1,87 +1,107 @@
-# Instalación en un repositorio nuevo
+# Instalación, recuperación y nuevos entornos
 
-La aplicación es estática y no requiere instalar Node.js en el computador de trabajo. Node solo se utiliza opcionalmente en GitHub Actions para las pruebas Playwright.
+CRM Suministros es una SPA estática en Vercel y utiliza Supabase como backend. Este documento reemplaza las instrucciones históricas que remitían a `sql/00_INSTALL_ALL.sql` y a un workflow `pages.yml` que ya no forman parte del runtime canónico.
 
-## 1. Crear una copia de seguridad
+## Antes de crear un entorno
 
-Antes de instalar, exporte una copia de seguridad del proyecto Supabase actual. El instalador crea el esquema independiente `erp_supply`; no importa pedidos antiguos ni modifica el runtime anterior.
+Lea primero:
 
-## 2. Instalar la base en Supabase
+- `docs/DISASTER_RECOVERY.md`;
+- `supabase/production-migration-ledger.json`;
+- `docs/DEPLOYMENT_VERCEL_SUPABASE.md`;
+- `docs/SECURITY.md`.
 
-1. Abra **Supabase → SQL Editor → New query**.
-2. Copie y ejecute completo `sql/00_INSTALL_ALL.sql`.
-3. Confirme que la ejecución termine sin errores.
-4. Ejecute `sql/99_POST_INSTALL_CHECK.sql`.
-5. Confirme que `j.perez@ei.com.co` existe en **Authentication → Users**.
+No ejecute SQL histórico indiscriminadamente sobre un proyecto vacío o productivo.
 
-La migración vincula ese correo como `super_admin` cuando la cuenta Auth existe. Si la cuenta fue creada después, inicie sesión con otro Super Admin o vuelva a ejecutar la sección de sincronización desde Administración.
+## Base de datos
 
-## 3. Crear el repositorio nuevo
+La base productiva contiene una deuda histórica congelada de migraciones aplicadas fuera del árbol actual. Por esa razón, V11.32.0 **todavía no certifica un rebuild source-only desde PostgreSQL vacío**.
 
-1. Cree un repositorio vacío, por ejemplo `erp-supply-enterprise`.
-2. Descomprima el ZIP.
-3. Suba el contenido interno a la raíz del repositorio; `index.html` debe quedar en la raíz.
-4. No mezcle estos archivos con V8 o V9.
+Para un entorno que deba representar fielmente producción, utilice un snapshot/branch/restauración aprobada del esquema vigente y luego aplique únicamente las migraciones versionadas pendientes de `supabase/migrations/`.
 
-## 4. Activar GitHub Pages
+Toda migración nueva debe existir en Git antes de aplicarse.
 
-En GitHub:
+El control local es:
 
-```text
-Settings → Pages → Source: GitHub Actions
+```bash
+npm run db:ledger
 ```
 
-El workflow `.github/workflows/pages.yml` despliega el sitio al hacer `push` a `main`.
+## Frontend
 
-## 5. Configurar Google Drive
+Requisitos de desarrollo/CI: Node.js 24 o posterior compatible.
 
-En Google Cloud Console, abra el cliente OAuth indicado en `assets/js/config.js` y agregue la URL definitiva de GitHub Pages en **Authorized JavaScript origins**.
-
-La aplicación solicita el alcance `drive.file`; crea y administra únicamente archivos creados o seleccionados mediante el ERP.
-
-## 6. Vincular usuarios y roles
-
-1. Cree las cuentas en **Supabase Authentication**.
-2. Inicie sesión como Super Admin.
-3. Abra **Administración**.
-4. Ejecute **Sincronizar Auth**.
-5. Active cada perfil y asigne uno o varios roles.
-6. Confirme responsables de rutas:
-   - Local: Duvan Díaz.
-   - Nacional: Javier Laverde.
-
-## 7. Ejecutar la validación integral
-
-Abra **Bot QA E2E** y pulse **Ejecutar validación integral**.
-
-Resultado exigido:
-
-```text
-Matriz comercial: 192/192 aprobados
-Controles empresariales: 10/10 aprobados
-Resultado integral: 202 verificaciones sin fallos
+```bash
+npm install
+npm run validate
+npm run serve
 ```
 
-Después ejecute:
+La aplicación se sirve desde la raíz y `index.html` es el único documento de entrada. No cree entrypoints paralelos.
 
-```sql
-select *
-from public.erp_x_health_check()
-where not ok
-order by section, check_name;
+## GitHub Actions
+
+El único workflow canónico es:
+
+`.github/workflows/validate-crm.yml`
+
+En Pull Request ejecuta validación estática, seguridad, secret scanning, análisis de dependencias, CodeQL y E2E público/autenticado. En `main` además produce el artefacto desplegable y el preview de GitHub Pages.
+
+Los Repository Secrets requeridos para el gate autenticado son:
+
+- `ERP_QA_EMAIL`;
+- `ERP_QA_PASSWORD`.
+
+La cuenta QA debe tener acceso a los módulos críticos cubiertos por Playwright y no debe utilizarse para trabajo cotidiano.
+
+## Supabase Auth
+
+Después de crear/restaurar un entorno:
+
+1. configure los proveedores de autenticación requeridos;
+2. habilite Leaked Password Protection;
+3. revise límites de Auth y anti-bot conforme a la política institucional;
+4. confirme que perfiles y `auth.users` estén correctamente vinculados;
+5. no almacene contraseñas ni service role en Git.
+
+## Edge Functions
+
+Despliegue las funciones desde `supabase/functions/` respetando `supabase/config.toml`.
+
+V11.32.0 exige:
+
+- `erp-admin-users`: JWT;
+- `erp-admin-impersonate`: JWT;
+- `erp-auditoria-metrics`: JWT;
+- `erp-auditoria-bridge`: autenticación propia porque también recibe el dispatcher server-to-server de PostgreSQL.
+
+## Google Drive
+
+Configure los orígenes OAuth/Apps Script para el dominio real del entorno. El cliente utiliza alcance `drive.file`; los secretos del bridge pertenecen al servidor, no a `assets/js/config.js`.
+
+## Validación antes de usar datos reales
+
+El entorno debe aprobar:
+
+```bash
+npm run validate
 ```
 
-Debe devolver cero filas.
+y la CI completa del Pull Request.
 
-## 8. Importar historial
+Además, en backend deben revisarse los health checks e invariantes descritos en `docs/QA_RELEASE_CHECKLIST.md`. Un entorno no se considera equivalente únicamente porque abra el login.
 
-Use la plantilla `templates/historical_orders.csv`. La importación histórica:
+## Importación histórica
 
-- No crea tareas.
-- No aparece en colas activas.
-- Conserva fecha de creación y cierre.
-- Puede ejecutarse por lotes reanudables.
+La plantilla vigente es `templates/historical_orders.csv`. La importación debe realizarse mediante los contratos RPC del sistema y nunca mediante inserts manuales a tablas operativas.
 
-## 9. Pruebas finales por rol
+## Prohibiciones
 
-Siga `docs/ACCEPTANCE.md` y `docs/RELEASE_GATE.md`. No use datos reales de producción hasta aprobar la puerta de liberación.
+No:
+
+- ejecutar un instalador histórico como si fuera baseline actual;
+- modificar tablas productivas para corregir incidencias que tienen RPC;
+- aplicar DDL sin migración versionada;
+- reutilizar secretos de producción en repositorios o logs;
+- desactivar RLS para facilitar una instalación;
+- omitir la CI autenticada antes de promover cambios.
