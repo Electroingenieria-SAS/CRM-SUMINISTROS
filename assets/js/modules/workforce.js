@@ -883,7 +883,7 @@ async function renderAnalytics(root,content){
             <div><strong>${fmt.number(utilization,1)}%</strong><span>jornada<br>clasificada</span></div>
           </div>
           <details class="work-indicator-filter-v11363">
-            <summary>${icon("filter")}<span><strong>Ajustar análisis</strong><small>Periodo y persona</small></span><b>⌄</b></summary>
+            <summary>${icon("search")}<span><strong>Ajustar análisis</strong><small>Periodo y persona</small></span><b>⌄</b></summary>
             <div class="work-indicator-filter-panel-v11363">
               <label><span>Desde</span><input class="control" type="date" data-analytics-from value="${analyticsRange.from}"></label>
               <label><span>Hasta</span><input class="control" type="date" data-analytics-to value="${analyticsRange.to}"></label>
@@ -926,7 +926,7 @@ async function renderAnalytics(root,content){
       ${data.pendingReviews?.length?`<section class="work-indicator-panel-v11363 work-review-card-v11363"><header><div><span>REVISIÓN</span><h3>Entregables pendientes</h3><p>Aceptar confirma el resultado; devolver exige una nota para corrección.</p></div><b>${fmt.number(data.pendingReviews.length)}</b></header><div class="work-indicator-panel-body-v11363">${pendingReviewsHtml(data.pendingReviews)}</div></section>`:""}
 
       <details class="work-indicator-method-v11363">
-        <summary>${icon("info")}<div><strong>Cómo leer estos indicadores</strong><small>Metodología y límites de interpretación</small></div><b>⌄</b></summary>
+        <summary>${icon("audit")}<div><strong>Cómo leer estos indicadores</strong><small>Metodología y límites de interpretación</small></div><b>⌄</b></summary>
         <div><p><strong>Utilización, puntualidad y duración describen procesos y capacidad.</strong> No constituyen por sí solos una calificación de desempeño.</p><p>El CRM conserva tiempo no clasificado como <b>“sin categoría”</b>; no lo interpreta automáticamente como improductividad. Las referencias de tiempo se construyen con ejecuciones históricas.</p></div>
       </details>
     </section>`;
