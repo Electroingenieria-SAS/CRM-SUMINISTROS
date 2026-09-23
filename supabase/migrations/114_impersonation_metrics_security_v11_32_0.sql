@@ -278,4 +278,89 @@ $function$;
 revoke all on function public.erp_x_auditoria_erp_metrics_authorize() from public,anon;
 grant execute on function public.erp_x_auditoria_erp_metrics_authorize() to authenticated,service_role;
 
+create or replace function public.erp_x_auditoria_erp_metrics_user(
+  p_from date default null,
+  p_to date default null
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = 'erp_supply','public','auth','pg_catalog'
+as $function$
+declare
+  v_org uuid:=erp_supply.current_org_id();
+  v_result jsonb;
+begin
+  perform erp_supply.require_profile();
+  if not (
+    erp_supply.has_role('super_admin')
+    or erp_supply.can_access_module('reports','read')
+    or erp_supply.can_access_module('audit','read')
+  ) then
+    raise exception 'No autorizado para consultar métricas de integración' using errcode='42501';
+  end if;
+  if p_from is not null and p_to is not null and (p_to<p_from or (p_to-p_from)>366) then
+    raise exception 'Rango de fechas inválido';
+  end if;
+
+  with bounds as (
+    select coalesce(p_from,current_date-29) as date_from,
+           coalesce(p_to,current_date) as date_to
+  ), receipts_scope as (
+    select wr.*
+    from erp_supply.warehouse_receipts wr,bounds b
+    where wr.organization_id=v_org
+      and wr.received_at >= b.date_from::timestamptz
+      and wr.received_at < (b.date_to+1)::timestamptz
+  ), line_totals as (
+    select l.receipt_id,
+           coalesce(sum(l.received_quantity),0) total_received,
+           coalesce(sum(l.accepted_quantity),0) total_accepted,
+           coalesce(sum(l.rejected_quantity),0) total_rejected
+    from erp_supply.warehouse_receipt_lines l
+    join receipts_scope r on r.id=l.receipt_id
+    group by l.receipt_id
+  ), by_type as (
+    select coalesce(novelty_type,'SIN_NOVEDAD') label,count(*)::integer value
+    from receipts_scope group by 1 order by 2 desc
+  ), by_severity as (
+    select coalesce(novelty_severity,'SIN_NOVEDAD') label,count(*)::integer value
+    from receipts_scope group by 1 order by 2 desc
+  ), daily as (
+    select received_at::date as metric_date,
+           count(*)::integer as receipts,
+           count(*) filter(where novelty_type is not null or novelty_note is not null or status in('PARTIAL','NONCONFORMING'))::integer as novelties,
+           coalesce(sum(lt.total_rejected),0) as rejected
+    from receipts_scope r
+    left join line_totals lt on lt.receipt_id=r.id
+    group by received_at::date order by received_at::date
+  )
+  select jsonb_build_object(
+    'range',jsonb_build_object('from',b.date_from,'to',b.date_to),
+    'kpis',jsonb_build_object(
+      'receipts',count(r.id),
+      'novelties',count(r.id) filter(where r.novelty_type is not null or r.novelty_note is not null or r.status in('PARTIAL','NONCONFORMING')),
+      'noveltyRate',case when count(r.id)=0 then 0 else round((100.0*count(r.id) filter(where r.novelty_type is not null or r.novelty_note is not null or r.status in('PARTIAL','NONCONFORMING'))/count(r.id))::numeric,2) end,
+      'acceptedQuantity',coalesce(sum(lt.total_accepted),0),
+      'rejectedQuantity',coalesce(sum(lt.total_rejected),0)
+    ),
+    'noveltyTypes',(select coalesce(jsonb_agg(jsonb_build_object('label',label,'value',value)),'[]'::jsonb) from by_type),
+    'severities',(select coalesce(jsonb_agg(jsonb_build_object('label',label,'value',value)),'[]'::jsonb) from by_severity),
+    'trend',(select coalesce(jsonb_agg(jsonb_build_object('date',metric_date,'receipts',receipts,'novelties',novelties,'rejected',rejected) order by metric_date),'[]'::jsonb) from daily),
+    'generatedAt',now()
+  )
+  into v_result
+  from bounds b
+  left join receipts_scope r on true
+  left join line_totals lt on lt.receipt_id=r.id
+  group by b.date_from,b.date_to;
+
+  return v_result;
+end;
+$function$;
+
+revoke all on function public.erp_x_auditoria_erp_metrics_user(date,date) from public,anon;
+grant execute on function public.erp_x_auditoria_erp_metrics_user(date,date) to authenticated,service_role;
+
 notify pgrst, 'reload schema';
