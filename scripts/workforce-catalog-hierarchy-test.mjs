@@ -1,6 +1,13 @@
 import fs from "node:fs";
 import assert from "node:assert/strict";
-import {catalogTaxonomy,catalogBrowserHtml,subcategoryHtml,activityListHtml,selectedActivityHtml} from "../assets/js/modules/workforce-catalog-v11343.js";
+import {
+  catalogTaxonomy,
+  catalogBrowserHtml,
+  categoryStageHtml,
+  subcategoryStageHtml,
+  activityStageHtml,
+  selectedActivityHtml
+} from "../assets/js/modules/workforce-catalog-v11343.js";
 
 const catalog=[
   {id:"1",name:"Organización de mercancía",activityKind:"ACTIVITY",uiCategory:"ALISTAMIENTO",uiCategoryLabel:"Alistamiento",uiSubcategory:"Organización de zona de trabajo"},
@@ -15,26 +22,30 @@ assert.equal(tree[0].label,"Alistamiento");
 assert.equal(tree[0].subcategories.length,2);
 assert.equal(tree[0].subcategories[0].activities.length,2);
 
-const html=catalogBrowserHtml(catalog,false);
-for(const token of ["Categorías","Subcategorías","Actividad específica","data-work-category","data-work-subcategory-panel","data-work-activity-panel"]){
-  assert.equal(html.includes(token),true,`El navegador debe contener: ${token}`);
+const initial=catalogBrowserHtml(catalog,false);
+for(const token of ["data-work-catalog-browser","data-work-catalog-stage","data-catalog-progress","Categoría","Solo estás navegando"]){
+  assert.equal(initial.includes(token),true,`El navegador inicial debe contener: ${token}`);
 }
-assert.equal(html.includes("data-start-catalog"),false,"Seleccionar catálogo no debe iniciar el cronómetro directamente");
+assert.equal(initial.includes("data-work-subcategory="),false,"La pantalla inicial no debe precargar subcategorías");
+assert.equal(initial.includes("data-work-activity-select"),false,"La pantalla inicial no debe precargar actividades");
+assert.equal(initial.includes("data-start-catalog"),false,"Seleccionar catálogo no debe iniciar el cronómetro directamente");
 
-const subHtml=subcategoryHtml(tree[0]);
-assert.equal(subHtml.includes("data-work-subcategory"),true,"Las subcategorías deben renderizarse dinámicamente");
-const activityHtml=activityListHtml(tree[0].subcategories[0]);
-assert.equal(activityHtml.includes("data-work-activity-select"),true,"Las actividades deben renderizarse después de elegir subcategoría");
+const categoryStage=categoryStageHtml(tree,false);
+assert.equal(categoryStage.includes("data-work-category"),true,"Categorías deben ser el primer nivel visible");
+const subStage=subcategoryStageHtml(tree[0]);
+assert.equal(subStage.includes("data-work-subcategory"),true,"Subcategorías deben aparecer solo después de elegir categoría");
+const activityStage=activityStageHtml(tree[0],tree[0].subcategories[0]);
+assert.equal(activityStage.includes("data-work-activity-select"),true,"Actividades deben aparecer solo después de elegir subcategoría");
 
 const selected=selectedActivityHtml(catalog[0]);
-for(const token of ["Organización de mercancía","Alistamiento","Organización de zona de trabajo","Iniciar actividad","data-work-start-confirmed"]){
+for(const token of ["Organización de mercancía","Alistamiento","Organización de zona de trabajo","Iniciar actividad","data-work-start-confirmed","Cambiar actividad"]){
   assert.equal(selected.includes(token),true,`La confirmación debe contener: ${token}`);
 }
 
 const workforce=fs.readFileSync(new URL("../assets/js/modules/workforce.js",import.meta.url),"utf8");
 assert.equal(workforce.includes("data-work-start-confirmed"),true,"workforce debe iniciar solo desde confirmación explícita");
 assert.equal(workforce.includes("data-start-catalog"),false,"workforce no debe conservar inicio directo por click/touch");
-for(const token of ["work-active-console","work-timer-face","work-timer-traffic","Confirmar inicio"]){
+for(const token of ["work-active-console","work-timer-face","work-timer-traffic","workday-traffic-legend","renderSubcategories","renderActivities"]){
   assert.equal(workforce.includes(token),true,`Cronómetro/flujo debe contener: ${token}`);
 }
 
