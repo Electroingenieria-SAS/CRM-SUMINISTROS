@@ -107,136 +107,158 @@
 
 .work-planner-mode button.active::before{opacity:1}
 
-/* Filtros */
-.work-calendar-filterbar-v11361{
-  margin:10px 0 12px;
-  padding:11px 12px;
-  display:grid;
-  gap:10px;
-  border:1px solid #dbe7ef;
-  border-radius:16px;
-  background:linear-gradient(180deg,#fbfdff,#f6fafc);
+/* Filtros compactos */
+.work-calendar-filterbox-v11362{
+  margin:9px 0 11px;
+  width:min(460px,100%);
+  position:relative;
+  border:0;
+  background:transparent;
 }
 
-.work-calendar-filter-top-v11361{
+.work-calendar-filterbox-v11362>summary{list-style:none}
+.work-calendar-filterbox-v11362>summary::-webkit-details-marker{display:none}
+
+.work-calendar-filter-trigger-v11362{
+  min-height:42px;
   display:flex;
   align-items:center;
-  gap:8px;
-  flex-wrap:wrap;
-}
-
-.work-calendar-filter-label-v11361{
-  color:#4e6d83;
-  font-size:10.5px;
-  font-weight:950;
-  letter-spacing:.07em;
-  text-transform:uppercase;
-}
-
-.work-calendar-worker-chips-v11361{
-  display:flex;
-  align-items:center;
-  gap:7px;
-  flex-wrap:wrap;
-}
-
-.work-calendar-worker-chip-v11361{
-  appearance:none;
-  min-height:36px;
-  display:inline-flex;
-  align-items:center;
-  gap:7px;
-  padding:5px 10px 5px 6px;
-  border:1px solid #cfe0ea;
-  border-radius:12px;
+  gap:9px;
+  padding:7px 10px;
+  border:1px solid #d3e1ea;
+  border-radius:13px;
   background:#fff;
-  color:#315d79;
-  font:inherit;
-  font-size:11.5px;
-  font-weight:850;
+  color:#365f7b;
   cursor:pointer;
-  box-shadow:0 3px 9px rgba(31,82,116,.05);
-  transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease,background .14s ease;
+  box-shadow:0 4px 12px rgba(30,78,110,.06);
+  user-select:none;
 }
 
-.work-calendar-worker-chip-v11361 i{
-  width:26px;
-  height:26px;
+.work-calendar-filter-trigger-v11362:hover{
+  border-color:#9fc1d5;
+  box-shadow:0 6px 16px rgba(30,78,110,.09);
+}
+
+.work-calendar-filter-trigger-icon-v11362{
+  width:30px;
+  height:30px;
   display:grid;
   place-items:center;
-  flex:0 0 26px;
+  flex:0 0 30px;
   border-radius:9px;
-  background:linear-gradient(145deg,#e2f1f9,#d3e8f4);
-  color:#23678f;
-  font-style:normal;
+  background:#edf6fb;
+  color:#26749f;
+  font-size:17px;
+  font-weight:950;
+}
+
+.work-calendar-filter-trigger-v11362>span:nth-child(2){
+  min-width:0;
+  display:grid;
+  gap:1px;
+  flex:1;
+}
+
+.work-calendar-filter-trigger-v11362 strong{
+  font-size:11.5px;
+  font-weight:950;
+  color:#244f6d;
+}
+
+.work-calendar-filter-trigger-v11362 small{
+  font-size:9.5px;
+  font-weight:750;
+  color:#8093a1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.work-calendar-filter-trigger-v11362>b{
+  min-width:24px;
+  height:24px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:#246f9a;
+  color:#fff;
   font-size:9.5px;
   font-weight:950;
 }
 
-.work-calendar-worker-chip-v11361:hover{
-  transform:translateY(-1px);
-  border-color:#8dbad4;
-  box-shadow:0 6px 14px rgba(31,82,116,.09);
-}
-
-.work-calendar-worker-chip-v11361.active{
-  border-color:#4e9dcc;
-  background:linear-gradient(180deg,#f3fbff,#e8f6fc);
-  color:#165f89;
-  box-shadow:0 0 0 2px rgba(63,151,201,.10),0 5px 13px rgba(31,82,116,.08);
-}
-
-.work-calendar-filter-fields-v11361{
-  display:flex;
-  align-items:flex-end;
-  gap:8px;
-  flex-wrap:wrap;
-}
-
-.work-calendar-filter-field-v11361{
+.work-calendar-filter-panel-v11362{
+  margin-top:7px;
+  padding:11px;
   display:grid;
-  gap:4px;
+  grid-template-columns:minmax(180px,1.35fr) repeat(2,minmax(105px,.65fr)) minmax(130px,.8fr);
+  gap:9px;
+  border:1px solid #d6e4ec;
+  border-radius:14px;
+  background:linear-gradient(180deg,#fff,#f7fafc);
+  box-shadow:0 14px 30px rgba(29,73,103,.12);
+  animation:workFilterDrop .16s ease both;
 }
 
+.work-calendar-filter-field-v11361{display:grid;gap:4px;min-width:0}
 .work-calendar-filter-field-v11361 label{
-  color:#6c8395;
-  font-size:10.5px;
-  font-weight:850;
+  color:#6b8191;
+  font-size:9.5px;
+  font-weight:900;
 }
 
 .work-calendar-filter-field-v11361 input,
 .work-calendar-filter-field-v11361 select{
-  min-height:36px;
+  width:100%;
+  min-height:35px;
   padding:7px 9px;
-  border:1px solid #cfdee8;
-  border-radius:10px;
+  border:1px solid #ccdce6;
+  border-radius:9px;
   background:#fff;
-  color:#244d69;
+  color:#244e6a;
   font:inherit;
-  font-size:11.5px;
+  font-size:10.5px;
   font-weight:800;
   outline:none;
 }
 
 .work-calendar-filter-field-v11361 input:focus,
 .work-calendar-filter-field-v11361 select:focus{
-  border-color:#6ba9cf;
-  box-shadow:0 0 0 3px rgba(62,143,194,.12);
+  border-color:#6ca8ca;
+  box-shadow:0 0 0 3px rgba(71,148,192,.11);
 }
 
-.work-calendar-filter-reset-v11361{
-  min-height:36px;
-  padding:7px 11px;
-  border:1px solid #d4e1e9;
-  border-radius:10px;
+.work-calendar-filter-actions-v11362{
+  grid-column:1/-1;
+  display:flex;
+  justify-content:flex-end;
+  gap:7px;
+  padding-top:2px;
+}
+
+.work-calendar-filter-reset-v11361,
+.work-calendar-filter-close-v11362{
+  min-height:33px;
+  padding:6px 10px;
+  border:1px solid #d1dee7;
+  border-radius:9px;
   background:#fff;
-  color:#517087;
+  color:#557287;
   font:inherit;
-  font-size:11px;
-  font-weight:850;
+  font-size:10px;
+  font-weight:900;
   cursor:pointer;
 }
 
+.work-calendar-filter-close-v11362{
+  border-color:#9fc4d9;
+  background:#eef8fd;
+  color:#21678f;
+}
+
+@keyframes workFilterDrop{
+  from{opacity:0;transform:translateY(-4px)}
+  to{opacity:1;transform:translateY(0)}
+}
 /* Día */
 .work-calendar-day-head-v11360{
   display:grid;
@@ -258,11 +280,12 @@
   flex-direction:column;
   justify-content:center;
   gap:2px;
-  border-right:1px solid var(--wc-line);
+  border-right:1px solid #d8d0f1;
+  background:linear-gradient(145deg,#f6f2ff,#eee8fb);
 }
 
 .work-calendar-team-head-v11360 span{
-  color:#2d78a4;
+  color:#7657a8;
   font-size:9.5px;
   font-weight:950;
   letter-spacing:.07em;
@@ -270,7 +293,7 @@
 }
 
 .work-calendar-team-head-v11360 strong{
-  color:var(--wc-ink);
+  color:#4d3a6d;
   font-size:12.5px;
   font-weight:900;
 }
@@ -343,8 +366,9 @@
   align-items:center;
   gap:9px;
   padding:9px 10px;
-  border-right:1px solid var(--wc-line);
-  background:#fbfdfe;
+  border-right:1px solid #d8d0f1;
+  background:linear-gradient(145deg,#f8f5ff,#f0ebfb);
+  box-shadow:inset -4px 0 0 rgba(117,86,168,.05);
 }
 
 .work-calendar-avatar-v11360{
@@ -354,8 +378,9 @@
   place-items:center;
   flex:0 0 34px;
   border-radius:11px;
-  background:linear-gradient(145deg,#dff0f8,#d2e7f2);
-  color:#24678f;
+  background:linear-gradient(145deg,#7a62ae,#5f478f);
+  color:#fff;
+  box-shadow:0 5px 11px rgba(92,68,138,.18);
   font-size:10px;
   font-weight:950;
 }
@@ -367,7 +392,7 @@
 }
 
 .work-calendar-person-copy-v11360>strong{
-  color:var(--wc-ink);
+  color:#4a3968;
   font-size:11.5px;
   font-weight:900;
   white-space:nowrap;
@@ -380,7 +405,7 @@
   align-items:center;
   gap:5px;
   min-width:0;
-  color:#6c8496;
+  color:#7a6f8e;
   font-size:9.5px;
   font-weight:800;
 }
@@ -437,48 +462,57 @@
   position:absolute;
   left:var(--event-left);
   width:var(--event-width);
-  min-width:72px;
+  min-width:118px;
   top:calc(8px + var(--event-lane)*37px);
-  height:32px;
-  padding:4px 7px 4px 10px;
-  display:flex;
+  height:33px;
+  padding:4px 7px 4px 9px;
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
   align-items:center;
   gap:5px;
   overflow:hidden;
-  border:1px solid #9fcdb9;
+  border:1px solid #91bdd5;
   border-radius:9px;
-  background:linear-gradient(180deg,#f4fcf8,#eaf8f1);
-  color:#245c48;
-  box-shadow:0 3px 8px rgba(31,96,72,.08);
+  background:linear-gradient(180deg,#f5fbff,#e9f5fb);
+  color:#225c7d;
+  box-shadow:0 3px 8px rgba(36,101,140,.09);
   transition:transform .13s ease,box-shadow .13s ease,border-color .13s ease;
   z-index:2;
 }
 
-.work-calendar-event-day-v11360::before{
-  content:"";
-  width:4px;
-  height:18px;
-  flex:0 0 4px;
-  border-radius:99px;
-  background:#2d9b72;
-}
+.work-calendar-event-day-v11360::before{display:none}
 
 .work-calendar-event-day-v11360 .work-calendar-event-time-v11360{
   display:flex;
   align-items:center;
   gap:3px;
   min-width:0;
-  color:#245f49;
-  font-size:10.5px;
+  color:inherit;
+  font-size:10px;
   font-weight:950;
   font-variant-numeric:tabular-nums;
   white-space:nowrap;
 }
+.work-calendar-event-day-v11360 .work-calendar-event-time-v11360 svg{display:none}
 
-.work-calendar-event-day-v11360 .work-calendar-event-title-v11360,
-.work-calendar-event-day-v11360 .work-calendar-event-footer-v11360{
-  display:none!important;
+.work-calendar-event-day-v11360 .work-calendar-event-title-v11360{
+  display:block!important;
+  min-width:0;
+  color:inherit;
+  font-size:10px;
+  line-height:1.05;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
+.work-calendar-event-day-v11360 .work-calendar-event-footer-v11360{
+  display:flex!important;
+  min-width:0;
+}
+.work-calendar-event-day-v11360 .work-calendar-status-v11360{display:none!important}
+.work-calendar-event-day-v11360 .work-calendar-photo-badge-v11360 span{display:none}
+.work-calendar-event-day-v11360 .work-calendar-photo-badge-v11360{font-size:0}
 
 .work-calendar-event-day-v11360.has-photo{
   border-color:#87c5a9;
@@ -489,6 +523,17 @@
   box-shadow:0 0 0 3px rgba(47,137,191,.18);
 }
 
+
+/* Paleta de actividades por estado */
+.work-calendar-event-day-v11360.tone-planned,.work-calendar-event-week-v11360.tone-planned,.work-calendar-month-event-v11360.tone-planned{background:linear-gradient(180deg,#f4f9ff,#e7f2fb);border-color:#92bad4;color:#245e83}
+.work-calendar-event-day-v11360.tone-ready,.work-calendar-event-week-v11360.tone-ready,.work-calendar-month-event-v11360.tone-ready{background:linear-gradient(180deg,#effcff,#ddf5f9);border-color:#75c6d0;color:#236d77}
+.work-calendar-event-day-v11360.tone-running,.work-calendar-event-week-v11360.tone-running,.work-calendar-month-event-v11360.tone-running{background:linear-gradient(180deg,#edf7ff,#dceefe);border-color:#5da3d2;color:#155f91}
+.work-calendar-event-day-v11360.tone-completed,.work-calendar-event-week-v11360.tone-completed,.work-calendar-month-event-v11360.tone-completed{background:linear-gradient(180deg,#f1fbf6,#ddf4e8);border-color:#72c49f;color:#246e52}
+.work-calendar-event-day-v11360.tone-paused,.work-calendar-event-week-v11360.tone-paused,.work-calendar-month-event-v11360.tone-paused{background:linear-gradient(180deg,#fff9ea,#fff0c8);border-color:#e0b85e;color:#8d641e}
+.work-calendar-event-day-v11360.tone-evidence,.work-calendar-event-week-v11360.tone-evidence,.work-calendar-month-event-v11360.tone-evidence{background:linear-gradient(180deg,#fff6ec,#ffe7c9);border-color:#e8aa5a;color:#915719}
+.work-calendar-event-day-v11360.tone-review,.work-calendar-event-week-v11360.tone-review,.work-calendar-month-event-v11360.tone-review{background:linear-gradient(180deg,#f7f2ff,#eadffc);border-color:#b49bd9;color:#65458f}
+.work-calendar-event-day-v11360.tone-returned,.work-calendar-event-week-v11360.tone-returned,.work-calendar-month-event-v11360.tone-returned{background:linear-gradient(180deg,#fff2f3,#fde0e3);border-color:#d98d94;color:#934f56}
+.work-calendar-event-day-v11360.tone-cancelled,.work-calendar-event-week-v11360.tone-cancelled,.work-calendar-month-event-v11360.tone-cancelled{background:linear-gradient(180deg,#f5f6f7,#e9ecef);border-color:#b8c0c7;color:#66737d;opacity:.78}
 @media(hover:hover) and (pointer:fine){
   .work-calendar-event-day-v11360:hover{
     transform:translateY(-1px);
@@ -535,13 +580,13 @@
   position:sticky;
   left:0;
   z-index:4;
-  border-right:1px solid var(--wc-line);
-  border-bottom:1px solid var(--wc-line);
-  background:#fbfdfe;
+  border-right:1px solid #d8d0f1;
+  border-bottom:1px solid #d8d0f1;
+  background:linear-gradient(145deg,#f6f2ff,#eee8fb);
 }
 
 .work-calendar-week-corner-v11360 span{
-  color:#2f78a2;
+  color:#7657a8;
   font-size:9px;
   font-weight:950;
   text-transform:uppercase;
@@ -549,7 +594,7 @@
 }
 
 .work-calendar-week-corner-v11360 strong{
-  color:var(--wc-ink);
+  color:#4d3a6d;
   font-size:11.5px;
 }
 
@@ -600,9 +645,9 @@
   position:sticky;
   left:0;
   z-index:3;
-  border-right:1px solid var(--wc-line);
-  border-bottom:1px solid #e5edf2;
-  background:#fbfdfe;
+  border-right:1px solid #d8d0f1;
+  border-bottom:1px solid #ded6f2;
+  background:linear-gradient(145deg,#f8f5ff,#f0ebfb);
 }
 
 .work-calendar-week-cell-v11360{
@@ -1045,6 +1090,56 @@
   font-size:13px;
 }
 
+/* Capacidad por trabajador */
+.work-team-capacity-v11362{
+  margin-top:12px;
+  overflow:hidden;
+  border:1px solid #d8d0f0;
+  border-radius:17px;
+  background:linear-gradient(145deg,#fbf9ff,#f4f0fc);
+  box-shadow:0 8px 20px rgba(82,61,126,.07);
+}
+.work-team-capacity-v11362>summary{list-style:none}
+.work-team-capacity-v11362>summary::-webkit-details-marker{display:none}
+.work-team-capacity-summary-v11362{
+  min-height:58px;
+  padding:10px 13px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  cursor:pointer;
+}
+.work-team-capacity-icon-v11362{
+  width:34px;height:34px;display:grid;place-items:center;flex:0 0 34px;
+  border-radius:11px;background:#6c55a0;color:#fff;font-size:18px;
+  box-shadow:0 6px 13px rgba(91,68,137,.18);
+}
+.work-team-capacity-summary-v11362>div{display:grid;gap:2px;min-width:0;flex:1}
+.work-team-capacity-summary-v11362 strong{font-size:12.5px;color:#4a3968;font-weight:950}
+.work-team-capacity-summary-v11362 small{font-size:9.5px;color:#81758e;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.work-team-capacity-chevron-v11362{color:#765fa0;font-size:16px;transition:transform .16s ease}
+.work-team-capacity-v11362[open] .work-team-capacity-chevron-v11362{transform:rotate(180deg)}
+.work-team-capacity-body-v11362{padding:0 12px 12px;animation:capacityReveal .16s ease both}
+.work-capacity-empty-v11362{
+  min-height:76px;padding:11px;display:flex;align-items:center;gap:10px;
+  border:1px dashed #cfc4e8;border-radius:13px;background:rgba(255,255,255,.72);
+}
+.work-capacity-empty-icon-v11362{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:#eee8fa;color:#6f57a0;font-size:18px}
+.work-capacity-empty-v11362 strong{display:block;color:#4a3968;font-size:11px;font-weight:950}
+.work-capacity-empty-v11362 p{margin:3px 0 0;color:#81758e;font-size:9.5px;line-height:1.35}
+.work-capacity-focus-v11362 .work-capacity-list{display:block}
+.work-capacity-focus-v11362 .work-capacity-row{
+  min-height:76px;padding:11px;border:1px solid #d8d0ef;border-radius:13px;
+  background:#fff;box-shadow:0 5px 14px rgba(81,62,122,.07);
+}
+.work-capacity-focus-v11362 .capacity-meter{height:9px;border-radius:999px;background:#ece8f4;overflow:hidden}
+.work-capacity-focus-v11362 .capacity-meter>span{
+  display:block;height:100%;border-radius:inherit;
+  background:linear-gradient(90deg,#7c5db0,#4d8ec3);
+  animation:capacityFill .55s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes capacityReveal{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes capacityFill{from{transform:scaleX(0);transform-origin:left}to{transform:scaleX(1);transform-origin:left}}
 /* Responsive */
 @media(max-width:760px){
   .work-calendar-filterbar-v11361{padding:9px}
