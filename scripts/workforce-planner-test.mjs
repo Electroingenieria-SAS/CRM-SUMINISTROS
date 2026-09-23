@@ -64,5 +64,11 @@ const sql=fs.readFileSync(migrationPath,"utf8");
 for(const token of ["'calendar'","work_calendar_segments","erp_supply.holidays","activeStatus","validate_work_assignment_business_window","OUTSIDE_WORKING_TIME"]){
   assert.equal(sql.includes(token),true,`La migración debe contener: ${token}`);
 }
+
+const css=fs.readFileSync(new URL("../assets/css/core-shell.css",import.meta.url),"utf8");
+for(const token of [".work-day-timeline-head",".work-person-state.busy",".work-week-grid-v11330",".work-month-grid-v11330",".work-assignment-card-v11330"]){
+  assert.equal(css.includes(token),true,`La capa visual del cronograma debe definir: ${token}`);
+}
 console.log("workforce planner calendar tests: OK");
+
 
