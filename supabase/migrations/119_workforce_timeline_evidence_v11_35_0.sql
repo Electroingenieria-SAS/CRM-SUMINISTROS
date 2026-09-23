@@ -462,7 +462,7 @@ revoke all on function public.erp_x_work_planner_detail(uuid,uuid,uuid) from pub
 grant execute on function public.erp_x_work_planner_detail(uuid,uuid,uuid) to authenticated;
 
 
-create or replace function public.erp_x_work_evidence_preview_allowed(p_drive_file_id text)
+create or replace function public.erp_x_work_evidence_preview_allowed(p_evidence_id uuid,p_drive_file_id text)
 returns jsonb
 language plpgsql
 stable
@@ -489,7 +489,8 @@ begin
   from erp_supply.work_evidence w
   join erp_supply.work_executions e on e.id=w.execution_id
   join erp_supply.work_activity_catalog c on c.id=e.catalog_id
-  where w.organization_id=v_org
+  where w.id=p_evidence_id
+    and w.organization_id=v_org
     and w.drive_file_id=nullif(trim(coalesce(p_drive_file_id,'')),'')
   order by w.created_at desc
   limit 1;
@@ -521,8 +522,8 @@ begin
 end;
 $$;
 
-revoke all on function public.erp_x_work_evidence_preview_allowed(text) from public,anon;
-grant execute on function public.erp_x_work_evidence_preview_allowed(text) to authenticated;
+revoke all on function public.erp_x_work_evidence_preview_allowed(uuid,text) from public,anon;
+grant execute on function public.erp_x_work_evidence_preview_allowed(uuid,text) to authenticated;
 
 
 comment on function public.erp_x_work_planner(date,date)
@@ -531,7 +532,7 @@ is 'V11.35.0: cronograma compacto para ámbito personal/equipo; combina planific
 comment on function public.erp_x_work_planner_detail(uuid,uuid,uuid)
 is 'V11.35.0: detalle bajo demanda; la evidencia solo viaja al abrir una tarjeta.';
 
-comment on function public.erp_x_work_evidence_preview_allowed(text)
+comment on function public.erp_x_work_evidence_preview_allowed(uuid,text)
 is 'V11.35.0: autorización mínima para previsualizar en Drive una evidencia registrada, sin exponer el archivo en SQL.';
 
 notify pgrst,'reload schema';
