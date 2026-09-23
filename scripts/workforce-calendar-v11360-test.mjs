@@ -157,12 +157,14 @@ for(const token of [
 const css=fs.readFileSync(new URL("../assets/runtime-css/workforce-calendar-v11360.css",import.meta.url),"utf8");
 for(const token of [
   "min-height:82px",
-  "height:32px",
+  "height:33px",
   "work-calendar-cloud-v11361",
-  "work-calendar-filterbar-v11361",
+  "work-calendar-filterbox-v11362",
   "overflow-x:auto",
   "overscroll-behavior-y:auto",
-  "work-calendar-worker-chip-v11361",
+  "min-width:118px",
+  "work-team-capacity-v11362",
+  "tone-review",
   "@media(hover:hover) and (pointer:fine)"
 ]){
   assert.equal(css.includes(token),true,`CSS calendario debe conservar ${token}`);
@@ -187,9 +189,12 @@ for(const token of [
   "data-plan-filter-from",
   "data-plan-filter-to",
   "data-plan-filter-weekday",
-  "repaintCalendar"
+  "repaintCalendar",
+  "data-plan-filter-box",
+  "capacityMarkupFor",
+  "data-team-capacity-host"
 ]){
   assert.equal(workforce.includes(token),true,`Workforce debe conservar filtro ${token}`);
 }
 
-console.log("workforce calendar v11.36.1 tests: OK");
+console.log("workforce calendar v11.36.2 tests: OK");
