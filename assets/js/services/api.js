@@ -119,6 +119,7 @@ export const api={
   workSaveAssignment:payload=>mutationRpc("erp_x_work_save_assignment",{p_payload:payload||{}}),
   workCancelAssignment:(assignmentId,note=null)=>mutationRpc("erp_x_work_cancel_assignment",{p_assignment_id:assignmentId,p_note:note}),
   workReviewDelivery:(executionId,decision,note=null)=>mutationRpc("erp_x_work_review_delivery",{p_execution_id:executionId,p_decision:decision,p_note:note}),
+  workReviewTime:(executionId,decision="REVIEWED",note=null)=>mutationRpc("erp_x_work_review_time",{p_execution_id:executionId,p_decision:decision,p_note:note}),
   workLedger:(from,to,profileId=null)=>rpc("erp_x_work_ledger",{p_from:from,p_to:to,p_profile_id:profileId||null}),
   workAnalytics:(from,to,profileId=null)=>rpc("erp_x_work_analytics",{p_from:from,p_to:to,p_profile_id:profileId||null}),
   workOccupation:(from,to,profileId=null)=>rpc("erp_x_work_occupation",{p_from:from,p_to:to,p_profile_id:profileId||null}),
