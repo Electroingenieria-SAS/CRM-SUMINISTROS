@@ -4,6 +4,10 @@
 
 CRM Suministros mantiene la línea productiva V11.31.2. La candidata V11.33.0 acumula el hardening V11.32.0 y añade el nuevo cronograma laboral. **No se ha promovido esta candidata a Vercel ni se ha aplicado la migración 115 en Supabase productivo.**
 
+## Backend sincronizado V11.34.2
+
+Las migraciones 115, 116 y 117 fueron aplicadas al proyecto Supabase productivo el 23/09/2026 para evitar divergencia entre la candidata Pages y PostgREST. Se verificó exposición autenticada de `erp_x_work_manager_queue`, `erp_x_work_review_time` y `erp_x_work_start`. El frontend sigue sin promoción a Vercel.
+
 ## Mi jornada V11.34.2
 
 - Flujo simplificado: elegir → iniciar → trabajar → finalizar con foto, sin aprobación previa para auxiliares ni otros roles autorizados por catálogo.
@@ -14,7 +18,7 @@ CRM Suministros mantiene la línea productiva V11.31.2. La candidata V11.33.0 ac
 - Foto final obligatoria para actividades; BEFORE_AFTER mantiene foto antes y después.
 - La evidencia continúa en Google Drive mediante el Apps Script institucional (`uploadWorkEvidence` / `submitToBridge`).
 - El catálogo operativo elimina el cálculo de percentiles en cada apertura de Mi jornada para reducir consumo de Supabase Free.
-- Migraciones 116 y 117 versionadas; no aplicadas a producción.
+- Migraciones 116 y 117 versionadas; aplicadas a Supabase productivo el 23/09/2026.
 - La migración 117 redefine `erp_x_work_start` para permitir inicio directo, elimina el flujo de aprobación previa de Mi jornada y crea una única cola gerencial de excepciones > 60 min.
 - Las solicitudes `SELF_PROPOSED` antiguas que permanezcan DRAFT/PENDING se cancelarán como flujo legado al promover la migración 117.
 
