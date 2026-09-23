@@ -1,8 +1,24 @@
 # Estado de implementación
 
-## Release candidata — V11.32.0 · 2026-09-23
+## Release candidata — V11.33.0 · 2026-09-23
 
-CRM Suministros mantiene la línea productiva V11.31.2 y prepara V11.32.0 como fase de saneamiento, seguridad y reproducibilidad. El cambio evita modificaciones masivas sobre datos/RLS/índices y se concentra en controles de release, trazabilidad y arquitectura.
+CRM Suministros mantiene la línea productiva V11.31.2. La candidata V11.33.0 acumula el hardening V11.32.0 y añade el nuevo cronograma laboral. **No se ha promovido esta candidata a Vercel ni se ha aplicado la migración 115 en Supabase productivo.**
+
+## Cronograma laboral V11.33.0
+
+- Día laboral por segmentos reales del calendario institucional.
+- Semana limitada a lunes–viernes.
+- Mes laboral de cinco columnas, sin fines de semana.
+- Festivos visibles como no laborables y excluidos de capacidad.
+- Estado de persona Disponible/Ocupado/En pausa con actividad actual.
+- Etiquetas de actividad normalizadas por estado.
+- Cálculo de capacidad basado en calendario real.
+- `workforce-planner-v11330.js` separa render y reglas de calendario de `workforce.js`.
+- `workCatalog()` pasa a carga bajo demanda.
+- El calendario se cachea en cliente; tras promover la migración 115 podrá llegar en la misma llamada `erp_x_work_planner`.
+- La migración 115 añade una guardia de escritura que impide publicar actividades fuera de jornada.
+
+## Hardening heredado de V11.32.0
 
 ## Arquitectura vigente
 
