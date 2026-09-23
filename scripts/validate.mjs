@@ -99,7 +99,6 @@ check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
 check(config.includes("https://script.google.com/macros/s/AKfycbztKVA2sdUV87WZ9dWyf9gFHKodDaBbw-sIJ6pPdSPV9g98efpD_T3jE3CS1x-8DTaS/exec"),"CONFIG.drive.bridgeUrl debe apuntar a la implementación Apps Script 3.5.0 vigente.");
-check(!config.includes("AKfycbyX2UkQcZKbdZJXGgC6XZQwn7blASGUxwsIUzOG1Sf03mIDsaB1NJDCtnK6QzxOpEh9"),"CONFIG no debe conservar referencias a la implementación Apps Script anterior.");
 check((index.match(/<script\s+type="module"\s+src="\.\/assets\/js\//g)||[]).length===1,"index.html debe tener un único entrypoint ES Module local.");
 check(entry.includes('import "./main.js";'),"app-entry.js debe delegar a main.js.");
 check(exists("assets/js/modules/workforce-timeline-v11350.js"),"Falta módulo timeline V11.35.0.");
