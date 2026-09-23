@@ -143,7 +143,7 @@ check(workforcePlannerMigration.includes("'calendar'")&&workforcePlannerMigratio
 check(workforcePlannerMigration.includes("validate_work_assignment_business_window")&&workforcePlannerMigration.includes("OUTSIDE_WORKING_TIME"),"Base debe bloquear asignaciones fuera de jornada.");
 check(coreCss.includes(".work-day-timeline-head")&&coreCss.includes(".work-week-grid-v11330")&&coreCss.includes(".work-month-grid-v11330"),"Falta capa visual Día/Semana/Mes del cronograma.");
 check(workforceToday.includes("timeTrafficLight")&&workforceToday.includes("finalEvidenceType"),"Mi jornada debe separar semáforo y evidencia final en un módulo dedicado.");
-check(workforce.includes("workday-guide")&&workforce.includes("work-catalog-browser")&&workforce.includes("work-active-console"),"Mi jornada V11.34.3 debe usar jerarquía segura y cronómetro compacto.");
+check(workforce.includes("workday-guide")&&workforce.includes("catalogBrowserHtml")&&workforce.includes("work-active-console"),"Mi jornada V11.34.3 debe componer jerarquía segura y cronómetro compacto.");
 check(workforceCatalog.includes("catalogTaxonomy")&&workforceCatalog.includes("data-work-start-confirmed"),"Falta contrato de selección categoría → subcategoría → actividad.");
 check(workforceCatalogMigration.includes('"uiCategoryLabel"')&&workforceCatalogMigration.includes('"uiSubcategory"'),"Migración 118 debe exponer taxonomía UI ligera.");
 check(!workforce.includes("data-start-catalog"),"Mi jornada no debe reintroducir inicio directo por clic/touch.");
