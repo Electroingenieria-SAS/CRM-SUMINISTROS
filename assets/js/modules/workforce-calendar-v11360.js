@@ -341,7 +341,7 @@ function dayEvent(item,left,width,index){
       style="--event-left:${left.toFixed(2)}%;--event-width:${Math.max(width,12).toFixed(2)}%;--event-lane:${index%2}">
       <div class="work-calendar-event-time-v11360">
         ${clockIcon()}
-        <span>${fmt.escape(timeOnly(item.plannedStart))}–${fmt.escape(timeOnly(item.plannedEnd))}</span>
+        <span>${fmt.escape(timeOnly(item.plannedStart))}</span>
       </div>
       <strong class="work-calendar-event-title-v11360">${fmt.escape(item.title||"Actividad")}</strong>
       <div class="work-calendar-event-footer-v11360">
