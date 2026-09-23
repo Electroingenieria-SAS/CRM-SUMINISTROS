@@ -1,6 +1,6 @@
 # CRM Suministros — Electroingeniería S.A.S.
 
-> Versión candidata: **V11.34.0** · build **2026-09-23.04**  
+> Versión candidata: **V11.34.1** · build **2026-09-23.05**  
 > Producción: Vercel + Supabase `hezjxcxxcjlpmyalftam`  
 > Auditoría integral vigente: `docs/AUDITORIA_INTEGRAL_2026-09-14.md`
 
@@ -31,17 +31,18 @@ El browser no accede directamente a tablas operativas. El esquema `erp_supply` p
 
 La línea base productiva V11.31.2 fue auditada nuevamente el 23 de septiembre de 2026. V11.32.0 introdujo el saneamiento y hardening de la candidata; V11.33.0 añade el rediseño de **Jornada y actividades → Cronograma** sin promover todavía cambios a Vercel ni a la base productiva.
 
-### Mi jornada V11.34.0
+### Mi jornada V11.34.1
 
-- iniciar una actividad requiere un solo toque desde agenda o inicio rápido;
+- iniciar una actividad requiere un solo toque desde agenda o inicio rápido, **sin aprobación previa del jefe**;
 - el usuario **no informa duración estimada**: el cronómetro mide el tiempo real;
 - semáforo automático: verde < 45 min, amarillo 45–60 min, rojo > 60 min;
-- > 60 min queda marcado como **Pendiente de revisión** por la base candidata;
+- > 60 min queda marcado como **Pendiente de revisión** por la base candidata; el control del jefe ocurre únicamente después de la ejecución;
 - finalizar exige seleccionar primero **Tomar foto** o **Subir foto**;
 - la foto se carga exclusivamente mediante el puente institucional **Google Apps Script → Google Drive** y luego se registra en el ERP;
 - las actividades operativas requieren foto final; `BEFORE_AFTER` conserva foto inicial + foto final;
 - el catálogo diario se vuelve liviano y deja de recalcular percentiles históricos al abrir Mi jornada;
-- migración `116_workforce_my_day_automation_v11_34_0.sql` versionada y **no aplicada todavía a Supabase productivo**.
+- migraciones `116_workforce_my_day_automation_v11_34_0.sql` y `117_workforce_manager_review_v11_34_1.sql` versionadas y **no aplicadas todavía a Supabase productivo**.
+- la bandeja gerencial muestra solo tiempos > 1 h, foto final y revisiones recientes; no existe cola de aprobación previa.
 
 ### Cronograma laboral V11.33.0
 
