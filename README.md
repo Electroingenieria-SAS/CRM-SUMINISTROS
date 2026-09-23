@@ -1,6 +1,6 @@
 # CRM Suministros — Electroingeniería S.A.S.
 
-> Versión candidata: **V11.34.1** · build **2026-09-23.05**  
+> Versión candidata: **V11.34.2** · build **2026-09-23.06**  
 > Producción: Vercel + Supabase `hezjxcxxcjlpmyalftam`  
 > Auditoría integral vigente: `docs/AUDITORIA_INTEGRAL_2026-09-14.md`
 
@@ -31,9 +31,11 @@ El browser no accede directamente a tablas operativas. El esquema `erp_supply` p
 
 La línea base productiva V11.31.2 fue auditada nuevamente el 23 de septiembre de 2026. V11.32.0 introdujo el saneamiento y hardening de la candidata; V11.33.0 añade el rediseño de **Jornada y actividades → Cronograma** sin promover todavía cambios a Vercel ni a la base productiva.
 
-### Mi jornada V11.34.1
+### Mi jornada V11.34.2
 
 - iniciar una actividad requiere un solo toque desde agenda o inicio rápido, **sin aprobación previa del jefe**;
+- flujo visual guiado de tres pasos: **Elige → Trabaja → Finaliza con foto**;
+- actividades disponibles se muestran como botones grandes de inicio inmediato; métricas pasan a segundo plano;
 - el usuario **no informa duración estimada**: el cronómetro mide el tiempo real;
 - semáforo automático: verde < 45 min, amarillo 45–60 min, rojo > 60 min;
 - > 60 min queda marcado como **Pendiente de revisión** por la base candidata; el control del jefe ocurre únicamente después de la ejecución;
