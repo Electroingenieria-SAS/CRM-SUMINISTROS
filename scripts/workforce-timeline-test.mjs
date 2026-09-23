@@ -113,6 +113,7 @@ for(const token of ["composePlannerTimeline","openWorkTimelineCard","loadWorkEvi
 }
 
 const appsScript=fs.readFileSync(new URL("../google-apps-script/Code.gs",import.meta.url),"utf8");
+assert.doesNotThrow(()=>new Function(appsScript),"Code.gs 3.5.0 debe conservar sintaxis JavaScript válida.");
 for(const token of ["VERSION: '3.5.0'","PREVIEW_WORK_EVIDENCE","erp_x_work_evidence_preview_allowed","MAX_PREVIEW_BYTES"]){
   assert.equal(appsScript.includes(token),true,`Apps Script debe conservar: ${token}`);
 }
