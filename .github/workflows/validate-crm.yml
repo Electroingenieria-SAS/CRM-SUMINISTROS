@@ -92,8 +92,8 @@ jobs:
           grep -q '"version": "11.34.5"' package.json
           grep -q '"version": "11.34.5"' package-lock.json
           grep -q 'app-entry.js?v=11.34.5' index.html
-          grep -Fxq '// previous-cache: crm-suministros-v11-34-5-20260923-09' service-worker.js
-          grep -Fxq 'const CACHE="crm-suministros-v11-34-4-20260923-08";' service-worker.js
+          grep -Fxq '// previous-cache: crm-suministros-v11-34-4-20260923-08' service-worker.js
+          grep -Fxq 'const CACHE="crm-suministros-v11-34-5-20260923-09";' service-worker.js
           grep -q 'manifest.webmanifest' vercel.json
           test "$(grep -c '<link rel="stylesheet" href="./assets/css/' index.html)" -eq 4
           test "$(find assets/css -maxdepth 1 -type f -name '*.css' | wc -l)" -eq 4
