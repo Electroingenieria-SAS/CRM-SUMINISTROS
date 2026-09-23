@@ -5,6 +5,7 @@ import {state} from "../core/state.js";
 import {uploadWorkEvidence} from "../services/drive.js";
 import {icon} from "../core/icons.js";
 import {normalizePlannerCalendar,plannerRangeForMode,nextBusinessAnchor,plannerTitleForMode,renderPlannerBoard,teamCapacityHtml,assignmentDetailHtml} from "./workforce-planner-v11330.js";
+import {timeTrafficLight,trafficHelp,elapsedActiveSeconds,finalEvidenceType} from "./workforce-today-v11340.js";
 
 let liveTimer=null;
 let currentView="today";
@@ -26,7 +27,7 @@ export async function renderWorkforce(root){
       <div class="page-actions"><button class="btn btn-ghost" data-work-refresh>${icon("refresh")}<span>Actualizar jornada</span></button></div>
     </section>
     <nav class="workforce-tabs" aria-label="Vistas de actividades">
-      <button class="workforce-tab ${currentView==="today"?"active":""}" data-work-view="today">${icon("activity")}<span><strong>Mi jornada</strong><small>Agenda y cronómetro</small></span></button>
+      <button class="workforce-tab ${currentView==="today"?"active":""}" data-work-view="today">${icon("activity")}<span><strong>Mi jornada</strong><small>Elegir · iniciar · foto</small></span></button>
       <button class="workforce-tab ${currentView==="planner"?"active":""}" data-work-view="planner" hidden>${icon("calendar")}<span><strong>Cronograma</strong><small>Día · semana · mes</small></span></button>
       <button class="workforce-tab ${currentView==="analytics"?"active":""}" data-work-view="analytics">${icon("reports")}<span><strong>Indicadores</strong><small>Carga y resultados</small></span></button>
     </nav>
@@ -73,16 +74,16 @@ async function renderToday(root,content,prefetchedData=null){
     </section>
     <div class="workforce-main-grid">
       <section class="card workforce-agenda-card">
-        <header class="card-head"><div><h3>Mi agenda de hoy</h3><p>Primero lo programado; también puedes iniciar una actividad espontánea.</p></div><span class="workforce-count">${(data.today||[]).length}</span></header>
+        <header class="card-head"><div><h3>Mi agenda de hoy</h3><p>Solo elige una actividad y pulsa Iniciar. El CRM mide el tiempo por ti.</p></div><span class="workforce-count">${(data.today||[]).length}</span></header>
         <div class="card-body workforce-agenda-list">${agendaHtml(data)}</div>
       </section>
       <section class="card workforce-quick-card">
-        <header class="card-head"><div><h3>Registrar actividad</h3><p>Accesos rápidos al catálogo habilitado para tu rol.</p></div></header>
+        <header class="card-head"><div><h3>Inicio rápido</h3><p>Un toque para comenzar. Sin estimar minutos ni llenar formularios.</p></div></header>
         <div class="card-body">${catalogHtml(data.catalog||[],Boolean(data.active))}</div>
       </section>
     </div>
     <section class="card workforce-history-card">
-      <header class="card-head"><div><h3>Lo registrado hoy</h3><p>Tiempo activo, pausas, evidencia y estado de cada actividad.</p></div></header>
+      <header class="card-head"><div><h3>Lo registrado hoy</h3><p>El sistema conserva tiempo real, foto final y revisión cuando supera una hora.</p></div></header>
       <div class="card-body">${historyHtml(data.history||[])}</div>
     </section>`;
 
@@ -91,18 +92,26 @@ async function renderToday(root,content,prefetchedData=null){
 }
 
 function activeWorkCard(active){
-  if(!active)return `<section class="work-now idle"><div class="work-now-status"><span class="work-pulse"></span><div><small>Estado actual</small><strong>Listo para iniciar una actividad</strong><p>Los procesos del CRM continúan midiéndose en sus módulos. Usa este cronómetro para trabajos adicionales y actividades programadas.</p></div></div><span class="work-now-hint">${icon("play")} Elige una actividad</span></section>`;
+  if(!active)return `<section class="work-now idle"><div class="work-now-status"><span class="work-pulse"></span><div><small>Estado actual</small><strong>Listo para iniciar</strong><p>Elige una actividad de tu agenda o del inicio rápido. Un clic inicia el cronómetro automáticamente.</p></div></div><span class="work-now-hint">${icon("play")} Elige e inicia</span></section>`;
   const metrics=active.metrics||{};
   const paused=active.status==="PAUSED";
   const types=new Set((active.evidence||[]).map(x=>x.type));
   const needsBefore=active.evidencePolicy==="BEFORE_AFTER"&&!types.has("BEFORE_PHOTO");
+  const activeSeconds=elapsedActiveSeconds(active);
+  const traffic=timeTrafficLight(activeSeconds);
   return `<section class="work-now running ${paused?"paused":""}" data-active-execution="${fmt.escape(active.id)}" data-started-at="${fmt.escape(active.startedAt)}" data-base-elapsed="${Number(metrics.elapsedSeconds||0)}" data-paused="${paused}">
     <div class="work-now-status"><span class="work-pulse"></span><div><small>${paused?"Actividad pausada":"Trabajando ahora"}</small><strong>${fmt.escape(active.title)}</strong><p>${fmt.escape(active.catalogName||"")}${active.plannedStart?` · Programada ${timeOnly(active.plannedStart)}`:""}</p></div></div>
-    <div class="work-now-clock"><strong data-live-clock>${clock(metrics.elapsedSeconds||0)}</strong><span>${fmt.hours(metrics.businessSeconds||0)} laborales · ${fmt.hours(metrics.pausedSeconds||0)} en pausa</span></div>
+    <div class="work-now-clock">
+      <strong data-live-clock>${clock(activeSeconds)}</strong>
+      <div class="work-time-traffic tone-${traffic.tone}" data-time-traffic data-tone="${traffic.tone}">
+        <span class="work-traffic-light"><i></i><i></i><i></i></span>
+        <div><b data-traffic-label>${traffic.label}</b><small data-traffic-help>${trafficHelp(activeSeconds)}</small></div>
+      </div>
+    </div>
     <div class="work-now-actions">
       ${needsBefore?`<button class="btn btn-ghost" data-work-before-photo>${icon("activity")}<span>Foto inicial</span></button>`:""}
       ${paused?`<button class="btn btn-primary" data-work-resume>${icon("play")}<span>Reanudar</span></button>`:`<button class="btn btn-ghost" data-work-pause>${icon("pause")}<span>Pausar</span></button>`}
-      <button class="btn btn-success" data-work-finish ${needsBefore?'disabled title="Toma primero la foto inicial"':""}>${icon("check")}<span>${needsBefore?"Foto inicial pendiente":"Finalizar actividad"}</span></button>
+      <button class="btn btn-success" data-work-finish ${needsBefore?'disabled title="Toma primero la foto inicial"':""}>${icon("check")}<span>${needsBefore?"Foto inicial pendiente":"Finalizar + foto"}</span></button>
     </div>
   </section>`;
 }
@@ -121,7 +130,7 @@ function agendaHtml(data){
 function agendaRow(a,overdue,hasActive){
   return `<article class="agenda-row ${overdue?"is-overdue":""}">
     <div class="agenda-time"><strong>${a.plannedStart?timeOnly(a.plannedStart):a.dueAt?"Límite":"—"}</strong><span>${a.plannedEnd?timeOnly(a.plannedEnd):a.dueAt?fmt.day(a.dueAt):""}</span></div>
-    <div class="agenda-main"><div>${priorityBadge(a.priority)} ${a.kind==="DELIVERABLE"?'<span class="badge badge-blue"><span class="badge-dot"></span>Entregable</span>':""}</div><strong>${fmt.escape(a.title)}</strong><small>${fmt.escape(a.catalogName||a.kind||"")} · ${fmt.number(a.estimatedMinutes||0)} min${a.dueAt?` · vence ${fmt.date(a.dueAt)}`:""}</small></div>
+    <div class="agenda-main"><div>${priorityBadge(a.priority)} ${a.kind==="DELIVERABLE"?'<span class="badge badge-blue"><span class="badge-dot"></span>Entregable</span>':""}</div><strong>${fmt.escape(a.title)}</strong><small>${fmt.escape(a.catalogName||a.kind||"")}${a.dueAt?` · vence ${fmt.date(a.dueAt)}`:""} · tiempo automático</small></div>
     <div class="agenda-actions"><button class="btn btn-primary" data-start-assignment="${fmt.escape(a.id)}" data-catalog-id="${fmt.escape(a.catalogId||"")}" ${hasActive||!a.catalogId?"disabled":""}>${icon("play")}<span>${a.memberStatus==="RETURNED"?"Retomar":"Iniciar"}</span></button></div>
   </article>`;
 }
@@ -132,7 +141,7 @@ function catalogHtml(catalog,disabled){
   const activities=catalog.filter(c=>c.activityKind==="ACTIVITY");
   if(!activities.length)return empty("Sin actividades habilitadas","Solicita al administrador revisar el catálogo de tu rol.");
   const grouped=Object.groupBy?Object.groupBy(activities,x=>x.activityGroup):activities.reduce((acc,x)=>((acc[x.activityGroup]??=[]).push(x),acc),{});
-  return Object.entries(grouped).map(([group,items])=>`<div class="work-catalog-group"><div class="work-catalog-title">${fmt.escape(GROUP_LABELS[group]||fmt.label(group))}</div><div class="work-catalog-list">${items.map(c=>`<button class="work-catalog-item" data-start-catalog="${fmt.escape(c.id)}" ${disabled?"disabled":""}><span class="work-catalog-icon">${activityGlyph(c.code)}</span><span><strong>${fmt.escape(c.name)}</strong><small>${fmt.number(c.medianMinutes||c.standardMinutes||0)} min ${c.samples>=5?"mediana histórica":"referencia"} · ${evidenceLabel(c.evidencePolicy)}</small></span><b>›</b></button>`).join("")}</div></div>`).join("");
+  return Object.entries(grouped).map(([group,items])=>`<div class="work-catalog-group"><div class="work-catalog-title">${fmt.escape(GROUP_LABELS[group]||fmt.label(group))}</div><div class="work-catalog-list">${items.map(c=>`<button class="work-catalog-item" data-start-catalog="${fmt.escape(c.id)}" ${disabled?"disabled":""}><span class="work-catalog-icon">${activityGlyph(c.code)}</span><span><strong>${fmt.escape(c.name)}</strong><small>Un toque para iniciar · Foto al finalizar</small></span><b>›</b></button>`).join("")}</div></div>`).join("");
 }
 
 function historyHtml(rows){
@@ -140,10 +149,11 @@ function historyHtml(rows){
   return `<div class="work-history-list">${rows.map(row=>{
     const evidencePending=row.status==="WAITING_EVIDENCE";
     const reviewPending=row.status==="SUBMITTED";
+    const traffic=timeTrafficLight(row.activeSeconds||0);
     return `<article class="work-history-row">
       <div class="work-history-time"><strong>${timeOnly(row.startedAt)}</strong><span>${row.endedAt?timeOnly(row.endedAt):"En curso"}</span></div>
-      <div class="work-history-main"><div>${statusBadge(row.status)}</div><strong>${fmt.escape(row.title)}</strong><small>${fmt.hours(row.activeSeconds)} activas · ${fmt.hours(row.pausedSeconds)} pausa · ${fmt.escape(GROUP_LABELS[row.activityGroup]||fmt.label(row.activityGroup))}</small></div>
-      <div class="work-history-actions">${evidencePending?`<button class="btn btn-primary" data-add-evidence="${fmt.escape(row.id)}" data-policy="${fmt.escape(row.evidencePolicy||"")}" data-title="${fmt.escape(row.title)}">Anexar evidencia</button>`:reviewPending?'<span class="work-awaiting-review">En revisión</span>':(row.evidence||[]).length?`<span class="work-evidence-count">${row.evidence.length} evidencia(s)</span>`:""}</div>
+      <div class="work-history-main"><div>${statusBadge(row.status)} <span class="work-mini-traffic tone-${traffic.tone}"><i></i>${traffic.label}</span></div><strong>${fmt.escape(row.title)}</strong><small>${fmt.hours(row.activeSeconds)} activas · ${fmt.hours(row.pausedSeconds)} pausa · ${fmt.escape(GROUP_LABELS[row.activityGroup]||fmt.label(row.activityGroup))}</small></div>
+      <div class="work-history-actions">${evidencePending?`<button class="btn btn-primary" data-add-evidence="${fmt.escape(row.id)}" data-policy="${fmt.escape(row.evidencePolicy||"")}" data-title="${fmt.escape(row.title)}">Subir foto pendiente</button>`:reviewPending?'<span class="work-awaiting-review">Pendiente de revisión</span>':(row.evidence||[]).length?`<span class="work-evidence-count">${row.evidence.length} evidencia(s)</span>`:""}</div>
     </article>`;
   }).join("")}</div>`;
 }
@@ -176,7 +186,67 @@ function pauseDialog(active,content){
 }
 
 function finishDialog(active,content){
-  modal({title:"Finalizar actividad",confirmLabel:"Finalizar cronómetro",body:`<div class="work-finish-summary"><strong>${fmt.escape(active.title)}</strong><span>Tiempo actual: <b>${clock(active.metrics?.elapsedSeconds||0)}</b></span></div><div class="form-grid"><div class="field"><label>Causa de desviación, si aplica</label><select class="control" name="deviationReason">${Object.entries(DEVIATION_REASONS).map(([value,label])=>`<option value="${value}">${fmt.escape(label)}</option>`).join("")}</select></div><div class="field full"><label>Resultado / observación</label><textarea class="control" name="resultNote" rows="3" placeholder="¿Qué quedó realizado?"></textarea></div></div><div class="wizard-tip">El cronómetro se detiene ahora. Si la actividad exige evidencia, quedará pendiente hasta anexarla.</div>`,onConfirm:async dialog=>{const result=await api.workFinish(active.id,{deviationReason:dialog.querySelector('[name="deviationReason"]').value||null,resultNote:dialog.querySelector('[name="resultNote"]').value||null});toast(result.completion?.status==="WAITING_EVIDENCE"?"Tiempo guardado. Falta anexar la evidencia.":result.completion?.status==="SUBMITTED"?"Entregable enviado a revisión.":"Actividad completada.");await rerenderWorkforceContent(content)}});
+  const activeSeconds=elapsedActiveSeconds(active);
+  const traffic=timeTrafficLight(activeSeconds);
+  const dialog=modal({
+    title:"Finalizar actividad",
+    confirmLabel:"",
+    cancelLabel:"Seguir trabajando",
+    body:`<div class="work-finish-simple">
+      <div class="work-finish-summary"><strong>${fmt.escape(active.title)}</strong><span>Tiempo registrado: <b>${clock(activeSeconds)}</b></span></div>
+      <div class="work-time-traffic large tone-${traffic.tone}">
+        <span class="work-traffic-light"><i></i><i></i><i></i></span>
+        <div><b>${traffic.label}</b><small>${trafficHelp(activeSeconds)}</small></div>
+      </div>
+      <div class="work-photo-required">
+        <span class="work-photo-required-icon">📷</span>
+        <div><strong>Foto final obligatoria</strong><p>Para finalizar debes tomar una foto o subir una foto de la actividad terminada. Se guardará mediante el script institucional en Google Drive.</p></div>
+      </div>
+      <div class="work-photo-actions">
+        <button type="button" class="btn btn-primary" data-finish-camera>Tomar foto</button>
+        <button type="button" class="btn btn-ghost" data-finish-upload>Subir foto</button>
+      </div>
+      ${traffic.review?'<div class="work-review-warning"><strong>Pendiente de revisión</strong><span>Esta actividad superó 1 hora. El sistema la enviará automáticamente a revisión cuando adjuntes la foto.</span></div>':""}
+    </div>`
+  });
+  dialog.root.querySelector("[data-finish-camera]").onclick=()=>finishWithPhoto(active,content,dialog,true);
+  dialog.root.querySelector("[data-finish-upload]").onclick=()=>finishWithPhoto(active,content,dialog,false);
+}
+
+async function finishWithPhoto(active,content,dialog,useCamera){
+  const file=await pickFinalPhoto(useCamera);
+  if(!file)return;
+  const buttons=[...dialog.root.querySelectorAll("[data-finish-camera],[data-finish-upload]")];
+  buttons.forEach(button=>button.disabled=true);
+  const activeSeconds=elapsedActiveSeconds(active);
+  const traffic=timeTrafficLight(activeSeconds);
+  try{
+    const result=await api.workFinish(active.id,{
+      timeReviewRequired:traffic.review,
+      completionMode:"PHOTO_REQUIRED",
+      clientActiveSeconds:activeSeconds
+    });
+    await uploadWorkEvidence(active.id,file,finalEvidenceType(active.evidencePolicy),active.title);
+    dialog.close();
+    toast(traffic.review?"Actividad finalizada con foto. Quedó pendiente de revisión.":"Actividad finalizada con foto.");
+    await rerenderWorkforceContent(content);
+  }catch(error){
+    toast(error.message,"error",9000);
+    buttons.forEach(button=>button.disabled=false);
+    await rerenderWorkforceContent(content).catch(()=>{});
+  }
+}
+
+function pickFinalPhoto(useCamera){
+  return new Promise(resolve=>{
+    const input=document.createElement("input");
+    input.type="file";
+    input.accept="image/*";
+    if(useCamera)input.capture="environment";
+    input.onchange=()=>resolve(input.files?.[0]||null);
+    input.addEventListener("cancel",()=>resolve(null),{once:true});
+    input.click();
+  });
 }
 
 function photoPicker(execution,type,content){
@@ -201,10 +271,22 @@ function evidenceDialog(execution,content){
 }
 
 function startLiveClock(content,active){
-  clearInterval(liveTimer);if(!active||active.status==="PAUSED")return;
-  const target=content.querySelector("[data-live-clock]");if(!target)return;
-  const started=new Date(active.startedAt).getTime();
-  liveTimer=setInterval(()=>{target.textContent=clock(Math.max(0,Math.floor((Date.now()-started)/1000)))},1000);
+  clearInterval(liveTimer);if(!active)return;
+  const target=content.querySelector("[data-live-clock]");
+  const trafficRoot=content.querySelector("[data-time-traffic]");
+  const renderTick=()=>{
+    const seconds=elapsedActiveSeconds(active);
+    if(target)target.textContent=clock(seconds);
+    if(trafficRoot){
+      const traffic=timeTrafficLight(seconds);
+      trafficRoot.className=`work-time-traffic tone-${traffic.tone}`;
+      trafficRoot.dataset.tone=traffic.tone;
+      const label=trafficRoot.querySelector("[data-traffic-label]");if(label)label.textContent=traffic.label;
+      const help=trafficRoot.querySelector("[data-traffic-help]");if(help)help.textContent=trafficHelp(seconds);
+    }
+  };
+  renderTick();
+  if(active.status!=="PAUSED")liveTimer=setInterval(renderTick,1000);
 }
 
 // ---------------------------------------------------------------------------
