@@ -177,14 +177,10 @@ function normalizeOrigin_(value) {
   const input = String(value || '').trim();
   if (!input) return '';
 
-  try {
-    const url = new URL(input);
-    if (url.protocol !== 'https:' && url.protocol !== 'http:') return '';
-    return url.origin.toLowerCase().replace(/\/$/, '');
-  } catch (error) {
-    const match = input.match(/^(https?:\/\/[^\/?#]+)/i);
-    return match ? match[1].toLowerCase().replace(/\/$/, '') : '';
-  }
+  const match = input.match(/^(https?:\/\/[^\/?#]+)/i);
+  return match
+    ? match[1].toLowerCase().replace(/\/$/, '')
+    : '';
 }
 
 /**
@@ -264,7 +260,9 @@ function saveFile_(request, session) {
       root,
       String(new Date().getFullYear())
     );
-    const inferredContextType = request.contextType || request.workExecutionId ? 'ACTIVITY' : 'ORDER';
+    const inferredContextType = request.contextType
+      ? String(request.contextType)
+      : (request.workExecutionId ? 'ACTIVITY' : 'ORDER');
     const contextType = String(inferredContextType).toUpperCase();
     const contextId = request.contextId || request.workExecutionId || request.orderId;
     const contextLabel = request.contextLabel || request.workTitle || request.orderNumber || contextId;
@@ -282,7 +280,9 @@ function saveFile_(request, session) {
   }
 
   const file = categoryFolder.createFile(blob);
-  const inferredContextType = request.contextType || request.workExecutionId ? 'ACTIVITY' : 'ORDER';
+  const inferredContextType = request.contextType
+      ? String(request.contextType)
+      : (request.workExecutionId ? 'ACTIVITY' : 'ORDER');
   const contextType = String(inferredContextType).toUpperCase();
   const contextId = request.contextId || request.workExecutionId || request.orderId;
   const contextLabel = request.contextLabel || request.workTitle || request.orderNumber || contextId;
