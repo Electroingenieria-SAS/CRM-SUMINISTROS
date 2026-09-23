@@ -1,7 +1,7 @@
 import {fmt} from "../core/format.js";
 
 const STYLE_ID="workforce-timeline-v11350-style";
-const FINAL_STATES=new Set(["COMPLETED","SUBMITTED","WAITING_EVIDENCE","RETURNED","CANCELLED"]);
+const FINAL_STATES=new Set(["COMPLETED","SUBMITTED","WAITING_EVIDENCE","RETURNED","CANCELLED"]);\nconst PHOTO_TYPES=new Set(["BEFORE_PHOTO","AFTER_PHOTO","FINAL_PHOTO"]);
 
 export function ensureWorkforceTimelineStyles(){
   if(typeof document==="undefined"||document.getElementById(STYLE_ID))return;
@@ -29,7 +29,7 @@ export function composePlannerTimeline(raw={}){
     const key=timelineAssignmentKey(assignment.id,assignment.profileId);
     const execution=byAssignment.get(key)||null;
     if(execution)matched.add(execution.id);
-    return timelineFromAssignment(assignment,execution);
+    return timelineFromAssignment(assignment,execution,canPlanTeam);
   });
 
   for(const execution of executions){
@@ -49,7 +49,7 @@ export function timelineDetailRequest(item={}){
   };
 }
 
-export async function openWorkTimelineCard(item,loadDetail){
+export async function openWorkTimelineCard(item,loadDetail,loadPreview){
   if(typeof document==="undefined")return;
   closeWorkTimelineCard();
 
@@ -110,7 +110,7 @@ export function closeWorkTimelineCard(){
   document?.querySelector?.("[data-work-timeline-layer]")?.remove();
 }
 
-function timelineFromAssignment(assignment,execution){
+function timelineFromAssignment(assignment,execution,canPlanTeam){
   const actualStart=execution?.startedAt||null;
   const actualEnd=execution?.endedAt||null;
   const displayStart=actualStart||assignment.plannedStart||assignment.dueAt||null;
@@ -133,7 +133,7 @@ function timelineFromAssignment(assignment,execution){
     activeSeconds:Number(execution?.activeSeconds||0),
     evidenceCount:Number(execution?.evidenceCount||0),
     hasPhoto:Boolean(execution?.hasPhoto),
-    canCancel:!execution&&!FINAL_STATES.has(String(status).toUpperCase())
+    canCancel:Boolean(canPlanTeam&&!execution&&!FINAL_STATES.has(String(status).toUpperCase()))
   };
 }
 
@@ -181,69 +181,115 @@ function timelineSkeleton(item){
 
 function timelineDetailHtml(detail={}){
   const evidence=Array.isArray(detail.evidence)?detail.evidence:[];
-  const images=evidence.filter(row=>safePreviewUrl(row?.preview?.data));
+  const images=evidence.filter(isPhotoEvidence);
   const cover=images[0]||null;
   const status=detail.status||"PLANNED";
   const activeSeconds=Number(detail.activeSeconds||0);
   const planned=detail.plannedStart?timeRange(detail.plannedStart,detail.plannedEnd):"Sin bloque previo";
   const actual=detail.startedAt?timeRange(detail.startedAt,detail.endedAt):"Aún no iniciada";
-  return `
-    <section class="work-timeline-hero-v11350 ${cover?"has-photo":""}">
-      ${cover?`<button type="button" class="work-timeline-photo-v11350" data-timeline-photo-main aria-label="Ampliar evidencia">
-        <img src="${safePreviewUrl(cover.preview.data)}" alt="Evidencia fotográfica de ${fmt.escape(detail.title||"actividad")}">
-        <span>Fotografía de evidencia</span>
-      </button>`:`<div class="work-timeline-photo-empty-v11350"><span>✓</span><div><strong>${fmt.escape(statusLabel(status))}</strong><small>${evidence.length?"Evidencia registrada sin miniatura":"Sin fotografía disponible"}</small></div></div>`}
+
+  return \`
+    <section class="work-timeline-hero-v11350 \${cover?"has-photo":""}">
+      \${cover?\`
+        <button type="button" class="work-timeline-photo-v11350 is-loading" data-timeline-photo-main data-drive-file-id="\${fmt.escape(cover.driveFileId||"")}" aria-label="Ver evidencia fotográfica">
+          <span class="work-timeline-photo-loader-v11350">Cargando evidencia…</span>
+          <img alt="Evidencia fotográfica de \${fmt.escape(detail.title||"actividad")}" hidden>
+          <em>Fotografía de evidencia</em>
+        </button>\`:
+        \`<div class="work-timeline-photo-empty-v11350"><span>✓</span><div><strong>\${fmt.escape(statusLabel(status))}</strong><small>\${evidence.length?"Evidencia registrada":"Sin fotografía disponible"}</small></div></div>\`}
       <div class="work-timeline-hero-copy-v11350">
         <div class="work-timeline-badges-v11350">
-          <span class="state ${statusTone(status)}">${fmt.escape(statusLabel(status))}</span>
-          <span>${fmt.escape(detail.source==="MANUAL"?"Registro espontáneo":"Actividad programada")}</span>
-          ${evidence.length?`<span class="photo">📷 ${evidence.length} evidencia${evidence.length===1?"":"s"}</span>`:""}
+          <span class="state \${statusTone(status)}">\${fmt.escape(statusLabel(status))}</span>
+          <span>\${fmt.escape(detail.source==="MANUAL"?"Registro espontáneo":"Actividad programada")}</span>
+          \${evidence.length?\`<span class="photo">📷 \${evidence.length} evidencia\${evidence.length===1?"":"s"}</span>\`:""}
         </div>
-        <h4>${fmt.escape(detail.title||"Actividad")}</h4>
-        <p>${fmt.escape(detail.description||detail.resultNote||"Actividad registrada en la jornada de trabajo.")}</p>
+        <h4>\${fmt.escape(detail.title||"Actividad")}</h4>
+        <p>\${fmt.escape(detail.description||detail.resultNote||"Actividad registrada en la jornada de trabajo.")}</p>
       </div>
     </section>
 
-    ${images.length>1?`<div class="work-timeline-gallery-v11350">${images.map((row,index)=>`
-      <button type="button" class="${index===0?"active":""}" data-timeline-thumb="${index}" data-preview="${safePreviewUrl(row.preview.data)}" aria-label="Ver evidencia ${index+1}">
-        <img src="${safePreviewUrl(row.preview.data)}" alt="">
-      </button>`).join("")}</div>`:""}
+    \${images.length>1?\`<div class="work-timeline-gallery-v11350">\${images.map((row,index)=>\`
+      <button type="button" class="\${index===0?"active":""}" data-timeline-thumb data-drive-file-id="\${fmt.escape(row.driveFileId||"")}" aria-label="Ver evidencia \${index+1}">
+        <span>\${index+1}</span>
+      </button>\`).join("")}</div>\`:""}
 
     <section class="work-timeline-facts-v11350">
-      ${fact("Responsable",detail.profileName||"—")}
-      ${fact("Programación",planned)}
-      ${fact("Ejecución real",actual)}
-      ${fact("Tiempo activo",durationLabel(activeSeconds))}
-      ${fact("Pausas",durationLabel(Number(detail.pausedSeconds||0)))}
-      ${fact("Catálogo",detail.catalogName||fmt.label(detail.kind||"ACTIVITY"))}
+      \${fact("Responsable",detail.profileName||"—")}
+      \${fact("Programación",planned)}
+      \${fact("Ejecución real",actual)}
+      \${fact("Tiempo activo",durationLabel(activeSeconds))}
+      \${fact("Pausas",durationLabel(Number(detail.pausedSeconds||0)))}
+      \${fact("Catálogo",detail.catalogName||fmt.label(detail.kind||"ACTIVITY"))}
     </section>
 
-    ${Array.isArray(detail.participants)&&detail.participants.length>1?`<section class="work-timeline-section-v11350"><header><span>Equipo</span><strong>Participantes</strong></header><div class="work-timeline-people-v11350">${detail.participants.map(person=>`<span><b class="avatar">${fmt.initials(person.profileName)}</b><em>${fmt.escape(person.profileName)}</em><small>${fmt.escape(statusLabel(person.status))}</small></span>`).join("")}</div></section>`:""}
+    \${Array.isArray(detail.participants)&&detail.participants.length>1?\`<section class="work-timeline-section-v11350"><header><span>Equipo</span><strong>Participantes</strong></header><div class="work-timeline-people-v11350">\${detail.participants.map(person=>\`<span><b class="avatar">\${fmt.initials(person.profileName)}</b><em>\${fmt.escape(person.profileName)}</em><small>\${fmt.escape(statusLabel(person.status))}</small></span>\`).join("")}</div></section>\`:""}
 
-    ${evidence.length?`<section class="work-timeline-section-v11350"><header><span>Evidencia</span><strong>Registro de la actividad</strong></header><div class="work-timeline-evidence-v11350">${evidence.map(evidenceRow).join("")}</div></section>`:""}
+    \${evidence.length?\`<section class="work-timeline-section-v11350"><header><span>Evidencia</span><strong>Registro de la actividad</strong></header><div class="work-timeline-evidence-v11350">\${evidence.map(evidenceRow).join("")}</div></section>\`:""}
 
-    <footer class="work-timeline-foot-v11350"><span>La actividad y su evidencia se conservan en la trazabilidad institucional.</span></footer>`;
+    <footer class="work-timeline-foot-v11350"><span>La actividad y su evidencia se conservan en la trazabilidad institucional.</span></footer>\`;
 }
 
 function evidenceRow(row){
-  const preview=safePreviewUrl(row?.preview?.data);
+  const photo=isPhotoEvidence(row);
   const link=safeHttpUrl(row?.webViewLink);
-  return `<article>
-    <span class="work-timeline-evidence-icon-v11350">${preview?"📷":"◫"}</span>
-    <div><strong>${fmt.escape(evidenceLabel(row?.type))}</strong><small>${fmt.escape(row?.fileName||row?.externalValue||"Registro de evidencia")}</small></div>
-    ${link?`<a href="${link}" target="_blank" rel="noopener noreferrer">Original</a>`:""}
-  </article>`;
+  return \`<article>
+    <span class="work-timeline-evidence-icon-v11350">\${photo?"📷":"◫"}</span>
+    <div><strong>\${fmt.escape(evidenceLabel(row?.type))}</strong><small>\${fmt.escape(row?.fileName||row?.externalValue||"Registro de evidencia")}</small></div>
+    <div class="work-timeline-evidence-actions-v11350">
+      \${photo&&row?.driveFileId?\`<button type="button" data-timeline-evidence-preview data-drive-file-id="\${fmt.escape(row.driveFileId)}">Ver foto</button>\`:""}
+      \${link?\`<a href="\${link}" target="_blank" rel="noopener noreferrer">Original</a>\`:""}
+    </div>
+  </article>\`;
 }
 
-function bindEvidenceGallery(layer){
-  const main=layer.querySelector("[data-timeline-photo-main] img");
-  if(!main)return;
-  layer.querySelectorAll("[data-timeline-thumb]").forEach(button=>button.addEventListener("click",()=>{
-    const src=safePreviewUrl(button.dataset.preview);
-    if(!src)return;
-    main.src=src;
+function bindEvidenceGallery(layer,detail,loadPreview){
+  if(typeof loadPreview!=="function")return;
+  const evidence=Array.isArray(detail?.evidence)?detail.evidence:[];
+  const first=evidence.find(isPhotoEvidence);
+  const cover=layer.querySelector("[data-timeline-photo-main]");
+
+  const show=async fileId=>{
+    const id=String(fileId||"").trim();
+    if(!id||!cover)return;
+    const image=cover.querySelector("img");
+    const loader=cover.querySelector(".work-timeline-photo-loader-v11350");
+    cover.classList.add("is-loading");
+    if(loader){loader.hidden=false;loader.textContent="Cargando evidencia…";}
+    try{
+      const preview=await loadPreview(id);
+      if(!layer.isConnected)return;
+      image.src=preview.dataUrl;
+      image.hidden=false;
+      cover.classList.remove("is-loading","is-error");
+      if(loader)loader.hidden=true;
+    }catch(error){
+      if(!layer.isConnected)return;
+      cover.classList.remove("is-loading");
+      cover.classList.add("is-error");
+      if(loader){loader.hidden=false;loader.textContent=error?.message||"No fue posible cargar la fotografía.";}
+    }
+  };
+
+  if(first?.driveFileId)show(first.driveFileId);
+
+  layer.querySelectorAll("[data-timeline-thumb]").forEach(button=>button.addEventListener("click",async()=>{
     layer.querySelectorAll("[data-timeline-thumb]").forEach(node=>node.classList.toggle("active",node===button));
+    await show(button.dataset.driveFileId);
   }));
+
+  layer.querySelectorAll("[data-timeline-evidence-preview]").forEach(button=>button.addEventListener("click",async()=>{
+    const fileId=button.dataset.driveFileId;
+    const thumb=[...layer.querySelectorAll("[data-timeline-thumb]")].find(node=>node.dataset.driveFileId===fileId);
+    if(thumb)layer.querySelectorAll("[data-timeline-thumb]").forEach(node=>node.classList.toggle("active",node===thumb));
+    await show(fileId);
+    cover?.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"nearest"});
+  }));
+}
+
+function isPhotoEvidence(row){
+  const type=String(row?.type||"").toUpperCase();
+  const mime=String(row?.mimeType||"").toLowerCase();
+  return PHOTO_TYPES.has(type)||mime.startsWith("image/");
 }
 
 function fact(label,value){
@@ -298,11 +344,6 @@ function durationLabel(seconds){
   const hours=Math.floor(total/3600);
   const minutes=Math.round((total%3600)/60);
   return hours?`${hours} h ${minutes} min`:`${Math.max(1,minutes)} min`;
-}
-
-function safePreviewUrl(value){
-  const text=String(value||"").trim();
-  return /^data:image\/(?:webp|jpeg|png);base64,[a-z0-9+/=]+$/i.test(text)?text:"";
 }
 
 function safeHttpUrl(value){
