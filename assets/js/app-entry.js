@@ -1,3 +1,4 @@
+import "./platform-observability.js";
 /* CRM Suministros V11.34.5 · Runtime auditado
    Canonical composition root: cross-cutting runtime enhancements load once,
    then the application core boots through main.js. */
