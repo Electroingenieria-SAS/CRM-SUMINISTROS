@@ -72,7 +72,7 @@ const normalizedJsRuntime=jsRuntime
 
 // Release identity.
 check(version==="11.31.2","CONFIG.version debe ser 11.31.2.");
-check(build==="2026-09-18.05","CONFIG.build debe ser 2026-09-18.05.");
+check(build==="2026-09-23.01","CONFIG.build debe ser 2026-09-23.01.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
@@ -107,8 +107,8 @@ check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía instit
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
 // PWA and Vercel routing.
-check(sw.includes('// previous-cache: crm-suministros-v11-31-1-20260918-04'),"previous-cache PWA debe apuntar a V11.31.1.");
-check(sw.includes('const CACHE="crm-suministros-v11-31-2-20260918-05";'),"CACHE activo PWA no corresponde a V11.31.2.");
+check(sw.includes('// previous-cache: crm-suministros-v11-31-2-20260918-05'),"previous-cache PWA debe apuntar al build anterior de V11.31.2.");
+check(sw.includes('const CACHE="crm-suministros-v11-31-2-20260923-01";'),"CACHE activo PWA no corresponde al build 2026-09-23.01.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
 check(vercel.includes('manifest\\\\.webmanifest')||vercel.includes('/manifest.webmanifest'),"Vercel debe excluir o tratar explícitamente el manifest real.");
