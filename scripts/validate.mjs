@@ -56,6 +56,12 @@ const securityDefinerMigration=read("supabase/migrations/110_security_definer_co
 const securityDefinerFixMigration=read("supabase/migrations/111_security_definer_contract_regex_fix_v11_30_1.sql");
 const deliverySatisfactionMigration=read("supabase/migrations/112_delivery_satisfaction_distance_v11_31_0.sql");
 const deliverySatisfactionIndexMigration=read("supabase/migrations/113_delivery_satisfaction_fk_indexes_v11_31_0.sql");
+const hardeningMigration=read("supabase/migrations/114_impersonation_metrics_security_v11_32_0.sql");
+const coreUi=read("assets/js/core/ui.js");
+const adminWrapper=read("assets/js/modules/admin.js");
+const adminVerification=read("assets/js/modules/admin-user-verification-v11320.js");
+const supabaseConfig=read("supabase/config.toml");
+const workflow=read(".github/workflows/validate-crm.yml");
 const shippingFlow=read("assets/js/modules/shipping-flow.js");
 const sentOrders=read("assets/js/modules/sent-orders.js");
 const api=read("assets/js/services/api.js");
@@ -71,8 +77,8 @@ const normalizedJsRuntime=jsRuntime
   .replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
 // Release identity.
-check(version==="11.31.2","CONFIG.version debe ser 11.31.2.");
-check(build==="2026-09-18.05","CONFIG.build debe ser 2026-09-18.05.");
+check(version==="11.32.0","CONFIG.version debe ser 11.32.0.");
+check(build==="2026-09-23.01","CONFIG.build debe ser 2026-09-23.01.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
@@ -107,8 +113,8 @@ check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía instit
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
 // PWA and Vercel routing.
-check(sw.includes('// previous-cache: crm-suministros-v11-31-1-20260918-04'),"previous-cache PWA debe apuntar a V11.31.1.");
-check(sw.includes('const CACHE="crm-suministros-v11-31-2-20260918-05";'),"CACHE activo PWA no corresponde a V11.31.2.");
+check(sw.includes('// previous-cache: crm-suministros-v11-31-2-20260918-05'),"previous-cache PWA debe apuntar a V11.31.2.");
+check(sw.includes('const CACHE="crm-suministros-v11-32-0-20260923-01";'),"CACHE activo PWA no corresponde a V11.32.0.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
 check(vercel.includes('manifest\\\\.webmanifest')||vercel.includes('/manifest.webmanifest'),"Vercel debe excluir o tratar explícitamente el manifest real.");
@@ -138,6 +144,15 @@ check(deliverySatisfactionMigration.includes("reports_delivery_explore_v1131")&&
 check(deliverySatisfactionIndexMigration.includes("distance_recorded_by")&&deliverySatisfactionIndexMigration.includes("satisfaction_confirmed_by"),"Migración 113 debe cubrir las FKs de actores post-entrega.");
 check(deliverySatisfactionIndexMigration.includes("drop index if exists erp_supply.idx_deliveries_satisfaction_confirmed_v1131"),"Migración 113 debe retirar el índice temporal de satisfacción sin hot path.");
 check(reportsEnterprise.includes("distance_km")&&reportsEnterprise.includes("avg_distance_km")&&reportsEnterprise.includes("avg_satisfaction_hours"),"Analítica debe exponer distancia y satisfacción del dataset Entregas.");
+check(hardeningMigration.includes("admin_impersonation_sessions")&&hardeningMigration.includes("originalActorProfileId")&&hardeningMigration.includes("effectiveActorProfileId"),"Migración 114 debe conservar trazabilidad de impersonación con actor original y efectivo.");
+check(hardeningMigration.includes("erp_x_auditoria_erp_metrics_user")&&hardeningMigration.includes("wr.organization_id=v_org"),"Migración 114 debe limitar métricas de integración a la organización autenticada.");
+check(/\[functions\.erp-auditoria-metrics\][\s\S]*?verify_jwt\s*=\s*true/.test(supabaseConfig),"erp-auditoria-metrics debe exigir JWT en supabase/config.toml.");
+check(coreUi.includes("export function sanitizeHtml")&&coreUi.includes("BLOCKED_HTML_TAGS")&&coreUi.includes("UNSAFE_URL"),"core/ui.js debe mantener la barrera central XSS.");
+check(adminWrapper.includes("admin-user-verification-v11320.js")&&adminVerification.includes("impersonation_session"),"Administración debe mantener la verificación de usuario separada y trazable.");
+check(workflow.includes("authenticated shell, critical modules and native API")&&workflow.includes("ERP_QA_EMAIL")&&workflow.includes("ERP_QA_PASSWORD"),"CI debe ejecutar el E2E autenticado como gate obligatorio.");
+check(workflow.includes("github/codeql-action/init@v4")&&workflow.includes("actions/dependency-review-action@v5")&&workflow.includes("trufflesecurity/trufflehog@v3.97.5"),"CI debe conservar CodeQL, Dependency Review y TruffleHog.");
+check(exists("supabase/production-migration-ledger.json")&&exists("scripts/migration-ledger-check.mjs")&&exists("docs/DISASTER_RECOVERY.md"),"Falta el contrato de procedencia/DR de migraciones V11.32.0.");
+
 check(!analyticsCss.includes(".btn-danger,.btn.danger{"),"analytics.css no debe sobrescribir globalmente los botones danger.");
 check(analyticsCss.includes(".admin-shell-v11160 .btn-danger,.admin-shell-v11160 .btn.danger{"),"Los estilos danger de Administración deben permanecer encapsulados.");
 check(operationsCss.includes(".modal.popup-ux-v1190:not(.full):not(.split):not(.wizard-modal){width:min(680px,100%)}"),"El ancho base de popups comunes debe conservarse en 680px.");
@@ -264,7 +279,7 @@ console.log(`VALIDACIÓN CRM ${version} CORRECTA`);
 console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
 console.log("- Inventario conserva captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
-console.log("- V11.31.2 amplía Gestión rápida, aprovecha mejor el espacio y corrige definitivamente su cabecera azul.");
+console.log("- V11.32.0 refuerza seguridad, E2E autenticado, trazabilidad de impersonación, XSS y procedencia de migraciones.");
 console.log("- Observers responsive y popup procesan únicamente el ámbito dinámico afectado.");
 console.log("- PWA, Vercel, RLS y hotpaths SQL quedan incorporados al contrato canónico.");
 console.log("- Conteo ciego, RLS granular y aprobación contable permanecen como contratos obligatorios.");
