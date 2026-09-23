@@ -5,10 +5,10 @@ let dialogSystemInstalled=false;
 let dialogPreviousFocus=null;
 let dialogMutation=null;
 
-const BLOCKED_HTML_TAGS=new Set(["SCRIPT","IFRAME","OBJECT","EMBED","META","BASE"]);
+const BLOCKED_HTML_TAGS=new Set(["SCRIPT","STYLE","LINK","IFRAME","OBJECT","EMBED","META","BASE"]);
 const URL_ATTRIBUTES=new Set(["href","src","action","formaction","xlink:href"]);
 const UNSAFE_URL=/^\s*(?:javascript|vbscript|data\s*:\s*text\/html)/i;
-const UNSAFE_STYLE=/(?:expression\s*\(|behavior\s*:|url\s*\(\s*['"]?\s*javascript\s*:)/i;
+const UNSAFE_STYLE=/(?:expression\s*\(|behavior\s*:|url\s*\()/i;
 
 /* Trust boundary for reusable UI primitives.
    Callers may provide structured HTML, but executable markup, event handlers
