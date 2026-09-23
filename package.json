@@ -5,12 +5,13 @@
   "type": "module",
   "scripts": {
     "serve": "node scripts/serve.mjs",
-    "validate": "node scripts/validate.mjs && node --experimental-vm-modules scripts/link-check.mjs && node scripts/workforce-planner-test.mjs && node scripts/workforce-today-test.mjs && node scripts/security-check.mjs && node scripts/integration-contract-check.mjs && node scripts/migration-ledger-check.mjs",
+    "validate": "node scripts/validate.mjs && node --experimental-vm-modules scripts/link-check.mjs && node scripts/workforce-planner-test.mjs && node scripts/workforce-today-test.mjs && node scripts/workforce-manager-review-test.mjs && node scripts/security-check.mjs && node scripts/integration-contract-check.mjs && node scripts/migration-ledger-check.mjs",
     "validate:integration": "node scripts/integration-contract-check.mjs",
     "security": "node scripts/security-check.mjs",
     "security:history": "node scripts/git-history-security-check.mjs",
     "db:ledger": "node scripts/migration-ledger-check.mjs",
     "validate:workforce": "node scripts/workforce-planner-test.mjs",
-    "validate:workforce-today": "node scripts/workforce-today-test.mjs"
+    "validate:workforce-today": "node scripts/workforce-today-test.mjs",
+    "validate:workforce-manager": "node scripts/workforce-manager-review-test.mjs"
   }
 }
