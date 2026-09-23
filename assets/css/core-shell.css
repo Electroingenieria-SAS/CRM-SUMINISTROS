@@ -1158,3 +1158,20 @@ button.work-month-day-v11330:hover,.work-month-day-v11330[role="button"]:hover{b
 @media(max-width:480px){
   .work-time-review-metrics,.work-time-review-choice{grid-template-columns:1fr}
 }
+
+
+.work-time-review-history{padding-top:2px}
+.work-time-review-recent-list{display:grid;gap:6px}
+.work-time-review-recent{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 10px;border:1px solid #e1e7ed;border-radius:10px;background:#fbfdff}
+.work-time-review-recent>div{min-width:0;display:grid;gap:2px}
+.work-time-review-recent>div:nth-child(2){text-align:right}
+.work-time-review-recent span{width:max-content;padding:2px 6px;border-radius:999px;font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.05em}
+.work-time-review-recent.reviewed span{background:#eaf8f1;color:#267757}
+.work-time-review-recent.observed span{background:#fff1e4;color:#a05f1e}
+.work-time-review-recent strong{font-size:8.7px;color:#31516d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.work-time-review-recent small{font-size:7.5px;color:#8594a3}
+.work-time-review-recent p{grid-column:1/-1;margin:1px 0 0;padding-top:5px;border-top:1px dashed #e0e6ec;color:#6f8091;font-size:8px;line-height:1.4}
+@media(max-width:520px){
+  .work-time-review-recent{grid-template-columns:1fr}
+  .work-time-review-recent>div:nth-child(2){text-align:left}
+}
