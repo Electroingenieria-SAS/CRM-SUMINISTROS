@@ -7,6 +7,10 @@ on:
     branches: [main, hardening/repository-cleanup-v11-32-0]
   workflow_dispatch:
 
+concurrency:
+  group: crm-suministros-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -257,6 +261,9 @@ jobs:
           npx playwright test tests/smoke.spec.js --project=chromium --project=mobile --grep "authenticated shell, critical modules and native API"
 
   deploy-preview:
+    concurrency:
+      group: crm-suministros-github-pages
+      cancel-in-progress: true
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/hardening/repository-cleanup-v11-32-0')
     needs: validate
     runs-on: ubuntu-latest
