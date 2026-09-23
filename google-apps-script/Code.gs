@@ -10,7 +10,7 @@
  */
 
 const SETTINGS = Object.freeze({
-  VERSION: '3.3.0',
+  VERSION: '3.4.0',
 
   SUPABASE_URL: 'https://hezjxcxxcjlpmyalftam.supabase.co',
   SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_yxgyHILzQVDHrS2MYYkBkA_UfN77JtT',
@@ -123,15 +123,25 @@ function validateRequest_(request) {
   const rawOrigin = String(request.origin || '').trim();
   const normalizedOrigin = normalizeOrigin_(rawOrigin);
 
-  if (!normalizedOrigin || !isAllowedOrigin_(normalizedOrigin)) {
-    console.error('Origen rechazado: ' + rawOrigin + ' | normalizado: ' + normalizedOrigin);
-    throw new Error(
-      'El dominio del ERP no está autorizado para cargar archivos. ' +
-      'Origen recibido: ' + (rawOrigin || 'VACÍO')
+  // El origin enviado dentro del payload NO se usa como control de acceso,
+  // porque es un dato declarado por el cliente y puede falsificarse.
+  // La autorización real la determina el JWT de Supabase más abajo.
+  //
+  // Conservamos el origin únicamente para:
+  // - trazabilidad;
+  // - diagnóstico;
+  // - dirigir postMessage de vuelta a la aplicación.
+  request.origin = normalizedOrigin || rawOrigin || '';
+
+  if (
+    normalizedOrigin &&
+    !isAllowedOrigin_(normalizedOrigin)
+  ) {
+    console.warn(
+      'Origen no listado (permitido por autenticación Supabase): ' +
+      normalizedOrigin
     );
   }
-
-  request.origin = normalizedOrigin;
   if (!request.accessToken) {
     throw new Error('La sesión del ERP no fue recibida.');
   }
@@ -342,8 +352,14 @@ function safeName_(value, fallback) {
  * Devuelve el resultado al iframe oculto que inició la carga en el ERP.
  */
 function callbackPage_(request, data) {
-  const requestedOrigin = normalizeOrigin_(request && request.origin ? request.origin : '');
-  const targetOrigin = isAllowedOrigin_(requestedOrigin) ? requestedOrigin : '*';
+  const requestedOrigin = normalizeOrigin_(
+    request && request.origin ? request.origin : ''
+  );
+
+  // postMessage usa el origin informado por la propia página si es válido.
+  // Si no pudo normalizarse, se usa "*" únicamente para entregar el error
+  // al iframe llamante. La autorización de la carga ya fue resuelta por JWT.
+  const targetOrigin = requestedOrigin || '*';
 
   const json = JSON.stringify({
     source: 'ERP_EI_DRIVE_BRIDGE',
