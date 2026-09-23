@@ -16,6 +16,7 @@ export function ensureWorkforceTimelineStyles(){
 export function composePlannerTimeline(raw={}){
   const assignments=Array.isArray(raw.assignments)?raw.assignments:[];
   const executions=Array.isArray(raw.executions)?raw.executions:[];
+  const canPlanTeam=Boolean(raw.permissions?.canPlanTeam);
   const byAssignment=new Map();
 
   for(const execution of executions){
