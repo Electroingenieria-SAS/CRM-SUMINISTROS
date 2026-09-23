@@ -6,8 +6,7 @@ import {fmt,statusBadge} from "../core/format.js";
 import {state} from "../core/state.js";
 import {managerQueueSummary,timeReviewCardHtml,timeReviewDialogHtml} from "./workforce-time-review-v11340.js";
 
-const AUX_ROLES=new Set(["aux_logistica","auxiliar_corte"]);
-const APPROVER_ROLES=new Set(["super_admin","jefe_logistica","lider_logistica","coordinador_logistico","gerencia"]);
+const REVIEWER_ROLES=new Set(["super_admin","jefe_logistica","lider_logistica","coordinador_logistico","gerencia"]);
 const OPS_MODULES=[
   {code:"receiving",label:"Recepción",icon:"▣"},
   {code:"billing",label:"Facturación",icon:"▤"},
@@ -27,8 +26,7 @@ async function rpc(name,params={}){
 
 function roles(){return new Set(state.profile?.roles||[])}
 function hasAny(set){const r=roles();return [...set].some(x=>r.has(x))}
-function isAuxiliary(){return hasAny(AUX_ROLES)}
-function canApproveWork(){return hasAny(APPROVER_ROLES)}
+function canReviewWorkTime(){return hasAny(REVIEWER_ROLES)}
 function moduleReadable(code){return Boolean(state.modules?.find(m=>m.code===code)?.canRead)}
 function activeTask(data){return (data?.tasks||[]).find(t=>["QUEUED","ASSIGNED","IN_PROGRESS","WAITING","BLOCKED"].includes(t.status))||null}
 function actionCodes(data){return new Set((data?.actions?.actions||[]).map(x=>x.code))}
@@ -51,22 +49,6 @@ export function installOperationalV112(){
 async function handleCapturedClick(event){
   const target=event.target?.closest?.("button,[role='button']");
   if(!target||target.disabled)return;
-
-  if(isAuxiliary()&&target.matches("[data-start-catalog]")){
-    event.preventDefault();event.stopImmediatePropagation();
-    const catalogId=target.dataset.startCatalog;
-    if(!catalogId)return;
-    target.disabled=true;
-    try{
-      await api.workQuickRequest(catalogId);
-      toast("Solicitud enviada con un clic. Quedó pendiente de aprobación.","success",6000);
-      window.dispatchEvent(new HashChangeEvent("hashchange"));
-    }catch(error){
-      toast(error.message||String(error),"error",7500);
-      target.disabled=false;
-    }
-    return;
-  }
 
   if(target.matches("[data-add-guide]")){
     const shell=target.closest(".shipping-process-modal[data-order-id]");
@@ -97,50 +79,36 @@ async function handleCapturedClick(event){
 }
 
 export async function enhanceWorkforce(root){
-  if(!root||state.currentModule!=="workforce")return;
+  if(!root||state.currentModule!=="workforce"||!canReviewWorkTime())return;
   const content=root.querySelector("#workforce-content");
   if(!content||!content.querySelector(".workforce-agenda-card"))return;
   content.querySelector("[data-v112-work-requests]")?.remove();
   try{
-    const data=await api.workMyDay();
-    const pending=data.pendingRequests||[];
-    const history=data.requestHistory||[];
-    let approvals=[];
-    let timeReviews=[];
-    if(canApproveWork()){
-      try{
-        const queue=await api.workManagerQueue(50);
-        approvals=queue?.assignmentApprovals||[];
-        timeReviews=queue?.timeReviews||[];
-      }catch(error){
-        console.warn("[V11.34 Manager queue] usando compatibilidad previa",error);
-        approvals=await api.workPendingApprovals().catch(()=>[]);
-      }
-    }
-    if(!pending.length&&!history.length&&!approvals.length&&!timeReviews.length)return;
+    const queue=await api.workManagerQueue(50);
+    const timeReviews=queue?.timeReviews||[];
+    if(!timeReviews.length)return;
     const reviewSummary=managerQueueSummary(timeReviews);
     const section=document.createElement("section");
     section.className="card v112-work-requests";
     section.dataset.v112WorkRequests="1";
     section.innerHTML=`
-      <header class="card-head"><div><h3>Programación y autorizaciones</h3><p>Solicitudes, tiempos prolongados y decisiones del equipo en una sola bandeja.</p></div>${timeReviews.length?`<span class="workforce-count attention" title="Tiempos pendientes de revisión">${reviewSummary.pending}</span>`:""}</header>
+      <header class="card-head">
+        <div><h3>Revisión de tiempos</h3><p>Solo aparecen actividades que superaron 1 hora y ya fueron cerradas con foto.</p></div>
+        <span class="workforce-count attention" title="Tiempos pendientes de revisión">${reviewSummary.pending}</span>
+      </header>
       <div class="card-body v112-work-requests-body">
-        ${timeReviews.length?`<div class="v112-request-group work-time-review-group"><div class="v112-group-title"><div><strong>Tiempos por revisar</strong><small>Actividades que superaron 1 hora y ya tienen foto final.</small></div><span>${timeReviews.length}</span></div><div class="work-time-review-list">${timeReviews.map(timeReviewCardHtml).join("")}</div></div>`:""}
-        ${pending.length?`<div class="v112-request-group"><div class="v112-group-title"><strong>Mis solicitudes pendientes</strong><span>${pending.length}</span></div>${pending.map(requestRow).join("")}</div>`:""}
-        ${approvals.length?`<div class="v112-request-group"><div class="v112-group-title"><strong>Por aprobar</strong><span>${approvals.length}</span></div>${approvals.map(approvalRow).join("")}</div>`:""}
-        ${history.length?`<div class="v112-request-group"><div class="v112-group-title"><strong>Decisiones recientes</strong><span>${history.length}</span></div>${history.map(historyRow).join("")}</div>`:""}
+        <div class="v112-request-group work-time-review-group">
+          <div class="v112-group-title"><div><strong>Tiempos por revisar</strong><small>Revisa evidencia y tiempo real. No existe aprobación previa para iniciar actividades.</small></div><span>${timeReviews.length}</span></div>
+          <div class="work-time-review-list">${timeReviews.map(timeReviewCardHtml).join("")}</div>
+        </div>
       </div>`;
     const historyCard=content.querySelector(".workforce-history-card");
     if(historyCard)historyCard.before(section);else content.append(section);
-    section.querySelectorAll("[data-v112-approval]").forEach(button=>button.addEventListener("click",()=>{
-      const row=approvals.find(x=>x.id===button.dataset.v112Approval);
-      if(row)openApprovalDialog(row);
-    }));
     section.querySelectorAll("[data-time-review-open]").forEach(button=>button.addEventListener("click",()=>{
       const row=timeReviews.find(x=>x.executionId===button.dataset.timeReviewOpen);
       if(row)openTimeReviewDialog(row);
     }));
-  }catch(error){console.warn("[V11.2 Workforce]",error)}
+  }catch(error){console.warn("[V11.34 Workforce review]",error)}
 }
 
 function openTimeReviewDialog(row){
@@ -155,59 +123,13 @@ function openTimeReviewDialog(row){
       if(decision==="OBSERVED"&&(!note||note.length<5))throw new Error("Escribe una observación breve para cerrar como Observado.");
       await api.workReviewTime(row.executionId,decision,note);
       toast(decision==="REVIEWED"?"Tiempo revisado y actividad cerrada.":"Actividad cerrada con observación.","success",6000);
+      view.close();
       window.dispatchEvent(new CustomEvent("erp:work-changed"));
     }
   });
   view.root.querySelectorAll('[name="timeReviewDecision"]').forEach(input=>input.addEventListener("change",()=>{
     view.root.querySelectorAll(".work-time-review-choice .choice").forEach(label=>label.classList.toggle("active",Boolean(label.querySelector("input")?.checked)));
   }));
-}
-
-function requestRow(row){
-  const openEnded=Boolean(row.metadata?.openEnded)||!row.plannedEnd;
-  return `<article class="v112-request-row pending"><div><span class="v112-request-status">Pendiente</span><strong>${escapeText(row.title)}</strong><small>${fmt.date(row.plannedStart)} · ${openEnded?"sin hora final":`hasta ${fmt.date(row.plannedEnd)}`}</small></div><p>${escapeText(row.reason||"")}</p></article>`;
-}
-function approvalRow(row){
-  const openEnded=Boolean(row.metadata?.openEnded)||!row.plannedEnd;
-  return `<article class="v112-request-row approval ${row.hasOverlap||row.outsideWorkingTime?"warning":""}"><div><span class="v112-request-status">${escapeText(row.profileName)}</span><strong>${escapeText(row.title)}</strong><small>${fmt.date(row.plannedStart)} · ${openEnded?"sin hora final":`hasta ${fmt.date(row.plannedEnd)}`}</small></div><p>${escapeText(row.reason||"")}</p><div class="v112-request-flags">${row.hasOverlap?"<span>Superposición detectada</span>":""}${row.outsideWorkingTime?"<span>Fuera de jornada</span>":""}</div><button class="btn btn-primary" data-v112-approval="${escapeText(row.id)}">Revisar solicitud</button></article>`;
-}
-function historyRow(row){return `<article class="v112-request-row history"><div><span class="v112-request-status ${String(row.approvalStatus).toLowerCase()}">${row.approvalStatus==="APPROVED"?"Aprobada":"Rechazada"}</span><strong>${escapeText(row.title)}</strong><small>${fmt.date(row.plannedStart)}${row.decidedBy?` · ${escapeText(row.decidedBy)}`:""}</small></div>${row.decisionNote?`<p>${escapeText(row.decisionNote)}</p>`:""}</article>`}
-
-function openApprovalDialog(row){
-  const view=modal({
-    title:"Revisar solicitud de actividad",
-    confirmLabel:"Aprobar actividad",
-    size:"wide",
-    body:`
-      <section class="v112-dialog-intro"><span>Autorización de Jornada</span><strong>${escapeText(row.title)}</strong><p>${escapeText(row.profileName)} · ${escapeText(row.catalogName||"")}</p></section>
-      <div class="detail-grid v112-approval-details">
-        <div class="info-box"><label>Inicio</label><strong>${fmt.date(row.plannedStart)}</strong></div>
-        <div class="info-box"><label>Final</label><strong>${row.plannedEnd?fmt.date(row.plannedEnd):"Sin hora final"}</strong></div>
-        <div class="info-box"><label>Prioridad</label><strong>${escapeText(fmt.label(row.priority))}</strong></div>
-        <div class="info-box"><label>Ámbito</label><strong>${escapeText(fmt.label(row.approvalScope))}</strong></div>
-      </div>
-      <div class="field"><label>Justificación del auxiliar</label><textarea class="control" readonly>${escapeText(row.reason||"")}</textarea></div>
-      ${(row.hasOverlap||row.outsideWorkingTime)?`<label class="v112-open-ended"><input type="checkbox" name="force"><span><strong>Autorizar la excepción detectada</strong><small>${row.hasOverlap?"Existe superposición con otra actividad. ":""}${row.outsideWorkingTime?"El horario toca tiempo fuera de la jornada configurada.":""}</small></span></label>`:""}
-      <div class="field"><label>Nota de decisión</label><textarea class="control" name="note" placeholder="Opcional al aprobar; obligatoria al rechazar"></textarea></div>
-      <button type="button" class="btn btn-danger v112-reject-button" data-v112-reject>Rechazar solicitud</button>`,
-    onConfirm:async dialog=>{
-      const force=Boolean(dialog.querySelector('[name="force"]')?.checked);
-      if((row.hasOverlap||row.outsideWorkingTime)&&!force)throw new Error("Revisa la excepción detectada y autorízala explícitamente para aprobar.");
-      const note=dialog.querySelector('[name="note"]').value.trim()||null;
-      await api.workDecideAssignment(row.id,"APPROVED",note,force);
-      toast("Actividad aprobada. Ya puede iniciarse manualmente desde Mi Jornada.","success",6500);
-      window.dispatchEvent(new HashChangeEvent("hashchange"));
-    }
-  });
-  view.root.querySelector("[data-v112-reject]")?.addEventListener("click",async event=>{
-    const note=view.root.querySelector('[name="note"]').value.trim();
-    if(note.length<5)return toast("Escribe el motivo del rechazo.","error",6000);
-    const button=event.currentTarget;button.disabled=true;
-    try{
-      await api.workDecideAssignment(row.id,"REJECTED",note,false);
-      view.close();toast("Solicitud rechazada.","success");window.dispatchEvent(new HashChangeEvent("hashchange"));
-    }catch(error){toast(error.message,"error",7000);button.disabled=false}
-  });
 }
 
 async function finalizeAfterDomain(orderId,message){
