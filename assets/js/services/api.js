@@ -107,7 +107,6 @@ export const api={
   workCreateCatalogItem:payload=>mutationRpc("erp_x_work_create_catalog_item",{p_payload:payload||{}}),
   workMyDay:(day=null)=>rpc("erp_x_work_my_day",{p_day:day||null}),
   workProposeAssignment:payload=>mutationRpc("erp_x_work_propose_assignment",{p_payload:payload||{}}),
-  workQuickRequest:catalogId=>mutationRpc("erp_x_work_quick_request",{p_catalog_id:catalogId}),
   workPendingApprovals:()=>rpc("erp_x_work_pending_approvals"),
   workManagerQueue:(limit=50)=>rpc("erp_x_work_manager_queue",{p_limit:limit}),
   workDecideAssignment:(assignmentId,decision,note=null,force=false)=>mutationRpc("erp_x_work_decide_assignment",{p_assignment_id:assignmentId,p_decision:decision,p_note:note,p_force:force}),
