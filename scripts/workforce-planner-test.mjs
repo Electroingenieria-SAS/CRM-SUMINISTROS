@@ -5,7 +5,8 @@ import {
   plannerRangeForMode,
   normalizePlannerCalendar,
   nextBusinessAnchor,
-  renderPlannerBoard
+  renderPlannerBoard,
+  assignmentDetailHtml
 } from "../assets/js/modules/workforce-planner-v11330.js";
 
 const calendar=normalizePlannerCalendar({
@@ -66,6 +67,42 @@ const november=renderPlannerBoard({
   calendar
 });
 assert.equal((november.match(/work-month-day-v11330 spacer/g)||[]).length,4,"Un mes que inicia en fin de semana no debe crear una fila vacía inicial; solo conserva los 4 espacios finales para cerrar la última semana laboral");
+
+const detailHtml=assignmentDetailHtml({
+  id:"meeting-1",
+  title:"Reunión de coordinación",
+  description:"Revisión semanal de pendientes operativos.",
+  kind:"ACTIVITY",
+  status:"PUBLISHED",
+  priority:"HIGH",
+  plannedStart:"2026-10-13T14:00:00-05:00",
+  plannedEnd:"2026-10-13T15:00:00-05:00",
+  estimatedMinutes:60,
+  evidencePolicy:"OPTIONAL",
+  acceptanceRequired:true,
+  catalogName:"Reuniones",
+  profileName:"Juan Pérez",
+  memberStatus:"IN_PROGRESS",
+  requestOrigin:"MANUAL",
+  requestReason:"Seguimiento semanal",
+  approvalStatus:"APPROVED",
+  approvalScope:"MANAGEMENT",
+  recurrence:{frequency:"WEEKLY"},
+  metadata:{location:"Sala de juntas"}
+},[
+  {id:"meeting-1",profileName:"Juan Pérez"},
+  {id:"meeting-1",profileName:"Ana Gómez"}
+]);
+for(const token of ["Reunión de coordinación","Revisión semanal","Juan Pérez","Ana Gómez","Sala de juntas","60 min"]){
+  assert.equal(detailHtml.includes(token),true,`El detalle debe mostrar: ${token}`);
+}
+const boardWithActivity=renderPlannerBoard({
+  mode:"week",
+  anchor:new Date("2026-10-13T12:00:00-05:00"),
+  data:{people:[{id:"p1",name:"Juan Pérez"}],assignments:[{id:"a1",profileId:"p1",profileName:"Juan Pérez",title:"Actividad inspeccionable",memberStatus:"PLANNED",plannedStart:"2026-10-13T08:00:00-05:00",plannedEnd:"2026-10-13T09:00:00-05:00"}]},
+  calendar
+});
+assert.equal(boardWithActivity.includes('data-assignment-open="a1"'),true,"Las etiquetas del cronograma deben poder abrir el detalle");
 
 const migrationPath=new URL("../supabase/migrations/115_workforce_planner_calendar_v11_33_0.sql",import.meta.url);
 assert.equal(fs.existsSync(migrationPath),true,"Debe existir la migración V11.33.0 del cronograma");
