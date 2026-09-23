@@ -227,8 +227,9 @@ async function finishWithPhoto(active,content,dialog,useCamera){
       clientActiveSeconds:activeSeconds
     });
     await uploadWorkEvidence(active.id,file,finalEvidenceType(active.evidencePolicy),active.title);
+    const reviewRequired=result?.timeReviewRequired??traffic.review;
     dialog.close();
-    toast(traffic.review?"Actividad finalizada con foto. Quedó pendiente de revisión.":"Actividad finalizada con foto.");
+    toast(reviewRequired?"Actividad finalizada con foto. Quedó pendiente de revisión.":"Actividad finalizada con foto.");
     await rerenderWorkforceContent(content);
   }catch(error){
     toast(error.message,"error",9000);
