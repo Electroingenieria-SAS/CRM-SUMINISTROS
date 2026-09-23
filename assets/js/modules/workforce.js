@@ -542,11 +542,11 @@ async function renderPlanner(root,content){
         </div>
 
         ${plannerMode==="day"?`
-          <div class="work-calendar-filter-field-v11361">
+          <div class="work-calendar-filter-field-v11361 work-calendar-filter-scope-v11363">
             <label>Fecha</label>
             <input type="date" value="${isoDate(plannerAnchor)}" data-plan-filter-date>
           </div>`:`
-          <div class="work-calendar-filter-field-v11361">
+          <div class="work-calendar-filter-field-v11361 work-calendar-filter-scope-v11363">
             <label>Día</label>
             <select data-plan-filter-weekday>
               <option value="ALL" ${plannerFilters.weekday==="ALL"?"selected":""}>Todos los días</option>
