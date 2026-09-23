@@ -4,7 +4,8 @@ import {
   businessDaysForRange,
   plannerRangeForMode,
   normalizePlannerCalendar,
-  nextBusinessAnchor
+  nextBusinessAnchor,
+  renderPlannerBoard
 } from "../assets/js/modules/workforce-planner-v11330.js";
 
 const calendar=normalizePlannerCalendar({
@@ -57,6 +58,14 @@ const next=nextBusinessAnchor(new Date("2026-10-09T12:00:00-05:00"),1,calendar);
 assert.equal(next.getFullYear(),2026);
 assert.equal(next.getMonth(),9);
 assert.equal(next.getDate(),13,"La navegación diaria debe saltar fin de semana y festivo del lunes");
+
+const november=renderPlannerBoard({
+  mode:"month",
+  anchor:new Date("2026-11-01T12:00:00-05:00"),
+  data:{people:[],assignments:[]},
+  calendar
+});
+assert.equal((november.match(/work-month-day-v11330 spacer/g)||[]).length,0,"Un mes que inicia en fin de semana debe comenzar visualmente en el primer lunes laboral");
 
 const migrationPath=new URL("../supabase/migrations/115_workforce_planner_calendar_v11_33_0.sql",import.meta.url);
 assert.equal(fs.existsSync(migrationPath),true,"Debe existir la migración V11.33.0 del cronograma");
