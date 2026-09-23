@@ -4,11 +4,14 @@ import {loading,empty,modal,wizard,toast} from "../core/ui.js";
 import {state} from "../core/state.js";
 import {uploadWorkEvidence} from "../services/drive.js";
 import {icon} from "../core/icons.js";
+import {normalizePlannerCalendar,plannerRangeForMode,nextBusinessAnchor,plannerTitleForMode,renderPlannerBoard,teamCapacityHtml} from "./workforce-planner-v11330.js";
 
 let liveTimer=null;
 let currentView="today";
 let plannerMode="week";
-let plannerAnchor=startOfWeek(new Date());
+let plannerAnchor=new Date();
+let plannerCalendarCache=null;
+let plannerCatalogCache=null;
 let analyticsRange={from:isoDate(addDays(new Date(),-29)),to:isoDate(new Date())};
 
 const GROUP_LABELS={LOGISTICS:"Operación logística",COMMERCIAL:"Comercial",FINANCE:"Financiera",PURCHASING:"Compras",MANAGEMENT:"Gestión",GENERAL:"General",IMPROVEMENT:"Mejora continua"};
@@ -208,43 +211,86 @@ function startLiveClock(content,active){
 // PLANIFICACIÓN
 // ---------------------------------------------------------------------------
 async function renderPlanner(root,content){
-  const range=plannerRange();
+  const range=plannerRangeForMode(plannerMode,plannerAnchor);
   const data=await api.workPlanner(range.from,range.to);
-  const catalog=await api.workCatalog();
+  const calendar=await resolvePlannerCalendar(data);
+  const subtitle={day:"Jornada laboral por horas",week:"Semana laboral · lunes a viernes",month:"Mes laboral · sin fines de semana"}[plannerMode]||"Cronograma laboral";
   content.innerHTML=`
     <section class="work-planner-toolbar card">
-      <div class="work-planner-nav"><button class="icon-btn" data-plan-prev aria-label="Anterior">‹</button><button class="btn btn-ghost" data-plan-today>Hoy</button><button class="icon-btn" data-plan-next aria-label="Siguiente">›</button><div><strong>${fmt.escape(plannerTitle())}</strong><span>${plannerMode==="week"?"Distribución semanal de capacidad":"Panorama mensual de compromisos"}</span></div></div>
-      <div class="work-planner-actions"><div class="segment-control"><button class="${plannerMode==="week"?"active":""}" data-plan-mode="week">Semana</button><button class="${plannerMode==="month"?"active":""}" data-plan-mode="month">Mes</button></div><button class="btn btn-create" data-plan-new-custom>Nueva actividad</button><button class="btn btn-primary" data-plan-new>Asignar del catálogo</button></div>
+      <div class="work-planner-nav">
+        <button class="icon-btn" data-plan-prev aria-label="Anterior">‹</button>
+        <button class="btn btn-ghost" data-plan-today>Hoy</button>
+        <button class="icon-btn" data-plan-next aria-label="Siguiente">›</button>
+        <div><strong>${fmt.escape(plannerTitleForMode(plannerMode,plannerAnchor))}</strong><span>${subtitle}</span></div>
+      </div>
+      <div class="work-planner-actions">
+        <div class="segment-control work-planner-mode">
+          <button class="${plannerMode==="day"?"active":""}" data-plan-mode="day">Día</button>
+          <button class="${plannerMode==="week"?"active":""}" data-plan-mode="week">Semana</button>
+          <button class="${plannerMode==="month"?"active":""}" data-plan-mode="month">Mes</button>
+        </div>
+        <button class="btn btn-create" data-plan-new-custom>Nueva actividad</button>
+        <button class="btn btn-primary" data-plan-new>Asignar del catálogo</button>
+      </div>
     </section>
-    ${plannerMode==="week"?weekPlannerHtml(data):monthPlannerHtml(data)}
-    <section class="card work-team-now"><header class="card-head"><div><h3>Capacidad del equipo</h3><p>La carga se calcula con los minutos planificados; no es un ranking de personas.</p></div></header><div class="card-body">${teamCapacityHtml(data.people||[],data.assignments||[],range)}</div></section>`;
-  content.querySelector("[data-plan-prev]").onclick=()=>{plannerAnchor=plannerMode==="week"?addDays(plannerAnchor,-7):addMonths(plannerAnchor,-1);renderPlanner(root,content)};
-  content.querySelector("[data-plan-next]").onclick=()=>{plannerAnchor=plannerMode==="week"?addDays(plannerAnchor,7):addMonths(plannerAnchor,1);renderPlanner(root,content)};
-  content.querySelector("[data-plan-today]").onclick=()=>{plannerAnchor=plannerMode==="week"?startOfWeek(new Date()):new Date(new Date().getFullYear(),new Date().getMonth(),1);renderPlanner(root,content)};
-  content.querySelectorAll("[data-plan-mode]").forEach(button=>button.onclick=()=>{plannerMode=button.dataset.planMode;plannerAnchor=plannerMode==="week"?startOfWeek(plannerAnchor):new Date(plannerAnchor.getFullYear(),plannerAnchor.getMonth(),1);renderPlanner(root,content)});
-  content.querySelector("[data-plan-new]").onclick=()=>assignmentWizard(data,catalog,()=>renderPlanner(root,content),null,{newCatalog:false});
-  content.querySelector("[data-plan-new-custom]").onclick=()=>assignmentWizard(data,catalog,()=>renderPlanner(root,content),null,{newCatalog:true,startNow:true});
-  content.querySelectorAll("[data-plan-day]").forEach(button=>button.onclick=()=>assignmentWizard(data,catalog,()=>renderPlanner(root,content),button.dataset.planDay));
+    <section class="work-planner-context-strip">
+      <span><b>Horario</b> 07:00–12:00 · 13:40–17:30</span>
+      <span><b>Calendario</b> fines de semana excluidos · festivos bloqueados</span>
+      <span><b>Rendimiento</b> catálogo bajo demanda · calendario en caché</span>
+    </section>
+    ${renderPlannerBoard({mode:plannerMode,anchor:plannerAnchor,data,calendar})}
+    <section class="card work-team-now">
+      <header class="card-head"><div><h3>Capacidad del equipo</h3><p>Se calcula con minutos laborales reales del rango; festivos y fines de semana no consumen capacidad.</p></div></header>
+      <div class="card-body">${teamCapacityHtml(data.people||[],data.assignments||[],range,calendar)}</div>
+    </section>`;
+
+  const move=direction=>{
+    if(plannerMode==="day")plannerAnchor=nextBusinessAnchor(plannerAnchor,direction,calendar);
+    else if(plannerMode==="week")plannerAnchor=addDays(plannerAnchor,direction*7);
+    else plannerAnchor=addMonths(plannerAnchor,direction);
+    return renderPlanner(root,content);
+  };
+  content.querySelector("[data-plan-prev]").onclick=()=>move(-1);
+  content.querySelector("[data-plan-next]").onclick=()=>move(1);
+  content.querySelector("[data-plan-today]").onclick=()=>{
+    plannerAnchor=new Date();
+    if(plannerMode==="day"){
+      const today=isoDate(plannerAnchor);
+      const visible=calendar.workingWeekdays.includes(((plannerAnchor.getDay()+6)%7)+1)&&!calendar.holidayMap.has(today);
+      if(!visible)plannerAnchor=nextBusinessAnchor(plannerAnchor,1,calendar);
+    }
+    renderPlanner(root,content);
+  };
+  content.querySelectorAll("[data-plan-mode]").forEach(button=>button.onclick=()=>{
+    plannerMode=button.dataset.planMode;
+    if(plannerMode==="month")plannerAnchor=new Date(plannerAnchor.getFullYear(),plannerAnchor.getMonth(),1);
+    if(plannerMode==="day"){
+      const iso=isoDate(plannerAnchor);
+      const visible=calendar.workingWeekdays.includes(((plannerAnchor.getDay()+6)%7)+1)&&!calendar.holidayMap.has(iso);
+      if(!visible)plannerAnchor=nextBusinessAnchor(plannerAnchor,1,calendar);
+    }
+    renderPlanner(root,content);
+  });
+  content.querySelector("[data-plan-new]").onclick=async()=>assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),null,{newCatalog:false});
+  content.querySelector("[data-plan-new-custom]").onclick=async()=>assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),null,{newCatalog:true,startNow:true});
+  content.querySelectorAll("[data-plan-day]").forEach(button=>button.onclick=async()=>assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),button.dataset.planDay));
   content.querySelectorAll("[data-assignment-cancel]").forEach(button=>button.onclick=()=>cancelAssignmentDialog(button.dataset.assignmentCancel,()=>renderPlanner(root,content)));
 }
 
-function weekPlannerHtml(data){
-  const days=[...Array(7).keys()].map(i=>addDays(startOfWeek(plannerAnchor),i));
-  const byProfile=new Map((data.people||[]).map(p=>[p.id,p]));
-  return `<section class="work-week-board card"><div class="work-week-grid"><div class="work-week-corner">Equipo</div>${days.map(d=>`<button class="work-week-day ${isToday(d)?"today":""}" data-plan-day="${isoDate(d)}"><strong>${weekdayShort(d)}</strong><span>${d.getDate()} ${monthShort(d)}</span></button>`).join("")}${[...(data.people||[])].map(person=>`<div class="work-week-person"><span class="avatar">${fmt.initials(person.name)}</span><div><strong>${fmt.escape(person.name)}</strong><small>${fmt.escape((person.roles||[]).map(r=>fmt.role(r)).join(" · "))}</small></div></div>${days.map(day=>`<div class="work-week-cell ${isToday(day)?"today":""}">${assignmentsForDay(data.assignments||[],person.id,day).map(assignmentBlock).join("")||'<span class="work-cell-empty">Disponible</span>'}</div>`).join("")}`).join("")}</div></section>`;
+async function resolvePlannerCalendar(data){
+  if(data?.calendar){
+    plannerCalendarCache=normalizePlannerCalendar(data.calendar);
+    return plannerCalendarCache;
+  }
+  if(plannerCalendarCache)return plannerCalendarCache;
+  plannerCalendarCache=normalizePlannerCalendar(await api.calendar());
+  return plannerCalendarCache;
 }
 
-function monthPlannerHtml(data){
-  const first=new Date(plannerAnchor.getFullYear(),plannerAnchor.getMonth(),1);const start=startOfWeek(first);const cells=[...Array(42).keys()].map(i=>addDays(start,i));
-  return `<section class="work-month-board card"><div class="work-month-weekdays">${["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"].map(x=>`<span>${x}</span>`).join("")}</div><div class="work-month-grid">${cells.map(day=>{const rows=(data.assignments||[]).filter(a=>sameDate(new Date(a.plannedStart||a.dueAt),day));return `<button class="work-month-day ${day.getMonth()!==first.getMonth()?"outside":""} ${isToday(day)?"today":""}" data-plan-day="${isoDate(day)}"><span class="work-month-number">${day.getDate()}</span><div class="work-month-items">${rows.slice(0,4).map(a=>`<span class="work-month-item ${a.kind==="DELIVERABLE"?"deliverable":""}"><b>${a.plannedStart?timeOnly(a.plannedStart):"Límite"}</b> ${fmt.escape(a.title)} · ${fmt.escape(firstName(a.profileName))}</span>`).join("")}${rows.length>4?`<small>+${rows.length-4} más</small>`:""}</div></button>`}).join("")}</div></section>`;
-}
-
-function assignmentBlock(a){return `<article class="work-assignment-block ${a.kind==="DELIVERABLE"?"deliverable":""} priority-${String(a.priority||"MEDIUM").toLowerCase()}"><div><strong>${a.plannedStart?timeOnly(a.plannedStart):"Entregable"}</strong><span>${a.plannedEnd?`– ${timeOnly(a.plannedEnd)}`:a.dueAt?`vence ${timeOnly(a.dueAt)}`:""}</span></div><b>${fmt.escape(a.title)}</b><small>${fmt.number(a.estimatedMinutes)} min · ${fmt.label(a.memberStatus)}</small><button class="work-assignment-menu" data-assignment-cancel="${fmt.escape(a.id)}" title="Cancelar asignación" aria-label="Cancelar asignación">×</button></article>`}
-
-function teamCapacityHtml(people,assignments,range){
-  if(!people.length)return empty("Sin equipo disponible","No hay perfiles dentro de tu ámbito de planificación.");
-  const businessDays=countBusinessDays(range.from,range.to);const capacity=Math.max(1,businessDays*510);
-  return `<div class="work-capacity-list">${people.map(p=>{const planned=assignments.filter(a=>a.profileId===p.id).reduce((s,a)=>s+Number(a.estimatedMinutes||0),0);const pct=Math.round(100*planned/capacity);return `<article class="work-capacity-row"><div><span class="avatar">${fmt.initials(p.name)}</span><div><strong>${fmt.escape(p.name)}</strong><small>${p.activeTitle?`Ahora: ${fmt.escape(p.activeTitle)}`:`${fmt.number(planned)} min planificados`}</small></div></div><div class="capacity-meter"><span style="width:${Math.min(pct,100)}%"></span></div><b class="${pct>100?"danger":pct>85?"warning":""}">${pct}%</b></article>`}).join("")}</div>`;
+async function loadPlannerCatalog(){
+  if(plannerCatalogCache)return plannerCatalogCache;
+  plannerCatalogCache=await api.workCatalog();
+  return plannerCatalogCache;
 }
 
 function assignmentWizard(data,catalog,reload,prefillDay=null,options={}){
@@ -383,9 +429,6 @@ function reviewDelivery(id,decision,content,root){modal({title:decision==="ACCEP
 // ---------------------------------------------------------------------------
 // HELPERS
 // ---------------------------------------------------------------------------
-function plannerRange(){if(plannerMode==="week"){const start=startOfWeek(plannerAnchor);return {from:isoDate(start),to:isoDate(addDays(start,6))}}const start=new Date(plannerAnchor.getFullYear(),plannerAnchor.getMonth(),1),end=new Date(plannerAnchor.getFullYear(),plannerAnchor.getMonth()+1,0);return {from:isoDate(startOfWeek(start)),to:isoDate(addDays(startOfWeek(end),6))}}
-function plannerTitle(){if(plannerMode==="week"){const s=startOfWeek(plannerAnchor),e=addDays(s,6);return `${s.getDate()} ${monthShort(s)} – ${e.getDate()} ${monthShort(e)} ${e.getFullYear()}`}return new Intl.DateTimeFormat("es-CO",{month:"long",year:"numeric"}).format(plannerAnchor).replace(/^./,c=>c.toUpperCase())}
-function assignmentsForDay(rows,profileId,day){return rows.filter(a=>a.profileId===profileId&&sameDate(new Date(a.plannedStart||a.dueAt),day)).sort((a,b)=>new Date(a.plannedStart||a.dueAt)-new Date(b.plannedStart||b.dueAt))}
 function evidenceLabel(policy){return ({NONE:"sin evidencia",FINAL_PHOTO:"foto final",BEFORE_AFTER:"antes + después",FILE:"archivo",LINK:"enlace",ERP_REFERENCE:"referencia del CRM"})[policy]||fmt.label(policy)}
 function activityGlyph(code=""){if(code.includes("CLEAN"))return"✦";if(code.includes("LOADING"))return"↑";if(code.includes("UNLOADING"))return"↓";if(code.includes("COUNT"))return"#";if(code.includes("ORGANIZE")||code.includes("RELOCATION"))return"▦";if(code.includes("TRAIN"))return"△";if(code.includes("IMPROVEMENT"))return"↗";return"●"}
 function roundToFiveMinutes(value){const d=new Date(value);d.setSeconds(0,0);const remainder=d.getMinutes()%5;if(remainder)d.setMinutes(d.getMinutes()+(5-remainder));return d}
@@ -401,4 +444,4 @@ function timeOnly(value){if(!value)return"—";return new Intl.DateTimeFormat("e
 function weekdayShort(value){return new Intl.DateTimeFormat("es-CO",{weekday:"short",timeZone:"America/Bogota"}).format(new Date(value)).replace(".","").replace(/^./,c=>c.toUpperCase())}
 function monthShort(value){return new Intl.DateTimeFormat("es-CO",{month:"short",timeZone:"America/Bogota"}).format(new Date(value)).replace(".","")}
 function firstName(name=""){return String(name).trim().split(/\s+/)[0]||""}
-function countBusinessDays(from,to){let count=0,d=new Date(`${from}T12:00:00`),end=new Date(`${to}T12:00:00`);while(d<=end){if(d.getDay()!==0&&d.getDay()!==6)count++;d=addDays(d,1)}return count}
+T12:00:00`),end=new Date(`${to}T12:00:00`);while(d<=end){if(d.getDay()!==0&&d.getDay()!==6)count++;d=addDays(d,1)}return count}
