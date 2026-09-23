@@ -910,7 +910,7 @@ background-size:20% 100%}
 .work-month-weekdays-v11330>span{padding:9px 10px;border-right:1px solid #e4eaf0;border-bottom:1px solid #dfe7ef;color:#657b91;font-size:8.5px;font-weight:900;text-transform:uppercase;letter-spacing:.07em}
 .work-month-day-v11330{appearance:none;min-height:142px;padding:9px;border:0;border-right:1px solid #e7edf3;border-bottom:1px solid #e7edf3;background:#fff;text-align:left;overflow:hidden;transition:background .15s ease,box-shadow .15s ease}
 button.work-month-day-v11330{cursor:pointer}
-button.work-month-day-v11330:hover{background:#f7fbff;box-shadow:inset 0 0 0 1px #bcd4e8}
+button.work-month-day-v11330:hover,.work-month-day-v11330[role="button"]:hover{background:#f7fbff;box-shadow:inset 0 0 0 1px #bcd4e8}
 .work-month-day-v11330.today{background:#f5faff;box-shadow:inset 0 0 0 2px #8db9dc}
 .work-month-day-v11330.spacer{background:#fafbfc}
 .work-month-day-v11330.holiday{background:repeating-linear-gradient(135deg,#fbfbfc,#fbfbfc 8px,#f5f6f8 8px,#f5f6f8 16px)}
