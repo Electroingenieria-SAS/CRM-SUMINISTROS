@@ -1,0 +1,907 @@
+/* Workforce Calendar V11.36.0
+ * Sistema visual nuevo: legibilidad alta, densidad controlada y cero dependencia de hover.
+ */
+
+.work-calendar-v11360{
+  --cal-blue:#164f7a;
+  --cal-blue-2:#2879ad;
+  --cal-ink:#173b59;
+  --cal-muted:#6b8397;
+  --cal-line:#d8e5ee;
+  --cal-soft:#f6fafc;
+  --cal-card:#ffffff;
+  --cal-green:#23936b;
+  --cal-green-soft:#ecf8f3;
+  --cal-yellow:#a87118;
+  --cal-yellow-soft:#fff7e7;
+  --cal-red:#b45a61;
+  --cal-red-soft:#fff0f1;
+  --cal-purple:#7556aa;
+  --cal-purple-soft:#f4effd;
+  border:1px solid var(--cal-line);
+  border-radius:22px;
+  overflow:hidden;
+  background:var(--cal-card);
+  box-shadow:0 14px 38px rgba(25,73,108,.08);
+}
+
+.work-calendar-scroll-v11360{
+  overflow:auto;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  scrollbar-color:#b8cad7 transparent;
+}
+
+.work-calendar-icon-v11360{
+  width:16px;
+  height:16px;
+  display:block;
+  fill:currentColor;
+  flex:0 0 auto;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Día                                                                         */
+/* -------------------------------------------------------------------------- */
+
+.work-calendar-day-head-v11360{
+  display:grid;
+  grid-template-columns:minmax(220px,240px) minmax(820px,1fr);
+  min-width:1060px;
+  position:sticky;
+  top:0;
+  z-index:8;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--cal-line);
+}
+
+.work-calendar-team-head-v11360{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:3px;
+  min-height:86px;
+  padding:16px 20px;
+  border-right:1px solid var(--cal-line);
+}
+
+.work-calendar-team-head-v11360>span{
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--cal-blue-2);
+}
+
+.work-calendar-team-head-v11360>strong{
+  font-size:15px;
+  color:var(--cal-ink);
+}
+
+.work-calendar-segment-heads-v11360{
+  display:grid;
+  grid-template-columns:repeat(var(--segment-count,2),minmax(390px,1fr));
+}
+
+.work-calendar-segment-head-v11360{
+  min-height:86px;
+  padding:13px 16px 10px;
+  position:relative;
+  border-right:1px solid var(--cal-line);
+  background:linear-gradient(180deg,#fbfdff,#f4f9fc);
+}
+
+.work-calendar-segment-title-v11360{
+  display:flex;
+  align-items:baseline;
+  gap:7px;
+}
+
+.work-calendar-segment-title-v11360 strong{
+  font-size:17px;
+  line-height:1;
+  font-weight:950;
+  color:var(--cal-blue);
+  font-variant-numeric:tabular-nums;
+}
+
+.work-calendar-segment-title-v11360 span{
+  font-size:12px;
+  font-weight:750;
+  color:var(--cal-muted);
+}
+
+.work-calendar-hour-marks-v11360{
+  position:absolute;
+  left:16px;
+  right:16px;
+  bottom:11px;
+  height:24px;
+}
+
+.work-calendar-hour-marks-v11360 span{
+  position:absolute;
+  transform:translateX(-50%);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:52px;
+  min-height:24px;
+  padding:3px 7px;
+  border:1px solid #d3e2ec;
+  border-radius:8px;
+  background:#fff;
+  color:#3b607a;
+  font-size:12px;
+  font-weight:850;
+  font-variant-numeric:tabular-nums;
+  box-shadow:0 2px 6px rgba(31,83,119,.06);
+}
+
+.work-calendar-person-row-v11360{
+  display:grid;
+  grid-template-columns:minmax(220px,240px) minmax(820px,1fr);
+  min-width:1060px;
+  min-height:126px;
+  border-bottom:1px solid #e2ebf1;
+}
+
+.work-calendar-person-v11360{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:18px 18px;
+  border-right:1px solid var(--cal-line);
+  background:#fbfdfe;
+}
+
+.work-calendar-avatar-v11360{
+  width:44px;
+  height:44px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  flex:0 0 44px;
+  background:linear-gradient(145deg,#e5f2fa,#d5e8f4);
+  color:#225f88;
+  font-size:13px;
+  font-weight:950;
+  box-shadow:inset 0 0 0 1px rgba(53,118,160,.1);
+}
+
+.work-calendar-person-copy-v11360{
+  min-width:0;
+  display:grid;
+  gap:5px;
+}
+
+.work-calendar-person-copy-v11360>strong{
+  font-size:14px;
+  font-weight:900;
+  color:var(--cal-ink);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.work-calendar-person-state-v11360{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  min-width:0;
+  color:#5f788b;
+  font-size:11.5px;
+  font-weight:800;
+}
+
+.work-calendar-person-state-v11360>i{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#7f95a5;
+  box-shadow:0 0 0 4px rgba(127,149,165,.12);
+  flex:0 0 auto;
+}
+
+.work-calendar-person-state-v11360.tone-available>i{background:#2ca675;box-shadow:0 0 0 4px rgba(44,166,117,.12)}
+.work-calendar-person-state-v11360.tone-busy>i{background:#3286bd;box-shadow:0 0 0 4px rgba(50,134,189,.12)}
+.work-calendar-person-state-v11360.tone-paused>i{background:#d19233;box-shadow:0 0 0 4px rgba(209,146,51,.13)}
+
+.work-calendar-person-state-v11360 button{
+  appearance:none;
+  border:0;
+  padding:0;
+  min-width:0;
+  background:transparent;
+  color:#37719a;
+  font:inherit;
+  font-weight:850;
+  text-align:left;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  cursor:pointer;
+}
+
+.work-calendar-segments-v11360{
+  display:grid;
+  grid-template-columns:repeat(var(--segment-count,2),minmax(390px,1fr));
+  position:relative;
+}
+
+.work-calendar-segment-cell-v11360{
+  min-height:126px;
+  position:relative;
+  border-right:1px solid #e2ebf1;
+  background:
+    linear-gradient(to right,rgba(49,103,142,.055) 1px,transparent 1px) 0 0/20% 100%,
+    #fff;
+}
+
+.work-calendar-floating-v11360{
+  position:absolute;
+  inset:auto 10px 6px auto;
+  display:flex;
+  gap:6px;
+  z-index:5;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Evento base                                                                 */
+/* -------------------------------------------------------------------------- */
+
+.work-calendar-event-v11360{
+  position:relative;
+  border:1px solid #c9dce8;
+  background:linear-gradient(180deg,#fff,#f4f9fc);
+  color:var(--cal-ink);
+  border-radius:15px;
+  box-shadow:0 7px 18px rgba(27,77,112,.10);
+  outline:none;
+  cursor:pointer;
+  transition:
+    transform .16s ease,
+    box-shadow .16s ease,
+    border-color .16s ease;
+}
+
+.work-calendar-event-v11360::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:10px;
+  bottom:10px;
+  width:4px;
+  border-radius:0 8px 8px 0;
+  background:#6ca2c6;
+}
+
+.work-calendar-event-v11360:focus-visible{
+  box-shadow:0 0 0 3px rgba(44,130,185,.22),0 9px 24px rgba(27,77,112,.14);
+  border-color:#6aa6cb;
+}
+
+@media(hover:hover) and (pointer:fine){
+  .work-calendar-event-v11360:hover{
+    transform:translateY(-2px);
+    box-shadow:0 12px 28px rgba(27,77,112,.15);
+    border-color:#91bad3;
+  }
+}
+
+.work-calendar-event-v11360.tone-completed{
+  border-color:#a9d9c6;
+  background:linear-gradient(180deg,#fbfffd,#eef9f4);
+}
+.work-calendar-event-v11360.tone-completed::before{background:#2c9b72}
+
+.work-calendar-event-v11360.tone-running{
+  border-color:#8fc4e4;
+  background:linear-gradient(180deg,#f9fdff,#edf7fd);
+}
+.work-calendar-event-v11360.tone-running::before{background:#2683bd}
+
+.work-calendar-event-v11360.tone-paused,
+.work-calendar-event-v11360.tone-evidence{
+  border-color:#ead099;
+  background:linear-gradient(180deg,#fffdfa,#fff7e8);
+}
+.work-calendar-event-v11360.tone-paused::before,
+.work-calendar-event-v11360.tone-evidence::before{background:#c4872d}
+
+.work-calendar-event-v11360.tone-review{
+  border-color:#c7b6e7;
+  background:linear-gradient(180deg,#fdfbff,#f5f0fd);
+}
+.work-calendar-event-v11360.tone-review::before{background:#7657ac}
+
+.work-calendar-event-v11360.tone-returned,
+.work-calendar-event-v11360.tone-cancelled{
+  border-color:#e3b7bb;
+  background:linear-gradient(180deg,#fffafa,#fff0f1);
+}
+.work-calendar-event-v11360.tone-returned::before,
+.work-calendar-event-v11360.tone-cancelled::before{background:#b65a61}
+
+.work-calendar-event-day-v11360{
+  position:absolute;
+  left:var(--event-left);
+  width:var(--event-width);
+  min-width:132px;
+  top:calc(10px + var(--event-lane)*54px);
+  height:48px;
+  padding:6px 10px 6px 13px;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  grid-template-rows:auto auto;
+  gap:1px 7px;
+  z-index:3;
+}
+
+.work-calendar-event-day-v11360 .work-calendar-event-time-v11360{
+  grid-column:1;
+  grid-row:1;
+}
+
+.work-calendar-event-day-v11360 .work-calendar-event-title-v11360{
+  grid-column:1;
+  grid-row:2;
+  font-size:12.5px;
+  line-height:1.05;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.work-calendar-event-day-v11360 .work-calendar-event-footer-v11360{
+  grid-column:2;
+  grid-row:1/3;
+  align-self:center;
+}
+
+.work-calendar-event-time-v11360{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  color:#2b668f;
+  font-size:12px;
+  line-height:1;
+  font-weight:900;
+  font-variant-numeric:tabular-nums;
+}
+
+.work-calendar-event-title-v11360{
+  display:block;
+  color:var(--cal-ink);
+  font-size:14.5px;
+  line-height:1.16;
+  font-weight:950;
+  letter-spacing:-.012em;
+}
+
+.work-calendar-event-meta-v11360{
+  font-size:11.5px;
+  line-height:1.25;
+  color:#668095;
+  font-weight:700;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.work-calendar-event-footer-v11360{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:6px;
+}
+
+.work-calendar-status-v11360{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:3px 8px;
+  border-radius:999px;
+  background:#eaf2f7;
+  color:#45667c;
+  font-size:10.5px;
+  font-weight:900;
+  line-height:1;
+  white-space:nowrap;
+}
+
+.work-calendar-status-v11360.tone-completed{background:#e4f5ed;color:#287b5c}
+.work-calendar-status-v11360.tone-running{background:#e5f3fb;color:#276f9e}
+.work-calendar-status-v11360.tone-paused,
+.work-calendar-status-v11360.tone-evidence{background:#fff0cf;color:#96651f}
+.work-calendar-status-v11360.tone-review{background:#eee6fa;color:#70539b}
+.work-calendar-status-v11360.tone-returned,
+.work-calendar-status-v11360.tone-cancelled{background:#fce2e4;color:#a24e55}
+
+.work-calendar-photo-badge-v11360{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  min-height:24px;
+  padding:3px 7px;
+  border-radius:999px;
+  background:#e7f5ee;
+  color:#247354;
+  font-size:10.5px;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.work-calendar-cancel-v11360{
+  position:absolute;
+  top:5px;
+  right:5px;
+  width:25px;
+  height:25px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(145,80,85,.18);
+  border-radius:8px;
+  background:rgba(255,255,255,.92);
+  color:#9a5358;
+  font-size:17px;
+  line-height:1;
+  cursor:pointer;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Semana                                                                      */
+/* -------------------------------------------------------------------------- */
+
+.work-calendar-week-grid-v11360{
+  min-width:1160px;
+  display:grid;
+  grid-template-columns:220px repeat(5,minmax(188px,1fr));
+}
+
+.work-calendar-week-corner-v11360{
+  min-height:78px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:3px;
+  padding:14px 18px;
+  position:sticky;
+  left:0;
+  z-index:7;
+  border-right:1px solid var(--cal-line);
+  border-bottom:1px solid var(--cal-line);
+  background:#fbfdfe;
+}
+
+.work-calendar-week-corner-v11360 span{
+  color:var(--cal-blue-2);
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+.work-calendar-week-corner-v11360 strong{
+  color:var(--cal-ink);
+  font-size:14px;
+}
+
+.work-calendar-day-head-v11360{
+  min-height:78px;
+  padding:12px 10px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:flex-start;
+  gap:3px;
+  border:0;
+  border-right:1px solid var(--cal-line);
+  border-bottom:1px solid var(--cal-line);
+  background:linear-gradient(180deg,#fcfeff,#f5fafc);
+  text-align:left;
+  cursor:pointer;
+}
+
+.work-calendar-day-head-v11360 strong{
+  font-size:14px;
+  font-weight:950;
+  color:var(--cal-blue);
+}
+
+.work-calendar-day-head-v11360 span{
+  font-size:12px;
+  font-weight:800;
+  color:#6a8294;
+}
+
+.work-calendar-day-head-v11360.is-today{
+  background:linear-gradient(180deg,#f0f9ff,#e8f5fc);
+  box-shadow:inset 0 -3px #2a85be;
+}
+
+.work-calendar-day-head-v11360.is-holiday{
+  background:#faf8f7;
+  opacity:.72;
+  cursor:not-allowed;
+}
+
+.work-calendar-day-head-v11360 small{
+  font-size:10px;
+  color:#986965;
+}
+
+.work-calendar-week-person-v11360{
+  min-height:150px;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:16px 14px;
+  position:sticky;
+  left:0;
+  z-index:5;
+  border-right:1px solid var(--cal-line);
+  border-bottom:1px solid #e5edf2;
+  background:#fbfdfe;
+}
+
+.work-calendar-week-cell-v11360{
+  min-height:150px;
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  border-right:1px solid #e5edf2;
+  border-bottom:1px solid #e5edf2;
+  background:#fff;
+  cursor:pointer;
+}
+
+.work-calendar-week-cell-v11360.is-today{
+  background:#f8fcff;
+}
+
+.work-calendar-week-cell-v11360.is-holiday{
+  display:grid;
+  place-items:center;
+  background:repeating-linear-gradient(135deg,#faf8f7,#faf8f7 8px,#f5f1ef 8px,#f5f1ef 16px);
+}
+
+.work-calendar-event-week-v11360{
+  min-height:86px;
+  padding:10px 12px 10px 15px;
+  display:grid;
+  gap:6px;
+}
+
+.work-calendar-event-week-v11360 .work-calendar-event-title-v11360{
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+
+.work-calendar-available-v11360{
+  margin:auto;
+  display:inline-flex;
+  min-height:34px;
+  align-items:center;
+  padding:7px 11px;
+  border:1px dashed #c9d7e0;
+  border-radius:11px;
+  color:#7d91a1;
+  font-size:11.5px;
+  font-weight:800;
+}
+
+.work-calendar-holiday-v11360{
+  padding:7px 10px;
+  border-radius:999px;
+  background:#eee9e6;
+  color:#846d64;
+  font-size:11px;
+  font-weight:850;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Mes                                                                         */
+/* -------------------------------------------------------------------------- */
+
+.work-calendar-month-weekdays-v11360,
+.work-calendar-month-grid-v11360{
+  min-width:1040px;
+  display:grid;
+  grid-template-columns:repeat(5,minmax(200px,1fr));
+}
+
+.work-calendar-month-weekdays-v11360{
+  position:sticky;
+  top:0;
+  z-index:4;
+  background:#f7fbfd;
+  border-bottom:1px solid var(--cal-line);
+}
+
+.work-calendar-month-weekdays-v11360 span{
+  min-height:50px;
+  display:flex;
+  align-items:center;
+  padding:0 14px;
+  border-right:1px solid var(--cal-line);
+  color:#315d7c;
+  font-size:13px;
+  font-weight:950;
+}
+
+.work-calendar-month-cell-v11360{
+  min-height:180px;
+  padding:12px;
+  border-right:1px solid #e4edf2;
+  border-bottom:1px solid #e4edf2;
+  background:#fff;
+  cursor:pointer;
+}
+
+.work-calendar-month-cell-v11360.is-today{
+  background:#f7fcff;
+  box-shadow:inset 0 0 0 2px rgba(49,137,193,.14);
+}
+
+.work-calendar-month-cell-v11360.is-holiday{
+  background:#faf7f5;
+}
+
+.work-calendar-month-cell-v11360.is-spacer{
+  background:#fafcfd;
+  cursor:default;
+}
+
+.work-calendar-month-date-v11360{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:10px;
+}
+
+.work-calendar-month-date-v11360 strong{
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border-radius:10px;
+  background:#eaf4fa;
+  color:#24658f;
+  font-size:14px;
+  font-weight:950;
+}
+
+.work-calendar-month-date-v11360 span{
+  color:#71899a;
+  font-size:11px;
+  font-weight:800;
+}
+
+.work-calendar-month-events-v11360{
+  display:grid;
+  gap:7px;
+}
+
+.work-calendar-month-event-v11360{
+  min-height:58px;
+  padding:7px 9px 8px 12px;
+  display:grid;
+  gap:2px;
+  position:relative;
+  border:1px solid #d0e0e9;
+  border-radius:12px;
+  background:#f8fbfd;
+  cursor:pointer;
+  outline:none;
+}
+
+.work-calendar-month-event-v11360::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:8px;
+  bottom:8px;
+  width:3px;
+  border-radius:0 5px 5px 0;
+  background:#699ec0;
+}
+
+.work-calendar-month-event-v11360>div{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:6px;
+  color:#2a6d98;
+  font-size:11px;
+  font-weight:900;
+}
+
+.work-calendar-month-event-v11360 strong{
+  color:var(--cal-ink);
+  font-size:12.5px;
+  line-height:1.12;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.work-calendar-month-event-v11360 small{
+  color:#6d8393;
+  font-size:10.5px;
+  font-weight:750;
+}
+
+.work-calendar-month-event-v11360.tone-completed{background:#f0faf5;border-color:#b8ddcd}
+.work-calendar-month-event-v11360.tone-completed::before{background:#2f9a72}
+
+.work-calendar-more-v11360{
+  display:inline-flex;
+  min-height:28px;
+  align-items:center;
+  justify-content:center;
+  border-radius:9px;
+  background:#edf4f8;
+  color:#52758d;
+  font-size:11px;
+  font-weight:850;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Otros                                                                       */
+/* -------------------------------------------------------------------------- */
+
+.work-calendar-floating-event-v11360{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-height:32px;
+  padding:5px 9px;
+  border:1px solid #cedee8;
+  border-radius:10px;
+  background:#fff;
+  color:#315b78;
+  font-size:11px;
+  cursor:pointer;
+}
+
+.work-calendar-floating-event-v11360 strong{font-size:11px}
+.work-calendar-floating-event-v11360 span{color:#71899a}
+
+.work-calendar-empty-v11360,
+.work-calendar-nonworking-v11360{
+  min-height:180px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  padding:28px;
+  color:#668195;
+  text-align:center;
+}
+
+.work-calendar-nonworking-v11360>span{
+  width:48px;
+  height:48px;
+  display:grid;
+  place-items:center;
+  border-radius:15px;
+  background:#edf5fa;
+  color:#2c77a6;
+  font-size:22px;
+}
+
+.work-calendar-nonworking-v11360 strong,
+.work-calendar-empty-v11360 strong{
+  display:block;
+  margin-bottom:4px;
+  color:var(--cal-ink);
+  font-size:15px;
+}
+
+.work-calendar-nonworking-v11360 p,
+.work-calendar-empty-v11360 span{
+  margin:0;
+  font-size:12px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Responsive                                                                  */
+/* -------------------------------------------------------------------------- */
+
+@media(max-width:900px){
+  .work-calendar-v11360{
+    border-radius:18px;
+  }
+
+  .work-calendar-day-head-v11360,
+  .work-calendar-person-row-v11360{
+    grid-template-columns:190px minmax(820px,1fr);
+  }
+
+  .work-calendar-week-grid-v11360{
+    grid-template-columns:190px repeat(5,minmax(180px,1fr));
+  }
+
+  .work-calendar-week-corner-v11360,
+  .work-calendar-week-person-v11360{
+    width:190px;
+  }
+
+  .work-calendar-event-week-v11360{
+    min-height:90px;
+  }
+}
+
+@media(max-width:640px){
+  .work-calendar-v11360{
+    margin-inline:-2px;
+  }
+
+  .work-calendar-day-head-v11360,
+  .work-calendar-person-row-v11360{
+    grid-template-columns:172px minmax(820px,1fr);
+  }
+
+  .work-calendar-team-head-v11360{
+    padding:13px;
+  }
+
+  .work-calendar-person-v11360{
+    padding:14px 12px;
+  }
+
+  .work-calendar-avatar-v11360{
+    width:40px;
+    height:40px;
+    flex-basis:40px;
+  }
+
+  .work-calendar-week-grid-v11360{
+    grid-template-columns:172px repeat(5,minmax(178px,1fr));
+  }
+
+  .work-calendar-week-corner-v11360,
+  .work-calendar-week-person-v11360{
+    width:172px;
+  }
+
+  .work-calendar-week-cell-v11360{
+    padding:8px;
+  }
+
+  .work-calendar-event-week-v11360{
+    min-height:92px;
+    padding:10px 11px 10px 14px;
+  }
+
+  .work-calendar-event-title-v11360{
+    font-size:14px;
+  }
+
+  .work-calendar-event-time-v11360{
+    font-size:12px;
+  }
+
+  .work-calendar-status-v11360,
+  .work-calendar-photo-badge-v11360{
+    min-height:26px;
+    font-size:11px;
+  }
+
+  .work-calendar-month-cell-v11360{
+    min-height:190px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .work-calendar-event-v11360{
+    transition:none!important;
+  }
+}
