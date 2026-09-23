@@ -90,6 +90,9 @@ const dayHtml=renderWorkforceCalendarBoard({
 assert.equal(dayHtml.includes("work-calendar-event-day-v11360"),true);
 assert.equal(dayHtml.includes("Alistamiento de mercancía"),true);
 assert.equal(dayHtml.includes("11:06"),true);
+for(const label of ["07:00","12:00","13:40","17:30"]){
+  assert.equal(dayHtml.includes(label),true,`Vista Día debe conservar marca horaria ${label}.`);
+}
 
 const hiddenByWorker=renderWorkforceCalendarBoard({
   mode:"day",
@@ -165,6 +168,10 @@ for(const token of [
   "min-width:118px",
   "work-team-capacity-v11362",
   "tone-review",
+  "work-calendar-hour-axis-v11363",
+  "work-calendar-time-guides-v11363",
+  "work-calendar-filter-scope-v11363",
+  "box-sizing:border-box",
   "@media(hover:hover) and (pointer:fine)"
 ]){
   assert.equal(css.includes(token),true,`CSS calendario debe conservar ${token}`);
@@ -177,7 +184,9 @@ for(const token of [
   "filterCalendarData",
   "clipCalendarSegments",
   "pointerenter",
-  "closeOnViewportMove"
+  "closeOnViewportMove",
+  "timeAxisMarks",
+  "segmentGridTemplate"
 ]){
   assert.equal(calendarModule.includes(token),true,`Calendario compacto debe conservar ${token}`);
 }
@@ -197,4 +206,8 @@ for(const token of [
   assert.equal(workforce.includes(token),true,`Workforce debe conservar filtro ${token}`);
 }
 
-console.log("workforce calendar v11.36.2 tests: OK");
+for(const legacyPurple of ["#7657a8","#4d3a6d","#7a62ae","#5f478f","#6c55a0","#b49bd9"]){
+  assert.equal(css.includes(legacyPurple),false,`No debe reaparecer el morado heredado ${legacyPurple}.`);
+}
+
+console.log("workforce calendar v11.36.3 tests: OK");
