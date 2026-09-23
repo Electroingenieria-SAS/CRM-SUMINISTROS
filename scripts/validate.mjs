@@ -139,7 +139,8 @@ check(workforcePlanner.includes('plannerRangeForMode')&&workforcePlanner.include
 check(workforcePlannerMigration.includes("'calendar'")&&workforcePlannerMigration.includes("activeStatus"),"RPC planner debe devolver calendario y estado activo en una sola respuesta.");
 check(workforcePlannerMigration.includes("validate_work_assignment_business_window")&&workforcePlannerMigration.includes("OUTSIDE_WORKING_TIME"),"Base debe bloquear asignaciones fuera de jornada.");
 check(coreCss.includes(".work-day-timeline-head")&&coreCss.includes(".work-week-grid-v11330")&&coreCss.includes(".work-month-grid-v11330"),"Falta capa visual Día/Semana/Mes del cronograma.");
-check(workforceToday.includes("timeTrafficLight")&&workforceToday.includes("finalEvidenceType"),"Mi jornada debe separar semáforo y evidencia final en un módulo dedicado.");\ncheck(workforce.includes("workday-guide")&&workforce.includes("workday-launch-grid")&&workforce.includes("workday-status-strip"),"Mi jornada V11.34.2 debe usar el flujo visual guiado.");
+check(workforceToday.includes("timeTrafficLight")&&workforceToday.includes("finalEvidenceType"),"Mi jornada debe separar semáforo y evidencia final en un módulo dedicado.");
+check(workforce.includes("workday-guide")&&workforce.includes("workday-launch-grid")&&workforce.includes("workday-status-strip"),"Mi jornada V11.34.2 debe usar el flujo visual guiado.");
 check(workforceTodayMigration.includes("timeReviewRequired")&&workforceTodayMigration.includes("3600")&&workforceTodayMigration.includes("PHOTO_REQUIRED"),"Migración 116 debe automatizar revisión por tiempo y foto obligatoria.");
 check(api.includes("workReviewTime")&&api.includes("erp_x_work_review_time"),"API frontend debe exponer la resolución de tiempos pendientes de revisión.");
 check(workforceTodayMigration.includes("erp_x_work_review_time")&&workforceTodayMigration.includes("TIME_REVIEWED"),"Migración 116 debe permitir cerrar la revisión de tiempos con trazabilidad.");
