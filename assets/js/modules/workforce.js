@@ -537,7 +537,119 @@ async function renderPlanner(root,content){
 
   const bindCalendar=()=>{
     plannerCalendarCleanup?.();
+    plannerCalendarCleanup=bindWorkforceCalendar({
+      container:calendarHost,
+      items:timeline,
+      api,
+      evidenceManager:workEvidenceManager,
+      canPlanTeam,
+      notify:toast,
+      onPlanDay:async day=>{
+        assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),day);
+      },
+      onCancel:assignmentId=>{
+        cancelAssignmentDialog(assignmentId,()=>renderPlanner(root,content));
+      },
+      onActiveProfile:()=>{
+        toast("La actividad actual todavía no tiene detalle disponible en este rango.","warning");
+      }
+    });
+  };
+
+  const repaintCalendar=()=>{
+    if(!calendarHost)return;
+    calendarHost.innerHTML=renderWorkforceCalendarBoard({
+      mode:plannerMode,
+      anchor:plannerAnchor,
+      data:plannerData,
+      calendar,
+      filters:plannerFilters
+    });
+    content.querySelectorAll("[data-plan-filter-worker]").forEach(button=>{
+      button.classList.toggle("active",button.dataset.planFilterWorker===plannerFilters.profileId);
+    });
     bindCalendar();
+  };
+
+  const move=direction=>{
+    if(plannerMode==="day")plannerAnchor=nextBusinessAnchor(plannerAnchor,direction,calendar);
+    else if(plannerMode==="week")plannerAnchor=addDays(plannerAnchor,direction*7);
+    else plannerAnchor=addMonths(plannerAnchor,direction);
+    return renderPlanner(root,content);
+  };
+
+  content.querySelector("[data-plan-prev]").onclick=()=>move(-1);
+  content.querySelector("[data-plan-next]").onclick=()=>move(1);
+  content.querySelector("[data-plan-today]").onclick=()=>{
+    plannerAnchor=new Date();
+    if(plannerMode==="day"){
+      const today=isoDate(plannerAnchor);
+      const visible=calendar.workingWeekdays.includes(((plannerAnchor.getDay()+6)%7)+1)&&!calendar.holidayMap.has(today);
+      if(!visible)plannerAnchor=nextBusinessAnchor(plannerAnchor,1,calendar);
+    }
+    renderPlanner(root,content);
+  };
+
+  content.querySelectorAll("[data-plan-mode]").forEach(button=>button.onclick=()=>{
+    plannerMode=button.dataset.planMode;
+    if(plannerMode==="month")plannerAnchor=new Date(plannerAnchor.getFullYear(),plannerAnchor.getMonth(),1);
+    if(plannerMode==="day"){
+      const iso=isoDate(plannerAnchor);
+      const visible=calendar.workingWeekdays.includes(((plannerAnchor.getDay()+6)%7)+1)&&!calendar.holidayMap.has(iso);
+      if(!visible)plannerAnchor=nextBusinessAnchor(plannerAnchor,1,calendar);
+    }
+    renderPlanner(root,content);
+  });
+
+  content.querySelectorAll("[data-plan-filter-worker]").forEach(button=>button.onclick=()=>{
+    plannerFilters.profileId=button.dataset.planFilterWorker||"ALL";
+    repaintCalendar();
+  });
+
+  const fromFilter=content.querySelector("[data-plan-filter-from]");
+  const toFilter=content.querySelector("[data-plan-filter-to]");
+  const applyTimeFilters=()=>{
+    const from=fromFilter?.value||"07:00";
+    const to=toFilter?.value||"17:30";
+    if(from>=to){
+      toast("La hora inicial debe ser anterior a la hora final.","warning");
+      if(fromFilter)fromFilter.value=plannerFilters.fromTime;
+      if(toFilter)toFilter.value=plannerFilters.toTime;
+      return;
+    }
+    plannerFilters.fromTime=from;
+    plannerFilters.toTime=to;
+    repaintCalendar();
+  };
+  if(fromFilter)fromFilter.onchange=applyTimeFilters;
+  if(toFilter)toFilter.onchange=applyTimeFilters;
+
+  const weekdayFilter=content.querySelector("[data-plan-filter-weekday]");
+  if(weekdayFilter)weekdayFilter.onchange=()=>{
+    plannerFilters.weekday=weekdayFilter.value||"ALL";
+    repaintCalendar();
+  };
+
+  const dateFilter=content.querySelector("[data-plan-filter-date]");
+  if(dateFilter)dateFilter.onchange=()=>{
+    const [year,month,day]=String(dateFilter.value||"").split("-").map(Number);
+    if(!year||!month||!day)return;
+    plannerAnchor=new Date(year,month-1,day);
+    renderPlanner(root,content);
+  };
+
+  const resetFilters=content.querySelector("[data-plan-filter-reset]");
+  if(resetFilters)resetFilters.onclick=()=>{
+    plannerFilters={profileId:"ALL",weekday:"ALL",fromTime:"07:00",toTime:"17:30"};
+    renderPlanner(root,content);
+  };
+
+  if(canPlanTeam){
+    content.querySelector("[data-plan-new]").onclick=async()=>assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),null,{newCatalog:false});
+    content.querySelector("[data-plan-new-custom]").onclick=async()=>assignmentWizard(data,await loadPlannerCatalog(),()=>renderPlanner(root,content),null,{newCatalog:true,startNow:true});
+  }
+
+  bindCalendar();
 }
 
 async function resolvePlannerCalendar(data){
