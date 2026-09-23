@@ -1,11 +1,11 @@
-// previous-cache: crm-suministros-v11-34-2-20260923-06
-const CACHE="crm-suministros-v11-34-3-20260923-07";
+// previous-cache: crm-suministros-v11-34-3-20260923-07
+const CACHE="crm-suministros-v11-34-4-20260923-08";
 
 const APP_SHELL=[
   "./","./index.html","./404.html","./manifest.webmanifest","./templates/historical_orders.csv",
-  "./assets/js/app-entry.js","./assets/js/main.js","./assets/js/config.js","./assets/js/modules/workforce.js","./assets/js/modules/workforce-planner-v11330.js","./assets/js/modules/workforce-today-v11340.js","./assets/js/modules/workforce-time-review-v11340.js","./assets/js/modules/workforce-catalog-v11343.js",
+  "./assets/js/app-entry.js","./assets/js/main.js","./assets/js/config.js","./assets/js/modules/workforce.js","./assets/js/modules/workforce-planner-v11330.js","./assets/js/modules/workforce-today-v11340.js","./assets/js/modules/workforce-time-review-v11340.js","./assets/js/modules/workforce-catalog-v11343.js","./assets/js/modules/workforce-experience-v11344.js",
   "./assets/css/core-shell.css","./assets/css/operations.css","./assets/css/analytics.css","./assets/css/experience.css",
-  "./assets/runtime-css/guides-layout-v11291.css","./assets/runtime-css/receiving-workspace-v11290.css","./assets/runtime-css/inventory-dialogs-v11260.css","./assets/runtime-css/inventory-visual-v11270.css","./assets/runtime-css/inventory-ui-v11240.css","./assets/runtime-css/inventory-workspace-v11251.css",
+  "./assets/runtime-css/guides-layout-v11291.css","./assets/runtime-css/receiving-workspace-v11290.css","./assets/runtime-css/inventory-dialogs-v11260.css","./assets/runtime-css/inventory-visual-v11270.css","./assets/runtime-css/inventory-ui-v11240.css","./assets/runtime-css/inventory-workspace-v11251.css","./assets/runtime-css/workforce-experience-v11344.css",
   "./assets/img/logo-electroingenieria.png","./assets/img/iso-electroingenieria.png","./assets/img/ui/crm-psp-waves-v11180.webp",
   "./assets/img/paco/paco-idle-v11183.svg","./assets/img/paco/paco-listening-v11183.svg","./assets/img/paco/paco-thinking-v11183.svg",
   "./assets/img/paco/paco-wink-v11183.svg","./assets/img/paco/paco-talking-v11183.svg","./assets/img/paco/paco-success-v11183.svg"
