@@ -1,5 +1,29 @@
 # Changelog
 
+## 11.32.0 — 2026-09-23
+
+### Seguridad y autorización
+- `erp-auditoria-metrics` deja de ser un endpoint público: exige JWT, CORS por allowlist y consulta un RPC limitado por organización.
+- La impersonación administrativa crea una sesión auditable con actor original, perfil efectivo, motivo, vigencia y cierre explícito.
+- `system_audit` recibe contexto de impersonación validado contra la identidad Auth efectiva.
+- Los componentes UI reutilizables sanitizan HTML activo antes de insertarlo en modales, paneles y wizard.
+
+### CI/CD y supply chain
+- El E2E autenticado deja de ser opcional y se convierte en release gate desktop/móvil.
+- Se incorporan CodeQL, Dependency Review, TruffleHog de secretos verificados, Dependabot y `npm audit`.
+- GitHub Actions se actualiza a generaciones vigentes con runtime Node 24.
+- Se conserva el scanner histórico propio como defensa adicional.
+
+### Migraciones y DR
+- Nuevo `production-migration-ledger.json`: congela 27 migraciones históricas database-only para impedir que el drift aumente.
+- Nuevo `migration-ledger-check.mjs` dentro de la validación canónica.
+- Se elimina `sql/LEEME_SQL.txt`, que remitía a un instalador ya retirado.
+- `docs/INSTALLATION.md` y `docs/DISASTER_RECOVERY.md` dejan explícito que el rebuild source-only aún requiere un baseline validado en base vacía.
+
+### Arquitectura
+- Administración empieza a dividir responsabilidades: verificación/impersonación y helpers de presentación salen del archivo monolítico `admin-center-v11160.js`.
+- No se modifican masivamente FKs/índices ni contratos RLS/SECURITY DEFINER solo para silenciar Advisors.
+
 ## 11.31.2 — 2026-09-18
 
 ### Gestión rápida
