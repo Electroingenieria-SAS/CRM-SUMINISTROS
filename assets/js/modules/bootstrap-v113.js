@@ -1,6 +1,5 @@
 import {state} from "../core/state.js";
 import {openModuleGuide} from "./guides-v113.js";
-import {installActivityBrowserV113} from "./activity-browser-v113.js";
 import {installWorkforceTaxonomyV113} from "./workforce-taxonomy-v113.js";
 import {installAccessibilityV114} from "./accessibility-v114.js";
 import {installReceivingDomainV115} from "./receiving-hub-v115.js";
@@ -54,7 +53,6 @@ function installGlobalGuideV1197(){
 
 const startEnhancers=()=>{
   if(document.querySelector("#page-content")){
-    installActivityBrowserV113();
     installWorkforceTaxonomyV113();
     return true;
   }
