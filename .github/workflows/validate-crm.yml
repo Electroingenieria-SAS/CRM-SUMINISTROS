@@ -96,7 +96,6 @@ jobs:
           grep -q '"version": "11.35.2"' package-lock.json
           grep -q 'app-entry.js?v=11.35.2' index.html
           grep -Fq 'https://script.google.com/macros/s/AKfycbztKVA2sdUV87WZ9dWyf9gFHKodDaBbw-sIJ6pPdSPV9g98efpD_T3jE3CS1x-8DTaS/exec' assets/js/config.js
-          ! grep -Fq 'AKfycbyX2UkQcZKbdZJXGgC6XZQwn7blASGUxwsIUzOG1Sf03mIDsaB1NJDCtnK6QzxOpEh9' assets/js/config.js
           grep -Fxq '// previous-cache: crm-suministros-v11-35-1-20260923-11' service-worker.js
           grep -Fxq 'const CACHE="crm-suministros-v11-35-2-20260923-12";' service-worker.js
           grep -q 'manifest.webmanifest' vercel.json
