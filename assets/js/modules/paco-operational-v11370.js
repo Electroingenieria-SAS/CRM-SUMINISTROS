@@ -4,13 +4,15 @@ import {api} from "../services/api.js";
 import {fmt} from "../core/format.js";
 import {toast} from "../core/ui.js";
 
-const VERSION="11.37.0";
+const VERSION="11.37.1";
 const STYLE_ID="paco-operational-v11370-style";
 const MONITOR_MS=60000;
+const DIGEST_INTERVAL_MS=30*60*1000;
 const ORDER_WARN_SECONDS=3600;
-const IDLE_WARN_SECONDS=1800;
+const IDLE_WARN_SECONDS=20*60;
 const LONG_ACTIVITY_SECONDS=5400;
 const ALERT_COOLDOWN_MS=30*60*1000;
+const DIGEST_ORDER_LIMIT=12;
 const MANAGER_ROLES=new Set(["super_admin","gerencia","jefe_logistica","lider_logistica","coordinador_logistico"]);
 const AUX_ROLES=new Set(["aux_logistica","auxiliar_corte"]);
 const ACTIVE_ORDER_STATUSES=new Set(["OPEN","QUEUED","ASSIGNED","IN_PROGRESS","WAITING","BLOCKED","READY","PENDING"]);
@@ -52,7 +54,8 @@ const paco={
   flow:null,
   unsubscribe:null,
   globalBound:false,
-  alertMemory:new Map()
+  alertMemory:new Map(),
+  lastDigestAt:0
 };
 
 function ensureStyles(){
@@ -60,7 +63,7 @@ function ensureStyles(){
   const link=document.createElement("link");
   link.id=STYLE_ID;
   link.rel="stylesheet";
-  link.href="./assets/runtime-css/paco-operational-v11370.css?v=11.37.0";
+  link.href="./assets/runtime-css/paco-operational-v11370.css?v=11.37.1";
   document.head.appendChild(link);
 }
 
@@ -69,6 +72,14 @@ function readVoicePreference(){
 }
 function saveVoicePreference(){
   try{localStorage.setItem("paco_voice_v11370",paco.voiceEnabled?"1":"0")}catch{}
+}
+
+function digestStorageKey(){return `paco_digest_v11371_${profileId()||"anonymous"}`}
+function readLastDigest(){
+  try{return Number(sessionStorage.getItem(digestStorageKey())||0)}catch{return 0}
+}
+function saveLastDigest(){
+  try{sessionStorage.setItem(digestStorageKey(),String(paco.lastDigestAt||0))}catch{}
 }
 
 function esc(value){return fmt.escape(String(value??""))}
@@ -99,6 +110,17 @@ function orderAge(row){return Number(row?.ageBusinessSeconds||row?.age_business_
 function orderAssignee(row){return row?.assigneeName||row?.assignedToName||row?.assigned_to_name||row?.assignedTo||row?.assigned_to||""}
 function activeOrder(row){const status=orderStatus(row);return !status||ACTIVE_ORDER_STATUSES.has(status)}
 function itemArray(value){return Array.isArray(value)?value:Array.isArray(value?.items)?value.items:[]}
+
+function stepName(row){return row?.stepName||row?.currentStepName||orderStep(row)||"En proceso"}
+function stageBreakdown(snapshot){
+  const counts=new Map();
+  (snapshot?.orders||[]).filter(activeOrder).forEach(row=>{
+    const label=stepName(row);
+    counts.set(label,(counts.get(label)||0)+1);
+  });
+  return [...counts.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"es"));
+}
+function businessClockLabel(){return timeLabel(new Date())}
 
 function editDistance(a,b){
   const x=norm(a),y=norm(b);
