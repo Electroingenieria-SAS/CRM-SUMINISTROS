@@ -895,37 +895,61 @@ async function renderAnalytics(root,content){
         </div>
       </section>
 
-      ${analyticsSummary(summary)}
+      <section class="work-indicator-section-v11383 work-indicator-section-summary-v11383">
+        <header class="work-indicator-section-head-v11383">
+          <div><span>RESUMEN EJECUTIVO</span><h3>Lectura rápida de la jornada</h3><p>Seis métricas clave para entender cobertura de jornada, cumplimiento, puntualidad y volumen de trabajo.</p></div>
+        </header>
+        ${analyticsSummary(summary)}
+      </section>
 
-      <section class="work-indicator-layout-v11363">
-        <section class="work-indicator-panel-v11363 span-2">
-          <header><div><span>BALANCE DE JORNADA</span><h3>¿Cómo se distribuyó el tiempo disponible?</h3><p>Contrasta tiempo clasificado y tiempo que todavía no tiene categoría operativa.</p></div></header>
+      <section class="work-indicator-section-v11383">
+        <header class="work-indicator-section-head-v11383">
+          <div><span>JORNADA Y CAPACIDAD</span><h3>Cómo se utilizó el tiempo disponible</h3><p>Separa el tiempo identificado del tiempo que todavía no tiene categoría operativa, sin asumir improductividad.</p></div>
+        </header>
+        <section class="work-indicator-panel-v11363 work-indicator-panel-featured-v11383">
+          <header><div><span>BALANCE DE JORNADA</span><h3>Distribución del tiempo laboral</h3><p>Jornada programada, tiempo clasificado y tiempo pendiente de categorizar en una sola lectura.</p></div></header>
           <div class="work-indicator-panel-body-v11363">${analyticsBalance(summary)}</div>
         </section>
+      </section>
 
-        <section class="work-indicator-panel-v11363">
-          <header><div><span>DISTRIBUCIÓN</span><h3>Mapa del trabajo adicional</h3><p>Participación del tiempo activo por familia de actividad.</p></div></header>
-          <div class="work-indicator-panel-body-v11363">${barList(data.activityGroups||[],x=>GROUP_LABELS[x.group]||fmt.label(x.group),x=>x.activeSeconds)}</div>
+      <section class="work-indicator-section-v11383">
+        <header class="work-indicator-section-head-v11383">
+          <div><span>ACTIVIDAD Y CAUSAS</span><h3>Qué se hizo y qué explica las desviaciones</h3><p>Compara la composición del trabajo adicional con las causas registradas durante el periodo.</p></div>
+        </header>
+        <section class="work-indicator-layout-v11363 work-indicator-layout-paired-v11383">
+          <section class="work-indicator-panel-v11363">
+            <header><div><span>DISTRIBUCIÓN</span><h3>Trabajo adicional por familia</h3><p>Participación del tiempo activo por tipo de actividad registrada.</p></div></header>
+            <div class="work-indicator-panel-body-v11363">${barList(data.activityGroups||[],x=>GROUP_LABELS[x.group]||fmt.label(x.group),x=>x.activeSeconds)}</div>
+          </section>
+
+          <section class="work-indicator-panel-v11363">
+            <header><div><span>DESVIACIONES</span><h3>Causas documentadas</h3><p>Pareto visual de las razones registradas cuando hubo diferencias frente al plan.</p></div></header>
+            <div class="work-indicator-panel-body-v11363">${causeList(data.deviationCauses||[])}</div>
+          </section>
         </section>
+      </section>
 
-        <section class="work-indicator-panel-v11363">
-          <header><div><span>DESVIACIONES</span><h3>Qué explica los desvíos</h3><p>Pareto visual de las causas documentadas en el periodo.</p></div></header>
-          <div class="work-indicator-panel-body-v11363">${causeList(data.deviationCauses||[])}</div>
-        </section>
-
-        <section class="work-indicator-panel-v11363 span-2">
-          <header><div><span>TIEMPOS APRENDIDOS</span><h3>Referencias reales por actividad</h3><p>Mediana y P80 construidos con ejecuciones registradas, sin convertirlos en una calificación individual.</p></div></header>
+      <section class="work-indicator-section-v11383">
+        <header class="work-indicator-section-head-v11383">
+          <div><span>REFERENCIAS DE TIEMPO</span><h3>Duraciones reales aprendidas por actividad</h3><p>Mediana y percentil 80 construidos con ejecuciones reales para apoyar planeación y capacidad.</p></div>
+        </header>
+        <section class="work-indicator-panel-v11363 work-indicator-panel-featured-v11383">
+          <header><div><span>TIEMPOS APRENDIDOS</span><h3>Mediana y P80 por actividad</h3><p>Referencias operativas basadas en muestras históricas, sin convertirlas en una calificación individual.</p></div></header>
           <div class="work-indicator-panel-body-v11363">${activityStandardsHtml(data.topActivities||[])}</div>
         </section>
+      </section>
 
-        <section class="work-indicator-panel-v11363 span-2">
-          <header><div><span>EN ESTE MOMENTO</span><h3>Equipo activo</h3><p>Actividades adicionales que están corriendo o pausadas ahora.</p></div></header>
+      <section class="work-indicator-section-v11383">
+        <header class="work-indicator-section-head-v11383">
+          <div><span>OPERACIÓN ACTUAL</span><h3>Quién está ejecutando actividades ahora</h3><p>Vista separada del estado actual del equipo para no mezclar información en tiempo real con el histórico del periodo.</p></div>
+        </header>
+        <section class="work-indicator-panel-v11363 work-indicator-panel-featured-v11383">
+          <header><div><span>EN ESTE MOMENTO</span><h3>Equipo activo</h3><p>Actividades adicionales que están corriendo o pausadas en este momento.</p></div></header>
           <div class="work-indicator-panel-body-v11363">${teamNowHtml(data.teamNow||[])}</div>
         </section>
       </section>
 
-      ${data.pendingReviews?.length?`<section class="work-indicator-panel-v11363 work-review-card-v11363"><header><div><span>REVISIÓN</span><h3>Entregables pendientes</h3><p>Aceptar confirma el resultado; devolver exige una nota para corrección.</p></div><b>${fmt.number(data.pendingReviews.length)}</b></header><div class="work-indicator-panel-body-v11363">${pendingReviewsHtml(data.pendingReviews)}</div></section>`:""}
-
+      ${data.pendingReviews?.length?`<section class="work-indicator-section-v11383"><header class="work-indicator-section-head-v11383"><div><span>REVISIÓN</span><h3>Entregables que requieren decisión</h3><p>Elementos enviados para aceptación o devolución con trazabilidad de evidencia.</p></div></header><section class="work-indicator-panel-v11363 work-review-card-v11363"><header><div><span>PENDIENTES</span><h3>Entregables pendientes</h3><p>Aceptar confirma el resultado; devolver exige una nota para corrección.</p></div><b>${fmt.number(data.pendingReviews.length)}</b></header><div class="work-indicator-panel-body-v11363">${pendingReviewsHtml(data.pendingReviews)}</div></section></section>`:""}
       <details class="work-indicator-method-v11363">
         <summary>${icon("audit")}<div><strong>Cómo leer estos indicadores</strong><small>Metodología y límites de interpretación</small></div><b>⌄</b></summary>
         <div><p><strong>Utilización, puntualidad y duración describen procesos y capacidad.</strong> No constituyen por sí solos una calificación de desempeño.</p><p>El CRM conserva tiempo no clasificado como <b>“sin categoría”</b>; no lo interpreta automáticamente como improductividad. Las referencias de tiempo se construyen con ejecuciones históricas.</p></div>
