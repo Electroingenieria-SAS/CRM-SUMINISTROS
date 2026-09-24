@@ -231,7 +231,7 @@ begin
     'evaluatedPredictions',count(*) filter(where evaluation_eligible),
     'actualCarrierCost',coalesce(sum(carrier_cost),0),
     'predictedCost',coalesce(sum(predicted_mid) filter(where evaluation_eligible),0),
-    'medianAbsErrorPct',round(percentile_cont(.5) within group(order by abs_error_pct) filter(where evaluation_eligible)::numeric,1),
+    'medianAbsErrorPct',round((percentile_cont(.5) within group(order by abs_error_pct) filter(where evaluation_eligible))::numeric,1),
     'within25Pct',round(100.0*count(*) filter(where evaluation_eligible and abs_error_pct<=25)/nullif(count(*) filter(where evaluation_eligible),0),1),
     'within50Pct',round(100.0*count(*) filter(where evaluation_eligible and abs_error_pct<=50)/nullif(count(*) filter(where evaluation_eligible),0),1),
     'potentialSavings',coalesce(sum(potential_savings) filter(where evaluation_eligible),0),
@@ -266,25 +266,25 @@ begin
 
   with e as(select * from erp_supply.freight_eval_v1141(v_org,v_from,v_to)),
   g as(
-    select date_trunc('month',created_at)::date month,
+    select date_trunc('month',created_at)::date month_start,
       count(*) filter(where evaluation_eligible) evaluated,
-      round(percentile_cont(.5) within group(order by abs_error_pct) filter(where evaluation_eligible)::numeric,1) mape50,
+      round((percentile_cont(.5) within group(order by abs_error_pct) filter(where evaluation_eligible))::numeric,1) mape50,
       round(100.0*count(*) filter(where evaluation_eligible and abs_error_pct<=25)/nullif(count(*) filter(where evaluation_eligible),0),1) within25,
       coalesce(sum(carrier_cost),0) actual_cost,
       coalesce(sum(potential_savings),0) potential_savings
     from e group by 1
   )
   select coalesce(jsonb_agg(jsonb_build_object(
-    'month',month,'evaluated',evaluated,'medianAbsErrorPct',mape50,'within25Pct',within25,
+    'month',month_start,'evaluated',evaluated,'medianAbsErrorPct',mape50,'within25Pct',within25,
     'actualCost',actual_cost,'potentialSavings',potential_savings
-  ) order by month),'[]'::jsonb) into v_monthly from g;
+  ) order by month_start),'[]'::jsonb) into v_monthly from g;
 
   with e as(select * from erp_supply.freight_eval_v1141(v_org,v_from,v_to)),
   g as(
     select carrier,count(*) shipments,count(*) filter(where evaluation_eligible) evaluated,
       coalesce(sum(carrier_cost),0) actual_cost,
       round(avg(deviation_pct) filter(where evaluation_eligible),1) avg_deviation_pct,
-      round(percentile_cont(.5) within group(order by abs_error_pct) filter(where evaluation_eligible)::numeric,1) median_abs_error_pct,
+      round((percentile_cont(.5) within group(order by abs_error_pct) filter(where evaluation_eligible))::numeric,1) median_abs_error_pct,
       coalesce(sum(potential_savings),0) potential_savings,
       round(100.0*count(*) filter(where delivery_risk='ON_TIME')/nullif(count(*) filter(where delivery_risk in('ON_TIME','LATE')),0),1) on_time_pct
     from e where nullif(carrier,'') is not null group by carrier
