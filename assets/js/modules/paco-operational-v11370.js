@@ -628,23 +628,29 @@ function monitorTransitions(previous,current){
 function monitorThresholds(snapshot,initial=false){
   const delayed=delayedOrders(snapshot);
   delayed.slice(0,initial?2:5).forEach(row=>{
-    const key=`order-delay:${row.id||row.orderId}:${Math.floor(orderAge(row)/1800)}`;
+    const key=`order-delay:${row.id||row.orderId}`;
     if(!alertAllowed(key))return;
-    const text=`${orderNumber(row)} lleva ${duration(orderAge(row))} en ${row.stepName||row.currentStepName||orderStep(row)||"cola"}${orderAssignee(row)?` con ${orderAssignee(row)}`:" sin responsable"}.`;
-    showProactive({title:"Pedido demorado",text,tone:"warning",voice:true,actions:[{label:"Diagnosticar",action:"diagnose-order-id",orderId:row.id||row.orderId}]});
+    const text=`${orderNumber(row)} lleva ${duration(orderAge(row))} en ${stepName(row)}${orderAssignee(row)?` con ${orderAssignee(row)}`:" sin responsable"}.`;
+    showProactive({title:"Pedido demorado",text,tone:"warning",voice:!initial,actions:[{label:"Diagnosticar",action:"diagnose-order-id",orderId:row.id||row.orderId}]});
   });
 
   if(isManager()){
-    idleAuxiliaries(snapshot).slice(0,initial?1:4).forEach(person=>{
-      const key=`idle:${person.id}:${Math.floor(person.idleSeconds/1800)}`;
+    idleAuxiliaries(snapshot).slice(0,initial?2:6).forEach(person=>{
+      const key=`idle:${person.id}`;
       if(!alertAllowed(key))return;
-      showProactive({title:"Auxiliar disponible",text:`${person.name} lleva ${duration(person.idleSeconds)} sin actividad registrada.`,tone:"info",voice:true,actions:[{label:"Abrir Jornada",action:"navigate",module:"workforce"}]});
+      showProactive({
+        title:"20 min sin actividad",
+        text:`${person.name} lleva ${duration(person.idleSeconds)} sin actividad registrada. Está disponible para nueva asignación.`,
+        tone:"info",
+        voice:!initial,
+        actions:[{label:"Ver estado del equipo",action:"team",icon:"◷"},{label:"Abrir Jornada",action:"navigate",module:"workforce"}]
+      });
     });
 
     longActivities(snapshot).slice(0,3).forEach(person=>{
-      const key=`long-work:${person.id}:${Math.floor(person.activeSeconds/1800)}`;
+      const key=`long-work:${person.id}`;
       if(!alertAllowed(key))return;
-      showProactive({title:"Actividad prolongada",text:`${person.name} lleva ${duration(person.activeSeconds)} en “${person.activeTitle}”.`,tone:"warning",voice:true,actions:[{label:"Ver cronograma",action:"navigate",module:"workforce"}]});
+      showProactive({title:"Actividad prolongada",text:`${person.name} lleva ${duration(person.activeSeconds)} en “${person.activeTitle}”.`,tone:"warning",voice:!initial,actions:[{label:"Ver cronograma",action:"navigate",module:"workforce"}]});
     });
   }
 }
@@ -656,10 +662,12 @@ async function refreshMonitor(force=false){
   if(status&&force)status.textContent="Actualizando…";
   try{
     const snapshot=await loadSnapshot();
+    const initial=!paco.previous;
     monitorTransitions(paco.previous,snapshot);
-    monitorThresholds(snapshot,!paco.previous);
+    monitorThresholds(snapshot,initial);
     paco.previous=snapshot;
-    if(status)status.textContent=`Actualizado ${timeLabel(new Date())}`;
+    if(digestDue())deliverDigest(snapshot,{automatic:true});
+    if(status)status.textContent=`Actualizado ${timeLabel(new Date())} · resumen cada 30 min`;
   }catch(error){
     if(status)status.textContent="Monitoreo con datos parciales";
     console.warn("[PACO MONITOR]",error);
@@ -667,6 +675,7 @@ async function refreshMonitor(force=false){
 }
 function startMonitor(){
   clearInterval(paco.monitorTimer);
+  paco.lastDigestAt=readLastDigest();
   setTimeout(()=>refreshMonitor(false),3500);
   paco.monitorTimer=setInterval(()=>refreshMonitor(false),MONITOR_MS);
 }
@@ -684,7 +693,7 @@ async function idleMessage(){
   if(!isManager())return message({text:"La disponibilidad del equipo solo se muestra a liderazgo y coordinación autorizados."});
   const snapshot=paco.previous||await loadSnapshot();
   const rows=idleAuxiliaries(snapshot).slice(0,8);
-  if(!rows.length)return message({text:"No veo auxiliares de logística o corte con inactividad superior a 30 minutos laborales."});
+  if(!rows.length)return message({text:"No veo auxiliares de logística o corte con inactividad superior a 20 minutos laborales."});
   return message({text:`Hay ${rows.length} auxiliar${rows.length===1?"":"es"} con tiempo disponible.`,card:rows.map(row=>[row.name,duration(row.idleSeconds)]),actions:[{label:"Abrir cronograma",action:"navigate",module:"workforce",icon:"◷"}]});
 }
 async function teamActivityMessage(input=""){
@@ -706,7 +715,7 @@ async function teamActivityMessage(input=""){
 }
 async function unassignedOrdersMessage(){
   const snapshot=paco.previous||await loadSnapshot();
-  const rows=(snapshot.orders||[]).filter(row=>activeOrder(row)&&!orderAssignee(row)).sort((a,b)=>orderAge(b)-orderAge(a)).slice(0,8);
+  const rows=unassignedOrders(snapshot).slice(0,8);
   if(!rows.length)return message({text:"No veo pedidos activos visibles sin responsable en este momento."});
   return message({
     text:`Hay ${rows.length} pedido${rows.length===1?"":"s"} activo${rows.length===1?"":"s"} sin responsable visible.`,
@@ -765,8 +774,8 @@ async function myDayMessage(){
 }
 async function operationMessage(){
   const snapshot=paco.previous||await loadSnapshot();
-  const delayed=delayedOrders(snapshot),idle=isManager()?idleAuxiliaries(snapshot):[],long=isManager()?longActivities(snapshot):[];
-  return message({text:"Este es el resumen operativo que puedo ver ahora.",card:[["Pedidos visibles",String(snapshot.orders.length)],["Pedidos demorados",String(delayed.length)],...(isManager()?[["Auxiliares disponibles",String(idle.length)],["Actividades prolongadas",String(long.length)]]:[])],actions:[{label:"Pedidos demorados",action:"delayed",icon:"!"},...(isManager()?[{label:"Equipo disponible",action:"idle",icon:"◎"}]:[])]});
+  paco.previous=snapshot;
+  return buildOperationalDigest(snapshot,{automatic:false});
 }
 
 async function diagnoseOrder(term){
