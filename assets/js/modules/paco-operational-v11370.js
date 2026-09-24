@@ -6,9 +6,8 @@ import {toast} from "../core/ui.js";
 import {
   normalizePacoText as norm,
   matchesAny,
-  INTENT_ALIASES as INTENTS,
+  detectPacoIntent,
   matchCrmModule,
-  CRM_MODULE_KNOWLEDGE,
   isCancelText,
   isRestartText
 } from "./paco-language-v11373.js";
@@ -908,31 +907,36 @@ async function resolveQuery(input){
 
   if(paco.flow?.type==="activity"){
     if(paco.flow.step==="confirm"){
-      if(matchesAny(text,["si","sí","dale","iniciar","empieza","comenzar"]))return startActivity(paco.flow.catalogId);
-      if(matchesAny(text,["no","otra","cambiar","elegir otra"]))return beginActivityFlow();
+      if(matchesAny(text,["si","sí","dale","iniciar","empieza","comenzar","hagale","hágale"]))return startActivity(paco.flow.catalogId);
+      if(matchesAny(text,["no","otra","cambiar","elegir otra","me equivoque","me equivoqué"]))return beginActivityFlow();
     }
     if(paco.flow.step==="search")return beginActivityFlow(input);
   }
 
-  if(matchesAny(text,["hola","buenas","paco","ayuda"]))return message({text:"Aquí estoy. Estoy pendiente del CRM y también puedo ayudarte a ejecutar tareas.",actions:[{label:"Registrar actividad",action:"activity-begin",kind:"primary",icon:"▶"},{label:"Estado operativo",action:"operation",icon:"↗"}]});
-  if(matchesAny(text,INTENTS.activity)){
-    const cleaned=text.replace(/registrar|registar|crear|iniciar|anotar|hacer|actividad|actvidad|nueva/g," ").replace(/\s+/g," ").trim();
+  if(matchesAny(text,["hola","buenas","paco","ayuda","hey paco","oe paco"]))return message({
+    text:"Aquí estoy. Estoy pendiente del CRM y también puedo ayudarte a ejecutar tareas.",
+    actions:[{label:"Registrar actividad",action:"activity-begin",kind:"primary",icon:"▶"},{label:"Estado operativo",action:"operation",icon:"↗"}]
+  });
+
+  const intent=detectPacoIntent(input);
+  if(intent==="activity"){
+    const cleaned=text.replace(/registrar|registar|rejistrar|crear|iniciar|anotar|hacer|actividad|actvidad|nueva|agregar|meter|poner/g," ").replace(/\s+/g," ").trim();
     return beginActivityFlow(cleaned);
   }
-  if(matchesAny(text,INTENTS.capabilities))return capabilitiesMessage();
-  if(matchesAny(text,INTENTS.delayed))return delayedMessage();
-  if(matchesAny(text,INTENTS.unassigned))return unassignedOrdersMessage();
-  if(matchesAny(text,INTENTS.idle))return idleMessage();
-  if(matchesAny(text,INTENTS.longWork))return longWorkMessage();
-  if(matchesAny(text,INTENTS.team))return teamActivityMessage(input);
-  if(matchesAny(text,INTENTS.recentWork))return recentWorkMessage();
-  if(matchesAny(text,INTENTS.shipped))return shippedMessage();
-  if(matchesAny(text,INTENTS.novelties))return noveltyMessage();
-  if(matchesAny(text,INTENTS.operation))return operationMessage();
-  if(matchesAny(text,INTENTS.myDay))return myDayMessage();
+  if(intent==="capabilities")return capabilitiesMessage();
+  if(intent==="delayed")return delayedMessage();
+  if(intent==="unassigned")return unassignedOrdersMessage();
+  if(intent==="idle")return idleMessage();
+  if(intent==="longWork")return longWorkMessage();
+  if(intent==="team")return teamActivityMessage(input);
+  if(intent==="recentWork")return recentWorkMessage();
+  if(intent==="shipped")return shippedMessage();
+  if(intent==="novelties")return noveltyMessage();
+  if(intent==="operation")return operationMessage();
+  if(intent==="myDay")return myDayMessage();
 
   const term=orderTerm(input);
-  if(term||matchesAny(text,INTENTS.order))return diagnoseOrder(term);
+  if(term||intent==="order")return diagnoseOrder(term);
 
   const moduleHit=matchCrmModule(text);
   if(moduleHit&&allowed(moduleHit.id)){
@@ -941,6 +945,7 @@ async function resolveQuery(input){
       actions:[
         {label:`Abrir ${moduleHit.label}`,action:"navigate",module:moduleHit.id,kind:"primary",icon:"→"},
         {label:"Nueva consulta",action:"focus-input",icon:"⌕"},
+        {label:"Cancelar consulta",action:"cancel-flow",icon:"×"},
         {label:"Reiniciar PACO",action:"restart",icon:"↻"}
       ]
     });
@@ -952,6 +957,7 @@ async function resolveQuery(input){
       {label:"¿Qué puede hacer PACO?",action:"capabilities",icon:"↗"},
       {label:"Registrar actividad",action:"activity-begin",icon:"▶"},
       {label:"Resumen operativo",action:"operation",icon:"◎"},
+      {label:"Cancelar consulta",action:"cancel-flow",icon:"×"},
       {label:"Reiniciar",action:"restart",icon:"↻"}
     ]
   });
