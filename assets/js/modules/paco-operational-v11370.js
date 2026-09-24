@@ -441,7 +441,7 @@ function idleAuxiliaries(snapshot){
     const personRoles=roleMap.get(String(person.id))||[];
     if(!personRoles.some(role=>AUX_ROLES.has(role))||person.activeTitle)return null;
     const last=executions.filter(e=>String(e.profileId)===String(person.id)&&e.endedAt).sort((a,b)=>new Date(b.endedAt)-new Date(a.endedAt))[0];
-    const base=last?.endedAt||new Date(new Date().setHours(7,0,0,0)).toISOString();
+    const base=last?.endedAt||`${todayIso()}T07:00:00-05:00`;
     const idleSeconds=businessSecondsSince(base,snapshot.planner?.calendar);
     return idleSeconds>=IDLE_WARN_SECONDS?{...person,roles:personRoles,idleSeconds,lastEndedAt:last?.endedAt||null}:null;
   }).filter(Boolean).sort((a,b)=>b.idleSeconds-a.idleSeconds);
@@ -613,8 +613,16 @@ async function resolveQuery(input){
   const text=norm(input);
   if(!text)return message({text:"Dime qué necesitas. Puedo revisar pedidos, jornada, novedades o registrar una actividad."});
 
-  if(paco.flow?.type==="activity"&&paco.flow.step==="search"&&!matchesAny(text,["cancelar","salir","no"])){
-    return beginActivityFlow(input);
+  if(paco.flow?.type==="activity"){
+    if(matchesAny(text,["cancelar","salir","olvidalo","olvídalo"])){
+      paco.flow=null;
+      return message({text:"Listo. Cancelé el registro guiado de actividad."});
+    }
+    if(paco.flow.step==="confirm"){
+      if(matchesAny(text,["si","sí","dale","iniciar","empieza","comenzar"]))return startActivity(paco.flow.catalogId);
+      if(matchesAny(text,["no","otra","cambiar","elegir otra"]))return beginActivityFlow();
+    }
+    if(paco.flow.step==="search")return beginActivityFlow(input);
   }
 
   if(matchesAny(text,["hola","buenas","paco","ayuda"]))return message({text:"Aquí estoy. Estoy pendiente del CRM y también puedo ayudarte a ejecutar tareas.",actions:[{label:"Registrar actividad",action:"activity-begin",kind:"primary",icon:"▶"},{label:"Estado operativo",action:"operation",icon:"↗"}]});
