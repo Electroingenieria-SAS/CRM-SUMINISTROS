@@ -5858,3 +5858,69 @@
   }
 }
 
+
+
+/* V11.39.0 · customer + freight intelligence */
+.sales-intelligence-card,
+.sales-freight-estimate{
+  grid-column:1/-1;
+  min-width:0;
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr) auto;
+  align-items:center;
+  gap:12px;
+  padding:14px 15px;
+  border:1px solid #cfe0eb;
+  border-radius:14px;
+  background:linear-gradient(180deg,#f9fcff,#f3f8fb);
+}
+.sales-intelligence-mark,
+.sales-freight-icon{
+  width:40px;height:40px;display:grid;place-items:center;border-radius:12px;
+  background:#e4f1f8;color:#226d9a;font-size:18px;font-weight:950;
+}
+.sales-intelligence-card>div:nth-child(2),
+.sales-freight-estimate>div:nth-child(2){min-width:0;display:grid;gap:3px}
+.sales-intelligence-card span,
+.sales-freight-estimate span{color:#2d79a4;font-size:9px;font-weight:950;letter-spacing:.08em}
+.sales-intelligence-card strong,
+.sales-freight-estimate strong{color:#173f61;font-size:13px}
+.sales-intelligence-card p,
+.sales-freight-estimate p{margin:0;color:#6f8292;font-size:10px;line-height:1.45}
+.sales-intelligence-card>small,
+.sales-freight-estimate>small{
+  max-width:170px;padding:6px 8px;border-radius:9px;background:#fff;color:#668096;
+  font-size:8.8px;font-weight:850;text-align:center;border:1px solid #dbe6ed
+}
+.sales-freight-estimate{margin-top:12px;background:linear-gradient(180deg,#fbfdff,#f5fafc)}
+.sales-freight-estimate.is-loading{opacity:.72}
+
+.v1139-invoice-browser{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  margin:14px 0;padding:13px 14px;border:1px solid #d6e4ed;border-radius:14px;background:#f8fbfd
+}
+.v1139-invoice-browser>div{display:grid;gap:2px}
+.v1139-invoice-browser span{color:#2d79a4;font-size:8.5px;font-weight:950;letter-spacing:.08em}
+.v1139-invoice-browser strong{color:#244e6b;font-size:12px}
+.v1139-invoice-browser small{color:#7e8f9d;font-size:9px}
+.v1139-invoice-browser .control{width:min(420px,46vw);min-height:40px}
+.v1139-drive-link{
+  display:inline-flex;align-items:center;gap:4px;padding:5px 8px;border-radius:8px;
+  background:#eef6fb;color:#256f9b;font-size:9px;font-weight:900;text-decoration:none
+}
+.v1139-drive-link:hover{background:#e0f0f8}
+.v1139-file-missing{color:#9aa6af;font-size:8.5px}
+.v1139-estimate-tag{
+  display:inline-flex;margin-top:2px;padding:2px 5px;border-radius:999px;
+  font-size:7px;font-weight:950;text-transform:uppercase;letter-spacing:.04em
+}
+.v1139-estimate-tag.actual{background:#eaf7f1;color:#2e7d61}
+.v1139-estimate-tag.estimated{background:#edf4fa;color:#34779e}
+.v1139-estimate-tag.none{background:#f1f3f5;color:#7c8891}
+
+@media(max-width:720px){
+  .sales-intelligence-card,.sales-freight-estimate{grid-template-columns:38px minmax(0,1fr)}
+  .sales-intelligence-card>small,.sales-freight-estimate>small{grid-column:2;max-width:none;text-align:left}
+  .v1139-invoice-browser{align-items:stretch;flex-direction:column}
+  .v1139-invoice-browser .control{width:100%}
+}
