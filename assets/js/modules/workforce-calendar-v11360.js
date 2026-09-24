@@ -251,16 +251,14 @@ function dayBoard(data,calendar,anchor,filters={}){
   const assignments=data.assignments||[];
 
   return `
-    <section class="work-calendar-v11360 work-calendar-day-v11360 work-calendar-day-slots-v11367 card">
+    <section class="work-calendar-v11360 work-calendar-day-v11360 work-calendar-day-slots-v11367 work-calendar-day-table-v11368 card">
       <div class="work-calendar-scroll-v11360">
-        <header class="work-calendar-day-head-v11360" style="--segment-count:${Math.max(1,slots.length)}">
+        <header class="work-calendar-day-head-v11360 work-calendar-day-table-grid-v11368">
           <div class="work-calendar-team-head-v11360">
             <span>Equipo</span>
             <strong>Actividad y estado</strong>
           </div>
-          <div class="work-calendar-segment-heads-v11360" style="grid-template-columns:${segmentGridTemplate(slots)}">
-            ${slots.map(slotHeader).join("")}
-          </div>
+          ${slots.map(slotHeader).join("")}
         </header>
 
         <div class="work-calendar-day-rows-v11360">
@@ -309,15 +307,12 @@ function dayPersonRow(person,assignments,slots,day){
   const noTime=rows.filter(row=>!row.plannedStart);
 
   return `
-    <article class="work-calendar-person-row-v11360" style="--segment-count:${Math.max(1,slots.length)}">
+    <article class="work-calendar-person-row-v11360 work-calendar-day-table-grid-v11368">
       <div class="work-calendar-person-v11360">
         ${personIdentity(person)}
       </div>
-
-      <div class="work-calendar-segments-v11360" style="grid-template-columns:${segmentGridTemplate(slots)}">
-        ${slots.map((slot,index)=>daySlot(rows,slot,index,slots)).join("")}
-        ${noTime.length?`<div class="work-calendar-floating-v11360">${noTime.map(compactEvent).join("")}</div>`:""}
-      </div>
+      ${slots.map((slot,index)=>daySlot(rows,slot,index,slots)).join("")}
+      ${noTime.length?`<div class="work-calendar-floating-v11360">${noTime.map(compactEvent).join("")}</div>`:""}
     </article>`;
 }
 
