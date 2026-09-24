@@ -121,6 +121,7 @@ check(exists("scripts/order-stage-status-v11381-test.mjs"),"Falta contrato V11.3
 check(exists("scripts/order-responsible-seller-v11382-test.mjs"),"Falta contrato V11.38.2 de responsable activo y vendedor.");
 check(exists("scripts/customer-freight-intelligence-v11390-test.mjs"),"Falta contrato V11.39.x de inteligencia comercial y fletes.");
 check(exists("supabase/migrations/127_customer_payment_truth_v11_39_1.sql"),"Falta migración V11.39.1 de verdad financiera y prioridad.");
+check(exists("supabase/migrations/128_customer_intelligence_security_v11_39_1.sql"),"Falta hardening V11.39.1 de identidad de cliente.");
 check(exists("supabase/migrations/125_customer_freight_intelligence_v11_39_0.sql"),"Falta migración 125 de inteligencia comercial/logística.");
 check(exists("supabase/migrations/126_customer_freight_intelligence_permissions_v11_39_0.sql"),"Falta migración 126 de permisos de inteligencia.");
 check(exists("supabase/migrations/124_order_responsible_seller_v11_38_2.sql"),"Falta migración 124 de responsable activo y vendedor.");
