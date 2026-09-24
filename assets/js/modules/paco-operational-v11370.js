@@ -221,7 +221,12 @@ function messageHtml(item){
   if(item.type==="typing")return `<article class="paco2-message assistant"><img class="paco2-mini" src="${ASSETS.thinking}" alt=""><div class="paco2-bubble"><span class="paco2-typing"><i></i><i></i><i></i></span></div></article>`;
   const card=item.card?.length?`<div class="paco2-data-card">${item.card.map(row=>`<div><small>${esc(row[0])}</small><b>${esc(row[1])}</b></div>`).join("")}</div>`:"";
   const alert=item.alert?`<div class="paco2-alert ${esc(item.alert.tone||"")}"><strong>${esc(item.alert.title||"Atención")}</strong><span>${esc(item.alert.text||"")}</span></div>`:"";
-  const actions=(item.actions||[]).filter(action=>allowed(action.module));
+  let actions=(item.actions||[]).filter(action=>allowed(action.module));
+  const isChoice=item.type!=="proactive"&&(actions.length>1||Boolean(paco.flow));
+  if(isChoice){
+    if(!actions.some(action=>action.action==="cancel-flow"))actions=[...actions,{label:"Cancelar consulta",sub:"Corregir o salir de esta consulta",icon:"×",action:"cancel-flow"}];
+    if(!actions.some(action=>action.action==="restart"))actions=[...actions,{label:"Reiniciar PACO",sub:"Volver al inicio",icon:"↻",action:"restart"}];
+  }
   return `<article class="paco2-message assistant ${item.type==="proactive"?"paco-op-proactive":""}">
     <img class="paco2-mini" src="${item.type==="success"?ASSETS.success:ASSETS.idle}" alt="">
     <div class="paco-op-message-stack"><span class="paco-op-sender">PACO</span><div class="paco2-bubble"><div class="paco2-text">${esc(item.text)}</div>${card}${alert}${orderRowsHtml(item.orderRows||[])}${actions.length?`<div class="paco2-actions">${actions.map(actionHtml).join("")}</div>`:""}<small class="paco-op-message-time">${esc(stamp)}</small></div></div>
