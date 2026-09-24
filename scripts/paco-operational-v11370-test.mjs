@@ -11,7 +11,7 @@ assert.equal(wrapper.includes("GUIDES"),false,"El entrypoint anterior no debe co
 assert.equal(wrapper.includes("password"),false,"El entrypoint anterior no debe conservar cambio de contraseña.");
 
 for(const token of [
-  'const VERSION="11.37.3"',
+  'const VERSION="11.37.4"',
   "MONITOR_MS=60000",
   "DIGEST_INTERVAL_MS=30*60*1000",
   "ORDER_WARN_SECONDS=3600",
@@ -107,6 +107,25 @@ for(const token of [
 }
 
 for(const token of [
+  "paco-op-control-card",
+  "paco-op-control-grid",
+  "paco-op-quick-wrap",
+  "data-paco-quick-toggle",
+  "data-paco-quick-menu",
+  "data-paco-quick-close",
+  "setQuickMenuOpen",
+  "toggleQuickMenu"
+]){
+  assert.equal(engine.includes(token),true,`PACO V11.37.4 debe conservar la nueva interfaz: ${token}`);
+}
+const messagesAt=engine.indexOf('data-paco-messages');
+const quickMenuAt=engine.indexOf('data-paco-quick-wrap');
+const composerAt=engine.indexOf('data-paco-form');
+assert.equal(messagesAt>=0&&quickMenuAt>messagesAt&&composerAt>quickMenuAt,true,"Accesos rápidos deben vivir flotantes entre chat y compositor, no como tira fija.");
+assert.equal(engine.includes('if(paco.root&&!event.target.closest?.("[data-paco-quick-wrap]"))setQuickMenuOpen(false)'),true,"Click fuera debe cerrar accesos rápidos.");
+assert.equal(engine.includes('event.key==="Escape"'),true,"Escape debe cerrar accesos rápidos.");
+
+for(const token of [
   "paco-op-panel",
   "paco-op-voice",
   "paco-op-badge",
@@ -123,4 +142,4 @@ for(const token of [
   assert.equal(css.includes(token),true,`CSS PACO debe conservar ${token}`);
 }
 
-console.log("PACO operational assistant v11.37.3 resilient trained assistant tests: OK");
+console.log("PACO operational assistant v11.37.4 control card + floating quick menu tests: OK");

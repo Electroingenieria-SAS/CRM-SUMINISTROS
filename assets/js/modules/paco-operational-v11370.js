@@ -12,7 +12,7 @@ import {
   isRestartText
 } from "./paco-language-v11373.js";
 
-const VERSION="11.37.3";
+const VERSION="11.37.4";
 const STYLE_ID="paco-operational-v11370-style";
 const MONITOR_MS=60000;
 const DIGEST_INTERVAL_MS=30*60*1000;
@@ -73,7 +73,7 @@ function ensureStyles(){
   const link=document.createElement("link");
   link.id=STYLE_ID;
   link.rel="stylesheet";
-  link.href="./assets/runtime-css/paco-operational-v11370.css?v=11.37.3";
+  link.href="./assets/runtime-css/paco-operational-v11370.css?v=11.37.4";
   document.head.appendChild(link);
 }
 
@@ -169,24 +169,49 @@ function renderRoot(){
         <button type="button" class="paco-op-voice ${paco.voiceEnabled?"is-on":""}" data-paco-voice aria-label="Activar o silenciar voz" title="Voz en español latino"><span data-paco-voice-icon>${paco.voiceEnabled?"🔊":"🔇"}</span></button>
         <button type="button" class="paco2-close" data-paco-close aria-label="Cerrar PACO">×</button>
       </header>
-      <div class="paco-op-status">
-        <div class="paco-op-status-copy">
-          <span class="paco2-online"></span>
-          <strong>Conectado al CRM</strong>
-          <span data-paco-monitor-status>Monitoreo activo · resumen cada 30 min</span>
+      <section class="paco-op-control-card" aria-label="Controles rápidos de PACO">
+        <div class="paco-op-control-head">
+          <div class="paco-op-status-copy">
+            <span class="paco2-online"></span>
+            <div>
+              <strong>Conectado al CRM</strong>
+              <span data-paco-monitor-status>Monitoreo activo · resumen cada 30 min</span>
+            </div>
+          </div>
+          <span class="paco-op-control-kicker">Controles</span>
         </div>
-        <div class="paco-op-status-actions">
+        <div class="paco-op-control-grid">
           <label class="paco-op-voice-picker" title="Voces latinoamericanas disponibles en este dispositivo">
-            <span>Voz</span>
+            <span class="paco-op-control-label">Voz del asistente</span>
             <select data-paco-voice-select aria-label="Seleccionar voz de PACO"></select>
           </label>
-          <button type="button" data-paco-test-voice>Probar voz</button>
-          <button type="button" data-paco-summary-now>Resumen ahora</button>
-          <button type="button" data-paco-restart>↻ Reiniciar</button>
+          <button type="button" class="paco-op-control-button" data-paco-test-voice>
+            <span class="paco-op-control-icon" aria-hidden="true">🔊</span>
+            <span><b>Probar voz</b><small>Escuchar a PACO</small></span>
+          </button>
+          <button type="button" class="paco-op-control-button" data-paco-summary-now>
+            <span class="paco-op-control-icon" aria-hidden="true">◎</span>
+            <span><b>Resumen ahora</b><small>Estado operativo</small></span>
+          </button>
+          <button type="button" class="paco-op-control-button" data-paco-restart>
+            <span class="paco-op-control-icon" aria-hidden="true">↻</span>
+            <span><b>Reiniciar</b><small>Nueva consulta</small></span>
+          </button>
         </div>
-      </div>
+      </section>
       <div class="paco2-messages paco-op-messages" data-paco-messages aria-live="polite"></div>
-      <div class="paco2-quick paco-op-quick" data-paco-quick></div>
+      <div class="paco-op-quick-wrap" data-paco-quick-wrap>
+        <button type="button" class="paco-op-quick-fab" data-paco-quick-toggle aria-expanded="false" aria-controls="paco-quick-menu">
+          <span aria-hidden="true">⚡</span><b>Accesos</b>
+        </button>
+        <section id="paco-quick-menu" class="paco-op-quick-menu" data-paco-quick-menu hidden aria-label="Accesos rápidos de PACO">
+          <header class="paco-op-quick-menu-head">
+            <div><small>PACO</small><strong>Acciones rápidas</strong></div>
+            <button type="button" data-paco-quick-close aria-label="Cerrar accesos rápidos">×</button>
+          </header>
+          <div class="paco2-quick paco-op-quick" data-paco-quick></div>
+        </section>
+      </div>
       <form class="paco2-composer paco-op-composer" data-paco-form>
         <div class="paco-op-input-shell">
           <textarea rows="1" maxlength="500" data-paco-input aria-label="Escribe a PACO" placeholder="Mensaje a PACO…"></textarea>
@@ -249,6 +274,17 @@ function setFace(name="idle"){
   paco.root?.querySelectorAll("[data-paco-face],.paco2-launcher-face").forEach(img=>{if(img.getAttribute("src")!==src)img.src=src});
 }
 function isOpen(){return Boolean(paco.root?.classList.contains("is-open"))}
+function setQuickMenuOpen(open){
+  const menu=paco.root?.querySelector("[data-paco-quick-menu]");
+  const toggle=paco.root?.querySelector("[data-paco-quick-toggle]");
+  const wrap=paco.root?.querySelector("[data-paco-quick-wrap]");
+  if(!menu||!toggle||!wrap)return;
+  const next=Boolean(open);
+  menu.hidden=!next;
+  wrap.classList.toggle("is-open",next);
+  toggle.setAttribute("aria-expanded",String(next));
+}
+function toggleQuickMenu(){setQuickMenuOpen(paco.root?.querySelector("[data-paco-quick-menu]")?.hidden!==false)}
 function setOpen(open){
   if(!paco.root)return;
   paco.root.classList.toggle("is-open",Boolean(open));
@@ -258,7 +294,10 @@ function setOpen(open){
     clearBadge();
     setFace("listening");
     setTimeout(()=>paco.root?.querySelector("[data-paco-input]")?.focus(),80);
-  }else setFace("idle");
+  }else{
+    setQuickMenuOpen(false);
+    setFace("idle");
+  }
 }
 function toggleOpen(){setOpen(!isOpen())}
 
@@ -291,6 +330,7 @@ function restartPaco(){
   paco.previous=null;
   paco.messages=[];
   clearBadge();
+  setQuickMenuOpen(false);
   ensureWelcome();
   renderMessages();
   renderQuick();
@@ -1062,17 +1102,23 @@ function bindRoot(){
   root.querySelector("[data-paco-test-voice]")?.addEventListener("click",testVoice);
   root.querySelector("[data-paco-summary-now]")?.addEventListener("click",()=>runAction({dataset:{pacoAction:"summary-now"}}));
   root.querySelector("[data-paco-restart]")?.addEventListener("click",restartPaco);
+  root.querySelector("[data-paco-quick-toggle]")?.addEventListener("click",toggleQuickMenu);
+  root.querySelector("[data-paco-quick-close]")?.addEventListener("click",()=>setQuickMenuOpen(false));
   root.querySelector("[data-paco-form]")?.addEventListener("submit",event=>{event.preventDefault();const input=root.querySelector("[data-paco-input]");const value=input.value;input.value="";submit(value)});
   root.querySelector("[data-paco-input]")?.addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.shiftKey){event.preventDefault();root.querySelector("[data-paco-form]")?.requestSubmit()}});
   root.addEventListener("click",event=>{
-    const action=event.target.closest?.("[data-paco-action]");if(action){void runAction(action);return}
-    const quick=event.target.closest?.("[data-paco-quick]");if(quick)submit(quick.dataset.pacoQuick);
+    const action=event.target.closest?.("[data-paco-action]");if(action){setQuickMenuOpen(false);void runAction(action);return}
+    const quick=event.target.closest?.("[data-paco-quick]");if(quick){setQuickMenuOpen(false);submit(quick.dataset.pacoQuick)}
   });
 }
 
 function bindGlobal(){
   if(paco.globalBound)return;paco.globalBound=true;
-  document.addEventListener("click",event=>{if(event.target.closest?.(".nav-item"))setTimeout(updateContext,40)});
+  document.addEventListener("click",event=>{
+    if(event.target.closest?.(".nav-item"))setTimeout(updateContext,40);
+    if(paco.root&&!event.target.closest?.("[data-paco-quick-wrap]"))setQuickMenuOpen(false);
+  });
+  document.addEventListener("keydown",event=>{if(event.key==="Escape"&&paco.root?.querySelector("[data-paco-quick-menu]")?.hidden===false)setQuickMenuOpen(false)});
   window.addEventListener("erp:work-changed",()=>setTimeout(()=>refreshMonitor(true),1200));
   window.addEventListener("erp:refresh",()=>setTimeout(()=>refreshMonitor(true),600));
   window.addEventListener("paco:open",event=>{if(!state.profile)return;setOpen(true);const prompt=event.detail?.prompt;if(prompt){const input=paco.root?.querySelector("[data-paco-input]");if(input){input.value=prompt;input.focus()}}});
