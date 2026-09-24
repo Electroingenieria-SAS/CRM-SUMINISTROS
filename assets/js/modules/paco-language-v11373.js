@@ -284,12 +284,12 @@ export function detectPacoIntent(text){
 
 export function isCancelText(text){
   return matchesAny(normalizePacoText(text),[
-    "cancelar","cancelar consulta","cancelar esto","salir","olvidalo","dejar asi","parar consulta","abortar"
+    "cancelar","cancelar consulta","cancelar esto","salir","olvidalo","dejar asi","parar consulta","abortar","me equivoque","no era eso"
   ]);
 }
 
 export function isRestartText(text){
   return matchesAny(normalizePacoText(text),[
-    "reiniciar","reiniciar paco","empezar de nuevo","volver a empezar","nueva consulta","borrar consulta","comenzar otra vez"
+    "reiniciar","reiniciar paco","reinicar paco","empezar de nuevo","volver a empezar","nueva consulta","borrar consulta","comenzar otra vez","borra y empieza otra vez"
   ]);
 }
