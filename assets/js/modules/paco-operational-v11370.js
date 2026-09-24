@@ -406,7 +406,7 @@ function speak(text,{force=false}={}){
     utterance.lang=voice?.lang||"es-CO";
     if(voice)utterance.voice=voice;
     utterance.rate=.96;
-    utterance.pitch=isLikelyMaleVoice(voice)?.92:.88;
+    utterance.pitch=isLikelyMaleVoice(voice)?0.92:0.88;
     utterance.volume=.96;
     speechSynthesis.speak(utterance);
     return true;
