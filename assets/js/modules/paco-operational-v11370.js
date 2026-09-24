@@ -367,7 +367,10 @@ function voiceScore(voice){
   return score;
 }
 function latinVoice(){
-  return availableSpanishVoices().slice().sort((a,b)=>voiceScore(b)-voiceScore(a))[0]||null;
+  const all=availableSpanishVoices();
+  const latam=all.filter(voice=>LATAM_SPANISH.test(voice.lang||""));
+  const pool=latam.length?latam:all;
+  return pool.slice().sort((a,b)=>voiceScore(b)-voiceScore(a))[0]||null;
 }
 function renderVoiceOptions(){
   const select=paco.root?.querySelector("[data-paco-voice-select]");
