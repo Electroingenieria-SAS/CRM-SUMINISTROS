@@ -132,6 +132,16 @@ for(const [phrase,intent] of mutationSeeds){
   eq(detectPacoIntent(dropMiddle(phrase)),intent,`Drop typo ${intent}: ${dropMiddle(phrase)}`);
 }
 
+// 3.1) Mutaciones sistemáticas sobre TODO el vocabulario entrenado.
+for(const [intent,aliases] of Object.entries(INTENT_ALIASES)){
+  for(const phrase of aliases){
+    const swapped=swapMiddle(phrase);
+    if(swapped!==phrase)eq(detectPacoIntent(swapped),intent,`All-alias swap ${intent}: ${swapped}`);
+    const dropped=dropMiddle(phrase);
+    if(dropped!==phrase)eq(detectPacoIntent(dropped),intent,`All-alias drop ${intent}: ${dropped}`);
+  }
+}
+
 // 4) Conocimiento de los 20 módulos del CRM.
 for(const [id,info] of Object.entries(CRM_MODULE_KNOWLEDGE)){
   for(const alias of info.aliases){
@@ -164,9 +174,21 @@ const noisyModuleCases=[
 ];
 for(const [phrase,id] of noisyModuleCases)eq(matchCrmModule(phrase)?.id,id,`Noisy module ${id}: ${phrase}`);
 
+// 4.1) PACO debe entender cada módulo dentro de frases conversacionales, no solo el nombre aislado.
+const navigationPrefixes=["abre ","quiero ver ","llevame a ","necesito revisar "];
+for(const [id,info] of Object.entries(CRM_MODULE_KNOWLEDGE)){
+  for(const alias of info.aliases){
+    for(const prefix of navigationPrefixes){
+      eq(matchCrmModule(prefix+alias)?.id,id,`Module sentence ${id}: ${prefix+alias}`);
+    }
+    const swapped=swapMiddle(alias);
+    if(swapped!==alias)eq(matchCrmModule("abre "+swapped)?.id,id,`Module typo ${id}: ${swapped}`);
+  }
+}
+
 // 5) Comandos de recuperación de contexto.
-for(const phrase of ["cancelar","canselar consulta","olvidalo","dejar asi","parar consulta"])eq(isCancelText(phrase),true,`Cancel: ${phrase}`);
-for(const phrase of ["reiniciar","reiniciar paco","empezar de nuevo","nueba consulta","volver a empezar"])eq(isRestartText(phrase),true,`Restart: ${phrase}`);
+for(const phrase of ["cancelar","canselar consulta","cancelr consulta","olvidalo","dejar asi","parar consulta","me equivoque","no era eso"])eq(isCancelText(phrase),true,`Cancel: ${phrase}`);
+for(const phrase of ["reiniciar","reiniciar paco","reinicar paco","empezar de nuevo","nueba consulta","volver a empezar","borra y empieza otra vez"])eq(isRestartText(phrase),true,`Restart: ${phrase}`);
 
 // 6) Normalización de escritura casual.
 eq(normalizePacoText("Q ESTA ASIENDO JUAN?"),"que esta haciendo juan","normalize q/asiendo");
