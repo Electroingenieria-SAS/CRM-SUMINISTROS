@@ -191,7 +191,7 @@ check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía instit
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
 // PWA and Vercel routing.
-check(sw.includes('// previous-cache: crm-suministros-v11-37-3-20260924-26'),"previous-cache PWA debe apuntar a V11.37.3.");
+check(sw.includes('// previous-cache: crm-suministros-v11-37-4-20260924-27'),"previous-cache PWA debe apuntar a V11.37.4.");
 check(sw.includes('const CACHE="crm-suministros-v11-38-0-20260924-28";'),"CACHE activo PWA no corresponde a V11.38.0.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
