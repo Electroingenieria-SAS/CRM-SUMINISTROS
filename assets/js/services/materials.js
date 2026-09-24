@@ -35,13 +35,14 @@ export function materialPickerHtml(initial={}){
   const ref=safeText(initial.reference||initial.sku);
   const name=safeText(initial.name||initial.description);
   const unit=safeText(initial.unit||"UND");
+  const weight=Number(initial.weight||initial.materialWeight||0);
   const id=safeText(initial.materialMasterId||initial.material_master_id);
   const variantId=safeText(initial.materialVariantId||initial.material_variant_id);
   const variantLabel=safeText(initial.variantLabel||initial.variant_label||initial.metadata?.variantLabel);
   const selected=id||ref;
   return `<div class="material-picker ${selected?"selected":""}" data-material-picker
     data-material-id="${fmt.escape(id)}" data-material-reference="${fmt.escape(ref)}"
-    data-material-name="${fmt.escape(name)}" data-material-unit="${fmt.escape(unit)}"
+    data-material-name="${fmt.escape(name)}" data-material-unit="${fmt.escape(unit)}" data-material-weight="${Number.isFinite(weight)?weight:0}"
     data-material-variant-id="${fmt.escape(variantId)}" data-material-variant-label="${fmt.escape(variantLabel)}">
     <label class="material-search-label"><span>Material oficial Siesa</span>
       <input class="control material-search-input" data-material-query autocomplete="off"
@@ -97,6 +98,7 @@ function displayMaterial(container,material,preferredVariantId=null){
   container.dataset.materialReference=material.reference||"";
   container.dataset.materialName=material.name||"";
   container.dataset.materialUnit=material.unit||"UND";
+  container.dataset.materialWeight=String(Number(material.weight||0));
   const query=container.querySelector("[data-material-query]");
   if(query)query.value=`${material.reference} · ${material.name}`;
   const selected=container.querySelector("[data-material-selected]");
@@ -208,6 +210,7 @@ export function readMaterialPicker(container,strict=true){
     sku:container?.dataset.materialReference||null,
     description:container?.dataset.materialName||null,
     unit:container?.dataset.materialUnit||"UND",
+    weight:Number(container?.dataset.materialWeight||0),
     physicalAvailable:Number(container?.dataset.materialPhysical||0),
     erpReserved:Number(container?.dataset.materialReserved||0),
     availableToPromise:Number(container?.dataset.materialAtp||0)
@@ -224,7 +227,7 @@ export function applyResolvedMaterial(line,resolution){
     materialMasterId:material.id||null,materialVariantId:resolution.materialVariantId||null,
     variantLabel:resolution.variantLabel||null,variantOptions:resolution.variants||[],
     reference:material.reference||line.reference,sku:material.reference||line.sku,
-    description:material.name||line.description,unit:material.unit||line.unit||"UND",
+    description:material.name||line.description,unit:material.unit||line.unit||"UND",weight:Number(material.weight||line.weight||0),
     materialResolution:resolution.status
   };
 }
