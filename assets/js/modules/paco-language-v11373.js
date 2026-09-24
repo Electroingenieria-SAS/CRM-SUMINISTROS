@@ -172,7 +172,7 @@ const INTENT_ANCHORS=Object.freeze({
   idle:[/\bdesocup/,/\bdisponible/,/\blibre\b/,/sin\s+actividad/,/no\s+esta\s+haciendo/],
   longWork:[/\bprolong/,/actividad\s+(muy\s+)?larga/,/mas\s+de\s+(una\s+hora|90)/,/mucho\s+tiempo\s+en\s+actividad/],
   recentWork:[/\btermin/,/\bfinaliz/,/\bacab/],
-  shipped:[/\bdespach/,/\benviad/,/\benvio\b/,/\bsalio\b/,/\bentreg/],
+  shipped:[/\bdespach/,/\benviad/,/\benvio\b/,/\bsalio\b/,/\bsalieron\b/,/\bsalen\b/,/\bentreg/],
   novelties:[/\bnoved/,/\bbloque/,/\bexcep/,/\bproblema/,/\bincidenc/],
   operation:[/\bresumen\b/,/\bparte operativo\b/,/estado\s+(general|de la operacion)/,/como\s+va\s+(todo|la operacion)/],
   myDay:[/\bmi jornada\b/,/\bmi actividad\b/,/\bmi tarea\b/,/que\s+estoy\s+haciendo/],
