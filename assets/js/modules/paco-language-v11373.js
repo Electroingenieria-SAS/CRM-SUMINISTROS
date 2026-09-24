@@ -163,6 +163,26 @@ export const INTENT_ALIASES=Object.freeze({
   ]
 });
 
+const INTENT_ANCHORS=Object.freeze({
+  activity:[/\bregistr/,/\bactividad nueva\b/,/\biniciar actividad\b/,/\bempezar tarea\b/,/\banotar/],
+  delayed:[/\bdemor/,/\batras/,/\bretras/,/\bcola\b/,/\blent/,/\btard/,/\blleva\b.*\btiempo\b/],
+  unassigned:[/sin\s+(responsable|asignar|encargado|dueno)/,/nadie\s+tiene/],
+  idle:[/\bdesocup/,/\bdisponible/,/\blibre\b/,/sin\s+actividad/,/no\s+esta\s+haciendo/],
+  longWork:[/\bprolong/,/actividad\s+(muy\s+)?larga/,/mas\s+de\s+(una\s+hora|90)/,/mucho\s+tiempo\s+en\s+actividad/],
+  recentWork:[/\btermin/,/\bfinaliz/,/\bacab/],
+  shipped:[/\bdespach/,/\benviad/,/\benvio\b/,/\bsalio\b/,/\bentreg/],
+  novelties:[/\bnoved/,/\bbloque/,/\bexcep/,/\bproblema/,/\bincidenc/],
+  operation:[/\bresumen\b/,/\bparte operativo\b/,/estado\s+(general|de la operacion)/,/como\s+va\s+(todo|la operacion)/],
+  myDay:[/\bmi jornada\b/,/\bmi actividad\b/,/\bmi tarea\b/,/que\s+estoy\s+haciendo/],
+  team:[/que\s+esta\s+haciendo/,/quien\s+esta\s+trabajando/,/estado\s+del\s+equipo/,/en\s+que\s+anda/],
+  capabilities:[/puedes\s+hacer/,/\bfunciones\b/,/para\s+que\s+sirves/,/como\s+me\s+ayudas/],
+  order:[/donde\s+.*pedido/,/pedido\s+.*donde/,/\brastrear\b/,/\bseguimiento\b/,/quien\s+tiene\s+.*pedido/,/en\s+que\s+(parte|proceso)\s+va/]
+});
+
+function anchorScore(intent,normalized){
+  return (INTENT_ANCHORS[intent]||[]).some(pattern=>pattern.test(normalized))?950:0;
+}
+
 export const CRM_MODULE_KNOWLEDGE=Object.freeze({
   dashboard:{
     label:"Centro de operaciones",
@@ -313,10 +333,9 @@ export function detectPacoIntent(text){
   if(!normalized)return null;
   let bestIntent=null,bestScore=0;
   for(const [intent,aliases] of Object.entries(INTENT_ALIASES)){
-    for(const alias of aliases){
-      const score=intentAliasScore(normalized,alias);
-      if(score>bestScore){bestIntent=intent;bestScore=score}
-    }
+    let score=anchorScore(intent,normalized);
+    for(const alias of aliases)score=Math.max(score,intentAliasScore(normalized,alias));
+    if(score>bestScore){bestIntent=intent;bestScore=score}
   }
   return bestScore>=500?bestIntent:null;
 }
