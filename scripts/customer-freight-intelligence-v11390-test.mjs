@@ -7,6 +7,9 @@ const operational=fs.readFileSync(new URL("../assets/js/modules/operational-v112
 const api=fs.readFileSync(new URL("../assets/js/services/api.js",import.meta.url),"utf8");
 const migration=fs.readFileSync(new URL("../supabase/migrations/125_customer_freight_intelligence_v11_39_0.sql",import.meta.url),"utf8");
 const permissions=fs.readFileSync(new URL("../supabase/migrations/126_customer_freight_intelligence_permissions_v11_39_0.sql",import.meta.url),"utf8");
+const paymentTruth=fs.readFileSync(new URL("../supabase/migrations/127_customer_payment_truth_v11_39_1.sql",import.meta.url),"utf8");
+const customerSecurity=fs.readFileSync(new URL("../supabase/migrations/128_customer_intelligence_security_v11_39_1.sql",import.meta.url),"utf8");
+const financialFlow=fs.readFileSync(new URL("../assets/js/modules/financial-flow.js",import.meta.url),"utf8");
 
 assert.equal(orders.includes('formSelect("priority"'),false,"Creación de pedidos no debe exponer prioridad manual.");
 assert.equal(orders.includes('name="priority"'),false,"No debe existir campo manual priority en el wizard.");
@@ -50,6 +53,34 @@ assert.equal(/create\s+table/i.test(migration+permissions),false,"V11.39.0 no de
 assert.equal(/create\s+(unique\s+)?index/i.test(migration+permissions),false,"V11.39.0 no debe crear índices nuevos para aprendizaje.");
 
 for(const token of [
+  "customer_order_value_v11391",
+  "PAYMENT_AMOUNT",
+  "CAJA_FACTURACION",
+  "INVOICE_AMOUNT_FALLBACK",
+  "PAYMENT_WITH_INVOICE_FALLBACK",
+  "actualPaymentOrders",
+  "invoiceFallbackOrders",
+  "paymentCoveragePct",
+  "v_segment:='PREMIUM'",
+  "v_priority:='URGENT'",
+  "'version','11.39.1'"
+]) assert.equal(paymentTruth.includes(token),true,`V11.39.1 debe conservar ${token}`);
+
+assert.equal(paymentTruth.includes("v_priority:='HIGH'"),false,"Premium no puede escribir HIGH: orders.priority solo admite LOW/MEDIUM/URGENT.");
+
+for(const token of [
+  "Valor pagado confirmado",
+  "paymentReference",
+  "paymentConfirmed:true",
+  'paymentMeasurementVersion:"11.39.1"'
+]) assert.equal(financialFlow.includes(token),true,`Caja debe registrar pago real mediante ${token}`);
+
+for(const token of [
+  "set search_path=pg_catalog",
+  "revoke all on function erp_supply.customer_key(text,text) from public,anon,authenticated"
+]) assert.equal(customerSecurity.toLowerCase().includes(token.toLowerCase()),true,`Hardening customer_key debe incluir ${token}`);
+
+for(const token of [
   "can_access_module('sales','read')",
   "can_access_module('shipping','read')",
   "No autorizado para consultar ranking de clientes"
@@ -72,4 +103,4 @@ for(const token of [
   "customerRankingHtml"
 ]) assert.equal(workforce.includes(token),true,`Indicadores debe integrar ${token}`);
 
-console.log("customer + freight intelligence v11.39.0 tests: OK");
+console.log("customer + freight intelligence v11.39.1 tests: OK");

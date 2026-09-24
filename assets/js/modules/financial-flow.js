@@ -126,6 +126,7 @@ async function begin(data){
 }
 
 function openStateDialog(data,{reload,refreshLists}){
+  const cashStep=String(data?.order?.current_step_code||"").toUpperCase()==="CAJA";
   modal({
     title:"Actualizar estado",
     confirmLabel:"Guardar estado",
@@ -135,14 +136,30 @@ function openStateDialog(data,{reload,refreshLists}){
       ${stateChoice("WAITING","En espera","Falta información o una respuesta.")}
       ${stateChoice("NOVELTY","Con novedad","Existe una situación que impide continuar.")}
       ${stateChoice("CLOSED","Cerrado","La gestión terminó y el pedido puede liberarse.")}
-    </div><div class="field"><label>Observación</label><textarea class="control" name="notes" placeholder="Describe brevemente la actualización"></textarea></div>`,
+    </div>
+    ${cashStep?`<section class="financial-payment-confirmation">
+      <div class="wizard-confirm-box"><strong>Confirmación de pago</strong><p>Estos datos solo son obligatorios cuando selecciones “Cerrado”. Alimentan el ranking real del cliente y no sustituyen la factura.</p></div>
+      <div class="form-grid">
+        <div class="field"><label>Valor pagado confirmado *</label><input class="control" name="paymentAmount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="Ejemplo: 1250000"></div>
+        <div class="field"><label>Referencia o comprobante *</label><input class="control" name="paymentReference" autocomplete="off" placeholder="Número de comprobante, recibo o referencia"></div>
+      </div>
+    </section>`:""}
+    <div class="field"><label>Observación</label><textarea class="control" name="notes" placeholder="Describe brevemente la actualización"></textarea></div>`,
     onConfirm:async dialog=>{
       const state=dialog.querySelector('[name="financialState"]:checked')?.value;
       const notes=dialog.querySelector('[name="notes"]').value.trim();
       if(!state)throw new Error("Selecciona un estado.");
       if(["WAITING","NOVELTY"].includes(state)&&!notes)throw new Error("Escribe el motivo de la espera o novedad.");
-      await applyState(data,state,notes);
-      toast(state==="CLOSED"?"Gestión cerrada. Ya puedes liberar el pedido.":"Estado actualizado.","success");
+      let payment=null;
+      if(cashStep&&state==="CLOSED"){
+        const amount=Number(dialog.querySelector('[name="paymentAmount"]')?.value||0);
+        const reference=dialog.querySelector('[name="paymentReference"]')?.value.trim()||"";
+        if(!(amount>0))throw new Error("Registra el valor pagado confirmado antes de cerrar Caja.");
+        if(!reference)throw new Error("Registra la referencia o comprobante del pago.");
+        payment={amount,reference};
+      }
+      await applyState(data,state,notes,payment);
+      toast(state==="CLOSED"?(cashStep?"Pago confirmado y gestión cerrada. Ya puedes liberar el pedido.":"Gestión cerrada. Ya puedes liberar el pedido."):"Estado actualizado.","success");
       refresh(refreshLists);setTimeout(()=>reload(),80);
     }
   });
@@ -152,7 +169,7 @@ function stateChoice(value,title,detail,checked=false){
   return `<label class="financial-state-choice"><input type="radio" name="financialState" value="${value}" ${checked?"checked":""}><span><strong>${title}</strong><small>${detail}</small></span></label>`;
 }
 
-async function applyState(data,state,notes){
+async function applyState(data,state,notes,payment=null){
   let latest=await api.getOrder(data.order.id);
   let actions=actionCodes(latest);
   if(state==="IN_PROGRESS"){
@@ -165,7 +182,15 @@ async function applyState(data,state,notes){
       await api.executeAction(latest.order.id,"RESUME",{detail:"Gestión retomada para cierre"},latest.order.version);
       latest=await api.getOrder(latest.order.id);
     }
-    await api.saveFinancialValidation(latest.order.id,{validationType:latest.order.current_step_code,decision:"APPROVED",notes:notes||"Gestión cerrada y lista para liberar",metadata:{operationalStatus:"CLOSED"}});
+    const step=String(latest.order.current_step_code||"").toUpperCase();
+    const payload={validationType:step,decision:"APPROVED",notes:notes||"Gestión cerrada y lista para liberar",metadata:{operationalStatus:"CLOSED"}};
+    if(step==="CAJA"){
+      if(!(Number(payment?.amount)>0)||!String(payment?.reference||"").trim())throw new Error("Caja requiere valor pagado y referencia para cerrar.");
+      payload.amount=Number(payment.amount);
+      payload.reference=String(payment.reference).trim();
+      payload.metadata={...payload.metadata,paymentConfirmed:true,paymentMeasurementVersion:"11.39.1"};
+    }
+    await api.saveFinancialValidation(latest.order.id,payload);
     return;
   }
   if(state==="NOVELTY"&&actions.has("COMMENT")){

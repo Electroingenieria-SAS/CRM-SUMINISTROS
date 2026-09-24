@@ -112,9 +112,8 @@ function freightBasisLabel(value){
 
 function customerSegmentBadgeFromPriority(priority){
   const code=String(priority||"MEDIUM").toUpperCase();
-  const segment=code==="URGENT"||code==="CRITICAL"?"URGENT":code==="HIGH"?"PREMIUM":code==="LOW"?"BASIC":"NORMAL";
-  const label=customerSegmentLabel(segment);
-  const cls=segment==="URGENT"?"badge-red":segment==="PREMIUM"?"badge-blue":segment==="BASIC"?"badge-gray":"badge-green";
+  const label=code==="URGENT"||code==="HIGH"||code==="CRITICAL"?"Atención prioritaria":code==="LOW"?"Atención básica":"Atención normal";
+  const cls=code==="URGENT"||code==="HIGH"||code==="CRITICAL"?"badge-red":code==="LOW"?"badge-gray":"badge-green";
   return `<span class="badge ${cls}"><span class="badge-dot"></span>${fmt.escape(label)}</span>`;
 }
 function orderStageBadge(order={}){
@@ -165,7 +164,7 @@ function openCreateOrder(){
           <div class="field"><label>Modalidad de entrega *</label>${formSelect("deliveryRoute",routes,"code","name",routes[0]?.code)}</div>
           <section class="sales-intelligence-card full" data-customer-intelligence>
             <div class="sales-intelligence-mark">◎</div>
-            <div><span>SEGMENTACIÓN AUTOMÁTICA</span><strong data-customer-segment>Normal · aprendiendo</strong><p data-customer-intelligence-copy>El CRM clasificará al cliente por cantidad de pedidos y valor facturado. Mientras la muestra sea pequeña todos parten en condición Normal.</p></div>
+            <div><span>SEGMENTACIÓN AUTOMÁTICA</span><strong data-customer-segment>Normal · aprendiendo</strong><p data-customer-intelligence-copy>El CRM clasificará al cliente por cantidad de pedidos y valor económico reconocido. Prioriza pagos confirmados de Caja y usa la factura solo como respaldo provisional cuando aún no existe pago.</p></div>
             <small data-customer-confidence>50% frecuencia · 50% valor</small>
           </section>
         </div>
@@ -262,12 +261,21 @@ function openCreateOrder(){
       const status=data?.learningActive?segment:`${segment} · aprendiendo`;
       const orders=Number(data?.orderCount||0);
       const score=Number(data?.score||0);
-      const paid=moneyCop(data?.paidAmount||0);
+      const rankingValue=moneyCop(data?.rankingValue??data?.paidAmount??0);
+      const confirmedPaid=moneyCop(data?.paidAmount||0);
+      const source=String(data?.valueSource||"NONE").toUpperCase();
+      const valueDetail=source==="PAYMENT_AMOUNT"
+        ? `${confirmedPaid} pagado confirmado`
+        : source==="PAYMENT_WITH_INVOICE_FALLBACK"
+          ? `${rankingValue} reconocido · ${confirmedPaid} con pago confirmado`
+          : source==="INVOICE_AMOUNT_FALLBACK"
+            ? `${rankingValue} respaldado provisionalmente por factura`
+            : "sin valor económico confirmado todavía";
       card.dataset.segment=String(data?.segment||"NORMAL");
       card.querySelector("[data-customer-segment]").textContent=status;
       card.querySelector("[data-customer-intelligence-copy]").textContent=data?.learningActive
-        ? `${orders} pedido${orders===1?"":"s"} · ${paid} facturado · puntaje ${fmt.number(score,1)}/100. La prioridad del pedido se asignará automáticamente.`
-        : `${orders} pedido${orders===1?"":"s"} registrado${orders===1?"":"s"} · ${paid} facturado. El CRM mantiene condición Normal hasta reunir una muestra confiable.`;
+        ? `${orders} pedido${orders===1?"":"s"} · ${valueDetail} · puntaje ${fmt.number(score,1)}/100. La prioridad del pedido se asignará automáticamente.`
+        : `${orders} pedido${orders===1?"":"s"} registrado${orders===1?"":"s"} · ${valueDetail}. El CRM mantiene condición Normal hasta reunir una muestra confiable.`;
       card.querySelector("[data-customer-confidence]").textContent=`Confianza: ${customerConfidenceLabel(data?.confidence)} · 50% frecuencia · 50% valor`;
       assistant.root.dataset.customerSegmentLabel=status;
     }catch(error){
