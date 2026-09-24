@@ -71,6 +71,8 @@ export const api={
   customerRanking:(limit=30)=>rpc("erp_x_customer_ranking",{p_limit:limit}),
   freightEstimate:({route,department=null,city=null,weightKg=null,packageQuantity=null,volumeM3=null}={})=>rpc("erp_x_freight_estimate",{p_route:route||null,p_department:department||null,p_city:city||null,p_weight_kg:weightKg,p_package_quantity:packageQuantity,p_volume_m3:volumeM3}),
   freightPredictions:({department=null,city=null,weightKg=null}={})=>rpc("erp_x_freight_predictions",{p_department:department||null,p_city:city||null,p_weight_kg:weightKg}),
+  freightIntelligence:(from=null,to=null)=>rpc("erp_x_freight_intelligence_dashboard",{p_from:from||null,p_to:to||null}),
+  freightAlerts:(limit=12)=>rpc("erp_x_freight_alerts",{p_limit:limit}),
   executeAction:(orderId,action,payload={},version=null,key=crypto.randomUUID())=>mutationRpc("erp_x_execute_action",{p_order_id:orderId,p_action_code:action,p_payload:payload,p_expected_version:version,p_idempotency_key:key}),
   approvals:(status="PENDING",page=1,pageSize=50)=>rpc("erp_x_list_approvals",{p_status:status,p_page:page,p_page_size:pageSize}),
   exceptionSummary:()=>rpc("erp_x_exception_summary"),
