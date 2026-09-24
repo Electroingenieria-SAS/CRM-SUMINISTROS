@@ -401,73 +401,55 @@ async function startActivity(catalogId){
   });
 }
 
-function plannerExecutions(planner){return Array.isArray(planner?.executions)?planner.executions:[]}
-function plannerPeople(planner){return Array.isArray(planner?.people)?planner.people:[]}
-function personRolesMap(team){return new Map((team||[]).map(person=>[String(person.id),person.roles||[]]))}
-function currentBogotaMinutes(date=new Date()){
-  const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Bogota",hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(date);
-  return (Number(parts.find(x=>x.type==="hour")?.value||0)%24)*60+Number(parts.find(x=>x.type==="minute")?.value||0);
-}
-function timestampBogotaDate(value){
-  return new Intl.DateTimeFormat("en-CA",{timeZone:"America/Bogota",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(value));
-}
-function timestampBogotaMinutes(value){
-  const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Bogota",hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(new Date(value));
-  return (Number(parts.find(x=>x.type==="hour")?.value||0)%24)*60+Number(parts.find(x=>x.type==="minute")?.value||0);
-}
-function businessSecondsSince(value,calendar){
-  if(!value)return 0;
-  const today=todayIso();
-  const startDate=timestampBogotaDate(value);
-  const nowMin=currentBogotaMinutes();
-  const startMin=startDate===today?timestampBogotaMinutes(value):0;
-  const weekday=((new Date(`${today}T12:00:00`).getDay()+6)%7)+1;
-  const segments=(calendar?.segments||[]).filter(s=>Number(s.isoWeekday)===weekday);
-  let minutes=0;
-  for(const segment of segments){
-    const [sh,sm]=String(segment.startTime).split(":").map(Number);
-    const [eh,em]=String(segment.endTime).split(":").map(Number);
-    const a=sh*60+sm,b=eh*60+em;
-    const from=Math.max(a,startMin),to=Math.min(b,nowMin);
-    if(to>from)minutes+=to-from;
-  }
-  return minutes*60;
-}
+function snapshotExecutions(snapshot){return Array.isArray(snapshot?.executions)?snapshot.executions:[]}
+function snapshotTeam(snapshot){return Array.isArray(snapshot?.team)?snapshot.team:[]}
+
 function idleAuxiliaries(snapshot){
   if(!isManager())return [];
-  const roleMap=personRolesMap(snapshot.team);
-  const executions=plannerExecutions(snapshot.planner);
-  return plannerPeople(snapshot.planner).map(person=>{
-    const personRoles=roleMap.get(String(person.id))||[];
-    if(!personRoles.some(role=>AUX_ROLES.has(role))||person.activeTitle)return null;
-    const last=executions.filter(e=>String(e.profileId)===String(person.id)&&e.endedAt).sort((a,b)=>new Date(b.endedAt)-new Date(a.endedAt))[0];
-    const base=last?.endedAt||`${todayIso()}T07:00:00-05:00`;
-    const idleSeconds=businessSecondsSince(base,snapshot.planner?.calendar);
-    return idleSeconds>=IDLE_WARN_SECONDS?{...person,roles:personRoles,idleSeconds,lastEndedAt:last?.endedAt||null}:null;
-  }).filter(Boolean).sort((a,b)=>b.idleSeconds-a.idleSeconds);
+  return snapshotTeam(snapshot)
+    .filter(person=>(person.roles||[]).some(role=>AUX_ROLES.has(role)))
+    .filter(person=>!person.activeTitle&&Number(person.idleBusinessSeconds||0)>=IDLE_WARN_SECONDS)
+    .map(person=>({...person,idleSeconds:Number(person.idleBusinessSeconds||0)}))
+    .sort((a,b)=>b.idleSeconds-a.idleSeconds);
 }
+
 function delayedOrders(snapshot){
-  return snapshot.orders.filter(row=>activeOrder(row)&&(Boolean(row.slaExceeded||row.sla_exceeded)||orderAge(row)>=ORDER_WARN_SECONDS)).sort((a,b)=>(Number(Boolean(b.slaExceeded||b.sla_exceeded))-Number(Boolean(a.slaExceeded||a.sla_exceeded)))||orderAge(b)-orderAge(a));
+  return (snapshot.orders||[])
+    .filter(row=>activeOrder(row)&&(Boolean(row.slaExceeded||row.sla_exceeded)||orderAge(row)>=ORDER_WARN_SECONDS))
+    .sort((a,b)=>(Number(Boolean(b.slaExceeded||b.sla_exceeded))-Number(Boolean(a.slaExceeded||a.sla_exceeded)))||orderAge(b)-orderAge(a));
 }
+
 function longActivities(snapshot){
-  return plannerPeople(snapshot.planner).filter(person=>person.activeTitle&&businessSecondsSince(person.activeStartedAt,snapshot.planner?.calendar)>=LONG_ACTIVITY_SECONDS).map(person=>({...person,activeSeconds:businessSecondsSince(person.activeStartedAt,snapshot.planner?.calendar)})).sort((a,b)=>b.activeSeconds-a.activeSeconds);
+  if(!isManager())return [];
+  return snapshotTeam(snapshot)
+    .filter(person=>person.activeTitle&&Number(person.activeBusinessSeconds||0)>=LONG_ACTIVITY_SECONDS)
+    .map(person=>({...person,activeSeconds:Number(person.activeBusinessSeconds||0)}))
+    .sort((a,b)=>b.activeSeconds-a.activeSeconds);
 }
 
 async function loadSnapshot(){
-  const manager=isManager();
-  const ordersPromise=api.listOrders({page:1,pageSize:100,includeHistory:false,assignment:manager?"ALL":"MINE"}).catch(()=>({items:[]}));
-  const plannerPromise=api.workPlanner(todayIso(),todayIso()).catch(()=>null);
-  const teamPromise=manager?api.workPeople(null).catch(()=>[]):Promise.resolve([]);
-  const [ordersResult,planner,team]=await Promise.all([ordersPromise,plannerPromise,teamPromise]);
-  return {at:Date.now(),orders:itemArray(ordersResult),planner:planner||{people:[],executions:[],assignments:[],calendar:{}},team};
+  const data=await api.pacoSnapshot();
+  return {
+    at:Date.now(),
+    orders:Array.isArray(data?.orders)?data.orders:[],
+    team:Array.isArray(data?.team)?data.team:[],
+    executions:Array.isArray(data?.executions)?data.executions:[],
+    managerScope:Boolean(data?.managerScope),
+    serverTime:data?.serverTime||null
+  };
 }
-function executionMap(snapshot){return new Map(plannerExecutions(snapshot?.planner).map(row=>[String(row.id),row]))}
-function orderMap(snapshot){return new Map((snapshot?.orders||[]).map(row=>[String(row.id||row.orderId),row]))}
+
+function executionMap(snapshot){
+  return new Map(snapshotExecutions(snapshot).map(row=>[String(row.id),row]));
+}
+function orderMap(snapshot){
+  return new Map((snapshot?.orders||[]).map(row=>[String(row.id||row.orderId),row]));
+}
 
 function monitorTransitions(previous,current){
   if(!previous)return;
   const prevExec=executionMap(previous);
-  for(const execution of plannerExecutions(current.planner)){
+  for(const execution of snapshotExecutions(current)){
     const before=prevExec.get(String(execution.id));
     if(before&&!before.endedAt&&execution.endedAt){
       const mine=String(execution.profileId)===String(profileId());
@@ -553,7 +535,7 @@ async function idleMessage(){
 }
 async function recentWorkMessage(){
   const snapshot=paco.previous||await loadSnapshot();
-  const rows=plannerExecutions(snapshot.planner).filter(x=>x.endedAt).sort((a,b)=>new Date(b.endedAt)-new Date(a.endedAt)).slice(0,8);
+  const rows=snapshotExecutions(snapshot).filter(x=>x.endedAt).sort((a,b)=>new Date(b.endedAt)-new Date(a.endedAt)).slice(0,8);
   if(!rows.length)return message({text:"No veo actividades finalizadas hoy en tu ámbito visible."});
   return message({text:"Estas son las últimas actividades terminadas que puedo ver.",card:rows.map(row=>[`${row.profileName||"Usuario"} · ${timeLabel(row.endedAt)}`,row.title||"Actividad"])});
 }
