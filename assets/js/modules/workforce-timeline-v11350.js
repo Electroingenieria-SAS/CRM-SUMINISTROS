@@ -249,6 +249,7 @@ function timelineDetailHtml(detail={}){
   const activeSeconds=Number(detail.activeSeconds||0);
   const planned=detail.plannedStart?timeRange(detail.plannedStart,detail.plannedEnd):"Sin bloque previo";
   const actual=detail.startedAt?timeRange(detail.startedAt,detail.endedAt):"Aún no iniciada";
+  const isOrderProcess=detail.type==="ORDER_PROCESS"||detail.sourceType==="ORDER_TASK"||detail.sourceType==="CUT_EXECUTION";
 
   return `
     <section class="work-timeline-hero-v11350 ${cover?"has-photo":""}">
@@ -262,11 +263,11 @@ function timelineDetailHtml(detail={}){
       <div class="work-timeline-hero-copy-v11350">
         <div class="work-timeline-badges-v11350">
           <span class="state ${statusTone(status)}">${fmt.escape(statusLabel(status))}</span>
-          <span>${fmt.escape(detail.source==="MANUAL"?"Registro espontáneo":"Actividad programada")}</span>
+          <span>${fmt.escape(isOrderProcess?"Proceso automático del pedido":detail.source==="MANUAL"?"Registro espontáneo":"Actividad programada")}</span>
           ${evidence.length?`<span class="photo">📷 ${evidence.length} evidencia${evidence.length===1?"":"s"}</span>`:""}
         </div>
         <h4>${fmt.escape(detail.title||"Actividad")}</h4>
-        <p>${fmt.escape(detail.description||detail.resultNote||"Actividad registrada en la jornada de trabajo.")}</p>
+        <p>${fmt.escape(detail.description||detail.resultNote||(isOrderProcess?"Trabajo registrado automáticamente desde el flujo real del pedido.":"Actividad registrada en la jornada de trabajo."))}</p>
       </div>
     </section>
 
@@ -277,18 +278,18 @@ function timelineDetailHtml(detail={}){
 
     <section class="work-timeline-facts-v11350">
       ${fact("Responsable",detail.profileName||"—")}
-      ${fact("Programación",planned)}
-      ${fact("Ejecución real",actual)}
-      ${fact("Tiempo activo",durationLabel(activeSeconds))}
-      ${fact("Pausas",durationLabel(Number(detail.pausedSeconds||0)))}
-      ${fact("Catálogo",detail.catalogName||fmt.label(detail.kind||"ACTIVITY"))}
+      ${isOrderProcess?fact("Pedido",detail.orderNumber||"—"):fact("Programación",planned)}
+      ${isOrderProcess?fact("Etapa",detail.stepName||fmt.step(detail.stepCode||detail.currentStep||"—")):fact("Ejecución real",actual)}
+      ${isOrderProcess?fact("Estado de etapa",fmt.label(detail.processStatus||detail.status||"—")):fact("Tiempo activo",durationLabel(activeSeconds))}
+      ${isOrderProcess?fact("Ejecución real",actual):fact("Pausas",durationLabel(Number(detail.pausedSeconds||0)))}
+      ${isOrderProcess?fact("Tiempo activo",durationLabel(activeSeconds)):fact("Catálogo",detail.catalogName||fmt.label(detail.kind||"ACTIVITY"))}
     </section>
 
     ${Array.isArray(detail.participants)&&detail.participants.length>1?`<section class="work-timeline-section-v11350"><header><span>Equipo</span><strong>Participantes</strong></header><div class="work-timeline-people-v11350">${detail.participants.map(person=>`<span><b class="avatar">${fmt.initials(person.profileName)}</b><em>${fmt.escape(person.profileName)}</em><small>${fmt.escape(statusLabel(person.status))}</small></span>`).join("")}</div></section>`:""}
 
     ${evidence.length?`<section class="work-timeline-section-v11350"><header><span>Evidencia</span><strong>Registro de la actividad</strong></header><div class="work-timeline-evidence-v11350">${evidence.map(evidenceRow).join("")}</div></section>`:""}
 
-    <footer class="work-timeline-foot-v11350"><span>La actividad y su evidencia se conservan en la trazabilidad institucional.</span></footer>`;
+    <footer class="work-timeline-foot-v11350"><span>${isOrderProcess?"Este registro proviene automáticamente del flujo del pedido; no requiere actividad manual.":"La actividad y su evidencia se conservan en la trazabilidad institucional."}</span></footer>`;
 }
 
 function evidenceRow(row){
