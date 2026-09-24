@@ -101,8 +101,8 @@ const normalizedJsRuntime=jsRuntime
   .replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
 // Release identity.
-check(version==="11.37.1","CONFIG.version debe ser 11.37.1.");
-check(build==="2026-09-24.24","CONFIG.build debe ser 2026-09-24.24.");
+check(version==="11.37.2","CONFIG.version debe ser 11.37.2.");
+check(build==="2026-09-24.25","CONFIG.build debe ser 2026-09-24.25.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
@@ -137,7 +137,10 @@ check(
     &&pacoOperational.includes('api.workStart')
     &&pacoOperational.includes('SpeechSynthesisUtterance')
     &&pacoOperational.includes('buildOperationalDigest')
-    &&pacoOperational.includes('testVoice'),
+    &&pacoOperational.includes('testVoice')
+    &&pacoOperational.includes('MALE_VOICE_HINTS')
+    &&pacoOperational.includes('LATAM_SPANISH')
+    &&pacoOperational.includes('data-paco-voice-select'),
   "PACO V11.37.1 perdió snapshot, monitoreo, resumen 30 min, alerta 20 min, registro guiado o voz."
 );
 check(!pacoOperational.includes('api.workPlanner(todayIso()')&&!pacoOperational.includes('api.workPeople(null)'),"PACO no debe volver al polling multi-RPC.");
@@ -176,8 +179,8 @@ check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía instit
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
 // PWA and Vercel routing.
-check(sw.includes('// previous-cache: crm-suministros-v11-37-0-20260924-23'),"previous-cache PWA debe apuntar a V11.37.0.");
-check(sw.includes('const CACHE="crm-suministros-v11-37-1-20260924-24";'),"CACHE activo PWA no corresponde a V11.37.1.");
+check(sw.includes('// previous-cache: crm-suministros-v11-37-1-20260924-24'),"previous-cache PWA debe apuntar a V11.37.1.");
+check(sw.includes('const CACHE="crm-suministros-v11-37-2-20260924-25";'),"CACHE activo PWA no corresponde a V11.37.2.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
 check(vercel.includes('manifest\\\\.webmanifest')||vercel.includes('/manifest.webmanifest'),"Vercel debe excluir o tratar explícitamente el manifest real.");
@@ -377,7 +380,7 @@ console.log(`VALIDACIÓN CRM ${version} CORRECTA`);
 console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
 console.log("- Inventario conserva captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
-console.log("- V11.37.1 completa PACO con chat Messenger, prueba de voz, alertas a 20 min y resumen automático cada 30 min.");
+console.log("- V11.37.2 prioriza voz masculina latinoamericana y permite escoger la voz disponible del dispositivo.");
 console.log("- Observers responsive y popup procesan únicamente el ámbito dinámico afectado.");
 console.log("- PWA, Vercel, RLS y hotpaths SQL quedan incorporados al contrato canónico.");
 console.log("- Conteo ciego, RLS granular y aprobación contable permanecen como contratos obligatorios.");
