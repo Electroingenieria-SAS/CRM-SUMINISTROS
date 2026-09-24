@@ -941,6 +941,15 @@ async function renderAnalytics(root,content){
         </section>
       </section>
 
+      ${customerRanking?`<section class="work-indicator-section-v11383">
+        <header class="work-indicator-section-head-v11383">
+          <div><span>VALOR COMERCIAL</span><h3>Pareto y ranking automático de clientes</h3><p>Combina 50% frecuencia de pedidos y 50% valor facturado. El CRM no segmenta hasta reunir una muestra mínima confiable.</p></div>
+        </header>
+        <section class="work-indicator-panel-v11363 work-indicator-panel-featured-v11383">
+          <header><div><span>CLIENTES</span><h3>Quién concentra más compras y valor</h3><p>${customerRanking.learningActive?"Segmentación activa en Básico, Normal, Premium y Urgente.":"Modo aprendizaje: todos permanecen en Normal hasta contar con suficiente historia."}</p></div><b class="work-customer-learning-v11390">${fmt.number(customerRanking.sampleOrders||0)} pedidos</b></header>
+          <div class="work-indicator-panel-body-v11363">${customerRankingHtml(customerRanking)}</div>
+        </section>
+      </section>`:""}
       <section class="work-indicator-section-v11383">
         <header class="work-indicator-section-head-v11383">
           <div><span>OPERACIÓN ACTUAL</span><h3>Quién está ejecutando actividades ahora</h3><p>Vista separada del estado actual del equipo para no mezclar información en tiempo real con el histórico del periodo.</p></div>
