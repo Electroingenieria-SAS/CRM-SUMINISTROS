@@ -1851,3 +1851,38 @@
     transition:none!important;
   }
 }
+
+
+/* V11.38.0 · ocupación automática y tratamiento especial */
+.work-calendar-person-state-v11360.tone-special{
+  color:#6c7680;
+}
+.work-calendar-person-state-v11360.tone-special>i{
+  background:#7f8b96;
+  box-shadow:0 0 0 3px rgba(127,139,150,.12);
+}
+.work-calendar-person-row-v11360.is-special-treatment,
+.work-calendar-week-person-v11360.is-special-treatment{
+  background:linear-gradient(180deg,#f8fafb,#f3f6f8);
+}
+.work-calendar-special-slot-v11380{
+  width:100%;
+  min-height:70px;
+  display:grid;
+  place-items:center;
+  padding:8px;
+  color:#788690;
+  font-size:9px;
+  font-weight:900;
+  text-align:center;
+  letter-spacing:.01em;
+  background:repeating-linear-gradient(135deg,rgba(111,128,142,.035) 0 8px,rgba(111,128,142,.075) 8px 9px);
+  border-radius:10px;
+}
+.work-calendar-week-cell-v11360 .work-calendar-special-slot-v11380{
+  min-height:58px;
+}
+.work-calendar-event-v11360.is-executed .work-calendar-event-title-v11360::before,
+.work-calendar-month-event-v11360.is-executed strong::before{
+  content:"";
+}

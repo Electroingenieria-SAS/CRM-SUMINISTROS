@@ -485,7 +485,7 @@ async function renderPlanner(root,content){
       </div>`;
     }
 
-    const assignments=(data.assignments||[]).filter(row=>String(row.profileId)===String(person.id));
+    const assignments=timeline.filter(row=>String(row.profileId)===String(person.id));
     return `<div class="work-capacity-focus-v11362">${teamCapacityHtml([person],assignments,range,calendar)}</div>`;
   };
 

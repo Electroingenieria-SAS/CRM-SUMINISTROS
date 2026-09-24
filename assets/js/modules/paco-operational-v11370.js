@@ -586,6 +586,7 @@ function snapshotTeam(snapshot){return Array.isArray(snapshot?.team)?snapshot.te
 function idleAuxiliaries(snapshot){
   if(!isManager())return [];
   return snapshotTeam(snapshot)
+    .filter(person=>!person.specialTreatment)
     .filter(person=>(person.roles||[]).some(role=>AUX_ROLES.has(role)))
     .filter(person=>!person.activeTitle&&Number(person.idleBusinessSeconds||0)>=IDLE_WARN_SECONDS)
     .map(person=>({...person,idleSeconds:Number(person.idleBusinessSeconds||0)}))
@@ -601,6 +602,7 @@ function delayedOrders(snapshot){
 function longActivities(snapshot){
   if(!isManager())return [];
   return snapshotTeam(snapshot)
+    .filter(person=>!person.specialTreatment)
     .filter(person=>person.activeTitle&&Number(person.activeBusinessSeconds||0)>=LONG_ACTIVITY_SECONDS)
     .map(person=>({...person,activeSeconds:Number(person.activeBusinessSeconds||0)}))
     .sort((a,b)=>b.activeSeconds-a.activeSeconds);
@@ -849,7 +851,11 @@ async function teamActivityMessage(input=""){
     text:query?"Esto es lo que veo de esa persona.":"Así está el equipo auxiliar en este momento.",
     card:filtered.slice(0,10).map(row=>[
       row.name||"Auxiliar",
-      row.activeTitle?`${row.activeTitle} · ${duration(Number(row.activeBusinessSeconds||0))}`:`Disponible · ${duration(Number(row.idleBusinessSeconds||0))}`
+      row.specialTreatment
+        ? "Tratamiento especial"
+        : row.activeTitle
+          ? `${row.activeTitle} · ${duration(Number(row.activeBusinessSeconds||0))}`
+          : `Disponible · ${duration(Number(row.idleBusinessSeconds||0))}`
     ]),
     actions:[{label:"Abrir cronograma",action:"navigate",module:"workforce",icon:"◷"}]
   });
@@ -907,13 +913,35 @@ async function noveltyMessage(){
   }catch{return message({text:"No tengo permiso para leer el Centro de Excepciones con esta sesión.",actions:[{label:"Abrir módulo disponible",action:"navigate",module:"approvals"}]})}
 }
 async function myDayMessage(){
+  const snapshot=paco.previous||await loadSnapshot();
+  paco.previous=snapshot;
+  const activeOrderWork=snapshotExecutions(snapshot)
+    .filter(row=>String(row.profileId)===String(profileId())&&!row.endedAt)
+    .sort((a,b)=>new Date(b.startedAt||0)-new Date(a.startedAt||0))[0]||null;
+
+  if(activeOrderWork){
+    const automatic=["ORDER_TASK","CUT_EXECUTION"].includes(String(activeOrderWork.source||"").toUpperCase());
+    return message({
+      text:automatic
+        ? `Ahora estás ocupado en “${activeOrderWork.title||"un proceso de pedido"}”. El CRM registró esta ocupación automáticamente.`
+        : `Ahora tienes activa “${activeOrderWork.title||"Actividad"}”.`,
+      card:[
+        ["Inicio",timeLabel(activeOrderWork.startedAt)],
+        ["Estado",activeOrderWork.status||"En curso"],
+        ...(automatic?[["Origen","Proceso automático del pedido"]]:[])
+      ],
+      actions:[{label:"Abrir Mi jornada",action:"navigate",module:"workforce",icon:"◷"}]
+    });
+  }
+
   const data=await api.workMyDay();
   if(data?.active){
     const active=data.active;
     return message({text:`Ahora tienes activa “${active.title||active.catalogName||"Actividad"}”.`,card:[["Inicio",timeLabel(active.startedAt||active.started_at)],["Estado",active.status||"En curso"]],actions:[{label:"Abrir Mi jornada",action:"navigate",module:"workforce",icon:"◷"}]});
   }
-  return message({text:"No tienes una actividad activa en este momento.",actions:[{label:"Registrar actividad",action:"activity-begin",kind:"primary",icon:"▶"}]});
+  return message({text:"No tienes una actividad o proceso de pedido activo en este momento.",actions:[{label:"Registrar actividad",action:"activity-begin",kind:"primary",icon:"▶"}]});
 }
+
 async function operationMessage(){
   const snapshot=paco.previous||await loadSnapshot();
   paco.previous=snapshot;

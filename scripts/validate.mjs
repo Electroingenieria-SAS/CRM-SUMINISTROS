@@ -102,8 +102,8 @@ const normalizedJsRuntime=jsRuntime
   .replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
 // Release identity.
-check(version==="11.37.4","CONFIG.version debe ser 11.37.4.");
-check(build==="2026-09-24.27","CONFIG.build debe ser 2026-09-24.27.");
+check(version==="11.38.0","CONFIG.version debe ser 11.38.0.");
+check(build==="2026-09-24.28","CONFIG.build debe ser 2026-09-24.28.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
@@ -116,6 +116,9 @@ check(sw.includes("./assets/js/modules/workforce-timeline-v11350.js"),"PWA debe 
 check(sw.includes("./assets/runtime-css/workforce-timeline-v11350.css"),"PWA debe precachear el CSS timeline.");
 check(workforce.includes("composePlannerTimeline")&&workforce.includes("renderWorkforceCalendarBoard")&&workforce.includes("bindWorkforceCalendar"),"Workforce debe delegar el cronograma al motor V11.36.0.");
 check(workforce.includes("work-indicator-hero-v11363")&&workforce.includes("analyticsBalance(summary)"),"Indicadores Workforce V11.36.4 incompletos.");
+check(exists("scripts/workforce-order-automation-v11380-test.mjs"),"Falta contrato V11.38.0 de ocupación automática de pedidos.");
+check(exists("supabase/migrations/122_automatic_order_workforce_v11_38_0.sql"),"Falta migración 122 de ocupación automática.");
+check(exists("supabase/migrations/123_workforce_special_treatment_metrics_v11_38_0.sql"),"Falta migración 123 de tratamiento especial.");
 check(analyticsCss.includes("work-indicator-metrics-v11363")&&analyticsCss.includes("work-indicator-team-v11363"),"CSS Indicadores Workforce V11.36.4 incompleto.");
 check(workforceTimelineMigration.includes("erp_x_work_planner_detail")&&workforceTimelineMigration.includes("erp_x_work_evidence_preview_allowed"),"Migración V11.35.0 incompleta.");
 check(!/create\\s+table/i.test(workforceTimelineMigration)&&!/create\\s+(unique\\s+)?index/i.test(workforceTimelineMigration),"V11.35.0 no debe crear tablas ni índices redundantes.");
@@ -126,11 +129,11 @@ check(exists("assets/runtime-css/workforce-calendar-v11360.css"),"Falta CSS cale
 check(sw.includes("./assets/js/modules/workforce-calendar-v11360.js"),"PWA debe precachear motor calendario V11.36.0.");
 check(sw.includes("./assets/js/modules/workforce-evidence-manager-v11360.js"),"PWA debe precachear gestor evidencia V11.36.0.");
 check(sw.includes("./assets/runtime-css/workforce-calendar-v11360.css"),"PWA debe precachear CSS calendario V11.36.0.");
-check(exists("assets/js/modules/paco-operational-v11370.js"),"Falta runtime PACO V11.37.4.");
-check(exists("assets/js/modules/paco-language-v11373.js"),"Falta motor de lenguaje requerido por PACO V11.37.4.");
-check(exists("scripts/paco-language-v11373-test.mjs"),"Falta corpus de entrenamiento requerido por PACO V11.37.4.");
-check(exists("assets/runtime-css/paco-operational-v11370.css"),"Falta CSS PACO V11.37.4.");
-check(sw.includes("./assets/js/modules/paco-operational-v11370.js")&&sw.includes("./assets/js/modules/paco-language-v11373.js")&&sw.includes("./assets/runtime-css/paco-operational-v11370.css"),"PWA debe precachear PACO V11.37.4 y su motor de lenguaje.");
+check(exists("assets/js/modules/paco-operational-v11370.js"),"Falta runtime PACO V11.38.0.");
+check(exists("assets/js/modules/paco-language-v11373.js"),"Falta motor de lenguaje requerido por PACO V11.38.0.");
+check(exists("scripts/paco-language-v11373-test.mjs"),"Falta corpus de entrenamiento requerido por PACO V11.38.0.");
+check(exists("assets/runtime-css/paco-operational-v11370.css"),"Falta CSS PACO V11.38.0.");
+check(sw.includes("./assets/js/modules/paco-operational-v11370.js")&&sw.includes("./assets/js/modules/paco-language-v11373.js")&&sw.includes("./assets/runtime-css/paco-operational-v11370.css"),"PWA debe precachear PACO V11.38.0 y su motor de lenguaje.");
 check(pacoEntry.includes('paco-operational-v11370.js')&&!pacoEntry.includes('GUIDES'),"PACO legado debe quedar reducido a un entrypoint de compatibilidad.");
 check(
   pacoOperational.includes('api.pacoSnapshot()')
@@ -149,7 +152,7 @@ check(
     &&pacoOperational.includes('snapshotRpcUnavailableUntil')
     &&pacoOperational.includes('cancelFlowMessage')
     &&pacoOperational.includes('restartPaco'),
-  "PACO V11.37.4 perdió snapshot, lenguaje entrenado, resiliencia, controles, monitoreo, resumen, alerta, registro guiado o voz."
+  "PACO V11.38.0 perdió snapshot, lenguaje entrenado, resiliencia, controles, monitoreo, resumen, alerta, registro guiado o voz."
 );
 check(!pacoOperational.includes('api.workPlanner(todayIso()'),"PACO no debe volver al polling pesado del planner.");
 check(pacoLanguage.includes('INTENT_ALIASES')&&pacoLanguage.includes('CRM_MODULE_KNOWLEDGE')&&pacoLanguage.includes('detectPacoIntent')&&pacoLanguage.includes('matchCrmModule'),"Motor de lenguaje PACO incompleto.");
@@ -188,8 +191,8 @@ check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía instit
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
 // PWA and Vercel routing.
-check(sw.includes('// previous-cache: crm-suministros-v11-37-3-20260924-26'),"previous-cache PWA debe apuntar a V11.37.3.");
-check(sw.includes('const CACHE="crm-suministros-v11-37-4-20260924-27";'),"CACHE activo PWA no corresponde a V11.37.4.");
+check(sw.includes('// previous-cache: crm-suministros-v11-37-4-20260924-27'),"previous-cache PWA debe apuntar a V11.37.4.");
+check(sw.includes('const CACHE="crm-suministros-v11-38-0-20260924-28";'),"CACHE activo PWA no corresponde a V11.38.0.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
 check(vercel.includes('manifest\\\\.webmanifest')||vercel.includes('/manifest.webmanifest'),"Vercel debe excluir o tratar explícitamente el manifest real.");
@@ -389,7 +392,7 @@ console.log(`VALIDACIÓN CRM ${version} CORRECTA`);
 console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
 console.log("- Inventario conserva captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
-console.log("- V11.37.4 reorganiza PACO con tarjeta de controles y accesos rápidos flotantes responsive.");
+console.log("- V11.38.0 unifica ocupación real de pedidos, Corte y actividades manuales en cronograma/PACO sin tablas nuevas.");
 console.log("- Observers responsive y popup procesan únicamente el ámbito dinámico afectado.");
 console.log("- PWA, Vercel, RLS y hotpaths SQL quedan incorporados al contrato canónico.");
 console.log("- Conteo ciego, RLS granular y aprobación contable permanecen como contratos obligatorios.");

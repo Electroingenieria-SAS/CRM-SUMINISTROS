@@ -118,6 +118,7 @@ export const api={
   workPeople:(kind=null)=>rpc("erp_x_work_people",{p_assignment_kind:kind||null}),
   workPlanner:(from,to)=>rpc("erp_x_work_planner",{p_from:from,p_to:to}),
   workPlannerDetail:({assignmentId=null,executionId=null,profileId=null}={})=>rpc("erp_x_work_planner_detail",{p_assignment_id:assignmentId||null,p_execution_id:executionId||null,p_profile_id:profileId||null}),
+  workOperationalDetail:({taskSessionId=null,cutExecutionId=null}={})=>rpc("erp_x_work_operational_detail",{p_task_session_id:taskSessionId||null,p_cut_execution_id:cutExecutionId||null}),
   workSaveAssignment:payload=>mutationRpc("erp_x_work_save_assignment",{p_payload:payload||{}}),
   workCancelAssignment:(assignmentId,note=null)=>mutationRpc("erp_x_work_cancel_assignment",{p_assignment_id:assignmentId,p_note:note}),
   workReviewDelivery:(executionId,decision,note=null)=>mutationRpc("erp_x_work_review_delivery",{p_execution_id:executionId,p_decision:decision,p_note:note}),
