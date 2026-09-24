@@ -64,7 +64,8 @@ const paco={
   unsubscribe:null,
   globalBound:false,
   alertMemory:new Map(),
-  lastDigestAt:0
+  lastDigestAt:0,
+  snapshotRpcUnavailableUntil:0
 };
 
 function ensureStyles(){
@@ -675,12 +676,15 @@ async function compatibilitySnapshot(){
   return snapshotShape({orders,team,executions,managerScope:isManager(),serverTime:new Date().toISOString()},{degraded:true});
 }
 async function loadSnapshot(){
+  if(Date.now()<paco.snapshotRpcUnavailableUntil)return compatibilitySnapshot();
   try{
     const data=await api.pacoSnapshot();
+    paco.snapshotRpcUnavailableUntil=0;
     return snapshotShape(data);
   }catch(error){
     if(!missingSnapshotRpc(error))throw error;
-    console.warn("[PACO SNAPSHOT] RPC especializada no disponible; usando modo compatible.");
+    paco.snapshotRpcUnavailableUntil=Date.now()+10*60*1000;
+    console.warn("[PACO SNAPSHOT] RPC especializada no disponible; se activa compatibilidad por 10 minutos.");
     return compatibilitySnapshot();
   }
 }
@@ -989,9 +993,18 @@ async function handleAction(button){
   if(action==="restart"){restartPaco();return}
   if(action==="test-voice"){testVoice();return}
   if(action==="summary-now"){
-    const snapshot=await loadSnapshot();
-    paco.previous=snapshot;
-    deliverDigest(snapshot,{automatic:false,force:true});
+    setBusy(true);
+    typing();
+    try{
+      const snapshot=await loadSnapshot();
+      paco.previous=snapshot;
+      paco.messages=paco.messages.filter(item=>item.type!=="typing");
+      deliverDigest(snapshot,{automatic:false,force:true});
+      setFace("talking");
+    }finally{
+      setBusy(false);
+      setTimeout(()=>isOpen()&&setFace("listening"),700);
+    }
     return;
   }
   if(action==="activity-begin"){add(await beginActivityFlow());return}
