@@ -515,6 +515,17 @@ declare
   v_model erp_supply.freight_prediction_models%rowtype;
 begin
   perform erp_supply.require_profile();
+  if not (
+    erp_supply.can_access_module('sales','read')
+    or erp_supply.can_access_module('orders','read')
+    or erp_supply.can_access_module('shipping','read')
+    or erp_supply.can_access_module('reports','read')
+    or erp_supply.has_role('super_admin')
+    or erp_supply.has_role('gerencia')
+    or erp_supply.has_role('jefe_logistica')
+  ) then
+    raise exception 'No autorizado para consultar predicciones de flete' using errcode='42501';
+  end if;
   if nullif(trim(coalesce(p_city,'')),'') is null then
     return jsonb_build_object('available',false,'reason','CITY_REQUIRED','version','11.40.0');
   end if;
