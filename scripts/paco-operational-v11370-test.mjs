@@ -25,6 +25,10 @@ for(const token of [
   "idleAuxiliaries",
   "delayedOrders",
   "longActivities",
+  "teamActivityMessage",
+  "unassignedOrdersMessage",
+  "longWorkMessage",
+  "capabilitiesMessage",
   "speechSynthesis",
   "SpeechSynthesisUtterance",
   "editDistance",
@@ -50,7 +54,11 @@ for(const phrase of [
   "quien esta desocupado",
   "actividades terminadas",
   "pedidos despachados",
-  "novedades"
+  "novedades",
+  "estado del equipo",
+  "pedidos sin responsable",
+  "actividades largas",
+  "que puedes hacer"
 ]){
   assert.equal(engine.includes(phrase),true,`PACO debe comprender la intención ${phrase}`);
 }
