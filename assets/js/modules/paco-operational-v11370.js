@@ -3,8 +3,17 @@ import {navigate} from "../core/router.js";
 import {api} from "../services/api.js";
 import {fmt} from "../core/format.js";
 import {toast} from "../core/ui.js";
+import {
+  normalizePacoText as norm,
+  matchesAny,
+  INTENT_ALIASES as INTENTS,
+  matchCrmModule,
+  CRM_MODULE_KNOWLEDGE,
+  isCancelText,
+  isRestartText
+} from "./paco-language-v11373.js";
 
-const VERSION="11.37.2";
+const VERSION="11.37.3";
 const STYLE_ID="paco-operational-v11370-style";
 const MONITOR_MS=60000;
 const DIGEST_INTERVAL_MS=30*60*1000;
@@ -64,7 +73,7 @@ function ensureStyles(){
   const link=document.createElement("link");
   link.id=STYLE_ID;
   link.rel="stylesheet";
-  link.href="./assets/runtime-css/paco-operational-v11370.css?v=11.37.2";
+  link.href="./assets/runtime-css/paco-operational-v11370.css?v=11.37.3";
   document.head.appendChild(link);
 }
 
@@ -94,7 +103,6 @@ function saveLastDigest(){
 }
 
 function esc(value){return fmt.escape(String(value??""))}
-function norm(value){return String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9\s-]/g," ").replace(/\s+/g," ").trim()}
 function currentModule(){return state.currentModule||document.querySelector(".nav-item.active")?.dataset?.module||"dashboard"}
 function moduleLabel(id=currentModule()){return MODULES[id]||"CRM Suministros"}
 function roles(){return state.profile?.roles||[]}
@@ -132,52 +140,6 @@ function stageBreakdown(snapshot){
   return [...counts.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"es"));
 }
 function businessClockLabel(){return timeLabel(new Date())}
-
-function editDistance(a,b){
-  const x=norm(a),y=norm(b);
-  if(x===y)return 0;
-  if(!x)return y.length;if(!y)return x.length;
-  const row=Array.from({length:y.length+1},(_,i)=>i);
-  for(let i=1;i<=x.length;i++){
-    let prev=row[0];row[0]=i;
-    for(let j=1;j<=y.length;j++){
-      const old=row[j];
-      row[j]=Math.min(row[j]+1,row[j-1]+1,prev+(x[i-1]===y[j-1]?0:1));
-      prev=old;
-    }
-  }
-  return row[y.length];
-}
-function fuzzyWord(word,target){
-  const a=norm(word),b=norm(target);
-  if(!a||!b)return false;
-  if(a.includes(b)||b.includes(a))return true;
-  if(Math.min(a.length,b.length)<5)return false;
-  return editDistance(a,b)<=Math.max(1,Math.floor(Math.max(a.length,b.length)*.28));
-}
-function fuzzyPhrase(text,phrase){
-  const a=norm(text),b=norm(phrase);
-  if(a.includes(b))return true;
-  const words=a.split(" "),targets=b.split(" ");
-  return targets.every(target=>words.some(word=>fuzzyWord(word,target)));
-}
-function matchesAny(text,aliases){return aliases.some(alias=>fuzzyPhrase(text,alias))}
-
-const INTENTS={
-  activity:["registrar actividad","registrar actvidad","registar actividad","crear actividad","iniciar actividad","anotar actividad","hacer actividad","actividad nueva"],
-  delayed:["pedidos demorados","pedido demorado","pedidos atrasados","pedido atrasado","mucho en cola","cola larga","que esta demorado","qué está demorado"],
-  idle:["quien esta desocupado","quién está desocupado","auxiliar desocupado","tiempo muerto","ociosos","sin actividad"],
-  recentWork:["quien termino","quién terminó","actividades terminadas","actividad finalizada","que terminaron"],
-  shipped:["que se despacho","qué se despachó","pedidos despachados","despachos recientes","que salio","qué salió"],
-  novelties:["novedades","que novedades hay","qué novedades hay","excepciones","bloqueos"],
-  operation:["estado de la operacion","estado operación","como va la operacion","cómo va la operación","resumen operativo"],
-  myDay:["mi jornada","que estoy haciendo","qué estoy haciendo","mi actividad"],
-  team:["que esta haciendo","qué está haciendo","quien esta trabajando","quién está trabajando","equipo trabajando","estado del equipo","actividad del equipo"],
-  unassigned:["pedidos sin responsable","pedido sin responsable","sin asignar","pedidos sin asignar","cola sin responsable"],
-  longWork:["actividades largas","actividad larga","actividad prolongada","quien lleva mucho tiempo","quién lleva mucho tiempo","mucho tiempo en actividad"],
-  capabilities:["que puedes hacer","qué puedes hacer","como me ayudas","cómo me ayudas","funciones paco","ayuda paco"],
-  order:["buscar pedido","consultar pedido","ver pedido","estado pedido","en que parte va","en qué parte va","donde va el pedido","dónde va el pedido","pedido"]
-};
 
 function orderTerm(text){
   const raw=String(text||"");
