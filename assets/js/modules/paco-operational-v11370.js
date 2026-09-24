@@ -706,10 +706,11 @@ function missingSnapshotRpc(error){
   return /PGRST202|erp_x_paco_snapshot|schema cache/i.test(text);
 }
 async function compatibilitySnapshot(){
-  const [ordersResult,myDayResult,peopleResult]=await Promise.allSettled([
+  const [ordersResult,myDayResult,peopleResult,freightResult]=await Promise.allSettled([
     api.listOrders({page:1,pageSize:120,includeHistory:true,assignment:isManager()?"ALL":"MINE"}),
     api.workMyDay(),
-    isManager()?api.workPeople(null):Promise.resolve([])
+    isManager()?api.workPeople(null):Promise.resolve([]),
+    isManager()?api.freightAlerts(10):Promise.resolve({alerts:[]})
   ]);
   const orders=ordersResult.status==="fulfilled"?itemArray(ordersResult.value):[];
   const myDay=myDayResult.status==="fulfilled"?(myDayResult.value||{}):{};
@@ -720,14 +721,18 @@ async function compatibilitySnapshot(){
   })):[];
   const executions=[...(myDay.history||[])];
   if(myDay.active&&!executions.some(row=>String(row.id)===String(myDay.active.id)))executions.unshift(myDay.active);
-  return snapshotShape({orders,team,executions,managerScope:isManager(),serverTime:new Date().toISOString()},{degraded:true});
+  const freightAlerts=freightResult.status==="fulfilled"?itemArray(freightResult.value?.alerts||freightResult.value):[];
+  return snapshotShape({orders,team,executions,managerScope:isManager(),serverTime:new Date().toISOString()},{degraded:true,freightAlerts});
 }
 async function loadSnapshot(){
   if(Date.now()<paco.snapshotRpcUnavailableUntil)return compatibilitySnapshot();
   try{
-    const data=await api.pacoSnapshot();
+    const [data,freight]=await Promise.all([
+      api.pacoSnapshot(),
+      isManager()?api.freightAlerts(10).catch(()=>({alerts:[]})):Promise.resolve({alerts:[]})
+    ]);
     paco.snapshotRpcUnavailableUntil=0;
-    return snapshotShape(data);
+    return snapshotShape(data,{freightAlerts:itemArray(freight?.alerts||freight)});
   }catch(error){
     if(!missingSnapshotRpc(error))throw error;
     paco.snapshotRpcUnavailableUntil=Date.now()+10*60*1000;
@@ -794,6 +799,20 @@ function monitorThresholds(snapshot,initial=false){
       const key=`long-work:${person.id}`;
       if(!alertAllowed(key))return;
       showProactive({title:"Actividad prolongada",text:`${person.name} lleva ${duration(person.activeSeconds)} en “${person.activeTitle}”.`,tone:"warning",voice:!initial,actions:[{label:"Ver cronograma",action:"navigate",module:"workforce"}]});
+    });
+
+    (snapshot.freightAlerts||[]).slice(0,initial?2:6).forEach(row=>{
+      const anomaly=String(row.anomalyLevel||"").toUpperCase();
+      const risk=String(row.deliveryRisk||"").toUpperCase();
+      const key=`freight:${row.orderId||row.orderNumber}:${anomaly}:${risk}`;
+      if(!alertAllowed(key))return;
+      const actual=Number(row.actualCost||0),predicted=Number(row.predictedMid||0),deviation=Number(row.deviationPct||0);
+      const isCost=["HIGH","CRITICAL"].includes(anomaly);
+      const title=isCost?(anomaly==="CRITICAL"?"Flete crítico":"Flete fuera de rango"):"Entrega en riesgo";
+      const text=isCost
+        ? `${row.orderNumber||"Un pedido"} registró ${actual?new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}).format(actual):"un costo"} de flete${predicted?`, frente a ${new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}).format(predicted)} esperados`:""}${deviation?` (${fmt.number(deviation,1)}% de desviación)`:""}.`
+        : `${row.orderNumber||"Un pedido"} presenta riesgo frente a la fecha solicitada${row.estimatedArrivalP80?`. El P80 de llegada apunta a ${fmt.date(row.estimatedArrivalP80)}`:""}.`;
+      showProactive({title,text,tone:"warning",voice:!initial,actions:[{label:"Abrir pedido",action:"open-order",orderId:row.orderId,module:"orders"},{label:"Ver inteligencia logística",action:"navigate",module:"dashboard"}]});
     });
   }
 }
@@ -882,7 +901,7 @@ async function longWorkMessage(){
 }
 function capabilitiesMessage(){
   return message({
-    text:"Puedo consultar la operación y ayudarte a ejecutar acciones permitidas por tu sesión: ubicación y etapa de pedidos, demoras, pedidos sin responsable, novedades, despachos, jornada, actividades terminadas, estado del equipo, alertas desde 20 minutos sin actividad, resúmenes automáticos cada 30 minutos y registro guiado de actividades.",
+    text:"Puedo consultar la operación y ayudarte a ejecutar acciones permitidas por tu sesión: ubicación y etapa de pedidos, demoras, pedidos sin responsable, novedades, despachos, jornada, actividades terminadas, estado del equipo, alertas desde 20 minutos sin actividad, fletes fuera de rango, entregas en riesgo, ahorro logístico, resúmenes automáticos cada 30 minutos y registro guiado de actividades.",
     actions:[
       {label:"Registrar actividad",action:"activity-begin",kind:"primary",icon:"▶"},
       {label:"Resumen operativo",action:"operation",icon:"↗"},
@@ -890,6 +909,25 @@ function capabilitiesMessage(){
       {label:"Pedidos demorados",action:"delayed",icon:"!"}
     ]
   });
+}
+
+async function freightIntelligenceMessage(){
+  if(!isManager()&&!allowed("shipping"))return message({text:"La inteligencia de fletes está disponible para usuarios autorizados de Despachos y liderazgo."});
+  const to=todayIso(),from=new Date(Date.now()-89*864e5).toISOString().slice(0,10);
+  try{
+    const data=await api.freightIntelligence(from,to),summary=data?.summary||{},budget=data?.budget||{},alerts=data?.alerts||[];
+    const cop=value=>new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}).format(Number(value||0));
+    return message({
+      text:alerts.length?`Veo ${alerts.length} alerta${alerts.length===1?"":"s"} logística${alerts.length===1?"":"s"} en el rango reciente.`:"La operación logística no presenta alertas de flete o fecha en el rango reciente.",
+      card:[
+        ["Costo real",cop(summary.actualCarrierCost||0)],
+        ["Ahorro potencial",cop(summary.potentialSavings||0)],
+        ["Error mediano",summary.medianAbsErrorPct==null?"Sin evaluación":`${fmt.number(summary.medianAbsErrorPct,1)}%`],
+        ["Presupuesto pendiente",cop(budget.expectedMid||0)]
+      ],
+      actions:[{label:"Abrir inteligencia logística",action:"navigate",module:"dashboard",icon:"↗"},...(alerts[0]?.orderId?[{label:`Revisar ${alerts[0].orderNumber||"pedido"}`,action:"open-order",orderId:alerts[0].orderId,module:"orders",icon:"!"}]:[])]
+    });
+  }catch(error){return message({text:"No pude consultar la inteligencia logística con los permisos actuales.",alert:{title:"Fletes",text:error.message||"Consulta no disponible",tone:"warning"}})}
 }
 
 async function recentWorkMessage(){
@@ -995,7 +1033,9 @@ async function resolveQuery(input){
     actions:[{label:"Registrar actividad",action:"activity-begin",kind:"primary",icon:"▶"},{label:"Estado operativo",action:"operation",icon:"↗"}]
   });
 
-  const intent=detectPacoIntent(input);
+  if(matchesAny(text,["flete","fletes","transportadora","transportadoras","prediccion de flete","predicción de flete","costo de envio","costo de envío","ahorro logistico","ahorro logístico"]))return freightIntelligenceMessage();
+
+    const intent=detectPacoIntent(input);
   if(intent==="activity"){
     const cleaned=text.replace(/registrar|registar|rejistrar|crear|iniciar|anotar|hacer|actividad|actvidad|nueva|agregar|meter|poner/g," ").replace(/\s+/g," ").trim();
     return beginActivityFlow(cleaned);
