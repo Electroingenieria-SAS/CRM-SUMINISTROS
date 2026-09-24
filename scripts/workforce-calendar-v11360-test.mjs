@@ -90,9 +90,12 @@ const dayHtml=renderWorkforceCalendarBoard({
 assert.equal(dayHtml.includes("work-calendar-event-day-v11360"),true);
 assert.equal(dayHtml.includes("Alistamiento de mercancía"),true);
 assert.equal(dayHtml.includes("11:06"),true);
-for(const label of ["07:00","12:00","13:40","17:30"]){
-  assert.equal(dayHtml.includes(label),true,`Vista Día debe conservar marca horaria ${label}.`);
+for(const label of ["07:00–09:00","09:00–11:00","11:00–12:00","13:40–15:40","15:40–17:30"]){
+  assert.equal(dayHtml.includes(label),true,`Vista Día debe conservar bloque laboral ${label}.`);
 }
+assert.equal((dayHtml.match(/work-calendar-slot-head-v11367/g)||[]).length,5,"Vista Día debe renderizar exactamente cinco bloques horarios.");
+assert.equal((dayHtml.match(/work-calendar-slot-cell-v11367/g)||[]).length,5,"Cada trabajador debe tener exactamente cinco casillas horarias.");
+assert.equal(dayHtml.includes("work-calendar-hour-axis-v11363"),false,"Vista Día V11.36.7 no debe volver a la escala horaria fragmentada.");
 
 const hiddenByWorker=renderWorkforceCalendarBoard({
   mode:"day",
@@ -158,6 +161,18 @@ for(const token of [
 }
 
 const css=fs.readFileSync(new URL("../assets/runtime-css/workforce-calendar-v11360.css",import.meta.url),"utf8");
+
+for(const token of [
+  "work-calendar-day-slots-v11367",
+  "grid-template-columns:repeat(5,minmax(0,1fr))",
+  "work-calendar-slot-head-v11367",
+  "work-calendar-slot-cell-v11367",
+  "work-calendar-slot-event-v11367",
+  "minmax(900px,1fr)"
+]){
+  assert.equal(css.includes(token),true,`V11.36.7 debe conservar la grilla de cinco bloques: ${token}`);
+}
+
 for(const token of [
   "min-height:82px",
   "height:33px",
@@ -185,7 +200,8 @@ for(const token of [
   "clipCalendarSegments",
   "pointerenter",
   "closeOnViewportMove",
-  "timeAxisMarks",
+  "buildDaySlots",
+  "eventSlotIndex",
   "segmentGridTemplate"
 ]){
   assert.equal(calendarModule.includes(token),true,`Calendario compacto debe conservar ${token}`);
@@ -247,4 +263,4 @@ for(const legacyPurple of ["#7657a8","#4d3a6d","#7a62ae","#5f478f","#6c55a0","#b
   assert.equal(css.includes(legacyPurple),false,`No debe reaparecer el morado heredado ${legacyPurple}.`);
 }
 
-console.log("workforce calendar v11.36.6 layer tests: OK");
+console.log("workforce calendar v11.36.7 five-slot day tests: OK");

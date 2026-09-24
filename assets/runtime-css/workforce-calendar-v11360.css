@@ -1,4 +1,4 @@
-/* Workforce Calendar V11.36.6
+/* Workforce Calendar V11.36.7
  * Filtros integrados en la barra del Cronograma, sin fila vacía y con panel flotante.
  */
 
@@ -975,6 +975,233 @@
   background:#fff;
   color:#46677d;
   font-size:9.5px;
+}
+
+
+/* V11.36.7 · Día en cinco bloques laborales */
+.work-calendar-day-slots-v11367 .work-calendar-day-head-v11360,
+.work-calendar-day-slots-v11367 .work-calendar-person-row-v11360{
+  grid-template-columns:190px minmax(900px,1fr);
+  min-width:1090px;
+}
+
+.work-calendar-day-slots-v11367 .work-calendar-day-head-v11360{
+  min-height:64px;
+  background:#fbfdff;
+}
+
+.work-calendar-day-slots-v11367 .work-calendar-team-head-v11360{
+  min-height:64px;
+  padding:10px 13px;
+  justify-content:center;
+}
+
+.work-calendar-day-slots-v11367 .work-calendar-segment-heads-v11360,
+.work-calendar-day-slots-v11367 .work-calendar-segments-v11360{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+}
+
+.work-calendar-day-slots-v11367 .work-calendar-segment-heads-v11360{
+  min-height:64px;
+}
+
+.work-calendar-slot-head-v11367{
+  min-height:64px;
+  padding:9px 10px!important;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:4px;
+  border-right:1px solid #cfdee8;
+  border-bottom:0;
+  background:linear-gradient(180deg,#fbfdff,#f4f9fc);
+}
+
+.work-calendar-slot-head-v11367:nth-child(-n+3){
+  box-shadow:inset 0 3px 0 #2d83b6;
+}
+
+.work-calendar-slot-head-v11367:nth-child(n+4){
+  box-shadow:inset 0 3px 0 #d7a22b;
+  background:linear-gradient(180deg,#fffdf8,#fbf8f0);
+}
+
+.work-calendar-slot-period-v11367{
+  color:#6f8596;
+  font-size:9px;
+  line-height:1;
+  font-weight:950;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.work-calendar-slot-head-v11367>strong{
+  color:#1b5679;
+  font-size:12px;
+  line-height:1.1;
+  font-weight:950;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+
+.work-calendar-slot-head-v11367:nth-child(n+4)>strong{
+  color:#8a6219;
+}
+
+.work-calendar-day-slots-v11367 .work-calendar-person-row-v11360{
+  min-height:86px;
+}
+
+.work-calendar-day-slots-v11367 .work-calendar-person-v11360{
+  min-height:86px;
+  align-self:stretch;
+}
+
+.work-calendar-day-slots-v11367 .work-calendar-segments-v11360{
+  min-height:86px;
+  align-items:stretch;
+}
+
+.work-calendar-slot-cell-v11367{
+  min-width:0;
+  min-height:86px;
+  padding:7px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:stretch;
+  border-right:1px solid #d9e5ed;
+  background:#fff;
+}
+
+.work-calendar-slot-cell-v11367:nth-child(even){
+  background:#fbfdfe;
+}
+
+.work-calendar-slot-cell-v11367:nth-child(4),
+.work-calendar-slot-cell-v11367:nth-child(5){
+  background:#fffdf9;
+}
+
+.work-calendar-slot-events-v11367{
+  width:100%;
+  display:grid;
+  gap:5px;
+  align-content:start;
+}
+
+.work-calendar-slot-empty-v11367{
+  width:100%;
+  min-height:70px;
+  display:grid;
+  place-items:center;
+  color:#9aabb7;
+  font-size:9px;
+  font-weight:800;
+  text-align:center;
+}
+
+.work-calendar-slot-event-v11367{
+  position:relative!important;
+  left:auto!important;
+  top:auto!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:42px;
+  height:auto!important;
+  padding:6px 8px!important;
+  display:grid!important;
+  grid-template-columns:1fr auto!important;
+  grid-template-areas:
+    "time photo"
+    "title title";
+  gap:3px 6px!important;
+  overflow:hidden;
+  border-radius:9px;
+  box-shadow:0 3px 8px rgba(30,79,111,.08);
+}
+
+.work-calendar-slot-event-v11367 .work-calendar-event-time-v11360{
+  grid-area:time;
+  min-width:0;
+  display:block!important;
+  overflow:hidden;
+  color:inherit;
+  font-size:9px!important;
+  line-height:1.1;
+  font-weight:950;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.work-calendar-slot-event-v11367 .work-calendar-event-title-v11360{
+  grid-area:title;
+  min-width:0;
+  display:block!important;
+  overflow:hidden;
+  color:inherit;
+  font-size:10px!important;
+  line-height:1.15!important;
+  font-weight:900;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.work-calendar-slot-event-v11367 .work-calendar-event-footer-v11360{
+  grid-area:photo;
+  display:flex!important;
+  align-items:center;
+  justify-content:flex-end;
+  min-width:0;
+}
+
+.work-calendar-slot-event-v11367 .work-calendar-status-v11360{
+  display:none!important;
+}
+
+.work-calendar-slot-event-v11367 .work-calendar-photo-badge-v11360{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:20px;
+  height:20px;
+  min-width:20px;
+  padding:0;
+  border-radius:6px;
+}
+
+.work-calendar-slot-event-v11367 .work-calendar-photo-badge-v11360 span{
+  display:none!important;
+}
+
+.work-calendar-day-slots-v11367 .work-calendar-hour-axis-v11363,
+.work-calendar-day-slots-v11367 .work-calendar-time-guides-v11363{
+  display:none!important;
+}
+
+@media(max-width:1100px){
+  .work-calendar-day-slots-v11367 .work-calendar-day-head-v11360,
+  .work-calendar-day-slots-v11367 .work-calendar-person-row-v11360{
+    grid-template-columns:175px minmax(850px,1fr);
+    min-width:1025px;
+  }
+}
+
+@media(max-width:760px){
+  .work-calendar-day-slots-v11367 .work-calendar-day-head-v11360,
+  .work-calendar-day-slots-v11367 .work-calendar-person-row-v11360{
+    grid-template-columns:165px minmax(825px,1fr);
+    min-width:990px;
+  }
+
+  .work-calendar-slot-head-v11367{
+    padding:8px!important;
+  }
+
+  .work-calendar-slot-head-v11367>strong{
+    font-size:11px;
+  }
 }
 
 /* Semana */

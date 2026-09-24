@@ -22,7 +22,7 @@ export function ensureWorkforceCalendarStyles(){
   const link=document.createElement("link");
   link.id=STYLE_ID;
   link.rel="stylesheet";
-  link.href="./assets/runtime-css/workforce-calendar-v11360.css?v=11.36.6";
+  link.href="./assets/runtime-css/workforce-calendar-v11360.css?v=11.36.7";
   document.head.appendChild(link);
 }
 
@@ -246,121 +246,122 @@ function dayBoard(data,calendar,anchor,filters={}){
   if(day.isHoliday)return nonWorking(day.holidayName||"Festivo","Día no laborable. No se permiten asignaciones.");
 
   const segments=clipCalendarSegments((calendar?.segments||[]).filter(x=>x.isoWeekday===isoWeekday(anchor)),filters);
+  const slots=buildDaySlots(segments,120);
   const people=data.people||[];
   const assignments=data.assignments||[];
 
   return `
-    <section class="work-calendar-v11360 work-calendar-day-v11360 card">
+    <section class="work-calendar-v11360 work-calendar-day-v11360 work-calendar-day-slots-v11367 card">
       <div class="work-calendar-scroll-v11360">
-        <header class="work-calendar-day-head-v11360" style="--segment-count:${Math.max(1,segments.length)}">
+        <header class="work-calendar-day-head-v11360" style="--segment-count:${Math.max(1,slots.length)}">
           <div class="work-calendar-team-head-v11360">
             <span>Equipo</span>
             <strong>Actividad y estado</strong>
           </div>
-          <div class="work-calendar-segment-heads-v11360" style="grid-template-columns:${segmentGridTemplate(segments)}">
-            ${segments.map(segmentHeader).join("")}
+          <div class="work-calendar-segment-heads-v11360" style="grid-template-columns:${segmentGridTemplate(slots)}">
+            ${slots.map(slotHeader).join("")}
           </div>
         </header>
 
         <div class="work-calendar-day-rows-v11360">
-          ${people.map(person=>dayPersonRow(person,assignments,segments,anchor)).join("")||
+          ${people.map(person=>dayPersonRow(person,assignments,slots,anchor)).join("")||
             '<div class="work-calendar-empty-v11360"><strong>Sin actividades visibles</strong><span>No hay usuarios dentro de este ámbito.</span></div>'}
         </div>
       </div>
     </section>`;
 }
 
-function segmentGridTemplate(segments){
-  const weights=(segments||[]).map(segment=>
-    Math.max(1,toMinutes(segment.endTime)-toMinutes(segment.startTime))
-  );
-  return weights.length
-    ? weights.map(weight=>`minmax(0,${weight}fr)`).join(" ")
-    : "minmax(0,1fr)";
+function buildDaySlots(segments,maxMinutes=120){
+  const slots=[];
+  for(const segment of segments||[]){
+    let cursor=toMinutes(segment.startTime);
+    const end=toMinutes(segment.endTime);
+    const period=cursor<12*60?"Mañana":"Tarde";
+
+    while(cursor<end){
+      const slotEnd=Math.min(end,cursor+maxMinutes);
+      slots.push({
+        startTime:minutesToClock(cursor),
+        endTime:minutesToClock(slotEnd),
+        period
+      });
+      cursor=slotEnd;
+    }
+  }
+  return slots;
 }
 
-function segmentHeader(segment){
-  const marks=timeAxisMarks(segment.startTime,segment.endTime);
-  const period=toMinutes(segment.startTime)<12*60?"Mañana":"Tarde";
+function segmentGridTemplate(segments){
+  const count=Math.max(1,(segments||[]).length);
+  return `repeat(${count},minmax(0,1fr))`;
+}
+
+function slotHeader(slot){
   return `
-    <div class="work-calendar-segment-head-v11360">
-      <div class="work-calendar-segment-title-v11360">
-        <strong>${period}</strong>
-        <span>${fmt.escape(segment.startTime)}–${fmt.escape(segment.endTime)}</span>
-      </div>
-      <div class="work-calendar-hour-axis-v11363" aria-label="Escala horaria ${fmt.escape(segment.startTime)} a ${fmt.escape(segment.endTime)}">
-        ${marks.map((mark,index)=>`
-          <span
-            class="work-calendar-hour-tick-v11363${index===0?" is-first":index===marks.length-1?" is-last":""}"
-            style="left:${mark.left}%">
-            <i></i><b>${fmt.escape(mark.label)}</b>
-          </span>`).join("")}
-      </div>
+    <div class="work-calendar-segment-head-v11360 work-calendar-slot-head-v11367">
+      <span class="work-calendar-slot-period-v11367">${fmt.escape(slot.period)}</span>
+      <strong>${fmt.escape(slot.startTime)}–${fmt.escape(slot.endTime)}</strong>
     </div>`;
 }
 
-function dayPersonRow(person,assignments,segments,day){
+function dayPersonRow(person,assignments,slots,day){
   const rows=assignmentsForDay(assignments,person.id,day);
   const noTime=rows.filter(row=>!row.plannedStart);
 
   return `
-    <article class="work-calendar-person-row-v11360" style="--segment-count:${Math.max(1,segments.length)}">
+    <article class="work-calendar-person-row-v11360" style="--segment-count:${Math.max(1,slots.length)}">
       <div class="work-calendar-person-v11360">
         ${personIdentity(person)}
       </div>
 
-      <div class="work-calendar-segments-v11360" style="grid-template-columns:${segmentGridTemplate(segments)}">
-        ${segments.map(segment=>daySegment(rows,segment)).join("")}
+      <div class="work-calendar-segments-v11360" style="grid-template-columns:${segmentGridTemplate(slots)}">
+        ${slots.map((slot,index)=>daySlot(rows,slot,index,slots)).join("")}
         ${noTime.length?`<div class="work-calendar-floating-v11360">${noTime.map(compactEvent).join("")}</div>`:""}
       </div>
     </article>`;
 }
 
-function daySegment(rows,segment){
-  const start=toMinutes(segment.startTime);
-  const end=toMinutes(segment.endTime);
-  const duration=Math.max(1,end-start);
-  const marks=timeAxisMarks(segment.startTime,segment.endTime);
-
-  const events=rows
-    .filter(row=>row.plannedStart&&row.plannedEnd)
-    .map(row=>{
-      const from=bogotaMinutes(row.plannedStart);
-      const to=bogotaMinutes(row.plannedEnd);
-      const overlapStart=Math.max(start,from);
-      const overlapEnd=Math.min(end,to);
-      if(overlapEnd<=overlapStart)return null;
-
-      return {
-        row,
-        left:100*(overlapStart-start)/duration,
-        width:100*(overlapEnd-overlapStart)/duration
-      };
-    })
-    .filter(Boolean);
-
+function daySlot(rows,slot,index,slots){
+  const events=rows.filter(row=>row.plannedStart&&eventSlotIndex(row,slots)===index);
   return `
-    <div class="work-calendar-segment-cell-v11360">
-      <div class="work-calendar-time-guides-v11363" aria-hidden="true">
-        ${marks.slice(1,-1).map(mark=>`<i style="left:${mark.left}%"></i>`).join("")}
-      </div>
-      ${events.map(({row,left,width},index)=>dayEvent(row,left,width,index)).join("")}
+    <div class="work-calendar-segment-cell-v11360 work-calendar-slot-cell-v11367" data-slot-start="${fmt.escape(slot.startTime)}" data-slot-end="${fmt.escape(slot.endTime)}">
+      ${events.length
+        ? `<div class="work-calendar-slot-events-v11367">${events.map(dayEvent).join("")}</div>`
+        : '<span class="work-calendar-slot-empty-v11367">Disponible</span>'}
     </div>`;
 }
 
-function dayEvent(item,left,width,index){
+function eventSlotIndex(row,slots){
+  if(!row?.plannedStart||!slots?.length)return -1;
+  const from=bogotaMinutes(row.plannedStart);
+  const to=row.plannedEnd?bogotaMinutes(row.plannedEnd):from+1;
+
+  const exact=slots.findIndex(slot=>{
+    const start=toMinutes(slot.startTime);
+    const end=toMinutes(slot.endTime);
+    return from>=start&&from<end;
+  });
+  if(exact>=0)return exact;
+
+  return slots.findIndex(slot=>{
+    const start=toMinutes(slot.startTime);
+    const end=toMinutes(slot.endTime);
+    return to>start&&from<end;
+  });
+}
+
+function dayEvent(item){
   const status=eventStatus(item);
   return `
     <article
-      class="work-calendar-event-v11360 work-calendar-event-day-v11360 tone-${status.tone}${item.hasPhoto?" has-photo":""}${item.executionId?" is-executed":""}"
+      class="work-calendar-event-v11360 work-calendar-event-day-v11360 work-calendar-slot-event-v11367 tone-${status.tone}${item.hasPhoto?" has-photo":""}${item.executionId?" is-executed":""}"
       data-assignment-open="${fmt.escape(item.id)}"
       role="button"
       tabindex="0"
-      aria-label="Abrir ${fmt.escape(item.title||"Actividad")}"
-      style="--event-left:${left.toFixed(2)}%;--event-width:${Math.max(width,12).toFixed(2)}%;--event-lane:${index%2}">
+      aria-label="Abrir ${fmt.escape(item.title||"Actividad")}">
       <div class="work-calendar-event-time-v11360">
         ${clockIcon()}
-        <span>${fmt.escape(timeOnly(item.plannedStart))}</span>
+        <span>${fmt.escape(timeOnly(item.plannedStart))}${item.plannedEnd?`–${fmt.escape(timeOnly(item.plannedEnd))}`:""}</span>
       </div>
       <strong class="work-calendar-event-title-v11360">${fmt.escape(item.title||"Actividad")}</strong>
       <div class="work-calendar-event-footer-v11360">
