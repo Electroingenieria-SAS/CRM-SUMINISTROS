@@ -96,7 +96,28 @@ const noisyIntentCases=[
   ["qien esta sin actvidad ace rato","idle"],
   ["dnde esta el peddo 12345","order"],
   ["q pedios siguen en cola","delayed"],
-  ["q pedios ya se despacharon","shipped"]
+  ["q pedios ya se despacharon","shipped"],
+  ["q pedio lleva mas tienpo","delayed"],
+  ["cual peddo esta pegado en cola","delayed"],
+  ["q pedidos stan sin responzable","unassigned"],
+  ["qien no tiene nada asignado","idle"],
+  ["qien lleva mas rato sin actvidad","idle"],
+  ["q esta asiendo cada uno","team"],
+  ["q ase el eqipo ahora","team"],
+  ["q actvidad termino juan","recentWork"],
+  ["q pedios salieron oy","shipped"],
+  ["ai algun bloqeo en pedidos","novelties"],
+  ["q novedaes tiene la operacion","novelties"],
+  ["resumne de toda la operacoin","operation"],
+  ["dame estado general aora","operation"],
+  ["q tengo en mi jornanda","myDay"],
+  ["q actvidad estoy asiendo","myDay"],
+  ["registar una actvidad nueva","activity"],
+  ["qiero meter una actividad","activity"],
+  ["qien lleva demasiado en la misma actvidad","longWork"],
+  ["q pudes acer dentro del crm","capabilities"],
+  ["dnde sta el peddo 12345","order"],
+  ["en q proceso va pedido 12345","order"]
 ];
 for(const [phrase,intent] of noisyIntentCases)eq(detectPacoIntent(phrase),intent,`Noisy intent ${intent}: ${phrase}`);
 
