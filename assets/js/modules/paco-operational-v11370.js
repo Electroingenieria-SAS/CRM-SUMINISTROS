@@ -177,36 +177,51 @@ function orderTerm(text){
 
 function renderRoot(){
   return `<div id="paco-bot" class="paco2-root paco-op-root" data-paco-version="${VERSION}" hidden>
-    <button type="button" class="paco2-launcher" aria-label="Abrir Paco" aria-expanded="false" data-paco-toggle>
-      <img class="paco2-launcher-face" src="${ASSETS.idle}" alt="" aria-hidden="true">
+    <button type="button" class="paco2-launcher paco-op-launcher" aria-label="Abrir PACO" aria-expanded="false" data-paco-toggle>
+      <span class="paco-op-launcher-glyph" aria-hidden="true">⚡</span>
       <span class="paco-op-badge" data-paco-badge hidden>0</span>
       <span class="paco2-launcher-dot" aria-hidden="true"></span>
     </button>
-    <section class="paco2-panel paco-op-panel" role="dialog" aria-label="Paco, asistente operativo del CRM">
+    <section class="paco2-panel paco-op-panel" role="dialog" aria-label="PACO, asistente operativo del CRM">
       <header class="paco2-head paco-op-head">
-        <img class="paco2-head-face" src="${ASSETS.idle}" alt="" aria-hidden="true" data-paco-face>
-        <div class="paco2-head-copy"><span>Asistente operativo</span><strong>PACO</strong><small data-paco-context>${esc(moduleLabel())}</small></div>
-        <button type="button" class="paco-op-voice ${paco.voiceEnabled?"is-on":""}" data-paco-voice aria-label="Activar o silenciar voz" title="Voz en español latino">◖</button>
+        <div class="paco-op-avatar-wrap">
+          <img class="paco2-head-face" src="${ASSETS.idle}" alt="" aria-hidden="true" data-paco-face>
+          <span class="paco-op-presence" aria-hidden="true"></span>
+        </div>
+        <div class="paco2-head-copy">
+          <span>Asistente operativo</span>
+          <strong>PACO</strong>
+          <small><span class="paco-op-online-text">Activo ahora</span> · <span data-paco-context>${esc(moduleLabel())}</span></small>
+        </div>
+        <button type="button" class="paco-op-voice ${paco.voiceEnabled?"is-on":""}" data-paco-voice aria-label="Activar o silenciar voz" title="Voz en español latino"><span data-paco-voice-icon>${paco.voiceEnabled?"🔊":"🔇"}</span></button>
         <button type="button" class="paco2-close" data-paco-close aria-label="Cerrar PACO">×</button>
       </header>
       <div class="paco-op-status">
-        <span class="paco2-online"></span>
-        <strong>Conectado al CRM</strong>
-        <span data-paco-monitor-status>Monitoreo activo</span>
+        <div class="paco-op-status-copy">
+          <span class="paco2-online"></span>
+          <strong>Conectado al CRM</strong>
+          <span data-paco-monitor-status>Monitoreo activo · resumen cada 30 min</span>
+        </div>
+        <div class="paco-op-status-actions">
+          <button type="button" data-paco-test-voice>Probar voz</button>
+          <button type="button" data-paco-summary-now>Resumen ahora</button>
+        </div>
       </div>
       <div class="paco2-messages paco-op-messages" data-paco-messages aria-live="polite"></div>
       <div class="paco2-quick paco-op-quick" data-paco-quick></div>
       <form class="paco2-composer paco-op-composer" data-paco-form>
-        <textarea rows="1" maxlength="500" data-paco-input aria-label="Escribe a PACO" placeholder="Pregúntame por pedidos, personas o registra una actividad…"></textarea>
-        <button type="submit" class="paco2-send" data-paco-send aria-label="Enviar">➜</button>
+        <div class="paco-op-input-shell">
+          <textarea rows="1" maxlength="500" data-paco-input aria-label="Escribe a PACO" placeholder="Mensaje a PACO…"></textarea>
+        </div>
+        <button type="submit" class="paco2-send" data-paco-send aria-label="Enviar mensaje">➜</button>
       </form>
-      <div class="paco2-safe-note">PACO consulta y ejecuta únicamente acciones permitidas por tu sesión.</div>
+      <div class="paco2-safe-note">PACO usa los datos y permisos reales de tu sesión.</div>
     </section>
     <div class="paco-op-toast-stack" data-paco-toast-stack aria-live="assertive"></div>
   </div>`;
 }
 
-function message({role="assistant",text="",actions=[],card=null,alert=null,type="normal"}={}){return {id:uid(),role,text,actions,card,alert,type}}
+function message({role="assistant",text="",actions=[],card=null,alert=null,orderRows=[],type="normal",time=Date.now()}={}){return {id:uid(),role,text,actions,card,alert,orderRows,type,time}}
 function actionHtml(action){
   return `<button type="button" class="paco2-action ${esc(action.kind||"")}" data-paco-action="${esc(action.action||"")}"${action.value!=null?` data-value="${esc(action.value)}"`:""}${action.module?` data-module="${esc(action.module)}"`:""}${action.orderId?` data-order-id="${esc(action.orderId)}"`:""}${action.prompt?` data-prompt="${esc(action.prompt)}"`:""}>
     <span class="paco2-action-icon">${esc(action.icon||"→")}</span>
@@ -214,15 +229,24 @@ function actionHtml(action){
     <span class="paco2-action-arrow">›</span>
   </button>`;
 }
+function orderRowsHtml(rows=[]){
+  if(!rows.length)return "";
+  return `<div class="paco-op-order-list">${rows.map(row=>`<button type="button" class="paco-op-order-row" data-paco-action="diagnose-order-id" data-order-id="${esc(row.id||row.orderId||"")}">
+    <span class="paco-op-order-main"><b>${esc(orderNumber(row))}</b><small>${esc(stepName(row))}</small></span>
+    <span class="paco-op-order-meta"><b>${esc(duration(orderAge(row)))}</b><small>${esc(orderAssignee(row)||"Sin responsable")}</small></span>
+    <span class="paco-op-order-arrow">›</span>
+  </button>`).join("")}</div>`;
+}
 function messageHtml(item){
-  if(item.role==="user")return `<article class="paco2-message user"><div class="paco2-bubble"><div class="paco2-text">${esc(item.text)}</div></div></article>`;
+  const stamp=timeLabel(item.time||Date.now());
+  if(item.role==="user")return `<article class="paco2-message user"><div class="paco2-bubble"><div class="paco2-text">${esc(item.text)}</div><small class="paco-op-message-time">${esc(stamp)}</small></div></article>`;
   if(item.type==="typing")return `<article class="paco2-message assistant"><img class="paco2-mini" src="${ASSETS.thinking}" alt=""><div class="paco2-bubble"><span class="paco2-typing"><i></i><i></i><i></i></span></div></article>`;
   const card=item.card?.length?`<div class="paco2-data-card">${item.card.map(row=>`<div><small>${esc(row[0])}</small><b>${esc(row[1])}</b></div>`).join("")}</div>`:"";
   const alert=item.alert?`<div class="paco2-alert ${esc(item.alert.tone||"")}"><strong>${esc(item.alert.title||"Atención")}</strong><span>${esc(item.alert.text||"")}</span></div>`:"";
   const actions=(item.actions||[]).filter(action=>allowed(action.module));
   return `<article class="paco2-message assistant ${item.type==="proactive"?"paco-op-proactive":""}">
     <img class="paco2-mini" src="${item.type==="success"?ASSETS.success:ASSETS.idle}" alt="">
-    <div class="paco2-bubble"><div class="paco2-text">${esc(item.text)}</div>${card}${alert}${actions.length?`<div class="paco2-actions">${actions.map(actionHtml).join("")}</div>`:""}</div>
+    <div class="paco-op-message-stack"><span class="paco-op-sender">PACO</span><div class="paco2-bubble"><div class="paco2-text">${esc(item.text)}</div>${card}${alert}${orderRowsHtml(item.orderRows||[])}${actions.length?`<div class="paco2-actions">${actions.map(actionHtml).join("")}</div>`:""}<small class="paco-op-message-time">${esc(stamp)}</small></div></div>
   </article>`;
 }
 function renderMessages(){
