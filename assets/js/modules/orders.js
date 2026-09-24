@@ -1,6 +1,6 @@
 import {api} from "../services/api.js";
 import {state,can} from "../core/state.js";
-import {fmt,statusBadge,priorityBadge} from "../core/format.js";
+import {fmt,priorityBadge} from "../core/format.js";
 import {wizard,modal,toast,serializeForm,paginationHtml,empty,loading,actionCards,guide} from "../core/ui.js";
 import {workspaceIntro,summaryItem,choice,simpleStatus} from "../core/guided.js";
 import {uploadOrderFile} from "../services/drive.js";
