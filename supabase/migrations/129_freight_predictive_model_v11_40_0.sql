@@ -603,3 +603,20 @@ begin
       'metrics',v_model.metrics,
       'privacy','AGGREGATED_NO_PII'
     ),
+    'version',v_model.model_version
+  );
+end;
+$$;
+
+revoke all on function public.erp_x_freight_predictions(text,text,numeric) from public,anon;
+grant execute on function public.erp_x_freight_predictions(text,text,numeric) to authenticated;
+
+comment on table erp_supply.freight_prediction_models
+is 'Modelos de flete derivados de datos agregados; nunca almacena PII de destinatarios.';
+comment on table erp_supply.freight_route_reference
+is 'Estadística agregada por transportadora/destino para costo, tránsito y riesgo; sin datos personales.';
+comment on function public.erp_x_freight_predictions(text,text,numeric)
+is 'V11.40.0: predicción comparativa COLVANES/TCC/VELOENVIOS; preliminar por ruta o refinada por peso.';
+
+notify pgrst,'reload schema';
+commit;
