@@ -10,10 +10,11 @@ assert.equal(wrapper.includes("GUIDES"),false,"El entrypoint anterior no debe co
 assert.equal(wrapper.includes("password"),false,"El entrypoint anterior no debe conservar cambio de contraseña.");
 
 for(const token of [
-  'const VERSION="11.37.0"',
+  'const VERSION="11.37.1"',
   "MONITOR_MS=60000",
+  "DIGEST_INTERVAL_MS=30*60*1000",
   "ORDER_WARN_SECONDS=3600",
-  "IDLE_WARN_SECONDS=1800",
+  "IDLE_WARN_SECONDS=20*60",
   "MANAGER_ROLES",
   "AUX_ROLES",
   "api.pacoSnapshot",
@@ -25,6 +26,12 @@ for(const token of [
   "idleAuxiliaries",
   "delayedOrders",
   "longActivities",
+  "buildOperationalDigest",
+  "digestVoiceText",
+  "deliverDigest",
+  "stageBreakdown",
+  "orderRowsHtml",
+  "testVoice",
   "teamActivityMessage",
   "unassignedOrdersMessage",
   "longWorkMessage",
@@ -35,6 +42,12 @@ for(const token of [
   "fuzzyPhrase",
   "activitySuggestions",
   "activity-start",
+  'action==="summary-now"',
+  'action==="unassigned"',
+  'action==="team"',
+  'action==="long-work"',
+  'action==="shipped"',
+  'action==="novelties"',
   "diagnoseOrderById",
   "paco-op-toast-stack"
 ]){
@@ -43,6 +56,11 @@ for(const token of [
 
 assert.equal(engine.includes("api.pacoSnapshot()"),true,"El monitor debe usar un único snapshot operacional.");
 assert.equal(engine.includes("MONITOR_MS=60000"),true,"El polling operativo debe permanecer en un minuto.");
+assert.equal(engine.includes("DIGEST_INTERVAL_MS=30*60*1000"),true,"El resumen operativo automático debe emitirse cada 30 minutos.");
+assert.equal(engine.includes("IDLE_WARN_SECONDS=20*60"),true,"La alerta de inactividad debe comenzar a los 20 minutos.");
+assert.equal(engine.includes("resumen cada 30 min"),true,"La interfaz debe declarar la frecuencia del resumen.");
+assert.equal(engine.includes("Probar voz"),true,"PACO debe ofrecer una prueba de voz explícita.");
+assert.equal(engine.includes("Sin actividad >20 min"),true,"El resumen debe mostrar auxiliares con más de 20 minutos sin actividad.");
 
 for(const role of ["jefe_logistica","lider_logistica","coordinador_logistico","aux_logistica","auxiliar_corte"]){
   assert.equal(engine.includes(role),true,`PACO debe reconocer el rol ${role}`);
@@ -73,9 +91,14 @@ for(const token of [
   "paco-op-badge",
   "paco-op-toast-stack",
   "paco-op-toast",
+  "paco-op-launcher-glyph",
+  "paco-op-message-stack",
+  "paco-op-order-list",
+  "paco-op-order-row",
+  "paco-op-input-shell",
   "@media(max-width:720px)"
 ]){
   assert.equal(css.includes(token),true,`CSS PACO debe conservar ${token}`);
 }
 
-console.log("PACO operational assistant v11.37.0 tests: OK");
+console.log("PACO operational assistant v11.37.1 messenger + digest tests: OK");
