@@ -59,6 +59,7 @@ export const api={
   session:()=>rpc("erp_x_session"),
   health:()=>rpc("erp_x_health_check"),
   dashboard:()=>rpc("erp_x_dashboard"),
+  pacoSnapshot:(since=null,limit=30)=>rpc("erp_x_paco_snapshot",{p_since:since||null,p_limit:limit}),
   listOrders:(filters={})=>rpc("erp_x_list_orders",{
     p_search:filters.search||null,p_step:filters.step||null,p_status:filters.status||null,
     p_order_type:filters.orderType||null,p_route:filters.route||null,p_assignment:filters.assignment||"ALL",
