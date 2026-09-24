@@ -1,6 +1,6 @@
 import {api} from "../services/api.js";
 import {state,can} from "../core/state.js";
-import {fmt,priorityBadge} from "../core/format.js";
+import {fmt} from "../core/format.js";
 import {wizard,modal,toast,serializeForm,paginationHtml,empty,loading,actionCards,guide} from "../core/ui.js";
 import {workspaceIntro,summaryItem,choice,simpleStatus} from "../core/guided.js";
 import {uploadOrderFile} from "../services/drive.js";
@@ -89,10 +89,34 @@ function ordersTable(rows){
   return `<div class="erp-work-list orders-master-list">${rows.map(order=>{
     const status=String(order.status||"").toUpperCase();
     const action=status==="IN_PROGRESS"?"Continuar":status==="ASSIGNED"||status==="QUEUED"?"Abrir / iniciar":"Abrir";
-    return `<article class="erp-work-row orders-master-row"><div class="erp-work-main"><span class="erp-work-eyebrow">${fmt.escape(fmt.step(order.stepName||order.currentStep))}</span><strong>${fmt.escape(order.orderNumber)}</strong><small>${fmt.escape(order.clientName)} · ${fmt.escape(fmt.label(order.orderType))} · ${fmt.escape(fmt.payment(order.paymentCondition))}</small>${order.fulfillmentStatus==="PARTIAL"||order.partialLabel?`<em class="order-partial-tag">Pedido parcial · ${fmt.number(order.pendingItemCount||0)} pendiente(s)</em>`:""}</div><div class="erp-work-meta"><span><small>Estado</small><b>${orderStageBadge(order)}</b></span><span><small>Responsable</small><b>${fmt.escape(order.assigneeName||(String(order.status||"").toUpperCase()==="CLOSED"?"—":"En cola"))}</b></span><span><small>Vendedor</small><b>${fmt.escape(order.sellerName||"—")}</b></span><span><small>Tiempo</small><b>${fmt.hours(order.ageBusinessSeconds)}</b></span><span><small>Ruta</small><b>${fmt.escape(fmt.route(order.route))}</b></span><span><small>Actualizado</small><b>${fmt.date(order.updatedAt)}</b></span></div><div class="erp-work-status">${priorityBadge(order.priority)}${order.slaExceeded?'<small class="danger">Plazo excedido</small>':""}</div><button type="button" class="btn btn-primary erp-work-action" data-order="${fmt.escape(order.id)}">${action}</button></article>`;
+    return `<article class="erp-work-row orders-master-row"><div class="erp-work-main"><span class="erp-work-eyebrow">${fmt.escape(fmt.step(order.stepName||order.currentStep))}</span><strong>${fmt.escape(order.orderNumber)}</strong><small>${fmt.escape(order.clientName)} · ${fmt.escape(fmt.label(order.orderType))} · ${fmt.escape(fmt.payment(order.paymentCondition))}</small>${order.fulfillmentStatus==="PARTIAL"||order.partialLabel?`<em class="order-partial-tag">Pedido parcial · ${fmt.number(order.pendingItemCount||0)} pendiente(s)</em>`:""}</div><div class="erp-work-meta"><span><small>Estado</small><b>${orderStageBadge(order)}</b></span><span><small>Responsable</small><b>${fmt.escape(order.assigneeName||(String(order.status||"").toUpperCase()==="CLOSED"?"—":"En cola"))}</b></span><span><small>Vendedor</small><b>${fmt.escape(order.sellerName||"—")}</b></span><span><small>Tiempo</small><b>${fmt.hours(order.ageBusinessSeconds)}</b></span><span><small>Ruta</small><b>${fmt.escape(fmt.route(order.route))}</b></span><span><small>Actualizado</small><b>${fmt.date(order.updatedAt)}</b></span></div><div class="erp-work-status">${customerSegmentBadgeFromPriority(order.priority)}${order.slaExceeded?'<small class="danger">Plazo excedido</small>':""}</div><button type="button" class="btn btn-primary erp-work-action" data-order="${fmt.escape(order.id)}">${action}</button></article>`;
   }).join("")}</div>`;
 }
 
+function moneyCop(value){
+  try{return new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}).format(Number(value||0))}
+  catch{return fmt.number(value||0)}
+}
+
+function customerSegmentLabel(segment){
+  return ({URGENT:"Urgente",PREMIUM:"Premium",NORMAL:"Normal",BASIC:"Básico"})[String(segment||"NORMAL").toUpperCase()]||"Normal";
+}
+
+function customerConfidenceLabel(value){
+  return ({HIGH:"alta",MEDIUM:"media",LOW:"baja",LEARNING:"aprendiendo"})[String(value||"LEARNING").toUpperCase()]||"aprendiendo";
+}
+
+function freightBasisLabel(value){
+  return ({WEIGHT:"peso",PACKAGE_COUNT:"cantidad de paquetes",VOLUME:"volumen",ROUTE_HISTORY:"histórico de ruta"})[String(value||"ROUTE_HISTORY").toUpperCase()]||"histórico de ruta";
+}
+
+function customerSegmentBadgeFromPriority(priority){
+  const code=String(priority||"MEDIUM").toUpperCase();
+  const segment=code==="URGENT"||code==="CRITICAL"?"URGENT":code==="HIGH"?"PREMIUM":code==="LOW"?"BASIC":"NORMAL";
+  const label=customerSegmentLabel(segment);
+  const cls=segment==="URGENT"?"badge-red":segment==="PREMIUM"?"badge-blue":segment==="BASIC"?"badge-gray":"badge-green";
+  return `<span class="badge ${cls}"><span class="badge-dot"></span>${fmt.escape(label)}</span>`;
+}
 function orderStageBadge(order={}){
   const status=String(order.status||"").toUpperCase();
   const step=String(order.currentStep||order.current_step_code||"").toUpperCase();
@@ -139,7 +163,11 @@ function openCreateOrder(){
             <div class="conditional-routing-direct" data-direct-reception><strong>Ruta inicial: Recepción de pedidos</strong><small>Si no existe una condición excepcional, el pedido no pasa por Cartera ni Caja.</small></div>
           </div>
           <div class="field"><label>Modalidad de entrega *</label>${formSelect("deliveryRoute",routes,"code","name",routes[0]?.code)}</div>
-          <div class="field"><label>Prioridad *</label>${formSelect("priority",["LOW","MEDIUM","HIGH","URGENT","CRITICAL"])}</div>
+          <section class="sales-intelligence-card full" data-customer-intelligence>
+            <div class="sales-intelligence-mark">◎</div>
+            <div><span>SEGMENTACIÓN AUTOMÁTICA</span><strong data-customer-segment>Normal · aprendiendo</strong><p data-customer-intelligence-copy>El CRM clasificará al cliente por cantidad de pedidos y valor facturado. Mientras la muestra sea pequeña todos parten en condición Normal.</p></div>
+            <small data-customer-confidence>50% frecuencia · 50% valor</small>
+          </section>
         </div>
         <section class="sales-address-card">
           <header class="sales-address-head"><span>Dirección</span><div><strong>Lugar de entrega obligatorio</strong><p>Selecciona el departamento y el municipio. Después escribe la dirección exactamente como debe verla Logística.</p></div></header>
@@ -149,6 +177,11 @@ function openCreateOrder(){
             <div class="field"><label>Municipio o ciudad *</label><select class="control" name="clientCity" required disabled><option value="">Primero selecciona el departamento</option></select><small class="field-help" data-municipality-help>La lista se cargará según el departamento.</small></div>
             <div class="field full"><label>Dirección completa *</label><input class="control" name="clientAddress" placeholder="Ejemplo: Carrera 40 # 28-15, Bodega 3" required autocomplete="street-address"><small class="field-help">Incluye vía, número, barrio, vereda, bodega, local o referencia cuando aplique.</small></div>
           </div>
+          <section class="sales-freight-estimate" data-freight-estimate>
+            <div class="sales-freight-icon">↗</div>
+            <div><span>FLETE ESTIMADO</span><strong data-freight-estimate-value>Selecciona modalidad y destino</strong><p data-freight-estimate-copy>El rango se aprenderá de guías y facturas reales por ciudad, modalidad, peso, paquetes y volumen cuando exista.</p></div>
+            <small data-freight-confidence>Sin histórico todavía</small>
+          </section>
         </section>
         <details class="simple-details"><summary>Datos adicionales del cliente</summary><div class="form-grid" style="padding:14px"><div class="field"><label>NIT o documento</label><input class="control" name="clientDocument"></div><div class="field"><label>Teléfono</label><input class="control" name="clientPhone"></div><div class="field"><label>Referencia externa</label><input class="control" name="externalReference"></div><div class="field"><label>Fecha solicitada</label><input class="control" name="requestedDeliveryDate" type="date"></div></div></details>`,validate:({root})=>{
             const department=root.querySelector('[name="clientDepartment"]')?.value.trim();
@@ -175,7 +208,7 @@ function openCreateOrder(){
         const d=serializeForm(form),items=collectSalesItems(root),cards=[...root.querySelectorAll("[data-sales-material]")];
         const cutLines=items.filter(item=>item.requiresCut).length;
         const shortageCards=cards.filter(card=>Number(card.dataset.shortage||0)>0).length;
-        root.querySelector("#order-review").innerHTML=[summaryItem("Pedido",d.orderNumber),summaryItem("Cliente",d.clientName),summaryItem("Tipo",fmt.label(d.orderType)),summaryItem("Pago",fmt.payment(d.paymentCondition)),summaryItem("Entrega",fmt.route(d.deliveryRoute)),summaryItem("Destino",`${d.clientCity}, ${d.clientDepartment}`),summaryItem("Dirección",d.clientAddress),summaryItem("Materiales",String(cards.length)),summaryItem("Líneas operativas",String(items.length)),summaryItem("Cortes",cutLines?`${cutLines} línea(s) de corte`:"Sin cortes"),summaryItem("Disponibilidad",shortageCards?`${shortageCards} material(es) con faltante proyectado`:"Disponible según maestro actual"),summaryItem("Ruta inicial",initialRouteLabel(d))].join("");
+        root.querySelector("#order-review").innerHTML=[summaryItem("Pedido",d.orderNumber),summaryItem("Cliente",d.clientName),summaryItem("Segmento cliente",root.dataset.customerSegmentLabel||"Normal · aprendiendo"),summaryItem("Tipo",fmt.label(d.orderType)),summaryItem("Pago",fmt.payment(d.paymentCondition)),summaryItem("Entrega",fmt.route(d.deliveryRoute)),summaryItem("Destino",`${d.clientCity}, ${d.clientDepartment}`),summaryItem("Flete estimado",root.dataset.freightEstimateLabel||"Aprendiendo con históricos"),summaryItem("Dirección",d.clientAddress),summaryItem("Materiales",String(cards.length)),summaryItem("Líneas operativas",String(items.length)),summaryItem("Cortes",cutLines?`${cutLines} línea(s) de corte`:"Sin cortes"),summaryItem("Disponibilidad",shortageCards?`${shortageCards} material(es) con faltante proyectado`:"Disponible según maestro actual"),summaryItem("Ruta inicial",initialRouteLabel(d))].join("");
       }}
     ],
     onFinish:async({root,data})=>{
@@ -209,6 +242,99 @@ function openCreateOrder(){
   assistant.root.querySelector('[name="requiresPurchase"]')?.addEventListener("change",syncRoutingConditions);
   syncRoutingConditions();
 
+  const routeControl=assistant.root.querySelector('[name="deliveryRoute"]');
+  const clientNameControl=assistant.root.querySelector('[name="clientName"]');
+  const clientDocumentControl=assistant.root.querySelector('[name="clientDocument"]');
+  let intelligenceTimer=null;
+  let intelligenceRequest=0;
+  let freightRequest=0;
+
+  const refreshCustomerIntelligence=async()=>{
+    const clientName=clientNameControl?.value.trim()||"";
+    const clientDocument=clientDocumentControl?.value.trim()||"";
+    const card=assistant.root.querySelector("[data-customer-intelligence]");
+    if(!card||(!clientName&&!clientDocument))return;
+    const request=++intelligenceRequest;
+    try{
+      const data=await api.customerIntelligence(clientDocument||null,clientName||null);
+      if(request!==intelligenceRequest)return;
+      const segment=customerSegmentLabel(data?.segment);
+      const status=data?.learningActive?segment:`${segment} · aprendiendo`;
+      const orders=Number(data?.orderCount||0);
+      const score=Number(data?.score||0);
+      const paid=moneyCop(data?.paidAmount||0);
+      card.dataset.segment=String(data?.segment||"NORMAL");
+      card.querySelector("[data-customer-segment]").textContent=status;
+      card.querySelector("[data-customer-intelligence-copy]").textContent=data?.learningActive
+        ? `${orders} pedido${orders===1?"":"s"} · ${paid} facturado · puntaje ${fmt.number(score,1)}/100. La prioridad del pedido se asignará automáticamente.`
+        : `${orders} pedido${orders===1?"":"s"} registrado${orders===1?"":"s"} · ${paid} facturado. El CRM mantiene condición Normal hasta reunir una muestra confiable.`;
+      card.querySelector("[data-customer-confidence]").textContent=`Confianza: ${customerConfidenceLabel(data?.confidence)} · 50% frecuencia · 50% valor`;
+      assistant.root.dataset.customerSegmentLabel=status;
+    }catch(error){
+      if(request!==intelligenceRequest)return;
+      card.querySelector("[data-customer-segment]").textContent="Normal · aprendiendo";
+      card.querySelector("[data-customer-intelligence-copy]").textContent="No fue posible consultar el ranking ahora. El pedido seguirá con prioridad automática neutral.";
+      card.querySelector("[data-customer-confidence]").textContent="Aprendizaje disponible al crear";
+      assistant.root.dataset.customerSegmentLabel="Normal · aprendiendo";
+    }
+  };
+
+  const scheduleCustomerIntelligence=()=>{
+    clearTimeout(intelligenceTimer);
+    intelligenceTimer=setTimeout(refreshCustomerIntelligence,350);
+  };
+
+  const refreshFreightEstimate=async()=>{
+    const route=routeControl?.value||"";
+    const department=assistant.root.querySelector('[name="clientDepartment"]')?.value.trim()||"";
+    const city=assistant.root.querySelector('[name="clientCity"]')?.value.trim()||"";
+    const card=assistant.root.querySelector("[data-freight-estimate]");
+    if(!card)return;
+    if(!route||!city){
+      card.querySelector("[data-freight-estimate-value]").textContent="Selecciona modalidad y destino";
+      card.querySelector("[data-freight-estimate-copy]").textContent="El CRM mostrará un rango cuando conozca la ruta y la ciudad.";
+      card.querySelector("[data-freight-confidence]").textContent="Esperando ubicación";
+      assistant.root.dataset.freightEstimateLabel="Aprendiendo con históricos";
+      return;
+    }
+    const request=++freightRequest;
+    card.classList.add("is-loading");
+    try{
+      const data=await api.freightEstimate({route,department,city});
+      if(request!==freightRequest)return;
+      if(!data?.available){
+        card.querySelector("[data-freight-estimate-value]").textContent="Aún sin histórico suficiente";
+        card.querySelector("[data-freight-estimate-copy]").textContent=`Destino: ${city}. Las próximas guías con costo real comenzarán a formar este estimado.`;
+        card.querySelector("[data-freight-confidence]").textContent="Confianza: aprendiendo";
+        assistant.root.dataset.freightEstimateLabel="Sin histórico suficiente";
+        return;
+      }
+      const low=moneyCop(data.estimateLow||0),high=moneyCop(data.estimateHigh||0);
+      const basis=freightBasisLabel(data.basis);
+      const distance=data.estimatedDistanceKm!=null?` · ~${fmt.number(data.estimatedDistanceKm,1)} km`:"";
+      const transit=data.estimatedTransitHours!=null?` · ~${fmt.number(data.estimatedTransitHours,1)} h`:"";
+      const label=low===high?low:`${low} – ${high}`;
+      card.querySelector("[data-freight-estimate-value]").textContent=label;
+      card.querySelector("[data-freight-estimate-copy]").textContent=`${data.samples||0} caso${Number(data.samples||0)===1?"":"s"} comparable${Number(data.samples||0)===1?"":"s"} · patrón principal: ${basis}${distance}${transit}.`;
+      card.querySelector("[data-freight-confidence]").textContent=`Confianza: ${customerConfidenceLabel(data.confidence)} · ${String(data.scope||"ROUTE").toLowerCase()}`;
+      assistant.root.dataset.freightEstimateLabel=`${label} · ${basis}`;
+    }catch(error){
+      if(request!==freightRequest)return;
+      card.querySelector("[data-freight-estimate-value]").textContent="Estimación temporalmente no disponible";
+      card.querySelector("[data-freight-estimate-copy]").textContent="El destino quedó registrado; el pedido puede continuar normalmente.";
+      card.querySelector("[data-freight-confidence]").textContent="Se reintentará con nuevos históricos";
+      assistant.root.dataset.freightEstimateLabel="Estimación no disponible";
+    }finally{
+      if(request===freightRequest)card.classList.remove("is-loading");
+    }
+  };
+
+  clientNameControl?.addEventListener("input",scheduleCustomerIntelligence);
+  clientNameControl?.addEventListener("blur",refreshCustomerIntelligence);
+  clientDocumentControl?.addEventListener("input",scheduleCustomerIntelligence);
+  clientDocumentControl?.addEventListener("blur",refreshCustomerIntelligence);
+  routeControl?.addEventListener("change",refreshFreightEstimate);
+
   const departmentSelect=assistant.root.querySelector('[name="clientDepartmentCode"]');
   const departmentName=assistant.root.querySelector('[name="clientDepartment"]');
   const municipalitySelect=assistant.root.querySelector('[name="clientCity"]');
@@ -233,7 +359,10 @@ function openCreateOrder(){
       municipalityHelp?.querySelector('[data-retry-municipalities]')?.addEventListener("click",loadMunicipalities,{once:true});
     }
   };
-  departmentSelect?.addEventListener("change",loadMunicipalities);
+  departmentSelect?.addEventListener("change",async()=>{await loadMunicipalities();await refreshFreightEstimate()});
+  municipalitySelect?.addEventListener("change",refreshFreightEstimate);
+  refreshCustomerIntelligence();
+  refreshFreightEstimate();
 
   const editor=assistant.root.querySelector("#items-editor");
   const add=()=>{
