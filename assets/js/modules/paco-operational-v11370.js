@@ -281,7 +281,7 @@ function toggleOpen(){setOpen(!isOpen())}
 
 function quickPrompts(){
   const base=["Registrar actividad","Pedidos demorados","Mi jornada","Novedades"];
-  if(isManager())base.splice(2,0,"Estado del equipo","¿Quién está desocupado?");
+  if(isManager())base.splice(1,0,"Resumen operativo","Estado del equipo","¿Quién está desocupado?");
   return base;
 }
 function renderQuick(){
@@ -301,7 +301,8 @@ function ensureWelcome(){
       {label:"Registrar actividad",sub:"Te guío desde aquí",icon:"◷",kind:"primary",action:"activity-begin"},
       {label:"Pedidos demorados",sub:"Revisar cola y SLA",icon:"!",action:"delayed"},
       ...(isManager()?[{label:"Equipo disponible",sub:"Auxiliares sin actividad",icon:"◎",action:"idle"}]:[]),
-      {label:"Estado operativo",sub:"Resumen en vivo",icon:"↗",action:"operation"}
+      {label:"Resumen operativo",sub:"Etapas, demoras y responsables",icon:"↗",action:"operation"},
+      {label:"Probar voz",sub:"Escuchar PACO en español latino",icon:"🔊",action:"test-voice"}
     ]
   }));
 }
@@ -735,10 +736,11 @@ async function longWorkMessage(){
 }
 function capabilitiesMessage(){
   return message({
-    text:"Puedo consultar la operación y ayudarte a ejecutar acciones permitidas por tu sesión: pedidos y su etapa, demoras, pedidos sin responsable, novedades, despachos, jornada, actividades terminadas, estado del equipo y registro guiado de actividades.",
+    text:"Puedo consultar la operación y ayudarte a ejecutar acciones permitidas por tu sesión: ubicación y etapa de pedidos, demoras, pedidos sin responsable, novedades, despachos, jornada, actividades terminadas, estado del equipo, alertas desde 20 minutos sin actividad, resúmenes automáticos cada 30 minutos y registro guiado de actividades.",
     actions:[
       {label:"Registrar actividad",action:"activity-begin",kind:"primary",icon:"▶"},
-      {label:"Estado operativo",action:"operation",icon:"↗"},
+      {label:"Resumen operativo",action:"operation",icon:"↗"},
+      {label:"Probar voz",action:"test-voice",icon:"🔊"},
       {label:"Pedidos demorados",action:"delayed",icon:"!"}
     ]
   });
@@ -866,12 +868,26 @@ async function handleAction(button){
   if(action==="navigate"){if(allowed(button.dataset.module)){navigate(button.dataset.module);setOpen(false)}return}
   if(action==="open-order"){window.dispatchEvent(new CustomEvent("erp:open-order",{detail:button.dataset.orderId}));setOpen(false);return}
   if(action==="focus-input"){const input=paco.root?.querySelector("[data-paco-input]");input?.focus();return}
+  if(action==="test-voice"){testVoice();return}
+  if(action==="summary-now"){
+    const snapshot=await loadSnapshot();
+    paco.previous=snapshot;
+    deliverDigest(snapshot,{automatic:false,force:true});
+    return;
+  }
   if(action==="activity-begin"){add(await beginActivityFlow());return}
   if(action==="activity-category"){add(await categoryActivities(value));return}
   if(action==="activity-select"){add(await selectActivity(value));return}
   if(action==="activity-start"){setBusy(true);typing();try{replaceTyping(await startActivity(value))}catch(error){replaceTyping(message({text:"No pude iniciar esa actividad.",alert:{title:"Actividad",text:error.message||"Error",tone:"warning"}}))}finally{setBusy(false)}return}
   if(action==="delayed"){add(await delayedMessage());return}
+  if(action==="unassigned"){add(await unassignedOrdersMessage());return}
   if(action==="idle"){add(await idleMessage());return}
+  if(action==="team"){add(await teamActivityMessage());return}
+  if(action==="long-work"){add(await longWorkMessage());return}
+  if(action==="recent-work"){add(await recentWorkMessage());return}
+  if(action==="shipped"){add(await shippedMessage());return}
+  if(action==="novelties"){add(await noveltyMessage());return}
+  if(action==="capabilities"){add(capabilitiesMessage());return}
   if(action==="operation"){add(await operationMessage());return}
   if(action==="diagnose-order-id"){setBusy(true);typing();try{replaceTyping(await diagnoseOrderById(button.dataset.orderId))}catch(error){replaceTyping(message({text:error.message}))}finally{setBusy(false)}return}
 }
@@ -882,6 +898,12 @@ function bindRoot(){
   root.querySelector("[data-paco-toggle]")?.addEventListener("click",toggleOpen);
   root.querySelector("[data-paco-close]")?.addEventListener("click",()=>setOpen(false));
   root.querySelector("[data-paco-voice]")?.addEventListener("click",toggleVoice);
+  root.querySelector("[data-paco-test-voice]")?.addEventListener("click",testVoice);
+  root.querySelector("[data-paco-summary-now]")?.addEventListener("click",async()=>{
+    const snapshot=await loadSnapshot();
+    paco.previous=snapshot;
+    deliverDigest(snapshot,{automatic:false,force:true});
+  });
   root.querySelector("[data-paco-form]")?.addEventListener("submit",event=>{event.preventDefault();const input=root.querySelector("[data-paco-input]");const value=input.value;input.value="";submit(value)});
   root.querySelector("[data-paco-input]")?.addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.shiftKey){event.preventDefault();root.querySelector("[data-paco-form]")?.requestSubmit()}});
   root.addEventListener("click",event=>{
@@ -903,8 +925,13 @@ function syncProfile(next=state){
   if(!paco.root)return;
   const active=Boolean(next.profile);
   paco.root.hidden=!active;
-  if(active){updateContext();startMonitor()}else{
-    clearInterval(paco.monitorTimer);paco.monitorTimer=null;paco.previous=null;paco.messages=[];paco.flow=null;renderMessages();setOpen(false);
+  if(active){
+    updateContext();
+    updateVoiceButton();
+    paco.lastDigestAt=readLastDigest();
+    startMonitor();
+  }else{
+    clearInterval(paco.monitorTimer);paco.monitorTimer=null;paco.previous=null;paco.messages=[];paco.flow=null;paco.lastDigestAt=0;renderMessages();setOpen(false);
   }
 }
 
