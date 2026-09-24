@@ -858,6 +858,8 @@ function cancelAssignmentDialog(id,reload){modal({title:"Cancelar asignación",c
 async function renderAnalytics(root,content){
   const canManage=state.profile?.roles?.some(r=>["super_admin","gerencia","jefe_logistica","auditoria"].includes(r));
   const people=canManage?await api.workPeople(null).catch(()=>[]):[];
+  const canViewCommercial=state.profile?.roles?.some(r=>["super_admin","gerencia","ventas","jefe_logistica","auditoria"].includes(r));
+  const customerRanking=canViewCommercial?await api.customerRanking(12).catch(()=>null):null;
   const selected=content.dataset.analyticsProfile||"";
   const data=await api.workAnalytics(analyticsRange.from,analyticsRange.to,selected||null);
   const summary=data.summary||{};
