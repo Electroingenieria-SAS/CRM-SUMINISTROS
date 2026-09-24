@@ -102,8 +102,8 @@ const normalizedJsRuntime=jsRuntime
   .replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
 // Release identity.
-check(version==="11.39.0","CONFIG.version debe ser 11.39.0.");
-check(build==="2026-09-24.32","CONFIG.build debe ser 2026-09-24.32.");
+check(version==="11.39.1","CONFIG.version debe ser 11.39.1.");
+check(build==="2026-09-24.33","CONFIG.build debe ser 2026-09-24.33.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
@@ -119,7 +119,8 @@ check(workforce.includes("work-indicator-hero-v11363")&&workforce.includes("anal
 check(exists("scripts/workforce-order-automation-v11380-test.mjs"),"Falta contrato V11.38.0 de ocupación automática de pedidos.");
 check(exists("scripts/order-stage-status-v11381-test.mjs"),"Falta contrato V11.38.1 del chip Estado por etapa.");
 check(exists("scripts/order-responsible-seller-v11382-test.mjs"),"Falta contrato V11.38.2 de responsable activo y vendedor.");
-check(exists("scripts/customer-freight-intelligence-v11390-test.mjs"),"Falta contrato V11.39.0 de inteligencia comercial y fletes.");
+check(exists("scripts/customer-freight-intelligence-v11390-test.mjs"),"Falta contrato V11.39.x de inteligencia comercial y fletes.");
+check(exists("supabase/migrations/127_customer_payment_truth_v11_39_1.sql"),"Falta migración V11.39.1 de verdad financiera y prioridad.");
 check(exists("supabase/migrations/125_customer_freight_intelligence_v11_39_0.sql"),"Falta migración 125 de inteligencia comercial/logística.");
 check(exists("supabase/migrations/126_customer_freight_intelligence_permissions_v11_39_0.sql"),"Falta migración 126 de permisos de inteligencia.");
 check(exists("supabase/migrations/124_order_responsible_seller_v11_38_2.sql"),"Falta migración 124 de responsable activo y vendedor.");
@@ -197,8 +198,8 @@ check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía instit
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
 // PWA and Vercel routing.
-check(sw.includes('// previous-cache: crm-suministros-v11-38-3-20260924-31'),"previous-cache PWA debe apuntar a V11.38.3.");
-check(sw.includes('const CACHE="crm-suministros-v11-39-0-20260924-32";'),"CACHE activo PWA no corresponde a V11.39.0.");
+check(sw.includes('// previous-cache: crm-suministros-v11-39-0-20260924-32'),"previous-cache PWA debe apuntar a V11.39.0.");
+check(sw.includes('const CACHE="crm-suministros-v11-39-1-20260924-33";'),"CACHE activo PWA no corresponde a V11.39.1.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
 check(vercel.includes('manifest\\\\.webmanifest')||vercel.includes('/manifest.webmanifest'),"Vercel debe excluir o tratar explícitamente el manifest real.");
@@ -398,7 +399,7 @@ console.log(`VALIDACIÓN CRM ${version} CORRECTA`);
 console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
 console.log("- Inventario conserva captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
-console.log("- V11.39.0 incorpora ranking automático de clientes, prioridad derivada, estimación de fletes, facturas navegables y métricas logísticas de distancia/tiempo.");
+console.log("- V11.39.1 conserva inteligencia comercial/fletes y corrige fuente de pago + prioridad compatible.");
 console.log("- Observers responsive y popup procesan únicamente el ámbito dinámico afectado.");
 console.log("- PWA, Vercel, RLS y hotpaths SQL quedan incorporados al contrato canónico.");
 console.log("- Conteo ciego, RLS granular y aprobación contable permanecen como contratos obligatorios.");
