@@ -3,8 +3,16 @@ import {navigate} from "../core/router.js";
 import {api} from "../services/api.js";
 import {fmt} from "../core/format.js";
 import {toast} from "../core/ui.js";
+import {
+  normalizePacoText as norm,
+  matchesAny,
+  detectPacoIntent,
+  matchCrmModule,
+  isCancelText,
+  isRestartText
+} from "./paco-language-v11373.js";
 
-const VERSION="11.37.2";
+const VERSION="11.37.3";
 const STYLE_ID="paco-operational-v11370-style";
 const MONITOR_MS=60000;
 const DIGEST_INTERVAL_MS=30*60*1000;
@@ -56,7 +64,8 @@ const paco={
   unsubscribe:null,
   globalBound:false,
   alertMemory:new Map(),
-  lastDigestAt:0
+  lastDigestAt:0,
+  snapshotRpcUnavailableUntil:0
 };
 
 function ensureStyles(){
@@ -64,7 +73,7 @@ function ensureStyles(){
   const link=document.createElement("link");
   link.id=STYLE_ID;
   link.rel="stylesheet";
-  link.href="./assets/runtime-css/paco-operational-v11370.css?v=11.37.2";
+  link.href="./assets/runtime-css/paco-operational-v11370.css?v=11.37.3";
   document.head.appendChild(link);
 }
 
@@ -94,7 +103,6 @@ function saveLastDigest(){
 }
 
 function esc(value){return fmt.escape(String(value??""))}
-function norm(value){return String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9\s-]/g," ").replace(/\s+/g," ").trim()}
 function currentModule(){return state.currentModule||document.querySelector(".nav-item.active")?.dataset?.module||"dashboard"}
 function moduleLabel(id=currentModule()){return MODULES[id]||"CRM Suministros"}
 function roles(){return state.profile?.roles||[]}
@@ -132,52 +140,6 @@ function stageBreakdown(snapshot){
   return [...counts.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"es"));
 }
 function businessClockLabel(){return timeLabel(new Date())}
-
-function editDistance(a,b){
-  const x=norm(a),y=norm(b);
-  if(x===y)return 0;
-  if(!x)return y.length;if(!y)return x.length;
-  const row=Array.from({length:y.length+1},(_,i)=>i);
-  for(let i=1;i<=x.length;i++){
-    let prev=row[0];row[0]=i;
-    for(let j=1;j<=y.length;j++){
-      const old=row[j];
-      row[j]=Math.min(row[j]+1,row[j-1]+1,prev+(x[i-1]===y[j-1]?0:1));
-      prev=old;
-    }
-  }
-  return row[y.length];
-}
-function fuzzyWord(word,target){
-  const a=norm(word),b=norm(target);
-  if(!a||!b)return false;
-  if(a.includes(b)||b.includes(a))return true;
-  if(Math.min(a.length,b.length)<5)return false;
-  return editDistance(a,b)<=Math.max(1,Math.floor(Math.max(a.length,b.length)*.28));
-}
-function fuzzyPhrase(text,phrase){
-  const a=norm(text),b=norm(phrase);
-  if(a.includes(b))return true;
-  const words=a.split(" "),targets=b.split(" ");
-  return targets.every(target=>words.some(word=>fuzzyWord(word,target)));
-}
-function matchesAny(text,aliases){return aliases.some(alias=>fuzzyPhrase(text,alias))}
-
-const INTENTS={
-  activity:["registrar actividad","registrar actvidad","registar actividad","crear actividad","iniciar actividad","anotar actividad","hacer actividad","actividad nueva"],
-  delayed:["pedidos demorados","pedido demorado","pedidos atrasados","pedido atrasado","mucho en cola","cola larga","que esta demorado","qué está demorado"],
-  idle:["quien esta desocupado","quién está desocupado","auxiliar desocupado","tiempo muerto","ociosos","sin actividad"],
-  recentWork:["quien termino","quién terminó","actividades terminadas","actividad finalizada","que terminaron"],
-  shipped:["que se despacho","qué se despachó","pedidos despachados","despachos recientes","que salio","qué salió"],
-  novelties:["novedades","que novedades hay","qué novedades hay","excepciones","bloqueos"],
-  operation:["estado de la operacion","estado operación","como va la operacion","cómo va la operación","resumen operativo"],
-  myDay:["mi jornada","que estoy haciendo","qué estoy haciendo","mi actividad"],
-  team:["que esta haciendo","qué está haciendo","quien esta trabajando","quién está trabajando","equipo trabajando","estado del equipo","actividad del equipo"],
-  unassigned:["pedidos sin responsable","pedido sin responsable","sin asignar","pedidos sin asignar","cola sin responsable"],
-  longWork:["actividades largas","actividad larga","actividad prolongada","quien lleva mucho tiempo","quién lleva mucho tiempo","mucho tiempo en actividad"],
-  capabilities:["que puedes hacer","qué puedes hacer","como me ayudas","cómo me ayudas","funciones paco","ayuda paco"],
-  order:["buscar pedido","consultar pedido","ver pedido","estado pedido","en que parte va","en qué parte va","donde va el pedido","dónde va el pedido","pedido"]
-};
 
 function orderTerm(text){
   const raw=String(text||"");
@@ -220,6 +182,7 @@ function renderRoot(){
           </label>
           <button type="button" data-paco-test-voice>Probar voz</button>
           <button type="button" data-paco-summary-now>Resumen ahora</button>
+          <button type="button" data-paco-restart>↻ Reiniciar</button>
         </div>
       </div>
       <div class="paco2-messages paco-op-messages" data-paco-messages aria-live="polite"></div>
@@ -258,7 +221,12 @@ function messageHtml(item){
   if(item.type==="typing")return `<article class="paco2-message assistant"><img class="paco2-mini" src="${ASSETS.thinking}" alt=""><div class="paco2-bubble"><span class="paco2-typing"><i></i><i></i><i></i></span></div></article>`;
   const card=item.card?.length?`<div class="paco2-data-card">${item.card.map(row=>`<div><small>${esc(row[0])}</small><b>${esc(row[1])}</b></div>`).join("")}</div>`:"";
   const alert=item.alert?`<div class="paco2-alert ${esc(item.alert.tone||"")}"><strong>${esc(item.alert.title||"Atención")}</strong><span>${esc(item.alert.text||"")}</span></div>`:"";
-  const actions=(item.actions||[]).filter(action=>allowed(action.module));
+  let actions=(item.actions||[]).filter(action=>allowed(action.module));
+  const isChoice=item.type!=="proactive"&&(actions.length>1||Boolean(paco.flow));
+  if(isChoice){
+    if(!actions.some(action=>action.action==="cancel-flow"))actions=[...actions,{label:"Cancelar consulta",sub:"Corregir o salir de esta consulta",icon:"×",action:"cancel-flow"}];
+    if(!actions.some(action=>action.action==="restart"))actions=[...actions,{label:"Reiniciar PACO",sub:"Volver al inicio",icon:"↻",action:"restart"}];
+  }
   return `<article class="paco2-message assistant ${item.type==="proactive"?"paco-op-proactive":""}">
     <img class="paco2-mini" src="${item.type==="success"?ASSETS.success:ASSETS.idle}" alt="">
     <div class="paco-op-message-stack"><span class="paco-op-sender">PACO</span><div class="paco2-bubble"><div class="paco2-text">${esc(item.text)}</div>${card}${alert}${orderRowsHtml(item.orderRows||[])}${actions.length?`<div class="paco2-actions">${actions.map(actionHtml).join("")}</div>`:""}<small class="paco-op-message-time">${esc(stamp)}</small></div></div>
@@ -297,7 +265,37 @@ function toggleOpen(){setOpen(!isOpen())}
 function quickPrompts(){
   const base=["Registrar actividad","Pedidos demorados","Mi jornada","Novedades"];
   if(isManager())base.splice(1,0,"Resumen operativo","Estado del equipo","¿Quién está desocupado?");
+  if(paco.flow)base.push("Cancelar consulta");
   return base;
+}
+function setFlow(next){
+  paco.flow=next||null;
+  renderQuick();
+}
+function choiceControls(){
+  return [
+    {label:"Cancelar consulta",sub:"Salir de esta selección",icon:"×",action:"cancel-flow"},
+    {label:"Reiniciar PACO",sub:"Empezar una consulta nueva",icon:"↻",action:"restart"}
+  ];
+}
+function cancelFlowMessage(){
+  const hadFlow=Boolean(paco.flow);
+  setFlow(null);
+  return message({
+    text:hadFlow?"Cancelé la consulta actual. Puedes empezar otra cuando quieras.":"No había una consulta guiada activa. Puedes escribir una nueva.",
+    actions:[{label:"Nueva consulta",action:"focus-input",kind:"primary",icon:"⌕"},{label:"Ver opciones",action:"capabilities",icon:"↗"}]
+  });
+}
+function restartPaco(){
+  setFlow(null);
+  paco.previous=null;
+  paco.messages=[];
+  clearBadge();
+  ensureWelcome();
+  renderMessages();
+  renderQuick();
+  const input=paco.root?.querySelector("[data-paco-input]");
+  if(input){input.value="";setTimeout(()=>input.focus(),50)}
 }
 function renderQuick(){
   const row=paco.root?.querySelector("[data-paco-quick]");
@@ -492,7 +490,7 @@ function activityActions(rows){
   }));
 }
 async function beginActivityFlow(query=""){
-  paco.flow={type:"activity",step:"search"};
+  setFlow({type:"activity",step:"search"});
   if(!query){
     const rows=await catalog();
     const categories=[...new Set(rows.map(x=>x.uiCategoryLabel).filter(Boolean))].slice(0,6);
@@ -500,29 +498,31 @@ async function beginActivityFlow(query=""){
       text:"¿Qué actividad vas a realizar? Puedes escribir el nombre aunque no lo recuerdes exacto, o escoger una categoría.",
       actions:[
         ...categories.map(name=>({label:name,sub:"Ver actividades",icon:"▦",action:"activity-category",value:name})),
-        {label:"Escribir actividad",sub:"Ejemplo: alistar pedido",icon:"⌕",action:"focus-input"}
+        {label:"Escribir actividad",sub:"Ejemplo: alistar pedido",icon:"⌕",action:"focus-input"},
+        ...choiceControls()
       ]
     });
   }
   const rows=await activitySuggestions(query);
-  if(!rows.length)return message({text:`No encontré una actividad parecida a “${query}”. Prueba con menos palabras o dime la categoría.`,actions:[{label:"Ver categorías",icon:"▦",action:"activity-begin"}]});
-  return message({text:`Encontré ${rows.length} opción${rows.length===1?"":"es"} que pueden corresponder. ¿Cuál vas a realizar?`,actions:activityActions(rows)});
+  if(!rows.length)return message({text:`No encontré una actividad parecida a “${query}”. Prueba con menos palabras o dime la categoría.`,actions:[{label:"Ver categorías",icon:"▦",action:"activity-begin"},...choiceControls()]});
+  return message({text:`Encontré ${rows.length} opción${rows.length===1?"":"es"} que pueden corresponder. ¿Cuál vas a realizar?`,actions:[...activityActions(rows),...choiceControls()]});
 }
 async function categoryActivities(categoryName){
   const rows=(await catalog()).filter(item=>norm(item.uiCategoryLabel)===norm(categoryName)).slice(0,10);
-  paco.flow={type:"activity",step:"search"};
-  return message({text:`Estas son las actividades de ${categoryName}. Elige una.`,actions:activityActions(rows)});
+  setFlow({type:"activity",step:"search"});
+  return message({text:`Estas son las actividades de ${categoryName}. Elige una.`,actions:[...activityActions(rows),...choiceControls()]});
 }
 async function selectActivity(catalogId){
   const item=(await catalog()).find(row=>String(row.id)===String(catalogId));
   if(!item)return message({text:"Esa actividad ya no está disponible en el catálogo."});
-  paco.flow={type:"activity",step:"confirm",catalogId:item.id,item};
+  setFlow({type:"activity",step:"confirm",catalogId:item.id,item});
   return message({
     text:`Voy a registrar “${item.name}” como tu actividad actual. ¿La inicio ahora?`,
     card:[["Categoría",item.uiCategoryLabel||"—"],["Subcategoría",item.uiSubcategory||"—"],["Tiempo estándar",item.standardMinutes?`${item.standardMinutes} min`:"Sin tiempo estándar"]],
     actions:[
       {label:"Sí, iniciar ahora",sub:"Empieza el cronómetro",icon:"▶",kind:"primary",action:"activity-start",value:item.id},
-      {label:"Elegir otra",sub:"Volver al catálogo",icon:"↩",action:"activity-begin"}
+      {label:"Elegir otra",sub:"Volver al catálogo",icon:"↩",action:"activity-begin"},
+      ...choiceControls()
     ]
   });
 }
@@ -530,7 +530,7 @@ async function startActivity(catalogId){
   const item=(await catalog()).find(row=>String(row.id)===String(catalogId));
   if(!item)throw new Error("La actividad seleccionada ya no está disponible.");
   await api.workStart(item.id,null,{source:"PACO_ASSISTANT",assistantVersion:VERSION});
-  paco.flow=null;
+  setFlow(null);
   setTimeout(()=>refreshMonitor(true),900);
   speak(`Listo. Inicié ${item.name}.`);
   return message({
@@ -648,16 +648,50 @@ function deliverDigest(snapshot,{automatic=true,force=false}={}){
   }
 }
 
-async function loadSnapshot(){
-  const data=await api.pacoSnapshot();
+function snapshotShape(data={},extra={}){
   return {
     at:Date.now(),
     orders:Array.isArray(data?.orders)?data.orders:[],
     team:Array.isArray(data?.team)?data.team:[],
     executions:Array.isArray(data?.executions)?data.executions:[],
     managerScope:Boolean(data?.managerScope),
-    serverTime:data?.serverTime||null
+    serverTime:data?.serverTime||null,
+    ...extra
   };
+}
+function missingSnapshotRpc(error){
+  const text=[error?.code,error?.message,error?.technicalMessage].filter(Boolean).join(" ");
+  return /PGRST202|erp_x_paco_snapshot|schema cache/i.test(text);
+}
+async function compatibilitySnapshot(){
+  const [ordersResult,myDayResult,peopleResult]=await Promise.allSettled([
+    api.listOrders({page:1,pageSize:120,includeHistory:true,assignment:isManager()?"ALL":"MINE"}),
+    api.workMyDay(),
+    isManager()?api.workPeople(null):Promise.resolve([])
+  ]);
+  const orders=ordersResult.status==="fulfilled"?itemArray(ordersResult.value):[];
+  const myDay=myDayResult.status==="fulfilled"?(myDayResult.value||{}):{};
+  const team=peopleResult.status==="fulfilled"?itemArray(peopleResult.value).map(person=>({
+    ...person,
+    activeBusinessSeconds:person.activeStartedAt?Math.max(0,Math.floor((Date.now()-new Date(person.activeStartedAt).getTime())/1000)):0,
+    idleBusinessSeconds:0
+  })):[];
+  const executions=[...(myDay.history||[])];
+  if(myDay.active&&!executions.some(row=>String(row.id)===String(myDay.active.id)))executions.unshift(myDay.active);
+  return snapshotShape({orders,team,executions,managerScope:isManager(),serverTime:new Date().toISOString()},{degraded:true});
+}
+async function loadSnapshot(){
+  if(Date.now()<paco.snapshotRpcUnavailableUntil)return compatibilitySnapshot();
+  try{
+    const data=await api.pacoSnapshot();
+    paco.snapshotRpcUnavailableUntil=0;
+    return snapshotShape(data);
+  }catch(error){
+    if(!missingSnapshotRpc(error))throw error;
+    paco.snapshotRpcUnavailableUntil=Date.now()+10*60*1000;
+    console.warn("[PACO SNAPSHOT] RPC especializada no disponible; se activa compatibilidad por 10 minutos.");
+    return compatibilitySnapshot();
+  }
 }
 
 function executionMap(snapshot){
@@ -851,7 +885,7 @@ async function diagnoseOrder(term){
   const result=await api.listOrders({search:term,page:1,pageSize:8,includeHistory:true,assignment:"ALL"});
   const rows=itemArray(result);
   if(!rows.length)return message({text:`No encontré un pedido visible con “${term}”.`});
-  if(rows.length>1)return message({text:"Encontré varias coincidencias. Elige el pedido.",actions:rows.slice(0,6).map(row=>({label:orderNumber(row),sub:row.clientName||row.client_name||"Cliente",action:"diagnose-order-id",orderId:row.id||row.orderId,icon:"⌕"}))});
+  if(rows.length>1)return message({text:"Encontré varias coincidencias. Elige el pedido.",actions:[...rows.slice(0,6).map(row=>({label:orderNumber(row),sub:row.clientName||row.client_name||"Cliente",action:"diagnose-order-id",orderId:row.id||row.orderId,icon:"⌕"})),...choiceControls()]});
   return diagnoseOrderById(rows[0].id||rows[0].orderId);
 }
 async function diagnoseOrderById(id){
@@ -874,42 +908,68 @@ async function resolveQuery(input){
   const text=norm(input);
   if(!text)return message({text:"Dime qué necesitas. Puedo revisar pedidos, jornada, novedades o registrar una actividad."});
 
+  if(isRestartText(text)){
+    setFlow(null);
+    return message({text:"Reinicié el contexto de la consulta. Empecemos de nuevo.",actions:[{label:"Ver opciones",action:"capabilities",kind:"primary",icon:"↗"},{label:"Escribir consulta",action:"focus-input",icon:"⌕"}]});
+  }
+  if(isCancelText(text))return cancelFlowMessage();
+
   if(paco.flow?.type==="activity"){
-    if(matchesAny(text,["cancelar","salir","olvidalo","olvídalo"])){
-      paco.flow=null;
-      return message({text:"Listo. Cancelé el registro guiado de actividad."});
-    }
     if(paco.flow.step==="confirm"){
-      if(matchesAny(text,["si","sí","dale","iniciar","empieza","comenzar"]))return startActivity(paco.flow.catalogId);
-      if(matchesAny(text,["no","otra","cambiar","elegir otra"]))return beginActivityFlow();
+      if(matchesAny(text,["si","sí","dale","iniciar","empieza","comenzar","hagale","hágale"]))return startActivity(paco.flow.catalogId);
+      if(matchesAny(text,["no","otra","cambiar","elegir otra","me equivoque","me equivoqué"]))return beginActivityFlow();
     }
     if(paco.flow.step==="search")return beginActivityFlow(input);
   }
 
-  if(matchesAny(text,["hola","buenas","paco","ayuda"]))return message({text:"Aquí estoy. Estoy pendiente del CRM y también puedo ayudarte a ejecutar tareas.",actions:[{label:"Registrar actividad",action:"activity-begin",kind:"primary",icon:"▶"},{label:"Estado operativo",action:"operation",icon:"↗"}]});
-  if(matchesAny(text,INTENTS.activity)){
-    const cleaned=text.replace(/registrar|registar|crear|iniciar|anotar|hacer|actividad|actvidad|nueva/g," ").replace(/\s+/g," ").trim();
+  if(matchesAny(text,["hola","buenas","paco","ayuda","hey paco","oe paco"]))return message({
+    text:"Aquí estoy. Estoy pendiente del CRM y también puedo ayudarte a ejecutar tareas.",
+    actions:[{label:"Registrar actividad",action:"activity-begin",kind:"primary",icon:"▶"},{label:"Estado operativo",action:"operation",icon:"↗"}]
+  });
+
+  const intent=detectPacoIntent(input);
+  if(intent==="activity"){
+    const cleaned=text.replace(/registrar|registar|rejistrar|crear|iniciar|anotar|hacer|actividad|actvidad|nueva|agregar|meter|poner/g," ").replace(/\s+/g," ").trim();
     return beginActivityFlow(cleaned);
   }
-  if(matchesAny(text,INTENTS.capabilities))return capabilitiesMessage();
-  if(matchesAny(text,INTENTS.delayed))return delayedMessage();
-  if(matchesAny(text,INTENTS.unassigned))return unassignedOrdersMessage();
-  if(matchesAny(text,INTENTS.idle))return idleMessage();
-  if(matchesAny(text,INTENTS.longWork))return longWorkMessage();
-  if(matchesAny(text,INTENTS.team))return teamActivityMessage(input);
-  if(matchesAny(text,INTENTS.recentWork))return recentWorkMessage();
-  if(matchesAny(text,INTENTS.shipped))return shippedMessage();
-  if(matchesAny(text,INTENTS.novelties))return noveltyMessage();
-  if(matchesAny(text,INTENTS.operation))return operationMessage();
-  if(matchesAny(text,INTENTS.myDay))return myDayMessage();
+  if(intent==="capabilities")return capabilitiesMessage();
+  if(intent==="delayed")return delayedMessage();
+  if(intent==="unassigned")return unassignedOrdersMessage();
+  if(intent==="idle")return idleMessage();
+  if(intent==="longWork")return longWorkMessage();
+  if(intent==="team")return teamActivityMessage(input);
+  if(intent==="recentWork")return recentWorkMessage();
+  if(intent==="shipped")return shippedMessage();
+  if(intent==="novelties")return noveltyMessage();
+  if(intent==="operation")return operationMessage();
+  if(intent==="myDay")return myDayMessage();
 
   const term=orderTerm(input);
-  if(term||matchesAny(text,INTENTS.order))return diagnoseOrder(term);
+  if(term||intent==="order")return diagnoseOrder(term);
 
-  const moduleHit=Object.entries(MODULES).find(([id,label])=>norm(label).split(" ").some(word=>word.length>4&&text.includes(word))&&allowed(id));
-  if(moduleHit)return message({text:`Puedo llevarte a ${moduleHit[1]} y seguir ayudándote desde allí.`,actions:[{label:`Abrir ${moduleHit[1]}`,action:"navigate",module:moduleHit[0],kind:"primary",icon:"→"}]});
+  const moduleHit=matchCrmModule(text);
+  if(moduleHit&&allowed(moduleHit.id)){
+    return message({
+      text:`${moduleHit.label}: ${moduleHit.summary}`,
+      actions:[
+        {label:`Abrir ${moduleHit.label}`,action:"navigate",module:moduleHit.id,kind:"primary",icon:"→"},
+        {label:"Nueva consulta",action:"focus-input",icon:"⌕"},
+        {label:"Cancelar consulta",action:"cancel-flow",icon:"×"},
+        {label:"Reiniciar PACO",action:"restart",icon:"↻"}
+      ]
+    });
+  }
 
-  return message({text:"No encontré una acción exacta, pero puedo entender frases aproximadas. Prueba con “registrar actividad”, “en qué parte va el pedido 12345”, “qué está demorado” o “quién está desocupado”.",actions:[{label:"Registrar actividad",action:"activity-begin",icon:"▶"},{label:"Estado operativo",action:"operation",icon:"↗"}]});
+  return message({
+    text:"No encontré una acción exacta. Puedes escribir como hablas normalmente, incluso con errores: pedidos, inventario, compras, recepción, alistamiento, corte, facturación, despachos, jornada, excepciones, reportes, auditoría, usuarios y demás módulos del CRM.",
+    actions:[
+      {label:"¿Qué puede hacer PACO?",action:"capabilities",icon:"↗"},
+      {label:"Registrar actividad",action:"activity-begin",icon:"▶"},
+      {label:"Resumen operativo",action:"operation",icon:"◎"},
+      {label:"Cancelar consulta",action:"cancel-flow",icon:"×"},
+      {label:"Reiniciar",action:"restart",icon:"↻"}
+    ]
+  });
 }
 
 async function submit(input){
@@ -934,11 +994,22 @@ async function handleAction(button){
   if(action==="navigate"){if(allowed(button.dataset.module)){navigate(button.dataset.module);setOpen(false)}return}
   if(action==="open-order"){window.dispatchEvent(new CustomEvent("erp:open-order",{detail:button.dataset.orderId}));setOpen(false);return}
   if(action==="focus-input"){const input=paco.root?.querySelector("[data-paco-input]");input?.focus();return}
+  if(action==="cancel-flow"){add(cancelFlowMessage());return}
+  if(action==="restart"){restartPaco();return}
   if(action==="test-voice"){testVoice();return}
   if(action==="summary-now"){
-    const snapshot=await loadSnapshot();
-    paco.previous=snapshot;
-    deliverDigest(snapshot,{automatic:false,force:true});
+    setBusy(true);
+    typing();
+    try{
+      const snapshot=await loadSnapshot();
+      paco.previous=snapshot;
+      paco.messages=paco.messages.filter(item=>item.type!=="typing");
+      deliverDigest(snapshot,{automatic:false,force:true});
+      setFace("talking");
+    }finally{
+      setBusy(false);
+      setTimeout(()=>isOpen()&&setFace("listening"),700);
+    }
     return;
   }
   if(action==="activity-begin"){add(await beginActivityFlow());return}
@@ -956,6 +1027,23 @@ async function handleAction(button){
   if(action==="capabilities"){add(capabilitiesMessage());return}
   if(action==="operation"){add(await operationMessage());return}
   if(action==="diagnose-order-id"){setBusy(true);typing();try{replaceTyping(await diagnoseOrderById(button.dataset.orderId))}catch(error){replaceTyping(message({text:error.message}))}finally{setBusy(false)}return}
+  throw new Error(`Acción de PACO no reconocida: ${action||"(vacía)"}`);
+}
+function actionFailure(error){
+  console.error("[PACO ACTION]",error);
+  add(message({
+    text:"No pude completar esa acción. Ya puedes corregir la consulta o reiniciar PACO sin cerrar el chat.",
+    alert:{title:"La acción no se completó",text:error?.message||"Error inesperado",tone:"warning"},
+    actions:[
+      {label:"Reintentar consulta",action:"focus-input",kind:"primary",icon:"⌕"},
+      {label:"Cancelar consulta",action:"cancel-flow",icon:"×"},
+      {label:"Reiniciar PACO",action:"restart",icon:"↻"}
+    ]
+  }));
+}
+async function runAction(button){
+  try{await handleAction(button)}
+  catch(error){actionFailure(error)}
 }
 
 function bindRoot(){
@@ -972,15 +1060,12 @@ function bindRoot(){
     testVoice();
   });
   root.querySelector("[data-paco-test-voice]")?.addEventListener("click",testVoice);
-  root.querySelector("[data-paco-summary-now]")?.addEventListener("click",async()=>{
-    const snapshot=await loadSnapshot();
-    paco.previous=snapshot;
-    deliverDigest(snapshot,{automatic:false,force:true});
-  });
+  root.querySelector("[data-paco-summary-now]")?.addEventListener("click",()=>runAction({dataset:{pacoAction:"summary-now"}}));
+  root.querySelector("[data-paco-restart]")?.addEventListener("click",restartPaco);
   root.querySelector("[data-paco-form]")?.addEventListener("submit",event=>{event.preventDefault();const input=root.querySelector("[data-paco-input]");const value=input.value;input.value="";submit(value)});
   root.querySelector("[data-paco-input]")?.addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.shiftKey){event.preventDefault();root.querySelector("[data-paco-form]")?.requestSubmit()}});
   root.addEventListener("click",event=>{
-    const action=event.target.closest?.("[data-paco-action]");if(action){handleAction(action);return}
+    const action=event.target.closest?.("[data-paco-action]");if(action){void runAction(action);return}
     const quick=event.target.closest?.("[data-paco-quick]");if(quick)submit(quick.dataset.pacoQuick);
   });
 }
@@ -1004,7 +1089,7 @@ function syncProfile(next=state){
     paco.lastDigestAt=readLastDigest();
     startMonitor();
   }else{
-    clearInterval(paco.monitorTimer);paco.monitorTimer=null;paco.previous=null;paco.messages=[];paco.flow=null;paco.lastDigestAt=0;renderMessages();setOpen(false);
+    clearInterval(paco.monitorTimer);paco.monitorTimer=null;paco.previous=null;paco.messages=[];setFlow(null);paco.lastDigestAt=0;renderMessages();setOpen(false);
   }
 }
 
