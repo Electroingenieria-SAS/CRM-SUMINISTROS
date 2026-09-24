@@ -29,18 +29,30 @@ as $$
     order by fv.created_at desc,fv.id desc
     limit 1
   ),
+  cash_invoice as(
+    select coalesce(sum(i.amount) filter(where i.amount is not null and i.amount>0),0)::numeric amount
+    from erp_supply.invoices i
+    where i.order_id=p_order_id
+      and upper(coalesce(i.metadata->>'registeredStep',''))='CAJA_FACTURACION'
+  ),
   invoice_total as(
     select coalesce(sum(i.amount) filter(where i.amount is not null and i.amount>0),0)::numeric amount
     from erp_supply.invoices i
     where i.order_id=p_order_id
+  ),
+  confirmed as(
+    select coalesce(
+      (select amount from latest_cash),
+      nullif((select amount from cash_invoice),0)
+    )::numeric amount
   )
   select
-    coalesce((select amount from latest_cash),(select amount from invoice_total),0)::numeric ranking_value,
-    coalesce((select amount from latest_cash),0)::numeric confirmed_paid,
-    case when exists(select 1 from latest_cash) then 0::numeric
+    coalesce((select amount from confirmed),(select amount from invoice_total),0)::numeric ranking_value,
+    coalesce((select amount from confirmed),0)::numeric confirmed_paid,
+    case when (select amount from confirmed) is not null then 0::numeric
          else coalesce((select amount from invoice_total),0)::numeric end invoice_fallback,
     case
-      when exists(select 1 from latest_cash) then 'PAYMENT_AMOUNT'
+      when (select amount from confirmed) is not null then 'PAYMENT_AMOUNT'
       when coalesce((select amount from invoice_total),0)>0 then 'INVOICE_AMOUNT_FALLBACK'
       else 'NONE'
     end value_source
@@ -411,7 +423,7 @@ revoke all on function public.erp_x_customer_ranking(integer) from public,anon;
 grant execute on function public.erp_x_customer_ranking(integer) to authenticated;
 
 comment on function erp_supply.customer_order_value_v11391(uuid)
-is 'V11.39.1: pago aprobado de Caja como fuente primaria; factura solo como respaldo explícito si aún no hay pago confirmado.';
+is 'V11.39.1: pago aprobado de Caja o factura de CAJA_FACTURACION como evidencia de contado; otras facturas solo respaldan provisionalmente el valor.';
 
 comment on function erp_supply.customer_value_profile(uuid,text,text,boolean)
 is 'V11.39.1: score 50% frecuencia + 50% valor económico; prioriza pago real de Caja y evita HIGH incompatible con orders.priority.';
