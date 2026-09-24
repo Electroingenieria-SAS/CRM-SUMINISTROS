@@ -169,12 +169,11 @@ for(const token of [
   "work-calendar-day-table-v11368",
   "work-calendar-day-table-grid-v11368",
   "grid-template-columns:var(--day-team-col) repeat(5,minmax(var(--day-slot-min),1fr))!important",
-  "work-calendar-day-slots-v11367",
-  "grid-template-columns:repeat(5,minmax(0,1fr))",
+  "--day-team-col:190px",
+  "--day-slot-min:180px",
   "work-calendar-slot-head-v11367",
   "work-calendar-slot-cell-v11367",
-  "work-calendar-slot-event-v11367",
-  "minmax(900px,1fr)"
+  "work-calendar-slot-event-v11367"
 ]){
   assert.equal(css.includes(token),true,`V11.36.7 debe conservar la grilla de cinco bloques: ${token}`);
 }
