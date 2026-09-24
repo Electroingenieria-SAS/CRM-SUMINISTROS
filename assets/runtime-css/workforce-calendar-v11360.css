@@ -978,57 +978,70 @@
 }
 
 
-/* V11.36.7 · Día en cinco bloques laborales */
-.work-calendar-day-slots-v11367 .work-calendar-day-head-v11360,
-.work-calendar-day-slots-v11367 .work-calendar-person-row-v11360{
-  grid-template-columns:190px minmax(900px,1fr);
-  min-width:1090px;
+/* V11.36.8 · Día como tabla real de seis columnas */
+.work-calendar-day-table-v11368{
+  --day-team-col:190px;
+  --day-slot-min:180px;
 }
 
-.work-calendar-day-slots-v11367 .work-calendar-day-head-v11360{
-  min-height:64px;
+.work-calendar-day-table-v11368 .work-calendar-scroll-v11360{
+  overflow-x:auto;
+  overflow-y:visible;
+}
+
+.work-calendar-day-table-v11368 .work-calendar-day-table-grid-v11368{
+  display:grid!important;
+  grid-template-columns:var(--day-team-col) repeat(5,minmax(var(--day-slot-min),1fr))!important;
+  min-width:calc(var(--day-team-col) + (5 * var(--day-slot-min)))!important;
+  width:100%;
+}
+
+.work-calendar-day-table-v11368 .work-calendar-day-head-v11360{
+  min-height:68px;
+  position:sticky;
+  top:0;
+  z-index:5;
+  border-bottom:1px solid #cfdee8;
   background:#fbfdff;
+  backdrop-filter:blur(8px);
 }
 
-.work-calendar-day-slots-v11367 .work-calendar-team-head-v11360{
-  min-height:64px;
+.work-calendar-day-table-v11368 .work-calendar-team-head-v11360{
+  min-height:68px;
   padding:10px 13px;
   justify-content:center;
+  border-right:1px solid #c6dcea;
+  background:linear-gradient(145deg,#edf7fc,#e2f1f9);
 }
 
-.work-calendar-day-slots-v11367 .work-calendar-segment-heads-v11360,
-.work-calendar-day-slots-v11367 .work-calendar-segments-v11360{
-  display:grid;
-  grid-template-columns:repeat(5,minmax(0,1fr));
-}
-
-.work-calendar-day-slots-v11367 .work-calendar-segment-heads-v11360{
-  min-height:64px;
-}
-
-.work-calendar-slot-head-v11367{
-  min-height:64px;
-  padding:9px 10px!important;
+.work-calendar-day-table-v11368 .work-calendar-slot-head-v11367{
+  min-width:0;
+  min-height:68px;
+  padding:10px 12px!important;
   display:flex;
   flex-direction:column;
   align-items:flex-start;
   justify-content:center;
-  gap:4px;
+  gap:5px;
   border-right:1px solid #cfdee8;
   border-bottom:0;
   background:linear-gradient(180deg,#fbfdff,#f4f9fc);
+  box-sizing:border-box;
 }
 
-.work-calendar-slot-head-v11367:nth-child(-n+3){
+.work-calendar-day-table-v11368 .work-calendar-slot-head-v11367:nth-child(2),
+.work-calendar-day-table-v11368 .work-calendar-slot-head-v11367:nth-child(3),
+.work-calendar-day-table-v11368 .work-calendar-slot-head-v11367:nth-child(4){
   box-shadow:inset 0 3px 0 #2d83b6;
 }
 
-.work-calendar-slot-head-v11367:nth-child(n+4){
+.work-calendar-day-table-v11368 .work-calendar-slot-head-v11367:nth-child(5),
+.work-calendar-day-table-v11368 .work-calendar-slot-head-v11367:nth-child(6){
   box-shadow:inset 0 3px 0 #d7a22b;
   background:linear-gradient(180deg,#fffdf8,#fbf8f0);
 }
 
-.work-calendar-slot-period-v11367{
+.work-calendar-day-table-v11368 .work-calendar-slot-period-v11367{
   color:#6f8596;
   font-size:9px;
   line-height:1;
@@ -1037,80 +1050,81 @@
   text-transform:uppercase;
 }
 
-.work-calendar-slot-head-v11367>strong{
+.work-calendar-day-table-v11368 .work-calendar-slot-head-v11367>strong{
   color:#1b5679;
   font-size:12px;
-  line-height:1.1;
+  line-height:1.15;
   font-weight:950;
   font-variant-numeric:tabular-nums;
   white-space:nowrap;
 }
 
-.work-calendar-slot-head-v11367:nth-child(n+4)>strong{
+.work-calendar-day-table-v11368 .work-calendar-slot-head-v11367:nth-child(5)>strong,
+.work-calendar-day-table-v11368 .work-calendar-slot-head-v11367:nth-child(6)>strong{
   color:#8a6219;
 }
 
-.work-calendar-day-slots-v11367 .work-calendar-person-row-v11360{
-  min-height:86px;
+.work-calendar-day-table-v11368 .work-calendar-person-row-v11360{
+  min-height:88px;
+  position:relative;
+  border-bottom:1px solid #dce7ee;
 }
 
-.work-calendar-day-slots-v11367 .work-calendar-person-v11360{
-  min-height:86px;
+.work-calendar-day-table-v11368 .work-calendar-person-v11360{
+  min-height:88px;
   align-self:stretch;
+  border-right:1px solid #c6dcea;
 }
 
-.work-calendar-day-slots-v11367 .work-calendar-segments-v11360{
-  min-height:86px;
-  align-items:stretch;
-}
-
-.work-calendar-slot-cell-v11367{
+.work-calendar-day-table-v11368 .work-calendar-slot-cell-v11367{
   min-width:0;
-  min-height:86px;
-  padding:7px;
+  min-height:88px;
+  padding:8px;
   display:flex;
   align-items:flex-start;
   justify-content:stretch;
   border-right:1px solid #d9e5ed;
   background:#fff;
+  box-sizing:border-box;
 }
 
-.work-calendar-slot-cell-v11367:nth-child(even){
+.work-calendar-day-table-v11368 .work-calendar-slot-cell-v11367:nth-child(3),
+.work-calendar-day-table-v11368 .work-calendar-slot-cell-v11367:nth-child(5){
   background:#fbfdfe;
 }
 
-.work-calendar-slot-cell-v11367:nth-child(4),
-.work-calendar-slot-cell-v11367:nth-child(5){
+.work-calendar-day-table-v11368 .work-calendar-slot-cell-v11367:nth-child(5),
+.work-calendar-day-table-v11368 .work-calendar-slot-cell-v11367:nth-child(6){
   background:#fffdf9;
 }
 
-.work-calendar-slot-events-v11367{
+.work-calendar-day-table-v11368 .work-calendar-slot-events-v11367{
   width:100%;
   display:grid;
   gap:5px;
   align-content:start;
 }
 
-.work-calendar-slot-empty-v11367{
+.work-calendar-day-table-v11368 .work-calendar-slot-empty-v11367{
   width:100%;
   min-height:70px;
   display:grid;
   place-items:center;
   color:#9aabb7;
-  font-size:9px;
+  font-size:9.5px;
   font-weight:800;
   text-align:center;
 }
 
-.work-calendar-slot-event-v11367{
+.work-calendar-day-table-v11368 .work-calendar-slot-event-v11367{
   position:relative!important;
   left:auto!important;
   top:auto!important;
   width:100%!important;
   min-width:0!important;
-  min-height:42px;
+  min-height:44px;
   height:auto!important;
-  padding:6px 8px!important;
+  padding:7px 8px!important;
   display:grid!important;
   grid-template-columns:1fr auto!important;
   grid-template-areas:
@@ -1122,7 +1136,7 @@
   box-shadow:0 3px 8px rgba(30,79,111,.08);
 }
 
-.work-calendar-slot-event-v11367 .work-calendar-event-time-v11360{
+.work-calendar-day-table-v11368 .work-calendar-slot-event-v11367 .work-calendar-event-time-v11360{
   grid-area:time;
   min-width:0;
   display:block!important;
@@ -1135,20 +1149,20 @@
   white-space:nowrap;
 }
 
-.work-calendar-slot-event-v11367 .work-calendar-event-title-v11360{
+.work-calendar-day-table-v11368 .work-calendar-slot-event-v11367 .work-calendar-event-title-v11360{
   grid-area:title;
   min-width:0;
   display:block!important;
   overflow:hidden;
   color:inherit;
-  font-size:10px!important;
-  line-height:1.15!important;
+  font-size:10.5px!important;
+  line-height:1.2!important;
   font-weight:900;
   text-overflow:ellipsis;
   white-space:nowrap;
 }
 
-.work-calendar-slot-event-v11367 .work-calendar-event-footer-v11360{
+.work-calendar-day-table-v11368 .work-calendar-slot-event-v11367 .work-calendar-event-footer-v11360{
   grid-area:photo;
   display:flex!important;
   align-items:center;
@@ -1156,11 +1170,11 @@
   min-width:0;
 }
 
-.work-calendar-slot-event-v11367 .work-calendar-status-v11360{
+.work-calendar-day-table-v11368 .work-calendar-slot-event-v11367 .work-calendar-status-v11360{
   display:none!important;
 }
 
-.work-calendar-slot-event-v11367 .work-calendar-photo-badge-v11360{
+.work-calendar-day-table-v11368 .work-calendar-slot-event-v11367 .work-calendar-photo-badge-v11360{
   display:inline-flex;
   align-items:center;
   justify-content:center;
@@ -1171,35 +1185,42 @@
   border-radius:6px;
 }
 
-.work-calendar-slot-event-v11367 .work-calendar-photo-badge-v11360 span{
+.work-calendar-day-table-v11368 .work-calendar-slot-event-v11367 .work-calendar-photo-badge-v11360 span{
   display:none!important;
 }
 
-.work-calendar-day-slots-v11367 .work-calendar-hour-axis-v11363,
-.work-calendar-day-slots-v11367 .work-calendar-time-guides-v11363{
+.work-calendar-day-table-v11368 .work-calendar-floating-v11360{
+  position:absolute;
+  right:8px;
+  bottom:6px;
+  z-index:4;
+}
+
+.work-calendar-day-table-v11368 .work-calendar-segment-heads-v11360,
+.work-calendar-day-table-v11368 .work-calendar-segments-v11360,
+.work-calendar-day-table-v11368 .work-calendar-hour-axis-v11363,
+.work-calendar-day-table-v11368 .work-calendar-time-guides-v11363{
   display:none!important;
 }
 
 @media(max-width:1100px){
-  .work-calendar-day-slots-v11367 .work-calendar-day-head-v11360,
-  .work-calendar-day-slots-v11367 .work-calendar-person-row-v11360{
-    grid-template-columns:175px minmax(850px,1fr);
-    min-width:1025px;
+  .work-calendar-day-table-v11368{
+    --day-team-col:175px;
+    --day-slot-min:170px;
   }
 }
 
 @media(max-width:760px){
-  .work-calendar-day-slots-v11367 .work-calendar-day-head-v11360,
-  .work-calendar-day-slots-v11367 .work-calendar-person-row-v11360{
-    grid-template-columns:165px minmax(825px,1fr);
-    min-width:990px;
+  .work-calendar-day-table-v11368{
+    --day-team-col:165px;
+    --day-slot-min:165px;
   }
 
-  .work-calendar-slot-head-v11367{
+  .work-calendar-day-table-v11368 .work-calendar-slot-head-v11367{
     padding:8px!important;
   }
 
-  .work-calendar-slot-head-v11367>strong{
+  .work-calendar-day-table-v11368 .work-calendar-slot-head-v11367>strong{
     font-size:11px;
   }
 }
