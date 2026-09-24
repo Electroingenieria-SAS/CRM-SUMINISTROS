@@ -96,14 +96,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'version: "11.36.6"' assets/js/config.js
-          grep -q 'build: "2026-09-24.21"' assets/js/config.js
-          grep -q '"version": "11.36.6"' package.json
-          grep -q '"version": "11.36.6"' package-lock.json
-          grep -q 'app-entry.js?v=11.36.6' index.html
+          grep -q 'version: "11.36.7"' assets/js/config.js
+          grep -q 'build: "2026-09-24.22"' assets/js/config.js
+          grep -q '"version": "11.36.7"' package.json
+          grep -q '"version": "11.36.7"' package-lock.json
+          grep -q 'app-entry.js?v=11.36.7' index.html
           grep -Fq 'https://script.google.com/macros/s/AKfycbwjl1JCfE0eV92P6DCn6h8jIVIBlSwLOQj8U7Mz1_7YW2Xan8DPI5tpWJuiG7znSCSs/exec' assets/js/config.js
-          grep -Fxq '// previous-cache: crm-suministros-v11-36-5-20260924-20' service-worker.js
-          grep -Fxq 'const CACHE="crm-suministros-v11-36-6-20260924-21";' service-worker.js
+          grep -Fxq '// previous-cache: crm-suministros-v11-36-6-20260924-21' service-worker.js
+          grep -Fxq 'const CACHE="crm-suministros-v11-36-7-20260924-22";' service-worker.js
           grep -q 'manifest.webmanifest' vercel.json
           test "$(grep -c '<link rel="stylesheet" href="./assets/css/' index.html)" -eq 4
           test "$(find assets/css -maxdepth 1 -type f -name '*.css' | wc -l)" -eq 4
@@ -225,15 +225,15 @@ jobs:
           touch dist-deployable/.nojekyll
           printf '%s\n' \
             "commit=${GITHUB_SHA}" \
-            "version=11.36.6" \
-            "build=2026-09-24.21" \
+            "version=11.36.7" \
+            "build=2026-09-24.22" \
             "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v7
         with:
-          name: crm-suministros-v11.36.6-build21-deployable
+          name: crm-suministros-v11.36.7-build22-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
@@ -367,7 +367,7 @@ jobs:
       - name: Preserve SBOM
         uses: actions/upload-artifact@v7
         with:
-          name: crm-suministros-v11.36.6-sbom
+          name: crm-suministros-v11.36.7-sbom
           path: crm-suministros-sbom.cdx.json
           if-no-files-found: error
           retention-days: 90
