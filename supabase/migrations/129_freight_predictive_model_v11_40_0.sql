@@ -298,4 +298,131 @@ with seed(
 ('VELOENVIOS','ITAGUI','ANTIOQUIA',7,7,244.8,273,390.6,219735.8,239404,321423.6,7,3.888,4.8876,7,0,0,null,7,1,0,'2026-03-06','2026-08-05'),
 ('VELOENVIOS','JAMUNDI','VALLE DEL CAUCA',1,1,271,271,271,171367,171367,171367,1,3.9962,3.9962,1,0,0,null,1,1,0,'2026-05-28','2026-05-28'),
 ('VELOENVIOS','LA VIRGINIA','RISARALDA',1,1,122,122,122,146837,146837,146837,1,2.0161,2.0161,1,0,0,null,1,1,0,'2026-02-02','2026-02-02'),
-('VELOENVIOS','MANIZALES','
+('VELOENVIOS','MANIZALES',',12,12,103.6,109.5,279.6,94817,97880,222761,12,2.1556,3.0761,12,0,0,null,12,1,0.083333,'2026-01-22','2026-08-12'),
+('VELOENVIOS','MEDELLIN','ANTIOQUIA',31,31,167,316,570,146224,253158,437546,31,3.083,5.8437,31,0,0,null,31,1,0.193548,'2026-01-30','2026-07-24'),
+('VELOENVIOS','MONTERIA','CORDOBA',11,11,30,60,88,58928,122506,186609,10,5.1344,6.1006,11,0,0,null,11,1.388889,0.545455,'2026-01-28','2026-03-18'),
+('VELOENVIOS','NEIVA','HUILA',3,3,132.2,200,889.4,147931.2,226380,910243.2,3,2.0106,2.8087,3,0.333333,0,null,3,1.176471,1,'2026-01-23','2026-05-21'),
+('VELOENVIOS','PALMIRA','VALLE DEL CAUCA',2,2,44,62,80,32940,41475,50010,2,0.9403,0.9694,2,0,0,null,2,1,0,'2026-01-27','2026-04-09'),
+('VELOENVIOS','PAMPLONA','NORTE DE SANTANDER',1,1,380,380,380,951785,951785,951785,1,7.0223,7.0223,1,0,0,null,1,1,0,'2026-02-11','2026-02-11'),
+('VELOENVIOS','PASTO','NARINO',2,2,160.4,248,335.6,158903.2,233117.5,307331.8,2,4.2225,4.8832,2,0,0,null,2,1.570652,0.5,'2026-06-11','2026-07-29'),
+('VELOENVIOS','PEREIRA','RISARALDA',8,8,86,102.5,124.2,65475.8,80696.5,93823.8,8,2.1508,2.8907,8,0,0,null,8,1,0,'2026-02-13','2026-07-30'),
+('VELOENVIOS','PIEDECUESTA','SANTANDER',20,20,72,116,194,135634.2,223883,369673.8,20,3.1847,4.3395,20,0,0,null,20,1,0.1,'2026-01-08','2026-09-02'),
+('VELOENVIOS','POPAYAN','CAUCA',3,3,37.4,50,316.4,43066.4,57872,259272.8,3,2.0888,2.6256,3,0,0,null,3,1,0.333333,'2026-02-09','2026-02-26'),
+('VELOENVIOS','PRADERA','VALLE DEL CAUCA',2,2,87.8,120.5,153.2,77375.2,101347,125318.8,2,4.1,5.3491,2,0,0,null,2,1.541667,0.5,'2026-02-05','2026-05-14'),
+('VELOENVIOS','QUIBDO','CHOCO',2,2,257.6,393.5,529.4,338792,502145,665498,2,32.8661,34.7752,2,0,0,null,2,1,0,'2026-01-26','2026-03-16'),
+('VELOENVIOS','SAN GIL','SANTANDER',5,5,262,320,736,609410.4,742264,1643507.2,5,7.0729,8.0718,5,0,0,null,5,1,0,'2026-01-07','2026-02-20'),
+('VELOENVIOS','SANTA MARTA','MAGDALENA',1,1,45,45,45,130842,130842,130842,1,6.7504,6.7504,1,0,0,null,1,1.046512,0,'2026-01-23','2026-01-23'),
+('VELOENVIOS','SINCELEJO','SUCRE',4,4,120,265,418,252083.8,555391.5,864914.8,3,5.8888,6.5227,4,0,0,null,4,1.102176,0.75,'2026-02-10','2026-02-20'),
+('VELOENVIOS','TURBACO','BOLIVAR',1,1,150,150,150,269350,269350,269350,1,5.9926,5.9926,1,1,0,null,1,1,0,'2026-02-25','2026-02-25'),
+('VELOENVIOS','VILLAMARIA','CALDAS',5,5,28,30,124.4,32118.4,36696,91060.4,5,2.0356,4.1849,5,0,0,null,5,2.5,1,'2026-02-05','2026-09-02'),
+('VELOENVIOS','YUMBO','VALLE DEL CAUCA',7,7,21,30,30,19798,27196,33666,7,1.1733,1.2001,7,0,0,null,7,1.25,0.571429,'2026-01-19','2026-07-27')
+)
+insert into erp_supply.freight_route_reference(
+  organization_id,model_version,origin_city,carrier,destination_city,destination_department,
+  sample_count,weight_sample_count,weight_p20,weight_p50,weight_p80,
+  cost_p20,cost_p50,cost_p80,
+  transit_sample_count,transit_p50_days,transit_p80_days,
+  novelty_sample_count,novelty_rate,on_time_sample_count,on_time_rate,
+  charge_real_sample_count,charge_to_real_p50,dimensional_uplift_rate,
+  source_start,source_end
+)
+select
+  o.id,'11.40.0','TULUA',
+  erp_supply.freight_norm_v1140(s.carrier),
+  erp_supply.freight_norm_v1140(s.destination_city),
+  erp_supply.freight_norm_v1140(s.destination_department),
+  s.sample_count,s.weight_sample_count,s.weight_p20,s.weight_p50,s.weight_p80,
+  s.cost_p20,s.cost_p50,s.cost_p80,
+  s.transit_sample_count,s.transit_p50_days,s.transit_p80_days,
+  s.novelty_sample_count,s.novelty_rate,s.on_time_sample_count,s.on_time_rate,
+  s.charge_real_sample_count,s.charge_to_real_p50,s.dimensional_uplift_rate,
+  s.source_start::date,s.source_end::date
+from seed s
+cross join erp_supply.organizations o
+where o.code='EI'
+on conflict(organization_id,model_version,origin_city,carrier,destination_city,destination_department)
+do update set
+  sample_count=excluded.sample_count,weight_sample_count=excluded.weight_sample_count,
+  weight_p20=excluded.weight_p20,weight_p50=excluded.weight_p50,weight_p80=excluded.weight_p80,
+  cost_p20=excluded.cost_p20,cost_p50=excluded.cost_p50,cost_p80=excluded.cost_p80,
+  transit_sample_count=excluded.transit_sample_count,transit_p50_days=excluded.transit_p50_days,
+  transit_p80_days=excluded.transit_p80_days,novelty_sample_count=excluded.novelty_sample_count,
+  novelty_rate=excluded.novelty_rate,on_time_sample_count=excluded.on_time_sample_count,
+  on_time_rate=excluded.on_time_rate,charge_real_sample_count=excluded.charge_real_sample_count,
+  charge_to_real_p50=excluded.charge_to_real_p50,dimensional_uplift_rate=excluded.dimensional_uplift_rate,
+  source_start=excluded.source_start,source_end=excluded.source_end;
+
+create or replace function erp_supply.freight_model_predict_v1140(
+  p_org uuid,
+  p_carrier text,
+  p_department text,
+  p_city text,
+  p_weight_kg numeric default null
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path=erp_supply,public,auth,pg_catalog
+as $$
+declare
+  v_carrier text:=erp_supply.freight_norm_v1140(p_carrier);
+  v_city text:=erp_supply.freight_norm_v1140(p_city);
+  v_department text:=erp_supply.freight_norm_v1140(p_department);
+  v_weight numeric:=case when p_weight_kg is null then null else greatest(p_weight_kg,0) end;
+  v_band integer:=erp_supply.freight_weight_band_v1140(p_weight_kg);
+  v_lw numeric:=ln(1+coalesce(v_weight,0));
+  v_model erp_supply.freight_prediction_models%rowtype;
+  v_ref erp_supply.freight_route_reference%rowtype;
+  v_log numeric;
+  v_mid numeric;
+  v_low numeric;
+  v_high numeric;
+  v_low90 numeric;
+  v_high90 numeric;
+  v_p20 numeric;
+  v_p80 numeric;
+  v_p10 numeric;
+  v_p90 numeric;
+  v_confidence text;
+  v_uncertainty numeric;
+begin
+  select * into v_model
+  from erp_supply.freight_prediction_models m
+  where m.organization_id=p_org
+    and m.model_code='EI_FREIGHT_RIDGE_WEIGHT'
+    and m.active
+  order by m.source_end desc,m.created_at desc
+  limit 1;
+
+  if not found then
+    return jsonb_build_object('available',false,'reason','MODEL_NOT_AVAILABLE','carrier',v_carrier,'version','11.40.0');
+  end if;
+
+  select * into v_ref
+  from erp_supply.freight_route_reference r
+  where r.organization_id=p_org
+    and r.model_version=v_model.model_version
+    and r.origin_city=v_model.origin_city
+    and r.carrier=v_carrier
+    and r.destination_city=v_city
+    and (r.destination_department=v_department or v_department='')
+  order by (r.destination_department=v_department) desc,r.sample_count desc
+  limit 1;
+
+  if v_weight is null or v_weight<=0 then
+    if v_ref.id is null or v_ref.cost_p50 is null then
+      return jsonb_build_object(
+        'available',false,'reason','WEIGHT_REQUIRED_FOR_UNSEEN_ROUTE',
+        'carrier',v_carrier,'city',p_city,'department',p_department,
+        'routeSamples',coalesce(v_ref.sample_count,0),'version',v_model.model_version
+      );
+    end if;
+    v_mid:=v_ref.cost_p50;
+    v_low:=coalesce(v_ref.cost_p20,v_mid);
+    v_high:=coalesce(v_ref.cost_p80,v_mid);
+    v_low90:=v_low;
+    v_high90:=v_high;
+  else
+    v_log:=v_model.intercept
+      +coalesce(erp_supply.safe_numeric(v_model.
