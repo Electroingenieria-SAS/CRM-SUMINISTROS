@@ -5924,3 +5924,19 @@
   .v1139-invoice-browser{align-items:stretch;flex-direction:column}
   .v1139-invoice-browser .control{width:100%}
 }
+
+
+/* V11.40.0 · predicción comparativa de fletes */
+.sales-freight-carriers-v1140{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:100%;margin-top:12px}
+.sales-freight-carrier-v1140{display:grid;gap:7px;padding:12px;border:1px solid rgba(28,82,145,.15);border-radius:14px;background:rgba(255,255,255,.72);box-shadow:0 8px 24px rgba(14,55,104,.06)}
+.sales-freight-carrier-v1140>div{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.sales-freight-carrier-v1140 strong{font-size:12px;letter-spacing:.03em;color:#0a3769}
+.sales-freight-carrier-v1140>div span{font-size:12px;font-weight:800;color:#17324f;text-align:right}
+.sales-freight-carrier-v1140 small{font-size:10px;line-height:1.45;color:#5a6f86}
+.sales-freight-carrier-v1140 em{display:flex;flex-wrap:wrap;gap:5px;font-style:normal}
+.sales-freight-carrier-v1140 em b{padding:4px 7px;border-radius:999px;background:rgba(23,101,184,.09);font-size:9px;color:#0f579c}
+.sales-material-freight-v1140{display:flex;align-items:flex-start;gap:14px;margin-top:14px;padding:14px 16px;border-radius:16px;border:1px solid rgba(20,95,169,.16);background:linear-gradient(135deg,rgba(238,247,255,.95),rgba(255,255,255,.98))}
+.sales-material-freight-v1140>span{flex:0 0 auto;padding:5px 8px;border-radius:999px;background:#0d5ea8;color:#fff;font-size:9px;font-weight:900;letter-spacing:.08em}
+.sales-material-freight-v1140 strong{display:block;color:#123b65;font-size:13px;margin-bottom:3px}
+.sales-material-freight-v1140 p{margin:0;color:#60738a;font-size:11px;line-height:1.45}
+@media(max-width:900px){.sales-freight-carriers-v1140{grid-template-columns:1fr}.sales-freight-carrier-v1140>div{align-items:center}.sales-material-freight-v1140{flex-direction:column;gap:9px}}

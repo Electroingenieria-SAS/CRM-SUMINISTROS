@@ -110,6 +110,60 @@ function freightBasisLabel(value){
   return ({WEIGHT:"peso",PACKAGE_COUNT:"cantidad de paquetes",VOLUME:"volumen",ROUTE_HISTORY:"histórico de ruta"})[String(value||"ROUTE_HISTORY").toUpperCase()]||"histórico de ruta";
 }
 
+function estimatedSalesWeight(root){
+  const cards=[...root.querySelectorAll("[data-sales-material]")];
+  let total=0,complete=cards.length>0,weightedLines=0;
+  for(const card of cards){
+    const material=readMaterialPicker(card.querySelector("[data-material-picker]"),false);
+    const demand=salesMaterialDemand(card);
+    const weight=Number(material.weight||0);
+    if(!material.materialMasterId||!(demand>0)||!(weight>0)){complete=false;continue}
+    total+=weight*demand;weightedLines+=1;
+  }
+  return {weightKg:Math.round(total*1000)/1000,complete:complete&&weightedLines===cards.length,materialCount:cards.length,weightedLines};
+}
+
+function freightPredictionSnapshot(data){
+  if(!data?.available)return null;
+  return {
+    version:data.version||"11.40.0",
+    mode:data.mode||null,
+    weightKg:data.weightKg??null,
+    cheapestCarrier:data.cheapestCarrier||null,
+    fastestCarrier:data.fastestCarrier||null,
+    mostStableCarrier:data.mostStableCarrier||null,
+    carriers:(Array.isArray(data.carriers)?data.carriers:[]).slice(0,3).map(row=>({
+      carrier:row.carrier,
+      estimateLow:row.estimateLow,
+      estimateMid:row.estimateMid,
+      estimateHigh:row.estimateHigh,
+      uncertaintyPct:row.uncertaintyPct,
+      confidence:row.confidence,
+      routeSamples:row.routeSamples,
+      transit:row.transit||null,
+      risk:row.risk||null
+    }))
+  };
+}
+
+function freightPredictionsHtml(data={}){
+  const rows=Array.isArray(data.carriers)?data.carriers:[];
+  if(!rows.length)return "";
+  return rows.map(row=>{
+    const eta=Number(row?.transit?.medianDays);
+    const uplift=Number(row?.risk?.dimensionalUpliftRate);
+    const tags=[];
+    if(row.carrier===data.cheapestCarrier)tags.push("Más económico");
+    if(row.carrier===data.fastestCarrier)tags.push("Más rápido histórico");
+    if(row.carrier===data.mostStableCarrier)tags.push("Más estable");
+    return `<article class="sales-freight-carrier-v1140">
+      <div><strong>${fmt.escape(row.carrier||"Transportadora")}</strong><span>${moneyCop(row.estimateLow||0)} – ${moneyCop(row.estimateHigh||0)}</span></div>
+      <small>${eta>0?`ETA típico ~${fmt.number(eta,1)} días`:"ETA no disponible"} · ${fmt.number(row.routeSamples||0)} muestra${Number(row.routeSamples||0)===1?"":"s"} de ruta${Number.isFinite(uplift)&&uplift>0?` · riesgo peso cobrado ${fmt.number(uplift*100,0)}%`:""}</small>
+      ${tags.length?`<em>${tags.map(tag=>`<b>${fmt.escape(tag)}</b>`).join("")}</em>`:""}
+    </article>`;
+  }).join("");
+}
+
 function customerSegmentBadgeFromPriority(priority){
   const code=String(priority||"MEDIUM").toUpperCase();
   const label=code==="URGENT"||code==="HIGH"||code==="CRITICAL"?"Atención prioritaria":code==="LOW"?"Atención básica":"Atención normal";
@@ -180,6 +234,7 @@ function openCreateOrder(){
             <div class="sales-freight-icon">↗</div>
             <div><span>FLETE ESTIMADO</span><strong data-freight-estimate-value>Selecciona modalidad y destino</strong><p data-freight-estimate-copy>El rango se aprenderá de guías y facturas reales por ciudad, modalidad, peso, paquetes y volumen cuando exista.</p></div>
             <small data-freight-confidence>Sin histórico todavía</small>
+            <div class="sales-freight-carriers-v1140" data-freight-carriers></div>
           </section>
         </section>
         <details class="simple-details"><summary>Datos adicionales del cliente</summary><div class="form-grid" style="padding:14px"><div class="field"><label>NIT o documento</label><input class="control" name="clientDocument"></div><div class="field"><label>Teléfono</label><input class="control" name="clientPhone"></div><div class="field"><label>Referencia externa</label><input class="control" name="externalReference"></div><div class="field"><label>Fecha solicitada</label><input class="control" name="requestedDeliveryDate" type="date"></div></div></details>`,validate:({root})=>{
@@ -197,7 +252,11 @@ function openCreateOrder(){
           <label class="sales-purchase-toggle"><input type="checkbox" name="requiresPurchase"><span><strong>Requiere compra</strong><small>Úsalo cuando comercialmente el pedido dependa de abastecimiento. PVE conserva su ruta por Compras.</small></span></label>
         </section>
         <div class="items-wizard-head"><div><strong>Materiales vendidos</strong><p>Para materiales en metros puedes registrar entrega directa o varias medidas de corte. El total se calcula automáticamente.</p></div><button class="btn btn-create" type="button" id="add-item">Agregar material</button></div>
-        <div class="sales-material-list" id="items-editor"></div>`,validate:({root})=>{
+        <div class="sales-material-list" id="items-editor"></div>
+        <section class="sales-material-freight-v1140" data-material-freight-prediction>
+          <span>PREDICCIÓN LOGÍSTICA</span>
+          <div><strong>Completa los materiales para refinar el flete</strong><p>El CRM calculará el peso usando el maestro Siesa y comparará COLVANES, TCC y VELOENVIOS para despacho nacional.</p></div>
+        </section>`,validate:({root})=>{
           const cards=[...root.querySelectorAll("[data-sales-material]")];
           if(!cards.length)throw new Error("Agrega al menos un material.");
           cards.forEach((card,index)=>validateSalesMaterialCard(card,index));
@@ -207,12 +266,20 @@ function openCreateOrder(){
         const d=serializeForm(form),items=collectSalesItems(root),cards=[...root.querySelectorAll("[data-sales-material]")];
         const cutLines=items.filter(item=>item.requiresCut).length;
         const shortageCards=cards.filter(card=>Number(card.dataset.shortage||0)>0).length;
-        root.querySelector("#order-review").innerHTML=[summaryItem("Pedido",d.orderNumber),summaryItem("Cliente",d.clientName),summaryItem("Segmento cliente",root.dataset.customerSegmentLabel||"Normal · aprendiendo"),summaryItem("Tipo",fmt.label(d.orderType)),summaryItem("Pago",fmt.payment(d.paymentCondition)),summaryItem("Entrega",fmt.route(d.deliveryRoute)),summaryItem("Destino",`${d.clientCity}, ${d.clientDepartment}`),summaryItem("Flete estimado",root.dataset.freightEstimateLabel||"Aprendiendo con históricos"),summaryItem("Dirección",d.clientAddress),summaryItem("Materiales",String(cards.length)),summaryItem("Líneas operativas",String(items.length)),summaryItem("Cortes",cutLines?`${cutLines} línea(s) de corte`:"Sin cortes"),summaryItem("Disponibilidad",shortageCards?`${shortageCards} material(es) con faltante proyectado`:"Disponible según maestro actual"),summaryItem("Ruta inicial",initialRouteLabel(d))].join("");
+        const freightWeight=estimatedSalesWeight(root);
+        root.querySelector("#order-review").innerHTML=[summaryItem("Pedido",d.orderNumber),summaryItem("Cliente",d.clientName),summaryItem("Segmento cliente",root.dataset.customerSegmentLabel||"Normal · aprendiendo"),summaryItem("Tipo",fmt.label(d.orderType)),summaryItem("Pago",fmt.payment(d.paymentCondition)),summaryItem("Entrega",fmt.route(d.deliveryRoute)),summaryItem("Destino",`${d.clientCity}, ${d.clientDepartment}`),summaryItem("Peso estimado",freightWeight.complete?`${fmt.number(freightWeight.weightKg,2)} kg`:"Pendiente de completar materiales"),summaryItem("Flete estimado",root.dataset.freightEstimateLabel||"Aprendiendo con históricos"),summaryItem("Dirección",d.clientAddress),summaryItem("Materiales",String(cards.length)),summaryItem("Líneas operativas",String(items.length)),summaryItem("Cortes",cutLines?`${cutLines} línea(s) de corte`:"Sin cortes"),summaryItem("Disponibilidad",shortageCards?`${shortageCards} material(es) con faltante proyectado`:"Disponible según maestro actual"),summaryItem("Ruta inicial",initialRouteLabel(d))].join("");
       }}
     ],
     onFinish:async({root,data})=>{
       const items=collectSalesItems(root);
-      const result=await api.createOrder({...data,requiresCut:items.some(item=>item.requiresCut),items});
+      const freightWeight=estimatedSalesWeight(root);
+      const freightPrediction=freightPredictionSnapshot(root.__freightPrediction);
+      const metadata={
+        estimatedMaterialWeightKg:freightWeight.complete?freightWeight.weightKg:null,
+        freightPredictionVersion:freightPrediction?.version||null,
+        freightPredictionAtCreation:freightPrediction
+      };
+      const result=await api.createOrder({...data,metadata,requiresCut:items.some(item=>item.requiresCut),items});
       toast(`Pedido ${result.orderNumber} creado. Las cantidades quedaron reservadas lógicamente y el pedido fue enviado a ${fmt.step(result.currentStep)}.`,"success",7500);
       await loadOrders(1);setTimeout(()=>openOrder(result.orderId),180);
     }
@@ -247,6 +314,11 @@ function openCreateOrder(){
   let intelligenceTimer=null;
   let intelligenceRequest=0;
   let freightRequest=0;
+  let freightTimer=null;
+  const scheduleFreightEstimate=()=>{
+    clearTimeout(freightTimer);
+    freightTimer=setTimeout(refreshFreightEstimate,260);
+  };
 
   const refreshCustomerIntelligence=async()=>{
     const clientName=clientNameControl?.value.trim()||"";
@@ -297,37 +369,84 @@ function openCreateOrder(){
     const department=assistant.root.querySelector('[name="clientDepartment"]')?.value.trim()||"";
     const city=assistant.root.querySelector('[name="clientCity"]')?.value.trim()||"";
     const card=assistant.root.querySelector("[data-freight-estimate]");
+    const carrierHost=assistant.root.querySelector("[data-freight-carriers]");
+    const materialPanel=assistant.root.querySelector("[data-material-freight-prediction]");
     if(!card)return;
     if(!route||!city){
       card.querySelector("[data-freight-estimate-value]").textContent="Selecciona modalidad y destino";
       card.querySelector("[data-freight-estimate-copy]").textContent="El CRM mostrará un rango cuando conozca la ruta y la ciudad.";
       card.querySelector("[data-freight-confidence]").textContent="Esperando ubicación";
+      if(carrierHost)carrierHost.innerHTML="";
+      if(materialPanel)materialPanel.innerHTML='<span>PREDICCIÓN LOGÍSTICA</span><div><strong>Selecciona destino y materiales</strong><p>La comparación se activa para despacho nacional.</p></div>';
       assistant.root.dataset.freightEstimateLabel="Aprendiendo con históricos";
+      assistant.root.__freightPrediction=null;
       return;
     }
     const request=++freightRequest;
     card.classList.add("is-loading");
     try{
-      const data=await api.freightEstimate({route,department,city});
-      if(request!==freightRequest)return;
-      if(!data?.available){
-        card.querySelector("[data-freight-estimate-value]").textContent="Aún sin histórico suficiente";
-        card.querySelector("[data-freight-estimate-copy]").textContent=`Destino: ${city}. Las próximas guías con costo real comenzarán a formar este estimado.`;
-        card.querySelector("[data-freight-confidence]").textContent="Confianza: aprendiendo";
-        assistant.root.dataset.freightEstimateLabel="Sin histórico suficiente";
-        return;
+      const weightInfo=estimatedSalesWeight(assistant.root);
+      if(route==="NATIONAL_DISPATCH"){
+        const weightKg=weightInfo.complete&&weightInfo.weightKg>0?weightInfo.weightKg:null;
+        const data=await api.freightPredictions({department,city,weightKg});
+        if(request!==freightRequest)return;
+        assistant.root.__freightPrediction=data;
+        const carriers=Array.isArray(data?.carriers)?data.carriers:[];
+        const cheapest=carriers.find(row=>row.carrier===data?.cheapestCarrier)||carriers[0]||null;
+        if(!data?.available||!cheapest){
+          card.querySelector("[data-freight-estimate-value]").textContent=weightKg?"Modelo sin estimación para esta ruta":"Completa los materiales para refinar";
+          card.querySelector("[data-freight-estimate-copy]").textContent=weightKg
+            ? `Destino: ${city} · ${fmt.number(weightKg,2)} kg. El pedido puede continuar y el histórico operativo seguirá alimentando el modelo.`
+            : `Destino: ${city}. Hay una lectura preliminar limitada; al completar los materiales se calculará automáticamente el peso.`;
+          card.querySelector("[data-freight-confidence]").textContent="Modelo predictivo V11.40 · aprendizaje continuo";
+          if(carrierHost)carrierHost.innerHTML="";
+          assistant.root.dataset.freightEstimateLabel="Predicción aún no disponible";
+          return;
+        }
+        const low=moneyCop(cheapest.estimateLow||0),high=moneyCop(cheapest.estimateHigh||0),mid=moneyCop(cheapest.estimateMid||0);
+        const range=low===high?mid:`${low} – ${high}`;
+        const refined=String(data.mode||"")==="REFINED_WEIGHT_MODEL";
+        card.querySelector("[data-freight-estimate-value]").textContent=`${cheapest.carrier} · ${range}`;
+        card.querySelector("[data-freight-estimate-copy]").textContent=refined
+          ? `Predicción refinada con ${fmt.number(weightKg,2)} kg calculados desde Siesa. Compara las tres transportadoras con 749 despachos históricos.`
+          : `Estimación preliminar por ruta para ${city}. Completa los materiales y el CRM recalculará por peso automáticamente.`;
+        const modelError=Number(data?.training?.metrics?.medianAbsolutePercentageError||0)*100;
+        card.querySelector("[data-freight-confidence]").textContent=refined
+          ? `Modelo validado fuera de muestra · error mediano ${fmt.number(modelError||12.1,1)}%`
+          : "Preliminar · histórico por destino";
+        if(carrierHost)carrierHost.innerHTML=freightPredictionsHtml(data);
+        if(materialPanel){
+          materialPanel.innerHTML=refined
+            ? `<span>PREDICCIÓN REFINADA</span><div><strong>${fmt.escape(data.cheapestCarrier||cheapest.carrier)} desde ${fmt.escape(mid)}</strong><p>Peso estimado: ${fmt.number(weightKg,2)} kg · ${carriers.length} transportadoras comparadas · ${data.fastestCarrier?`más rápida histórica: ${fmt.escape(data.fastestCarrier)}`:"ETA aún insuficiente"}.</p></div>`
+            : '<span>PREDICCIÓN LOGÍSTICA</span><div><strong>Completa cantidades y materiales</strong><p>Cuando el peso del pedido esté completo, el rango se recalculará con el modelo de 749 despachos.</p></div>';
+        }
+        assistant.root.dataset.freightEstimateLabel=`${cheapest.carrier} · ${range}${refined?` · ${fmt.number(weightKg,2)} kg`:" · preliminar"}`;
+      }else{
+        assistant.root.__freightPrediction=null;
+        if(carrierHost)carrierHost.innerHTML="";
+        const data=await api.freightEstimate({route,department,city});
+        if(request!==freightRequest)return;
+        if(!data?.available){
+          card.querySelector("[data-freight-estimate-value]").textContent="Aún sin histórico suficiente";
+          card.querySelector("[data-freight-estimate-copy]").textContent=`Destino: ${city}. Las próximas entregas con costo real comenzarán a formar este estimado.`;
+          card.querySelector("[data-freight-confidence]").textContent="Confianza: aprendiendo";
+          assistant.root.dataset.freightEstimateLabel="Sin histórico suficiente";
+          return;
+        }
+        const low=moneyCop(data.estimateLow||0),high=moneyCop(data.estimateHigh||0);
+        const basis=freightBasisLabel(data.basis);
+        const distance=data.estimatedDistanceKm!=null?` · ~${fmt.number(data.estimatedDistanceKm,1)} km`:"";
+        const transit=data.estimatedTransitHours!=null?` · ~${fmt.number(data.estimatedTransitHours,1)} h`:"";
+        const label=low===high?low:`${low} – ${high}`;
+        card.querySelector("[data-freight-estimate-value]").textContent=label;
+        card.querySelector("[data-freight-estimate-copy]").textContent=`${data.samples||0} caso${Number(data.samples||0)===1?"":"s"} comparable${Number(data.samples||0)===1?"":"s"} · patrón principal: ${basis}${distance}${transit}.`;
+        card.querySelector("[data-freight-confidence]").textContent=`Confianza: ${customerConfidenceLabel(data.confidence)} · ${String(data.scope||"ROUTE").toLowerCase()}`;
+        assistant.root.dataset.freightEstimateLabel=`${label} · ${basis}`;
       }
-      const low=moneyCop(data.estimateLow||0),high=moneyCop(data.estimateHigh||0);
-      const basis=freightBasisLabel(data.basis);
-      const distance=data.estimatedDistanceKm!=null?` · ~${fmt.number(data.estimatedDistanceKm,1)} km`:"";
-      const transit=data.estimatedTransitHours!=null?` · ~${fmt.number(data.estimatedTransitHours,1)} h`:"";
-      const label=low===high?low:`${low} – ${high}`;
-      card.querySelector("[data-freight-estimate-value]").textContent=label;
-      card.querySelector("[data-freight-estimate-copy]").textContent=`${data.samples||0} caso${Number(data.samples||0)===1?"":"s"} comparable${Number(data.samples||0)===1?"":"s"} · patrón principal: ${basis}${distance}${transit}.`;
-      card.querySelector("[data-freight-confidence]").textContent=`Confianza: ${customerConfidenceLabel(data.confidence)} · ${String(data.scope||"ROUTE").toLowerCase()}`;
-      assistant.root.dataset.freightEstimateLabel=`${label} · ${basis}`;
     }catch(error){
       if(request!==freightRequest)return;
+      assistant.root.__freightPrediction=null;
+      if(carrierHost)carrierHost.innerHTML="";
       card.querySelector("[data-freight-estimate-value]").textContent="Estimación temporalmente no disponible";
       card.querySelector("[data-freight-estimate-copy]").textContent="El destino quedó registrado; el pedido puede continuar normalmente.";
       card.querySelector("[data-freight-confidence]").textContent="Se reintentará con nuevos históricos";
@@ -341,7 +460,7 @@ function openCreateOrder(){
   clientNameControl?.addEventListener("blur",refreshCustomerIntelligence);
   clientDocumentControl?.addEventListener("input",scheduleCustomerIntelligence);
   clientDocumentControl?.addEventListener("blur",refreshCustomerIntelligence);
-  routeControl?.addEventListener("change",refreshFreightEstimate);
+  routeControl?.addEventListener("change",scheduleFreightEstimate);
 
   const departmentSelect=assistant.root.querySelector('[name="clientDepartmentCode"]');
   const departmentName=assistant.root.querySelector('[name="clientDepartment"]');
@@ -367,12 +486,16 @@ function openCreateOrder(){
       municipalityHelp?.querySelector('[data-retry-municipalities]')?.addEventListener("click",loadMunicipalities,{once:true});
     }
   };
-  departmentSelect?.addEventListener("change",async()=>{await loadMunicipalities();await refreshFreightEstimate()});
-  municipalitySelect?.addEventListener("change",refreshFreightEstimate);
+  departmentSelect?.addEventListener("change",async()=>{await loadMunicipalities();scheduleFreightEstimate()});
+  municipalitySelect?.addEventListener("change",scheduleFreightEstimate);
   refreshCustomerIntelligence();
   refreshFreightEstimate();
 
   const editor=assistant.root.querySelector("#items-editor");
+  editor?.addEventListener("input",scheduleFreightEstimate);
+  editor?.addEventListener("change",scheduleFreightEstimate);
+  editor?.addEventListener("material:selected",scheduleFreightEstimate);
+  editor?.addEventListener("click",()=>setTimeout(scheduleFreightEstimate,0));
   const add=()=>{
     const card=document.createElement("article");
     card.className="sales-material-card";
