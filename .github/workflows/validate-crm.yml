@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, hardening/repository-cleanup-v11-32-0]
+    branches: [main, hardening/repository-cleanup-v11-32-0, integration/paco-v11-37-0-calendar-v11-36-8]
   workflow_dispatch:
 
 concurrency:
@@ -249,7 +249,7 @@ jobs:
           retention-days: 90
 
       - name: Prepare GitHub Pages preview artifact
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/hardening/repository-cleanup-v11-32-0')
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/hardening/repository-cleanup-v11-32-0' || github.ref == 'refs/heads/integration/paco-v11-37-0-calendar-v11-36-8')
         uses: actions/upload-pages-artifact@v5
         with:
           path: dist-deployable
