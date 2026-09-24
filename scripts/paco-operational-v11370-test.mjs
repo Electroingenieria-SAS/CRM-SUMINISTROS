@@ -10,7 +10,7 @@ assert.equal(wrapper.includes("GUIDES"),false,"El entrypoint anterior no debe co
 assert.equal(wrapper.includes("password"),false,"El entrypoint anterior no debe conservar cambio de contraseña.");
 
 for(const token of [
-  'const VERSION="11.37.1"',
+  'const VERSION="11.37.2"',
   "MONITOR_MS=60000",
   "DIGEST_INTERVAL_MS=30*60*1000",
   "ORDER_WARN_SECONDS=3600",
@@ -32,6 +32,11 @@ for(const token of [
   "stageBreakdown",
   "orderRowsHtml",
   "testVoice",
+  "MALE_VOICE_HINTS",
+  "LATAM_SPANISH",
+  "isLikelyMaleVoice",
+  "renderVoiceOptions",
+  "paco_voice_id_v11372",
   "teamActivityMessage",
   "unassignedOrdersMessage",
   "longWorkMessage",
@@ -60,6 +65,9 @@ assert.equal(engine.includes("DIGEST_INTERVAL_MS=30*60*1000"),true,"El resumen o
 assert.equal(engine.includes("IDLE_WARN_SECONDS=20*60"),true,"La alerta de inactividad debe comenzar a los 20 minutos.");
 assert.equal(engine.includes("resumen cada 30 min"),true,"La interfaz debe declarar la frecuencia del resumen.");
 assert.equal(engine.includes("Probar voz"),true,"PACO debe ofrecer una prueba de voz explícita.");
+assert.equal(engine.includes("Voz masculina latinoamericana"),true,"PACO debe declarar la preferencia masculina latinoamericana.");
+assert.equal(engine.includes("data-paco-voice-select"),true,"PACO debe permitir escoger una voz latina disponible.");
+assert.equal(engine.includes("LATAM_SPANISH"),true,"La selección automática debe priorizar español latinoamericano.");
 assert.equal(engine.includes("Sin actividad >20 min"),true,"El resumen debe mostrar auxiliares con más de 20 minutos sin actividad.");
 
 for(const role of ["jefe_logistica","lider_logistica","coordinador_logistico","aux_logistica","auxiliar_corte"]){
@@ -102,9 +110,10 @@ for(const token of [
   "paco-op-order-list",
   "paco-op-order-row",
   "paco-op-input-shell",
+  "paco-op-voice-picker",
   "@media(max-width:720px)"
 ]){
   assert.equal(css.includes(token),true,`CSS PACO debe conservar ${token}`);
 }
 
-console.log("PACO operational assistant v11.37.1 messenger + digest tests: OK");
+console.log("PACO operational assistant v11.37.2 masculine Latin voice tests: OK");
