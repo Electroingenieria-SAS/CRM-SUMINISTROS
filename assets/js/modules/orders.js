@@ -1,6 +1,6 @@
 import {api} from "../services/api.js";
 import {state,can} from "../core/state.js";
-import {fmt,statusBadge,priorityBadge} from "../core/format.js";
+import {fmt,priorityBadge} from "../core/format.js";
 import {wizard,modal,toast,serializeForm,paginationHtml,empty,loading,actionCards,guide} from "../core/ui.js";
 import {workspaceIntro,summaryItem,choice,simpleStatus} from "../core/guided.js";
 import {uploadOrderFile} from "../services/drive.js";
@@ -89,10 +89,25 @@ function ordersTable(rows){
   return `<div class="erp-work-list orders-master-list">${rows.map(order=>{
     const status=String(order.status||"").toUpperCase();
     const action=status==="IN_PROGRESS"?"Continuar":status==="ASSIGNED"||status==="QUEUED"?"Abrir / iniciar":"Abrir";
-    return `<article class="erp-work-row orders-master-row"><div class="erp-work-main"><span class="erp-work-eyebrow">${fmt.escape(fmt.step(order.stepName||order.currentStep))}</span><strong>${fmt.escape(order.orderNumber)}</strong><small>${fmt.escape(order.clientName)} · ${fmt.escape(fmt.label(order.orderType))} · ${fmt.escape(fmt.payment(order.paymentCondition))}</small>${order.fulfillmentStatus==="PARTIAL"||order.partialLabel?`<em class="order-partial-tag">Pedido parcial · ${fmt.number(order.pendingItemCount||0)} pendiente(s)</em>`:""}</div><div class="erp-work-meta"><span><small>Estado</small><b>${statusBadge(order.status)}</b></span><span><small>Responsable</small><b>${fmt.escape(order.assigneeName||"En cola")}</b></span><span><small>Tiempo</small><b>${fmt.hours(order.ageBusinessSeconds)}</b></span><span><small>Ruta</small><b>${fmt.escape(fmt.route(order.route))}</b></span><span><small>Actualizado</small><b>${fmt.date(order.updatedAt)}</b></span></div><div class="erp-work-status">${priorityBadge(order.priority)}${order.slaExceeded?'<small class="danger">Plazo excedido</small>':""}</div><button type="button" class="btn btn-primary erp-work-action" data-order="${fmt.escape(order.id)}">${action}</button></article>`;
+    return `<article class="erp-work-row orders-master-row"><div class="erp-work-main"><span class="erp-work-eyebrow">${fmt.escape(fmt.step(order.stepName||order.currentStep))}</span><strong>${fmt.escape(order.orderNumber)}</strong><small>${fmt.escape(order.clientName)} · ${fmt.escape(fmt.label(order.orderType))} · ${fmt.escape(fmt.payment(order.paymentCondition))}</small>${order.fulfillmentStatus==="PARTIAL"||order.partialLabel?`<em class="order-partial-tag">Pedido parcial · ${fmt.number(order.pendingItemCount||0)} pendiente(s)</em>`:""}</div><div class="erp-work-meta"><span><small>Estado</small><b>${orderStageBadge(order)}</b></span><span><small>Responsable</small><b>${fmt.escape(order.assigneeName||"En cola")}</b></span><span><small>Tiempo</small><b>${fmt.hours(order.ageBusinessSeconds)}</b></span><span><small>Ruta</small><b>${fmt.escape(fmt.route(order.route))}</b></span><span><small>Actualizado</small><b>${fmt.date(order.updatedAt)}</b></span></div><div class="erp-work-status">${priorityBadge(order.priority)}${order.slaExceeded?'<small class="danger">Plazo excedido</small>':""}</div><button type="button" class="btn btn-primary erp-work-action" data-order="${fmt.escape(order.id)}">${action}</button></article>`;
   }).join("")}</div>`;
 }
 
+function orderStageBadge(order={}){
+  const status=String(order.status||"").toUpperCase();
+  const step=String(order.currentStep||order.current_step_code||"").toUpperCase();
+
+  if(status==="CANCELLED"){
+    return '<span class="badge badge-red"><span class="badge-dot"></span>Cancelado</span>';
+  }
+  if(status==="CLOSED"||step==="CLOSED"){
+    return '<span class="badge badge-green"><span class="badge-dot"></span>Cerrado</span>';
+  }
+
+  const label=fmt.step(order.stepName||order.currentStep||order.current_step_code||"Proceso");
+  const cls=status==="BLOCKED"?"badge-red":status==="WAITING"?"badge-yellow":"badge-blue";
+  return `<span class="badge ${cls}"><span class="badge-dot"></span>${fmt.escape(label)}</span>`;
+}
 function select(id,label,items=[],valueKey="code",labelKey="name",selected=""){
   return `<select class="control" id="${id}"><option value="">${label}: todos</option>${items.map(item=>`<option value="${fmt.escape(item[valueKey])}" ${item[valueKey]===selected?"selected":""}>${fmt.escape(item[labelKey])}</option>`).join("")}</select>`;
 }
