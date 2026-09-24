@@ -3,8 +3,9 @@
 
 const TOKEN_REWRITES=Object.freeze({
   q:"que",qe:"que",ke:"que",k:"que",
-  qn:"quien",kien:"quien",kién:"quien",
-  dnde:"donde",dond:"donde",onde:"donde",
+  qn:"quien",qien:"quien",kien:"quien",kién:"quien",
+  d:"de",dnde:"donde",dond:"donde",onde:"donde",
+  ai:"hay",
   xq:"porque",pq:"porque",porq:"porque",
   sta:"esta",estan:"estan",stoy:"estoy",
   tngo:"tengo",tienee:"tiene",
@@ -45,7 +46,8 @@ const TOKEN_REWRITES=Object.freeze({
   novedadess:"novedades",novedaes:"novedades",
   operatibo:"operativo",prolongda:"prolongada",funcioens:"funciones",ubicacoin:"ubicacion",
   jornad:"jornada",jornanda:"jornada",
-  blokqueo:"bloqueo",bloqeos:"bloqueos"
+  blokqueo:"bloqueo",bloqeo:"bloqueo",bloqeos:"bloqueos",
+  cortte:"corte",cortee:"corte"
 });
 
 export function normalizePacoText(value){
@@ -169,7 +171,7 @@ const INTENT_ANCHORS=Object.freeze({
   activity:[/\bregistr/,/\bactividad nueva\b/,/\biniciar actividad\b/,/\bempezar tarea\b/,/\banotar/],
   delayed:[/\bdemor/,/\batras/,/\bretras/,/\bcola\b/,/\blent/,/\btard/,/\blleva\b.*\btiempo\b/],
   unassigned:[/sin\s+(responsable|asignar|encargado|dueno)/,/nadie\s+tiene/],
-  idle:[/\bdesocup/,/\bdisponible/,/\blibre\b/,/sin\s+actividad/,/no\s+esta\s+haciendo/],
+  idle:[/\bdesocup/,/\bdisponible/,/\blibre\b/,/sin\s+actividad/,/no\s+esta\s+haciendo/,/no\s+tiene\s+nada\s+asignado/],
   longWork:[/\bprolong/,/actividad\s+(muy\s+)?larga/,/mas\s+de\s+(una\s+hora|90)/,/mucho\s+tiempo\s+en\s+actividad/],
   recentWork:[/\btermin/,/\bfinaliz/,/\bacab/],
   shipped:[/\bdespach/,/\benviad/,/\benvio\b/,/\bsalio\b/,/\bsalieron\b/,/\bsalen\b/,/\bentreg/],
@@ -178,7 +180,7 @@ const INTENT_ANCHORS=Object.freeze({
   myDay:[/\bmi jornada\b/,/\bmi actividad\b/,/\bmi tarea\b/,/que\s+estoy\s+haciendo/],
   team:[/que\s+esta\s+haciendo/,/quien\s+esta\s+trabajando/,/estado\s+del\s+equipo/,/en\s+que\s+anda/],
   capabilities:[/puedes\s+hacer/,/\bfunciones\b/,/para\s+que\s+sirves/,/como\s+me\s+ayudas/],
-  order:[/donde\s+.*pedido/,/pedido\s+.*donde/,/\brastrear\b/,/\bseguimiento\b/,/quien\s+tiene\s+.*pedido/,/en\s+que\s+(parte|proceso)\s+va/]
+  order:[/donde\s+.*pedido/,/pedido\s+.*donde/,/por\s+donde\s+va\s+(el\s+)?(pedido|orden)/,/\brastrear\b/,/\bseguimiento\b/,/quien\s+tiene\s+.*pedido/,/en\s+que\s+(parte|proceso)\s+va/]
 });
 
 function anchorScore(intent,normalized){
