@@ -4,7 +4,7 @@ import {api} from "../services/api.js";
 import {fmt} from "../core/format.js";
 import {toast} from "../core/ui.js";
 
-const VERSION="11.37.1";
+const VERSION="11.37.2";
 const STYLE_ID="paco-operational-v11370-style";
 const MONITOR_MS=60000;
 const DIGEST_INTERVAL_MS=30*60*1000;
@@ -46,6 +46,7 @@ const paco={
   busy:false,
   face:"idle",
   voiceEnabled:readVoicePreference(),
+  preferredVoiceId:readPreferredVoice(),
   monitorTimer:null,
   monitorBusy:false,
   previous:null,
@@ -63,7 +64,7 @@ function ensureStyles(){
   const link=document.createElement("link");
   link.id=STYLE_ID;
   link.rel="stylesheet";
-  link.href="./assets/runtime-css/paco-operational-v11370.css?v=11.37.1";
+  link.href="./assets/runtime-css/paco-operational-v11370.css?v=11.37.2";
   document.head.appendChild(link);
 }
 
@@ -72,6 +73,16 @@ function readVoicePreference(){
 }
 function saveVoicePreference(){
   try{localStorage.setItem("paco_voice_v11370",paco.voiceEnabled?"1":"0")}catch{}
+}
+function readPreferredVoice(){
+  try{return localStorage.getItem("paco_voice_id_v11372")||""}catch{return ""}
+}
+function savePreferredVoice(value=""){
+  paco.preferredVoiceId=String(value||"");
+  try{
+    if(paco.preferredVoiceId)localStorage.setItem("paco_voice_id_v11372",paco.preferredVoiceId);
+    else localStorage.removeItem("paco_voice_id_v11372");
+  }catch{}
 }
 
 function digestStorageKey(){return `paco_digest_v11371_${profileId()||"anonymous"}`}
@@ -203,6 +214,10 @@ function renderRoot(){
           <span data-paco-monitor-status>Monitoreo activo · resumen cada 30 min</span>
         </div>
         <div class="paco-op-status-actions">
+          <label class="paco-op-voice-picker" title="Voces latinoamericanas disponibles en este dispositivo">
+            <span>Voz</span>
+            <select data-paco-voice-select aria-label="Seleccionar voz de PACO"></select>
+          </label>
           <button type="button" data-paco-test-voice>Probar voz</button>
           <button type="button" data-paco-summary-now>Resumen ahora</button>
         </div>
@@ -322,19 +337,68 @@ function clearBadge(){
   paco.root?.classList.remove("has-alert");
 }
 
+const MALE_VOICE_HINTS=[
+  "raul","gonzalo","carlos","diego","juan","jorge","luis","miguel","andres","andrés","alejandro",
+  "antonio","enrique","pablo","pedro","ricardo","roberto","manuel","mario","fernando","javier",
+  "sergio","mateo","santiago","martin","martín","nicolas","nicolás","sebastian","sebastián","daniel"
+];
+const LATAM_SPANISH=/^es-(CO|MX|US|419|AR|CL|PE|VE|EC|UY|PY|BO|CR|PA|DO|GT|HN|NI|SV|PR|CU)/i;
+function voiceId(voice){return voice?.voiceURI||voice?.name||""}
+function availableSpanishVoices(){
+  if(!("speechSynthesis" in window))return [];
+  return (speechSynthesis.getVoices?.()||[]).filter(voice=>/^es(?:-|$)/i.test(voice.lang||""));
+}
+function isLikelyMaleVoice(voice){
+  const label=norm([voice?.name,voice?.voiceURI].filter(Boolean).join(" "));
+  return MALE_VOICE_HINTS.some(name=>label.includes(norm(name)));
+}
+function voiceScore(voice){
+  let score=0;
+  const lang=String(voice?.lang||"");
+  if(paco.preferredVoiceId&&voiceId(voice)===paco.preferredVoiceId)score+=10000;
+  if(isLikelyMaleVoice(voice))score+=1000;
+  if(/^es-CO/i.test(lang))score+=400;
+  else if(/^es-MX/i.test(lang))score+=350;
+  else if(/^es-(US|419)/i.test(lang))score+=320;
+  else if(LATAM_SPANISH.test(lang))score+=280;
+  else if(/^es/i.test(lang))score+=80;
+  if(voice?.localService)score+=10;
+  if(voice?.default)score+=5;
+  return score;
+}
 function latinVoice(){
-  const voices=speechSynthesis?.getVoices?.()||[];
-  return voices.find(v=>/^es-CO/i.test(v.lang))
-    ||voices.find(v=>/^es-(MX|US|419)/i.test(v.lang))
-    ||voices.find(v=>/^es/i.test(v.lang))
-    ||null;
+  const all=availableSpanishVoices();
+  const latam=all.filter(voice=>LATAM_SPANISH.test(voice.lang||""));
+  const pool=latam.length?latam:all;
+  return pool.slice().sort((a,b)=>voiceScore(b)-voiceScore(a))[0]||null;
+}
+function renderVoiceOptions(){
+  const select=paco.root?.querySelector("[data-paco-voice-select]");
+  if(!select)return;
+  const voices=availableSpanishVoices()
+    .filter(voice=>LATAM_SPANISH.test(voice.lang||"")||/^es-CO|^es-MX|^es-US|^es-419/i.test(voice.lang||""))
+    .sort((a,b)=>voiceScore(b)-voiceScore(a)||String(a.name).localeCompare(String(b.name),"es"));
+  const chosen=latinVoice();
+  if(!voices.length){
+    select.innerHTML='<option value="">Latino automática</option>';
+    select.disabled=true;
+    return;
+  }
+  select.disabled=false;
+  select.innerHTML=voices.map(voice=>{
+    const id=voiceId(voice);
+    const male=isLikelyMaleVoice(voice)?" · masculina":"";
+    const selected=chosen&&voiceId(chosen)===id?" selected":"";
+    return `<option value="${esc(id)}"${selected}>${esc(voice.name||"Voz española")} · ${esc(voice.lang||"es")}${male}</option>`;
+  }).join("");
 }
 function updateVoiceButton(){
   const button=paco.root?.querySelector("[data-paco-voice]");
   button?.classList.toggle("is-on",paco.voiceEnabled);
   const icon=button?.querySelector("[data-paco-voice-icon]");
   if(icon)icon.textContent=paco.voiceEnabled?"🔊":"🔇";
-  if(button)button.title=paco.voiceEnabled?"Voz activa · clic para silenciar":"Voz silenciada · clic para activar";
+  if(button)button.title=paco.voiceEnabled?"Voz masculina latinoamericana activa · clic para silenciar":"Voz silenciada · clic para activar";
+  renderVoiceOptions();
 }
 function speak(text,{force=false}={}){
   if((!paco.voiceEnabled&&!force)||!("speechSynthesis" in window)||!text)return false;
@@ -344,7 +408,9 @@ function speak(text,{force=false}={}){
     const voice=latinVoice();
     utterance.lang=voice?.lang||"es-CO";
     if(voice)utterance.voice=voice;
-    utterance.rate=.96;utterance.pitch=1;utterance.volume=.95;
+    utterance.rate=.96;
+    utterance.pitch=isLikelyMaleVoice(voice)?0.92:0.88;
+    utterance.volume=.96;
     speechSynthesis.speak(utterance);
     return true;
   }catch{return false}
@@ -353,19 +419,19 @@ function toggleVoice(){
   paco.voiceEnabled=!paco.voiceEnabled;
   saveVoicePreference();
   updateVoiceButton();
-  toast(paco.voiceEnabled?"PACO hablará en español latino.":"Voz de PACO silenciada.");
-  if(paco.voiceEnabled)speak("Listo. Mi voz está activa y te avisaré sobre la operación.");
+  toast(paco.voiceEnabled?"PACO usará preferentemente una voz masculina latinoamericana.":"Voz de PACO silenciada.");
+  if(paco.voiceEnabled)speak("Listo. Mi voz masculina latinoamericana está activa y te avisaré sobre la operación.");
 }
 function testVoice(){
   paco.voiceEnabled=true;
   saveVoicePreference();
   updateVoiceButton();
   const voice=latinVoice();
-  const voiceLabel=voice?[voice.name,voice.lang].filter(Boolean).join(" · "):"español latino del dispositivo";
-  const ok=speak("Hola. Soy PACO. Esta es una prueba de voz. Te avisaré cuando haya pedidos demorados, personas sin actividad y cambios importantes en la operación.",{force:true});
+  const voiceLabel=voice?[voice.name,voice.lang,isLikelyMaleVoice(voice)?"preferencia masculina":"mejor voz latina disponible"].filter(Boolean).join(" · "):"español latino del dispositivo";
+  const ok=speak("Hola. Soy PACO. Esta es mi voz masculina latinoamericana. Te avisaré cuando haya pedidos demorados, personas sin actividad y cambios importantes en la operación.",{force:true});
   add(message({
     type:ok?"success":"normal",
-    text:ok?`Prueba de voz enviada. Estoy usando ${voiceLabel}.`:"El navegador no permitió reproducir voz. Revisa el volumen del equipo y vuelve a pulsar Probar voz.",
+    text:ok?`Prueba enviada. Estoy usando ${voiceLabel}. Puedes cambiarla en el selector Voz si tu dispositivo ofrece otras opciones.`:"El navegador no permitió reproducir voz. Revisa el volumen del equipo y vuelve a pulsar Probar voz.",
     actions:[{label:"Resumen ahora",action:"summary-now",icon:"↗"}]
   }));
 }
@@ -898,6 +964,13 @@ function bindRoot(){
   root.querySelector("[data-paco-toggle]")?.addEventListener("click",toggleOpen);
   root.querySelector("[data-paco-close]")?.addEventListener("click",()=>setOpen(false));
   root.querySelector("[data-paco-voice]")?.addEventListener("click",toggleVoice);
+  root.querySelector("[data-paco-voice-select]")?.addEventListener("change",event=>{
+    savePreferredVoice(event.target.value);
+    paco.voiceEnabled=true;
+    saveVoicePreference();
+    updateVoiceButton();
+    testVoice();
+  });
   root.querySelector("[data-paco-test-voice]")?.addEventListener("click",testVoice);
   root.querySelector("[data-paco-summary-now]")?.addEventListener("click",async()=>{
     const snapshot=await loadSnapshot();
@@ -945,6 +1018,11 @@ export function installPacoAssistant(){
   document.body.append(root);
   paco.root=root;
   bindRoot();bindGlobal();renderQuick();syncProfile();
+  if("speechSynthesis" in window){
+    speechSynthesis.addEventListener?.("voiceschanged",()=>renderVoiceOptions(),{passive:true});
+    setTimeout(renderVoiceOptions,250);
+    setTimeout(renderVoiceOptions,1200);
+  }
   if(!paco.unsubscribe)paco.unsubscribe=subscribe(syncProfile);
   Object.values(ASSETS).forEach(src=>{const image=new Image();image.decoding="async";image.src=src});
   return root;
