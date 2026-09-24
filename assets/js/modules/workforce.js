@@ -943,7 +943,7 @@ async function renderAnalytics(root,content){
 
       ${customerRanking?`<section class="work-indicator-section-v11383">
         <header class="work-indicator-section-head-v11383">
-          <div><span>VALOR COMERCIAL</span><h3>Pareto y ranking automático de clientes</h3><p>Combina 50% frecuencia de pedidos y 50% valor facturado. El CRM no segmenta hasta reunir una muestra mínima confiable.</p></div>
+          <div><span>VALOR COMERCIAL</span><h3>Pareto y ranking automático de clientes</h3><p>Combina 50% frecuencia de pedidos y 50% valor económico reconocido. Usa pago confirmado de Caja cuando existe y factura como respaldo provisional mientras no exista ese dato.</p></div>
         </header>
         <section class="work-indicator-panel-v11363 work-indicator-panel-featured-v11383">
           <header><div><span>CLIENTES</span><h3>Quién concentra más compras y valor</h3><p>${customerRanking.learningActive?"Segmentación activa en Básico, Normal, Premium y Urgente.":"Modo aprendizaje: todos permanecen en Normal hasta contar con suficiente historia."}</p></div><b class="work-customer-learning-v11390">${fmt.number(customerRanking.sampleOrders||0)} pedidos</b></header>
@@ -1047,7 +1047,8 @@ function customerRankingHtml(data={}){
     const score=Math.max(0,Number(row.score||0));
     const width=Math.max(4,100*score/max);
     const segment=String(row.segment||"NORMAL").toLowerCase();
-    return `<article><span class="work-customer-rank-v11390">${String(index+1).padStart(2,"0")}</span><div class="work-customer-copy-v11390"><div><strong>${fmt.escape(row.customerName||"Cliente")}</strong><span class="work-customer-segment-v11390 tone-${segment}">${fmt.escape(customerSegmentAnalyticsLabel(row.segment))}</span></div><small>${fmt.number(row.orderCount||0)} pedido${Number(row.orderCount||0)===1?"":"s"} · ${customerMoney(row.paidAmount||0)} · confianza ${customerConfidenceAnalyticsLabel(row.confidence)}</small><div class="work-customer-track-v11390"><span style="--customer-score:${width}%"></span></div></div><b>${fmt.number(score,1)}</b></article>`;
+    const amount=row.rankingValue??row.paidAmount??0;
+    return `<article><span class="work-customer-rank-v11390">${String(index+1).padStart(2,"0")}</span><div class="work-customer-copy-v11390"><div><strong>${fmt.escape(row.customerName||"Cliente")}</strong><span class="work-customer-segment-v11390 tone-${segment}">${fmt.escape(customerSegmentAnalyticsLabel(row.segment))}</span></div><small>${fmt.number(row.orderCount||0)} pedido${Number(row.orderCount||0)===1?"":"s"} · ${customerMoney(amount)} · ${customerValueSourceAnalyticsLabel(row.valueSource)} · confianza ${customerConfidenceAnalyticsLabel(row.confidence)}</small><div class="work-customer-track-v11390"><span style="--customer-score:${width}%"></span></div></div><b>${fmt.number(score,1)}</b></article>`;
   }).join("")}</div>`;
 }
 
@@ -1057,6 +1058,7 @@ function customerMoney(value){
 }
 function customerSegmentAnalyticsLabel(value){return ({URGENT:"Urgente",PREMIUM:"Premium",NORMAL:"Normal",BASIC:"Básico"})[String(value||"NORMAL").toUpperCase()]||"Normal"}
 function customerConfidenceAnalyticsLabel(value){return ({HIGH:"alta",MEDIUM:"media",LOW:"baja",LEARNING:"aprendiendo"})[String(value||"LEARNING").toUpperCase()]||"aprendiendo"}
+function customerValueSourceAnalyticsLabel(value){return ({PAYMENT_AMOUNT:"pago confirmado",PAYMENT_WITH_INVOICE_FALLBACK:"pago + respaldo de factura",INVOICE_AMOUNT_FALLBACK:"factura como respaldo",NONE:"sin valor confirmado"})[String(value||"NONE").toUpperCase()]||"valor documentado"}
 function activityStandardsHtml(rows){
   if(!rows.length)return indicatorEmpty("Aún no hay referencias suficientes","Con ejecuciones reales el CRM aprende medianas y percentil 80 por actividad.");
   return `<div class="work-indicator-standards-v11363">${rows.slice(0,8).map((row,index)=>{
