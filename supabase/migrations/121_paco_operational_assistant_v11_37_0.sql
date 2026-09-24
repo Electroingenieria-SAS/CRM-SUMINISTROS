@@ -55,7 +55,10 @@ begin
           0,
           erp_supply.business_seconds_between(
             v_org,
-            coalesce(t.assigned_at,t.created_at),
+            case
+              when t.status='IN_PROGRESS' then coalesce(t.started_at,t.assigned_at,t.created_at)
+              else coalesce(t.assigned_at,t.created_at)
+            end,
             v_now
           )
         )::bigint queue_seconds,
@@ -75,7 +78,7 @@ begin
         and not coalesce(o.is_history,false)
         and not coalesce(o.is_test,false)
         and o.status not in('CLOSED','CANCELLED')
-        and t.status in('QUEUED','ASSIGNED','WAITING','BLOCKED')
+        and t.status in('QUEUED','ASSIGNED','WAITING','BLOCKED','IN_PROGRESS')
         and (
           v_manager
           or t.assigned_profile_id=v_actor
@@ -181,11 +184,12 @@ begin
     alerts as (
       select
         jsonb_build_object(
-          'key','QUEUE:'||q.task_id::text||':'||
+          'key',case when q.task_status='IN_PROGRESS' then 'PROCESS:' else 'QUEUE:' end||
+            q.task_id::text||':'||
             case when q.queue_seconds>=q.critical_seconds then 'CRITICAL' else 'WARNING' end,
-          'kind','ORDER_QUEUE',
+          'kind',case when q.task_status='IN_PROGRESS' then 'ORDER_PROCESS_LONG' else 'ORDER_QUEUE' end,
           'severity',case when q.queue_seconds>=q.critical_seconds then 'critical' else 'warning' end,
-          'title','Pedido demorado en cola',
+          'title',case when q.task_status='IN_PROGRESS' then 'Pedido demorado en proceso' else 'Pedido demorado en cola' end,
           'stepName',q.step_name,
           'orderId',q.order_id,
           'orderNumber',q.order_number,
@@ -398,6 +402,7 @@ begin
       ),
       'summary',jsonb_build_object(
         'queueAlerts',(select count(*) from alerts where alert->>'kind'='ORDER_QUEUE'),
+        'processAlerts',(select count(*) from alerts where alert->>'kind'='ORDER_PROCESS_LONG'),
         'activityAlerts',(select count(*) from alerts where alert->>'kind'='ACTIVITY_LONG'),
         'idleAlerts',(select count(*) from alerts where alert->>'kind'='AUXILIARY_IDLE'),
         'recentEvents',(select count(*) from events)
