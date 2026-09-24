@@ -107,9 +107,23 @@
 .work-planner-mode button.active::before{opacity:1}
 
 /* Filtros compactos y contenidos */
+.work-planner-toolbar{
+  overflow:visible!important;
+}
+
+.work-planner-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  flex-wrap:wrap;
+  min-width:0;
+}
+
 .work-calendar-filterbox-v11362{
-  margin:10px 0 12px;
-  width:min(320px,100%);
+  margin:0;
+  width:auto;
+  flex:0 0 auto;
   position:relative;
   box-sizing:border-box;
   border:0;
@@ -123,7 +137,8 @@
 
 .work-calendar-filterbox-v11362>summary{
   list-style:none;
-  width:100%;
+  width:176px;
+  max-width:100%;
 }
 
 .work-calendar-filterbox-v11362>summary::-webkit-details-marker{display:none}
@@ -190,6 +205,10 @@
   text-overflow:ellipsis;
 }
 
+.work-calendar-filter-trigger-v11362>b[hidden]{
+  display:none!important;
+}
+
 .work-calendar-filter-trigger-v11362>b{
   min-width:22px;
   height:22px;
@@ -204,9 +223,13 @@
 }
 
 .work-calendar-filter-panel-v11362{
+  position:absolute;
+  z-index:80;
+  top:calc(100% + 8px);
+  right:0;
   width:min(520px,calc(100vw - 32px));
   max-width:calc(100vw - 32px);
-  margin-top:7px;
+  margin-top:0;
   padding:12px;
   display:grid;
   grid-template-columns:minmax(0,1fr) minmax(0,1fr);
@@ -1239,7 +1262,9 @@
 @keyframes capacityFill{from{transform:scaleX(0);transform-origin:left}to{transform:scaleX(1);transform-origin:left}}
 /* Responsive */
 @media(max-width:760px){
-  .work-calendar-filterbox-v11362{width:min(300px,100%)}
+  .work-planner-actions{width:100%;justify-content:flex-start}
+  .work-calendar-filterbox-v11362{width:auto}
+  .work-calendar-filterbox-v11362>summary{width:172px}
   .work-calendar-filter-panel-v11362{
     width:min(420px,calc(100vw - 24px));
     max-width:calc(100vw - 24px);
@@ -1260,7 +1285,10 @@
 
 @media(max-width:480px){
   .work-calendar-filterbox-v11362{width:100%}
+  .work-calendar-filterbox-v11362>summary{width:100%}
   .work-calendar-filter-panel-v11362{
+    left:0;
+    right:auto;
     width:100%;
     max-width:100%;
     grid-template-columns:1fr;
