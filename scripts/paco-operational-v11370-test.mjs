@@ -85,6 +85,12 @@ for(const removed of ["getSupabase","password-self","setToolsOpen","Centro de he
   assert.equal(engine.includes(removed),false,`PACO nuevo no debe reintroducir ${removed}`);
 }
 
+const generatedActions=[...engine.matchAll(/action:"([^"]+)"/g)].map(match=>match[1]);
+const handledActions=new Set([...engine.matchAll(/action==="([^"]+)"/g)].map(match=>match[1]));
+for(const action of new Set(generatedActions)){
+  assert.equal(handledActions.has(action),true,`Todo botón PACO debe tener handler funcional: ${action}`);
+}
+
 for(const token of [
   "paco-op-panel",
   "paco-op-voice",
