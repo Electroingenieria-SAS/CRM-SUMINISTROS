@@ -11,14 +11,14 @@ const TOKEN_REWRITES=Object.freeze({
   tngo:"tengo",tienee:"tiene",
   peddo:"pedido",pedio:"pedido",peido:"pedido",pedidoo:"pedido",peddio:"pedido",
   pedios:"pedidos",peddos:"pedidos",pediods:"pedidos",pedidso:"pedidos",
-  actvidad:"actividad",activdad:"actividad",actvdad:"actividad",atividad:"actividad",
+  actvidad:"actividad",activdad:"actividad",actvdad:"actividad",atividad:"actividad",actviidad:"actividad",actiidad:"actividad",
   activdades:"actividades",actvidades:"actividades",
   asiendo:"haciendo",asiendo:"haciendo",hasiendo:"haciendo",
   ase:"hace",acer:"hacer",ago:"hago",asen:"hacen",asia:"hacia",
   eqipo:"equipo",equpo:"equipo",ekipo:"equipo",
   desocpado:"desocupado",desocupdo:"desocupado",desocpados:"desocupados",
   auxliar:"auxiliar",auxilar:"auxiliar",auxliares:"auxiliares",
-  responzable:"responsable",responsble:"responsable",repsonsable:"responsable",
+  responzable:"responsable",responsble:"responsable",repsonsable:"responsable",respnosable:"responsable",resposable:"responsable",
   asiganr:"asignar",asignr:"asignar",encagado:"encargado",
   tienpo:"tiempo",tiemppo:"tiempo",disponble:"disponible",
   demroado:"demorado",demrado:"demorado",demoraro:"demorado",
@@ -27,8 +27,8 @@ const TOKEN_REWRITES=Object.freeze({
   resumn:"resumen",resumne:"resumen",resuemn:"resumen",
   operacionn:"operacion",operacoin:"operacion",
   inbentario:"inventario",inventrio:"inventario",invntario:"inventario",
-  recepccion:"recepcion",resepcion:"recepcion",recpcion:"recepcion",
-  alistamineto:"alistamiento",alistamieto:"alistamiento",
+  recepccion:"recepcion",resepcion:"recepcion",recpcion:"recepcion",recpecion:"recepcion",
+  alistamineto:"alistamiento",alistamieto:"alistamiento",preaprar:"preparar",
   factuacion:"facturacion",facturacoin:"facturacion",
   despcaho:"despacho",despaho:"despacho",despcho:"despacho",
   despachads:"despachados",despachdos:"despachados",ultmos:"ultimos",
@@ -38,14 +38,14 @@ const TOKEN_REWRITES=Object.freeze({
   adminstracion:"administracion",admnistracion:"administracion",
   cronogama:"cronograma",crongrama:"cronograma",
   usarios:"usuarios",usuairos:"usuarios",
-  cmpra:"compra",comprs:"compras",
+  cmpra:"compra",comprs:"compras",copmrar:"comprar",
   credtio:"credito",creidto:"credito",
   cartra:"cartera",
   repotes:"reportes",reprotes:"reportes",
   historcio:"historico",historiall:"historico",
   novedadess:"novedades",novedaes:"novedades",
   operatibo:"operativo",prolongda:"prolongada",funcioens:"funciones",ubicacoin:"ubicacion",
-  jornad:"jornada",jornanda:"jornada",
+  jornad:"jornada",jornanda:"jornada",jonrada:"jornada",
   blokqueo:"bloqueo",bloqeo:"bloqueo",bloqeos:"bloqueos",
   cortte:"corte",cortee:"corte"
 });
@@ -180,11 +180,26 @@ const INTENT_ANCHORS=Object.freeze({
   myDay:[/\bmi jornada\b/,/\bmi actividad\b/,/\bmi tarea\b/,/que\s+estoy\s+haciendo/],
   team:[/que\s+esta\s+haciendo/,/quien\s+esta\s+trabajando/,/estado\s+del\s+equipo/,/en\s+que\s+anda/],
   capabilities:[/puedes\s+hacer/,/\bfunciones\b/,/para\s+que\s+sirves/,/como\s+me\s+ayudas/],
-  order:[/donde\s+.*pedido/,/pedido\s+.*donde/,/por\s+donde\s+va\s+(el\s+)?(pedido|orden)/,/\brastrear\b/,/\bseguimiento\b/,/quien\s+tiene\s+.*pedido/,/en\s+que\s+(parte|proceso)\s+va/]
+  order:[/donde\s+.*pedido/,/pedido\s+.*donde/,/por\s+donde\s+va\s+((el|la)\s+)?(pedido|orden)/,/\brastrear\b/,/\bseguimiento\b/,/quien\s+tiene\s+.*pedido/,/en\s+que\s+(parte|proceso)\s+va/]
 });
 
+const INTENT_ANCHOR_WEIGHTS=Object.freeze({
+  delayed:970,
+  activity:985,
+  idle:985,
+  team:985,
+  recentWork:985,
+  operation:985,
+  myDay:985,
+  capabilities:985,
+  unassigned:995,
+  longWork:995,
+  shipped:995,
+  novelties:995,
+  order:995
+});
 function anchorScore(intent,normalized){
-  return (INTENT_ANCHORS[intent]||[]).some(pattern=>pattern.test(normalized))?950:0;
+  return (INTENT_ANCHORS[intent]||[]).some(pattern=>pattern.test(normalized))?(INTENT_ANCHOR_WEIGHTS[intent]||980):0;
 }
 
 export const CRM_MODULE_KNOWLEDGE=Object.freeze({
