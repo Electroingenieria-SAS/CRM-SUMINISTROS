@@ -23,11 +23,12 @@ import {installPacoAssistant} from "./modules/paco-assistant-v11200.js";
 import {renderWorkforce} from "./modules/workforce.js";
 import {initWorkClock} from "./modules/work-clock.js";
 import {installOperationalV112,enhanceOperationalDashboard} from "./modules/operational-v112.js";
+import {enhanceFreightIntelligenceDashboard} from "./modules/freight-intelligence-v11410.js";
 import {installOperationalResolveGuard} from "./modules/operational-resolve-guard-v112.js";
 import {renderReceivingHub} from "./modules/receiving-hub-v115.js";
 
 const routes={
-  dashboard:async root=>{await renderDashboard(root);await enhanceOperationalDashboard(root)},
+  dashboard:async root=>{await renderDashboard(root);await enhanceOperationalDashboard(root);await enhanceFreightIntelligenceDashboard(root)},
   orders:renderOrders,
   sales:renderOrders,
   credit:renderCredit,
