@@ -1,11 +1,11 @@
 {
   "name": "crm-suministros-electroingenieria",
-  "version": "11.36.7",
+  "version": "11.37.0",
   "private": true,
   "type": "module",
   "scripts": {
     "serve": "node scripts/serve.mjs",
-    "validate": "node scripts/validate.mjs && node --experimental-vm-modules scripts/link-check.mjs && node scripts/workforce-planner-test.mjs && node scripts/workforce-today-test.mjs && node scripts/workforce-manager-review-test.mjs && node scripts/workforce-catalog-hierarchy-test.mjs && node scripts/workforce-accessibility-test.mjs && node scripts/workforce-timeline-test.mjs && node scripts/workforce-calendar-v11360-test.mjs && node scripts/workforce-indicators-v11363-test.mjs && node scripts/security-check.mjs && node scripts/integration-contract-check.mjs && node scripts/migration-ledger-check.mjs",
+    "validate": "node scripts/validate.mjs && node --experimental-vm-modules scripts/link-check.mjs && node scripts/workforce-planner-test.mjs && node scripts/workforce-today-test.mjs && node scripts/workforce-manager-review-test.mjs && node scripts/workforce-catalog-hierarchy-test.mjs && node scripts/workforce-accessibility-test.mjs && node scripts/workforce-timeline-test.mjs && node scripts/workforce-calendar-v11360-test.mjs && node scripts/workforce-indicators-v11363-test.mjs && node scripts/paco-operational-v11370-test.mjs && node scripts/security-check.mjs && node scripts/integration-contract-check.mjs && node scripts/migration-ledger-check.mjs",
     "validate:integration": "node scripts/integration-contract-check.mjs",
     "security": "node scripts/security-check.mjs",
     "security:history": "node scripts/git-history-security-check.mjs",
@@ -17,6 +17,7 @@
     "validate:workforce-accessibility": "node scripts/workforce-accessibility-test.mjs",
     "validate:workforce-timeline": "node scripts/workforce-timeline-test.mjs",
     "validate:workforce-calendar": "node scripts/workforce-calendar-v11360-test.mjs",
-    "validate:workforce-indicators": "node scripts/workforce-indicators-v11363-test.mjs"
+    "validate:workforce-indicators": "node scripts/workforce-indicators-v11363-test.mjs",
+    "validate:paco": "node scripts/paco-operational-v11370-test.mjs"
   }
 }

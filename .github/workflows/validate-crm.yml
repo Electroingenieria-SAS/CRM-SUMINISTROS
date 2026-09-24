@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, hardening/repository-cleanup-v11-32-0]
+    branches: [main, hardening/repository-cleanup-v11-32-0, integration/paco-v11-37-0-calendar-v11-36-8]
   workflow_dispatch:
 
 concurrency:
@@ -61,6 +61,9 @@ jobs:
       - name: Workforce indicators · visual analytics contract
         run: node scripts/workforce-indicators-v11363-test.mjs
 
+      - name: PACO · operational assistant contract
+        run: node scripts/paco-operational-v11370-test.mjs
+
       - name: Security contract
         id: security
         continue-on-error: true
@@ -96,14 +99,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'version: "11.36.7"' assets/js/config.js
-          grep -q 'build: "2026-09-24.22"' assets/js/config.js
-          grep -q '"version": "11.36.7"' package.json
-          grep -q '"version": "11.36.7"' package-lock.json
-          grep -q 'app-entry.js?v=11.36.7' index.html
+          grep -q 'version: "11.37.0"' assets/js/config.js
+          grep -q 'build: "2026-09-24.23"' assets/js/config.js
+          grep -q '"version": "11.37.0"' package.json
+          grep -q '"version": "11.37.0"' package-lock.json
+          grep -q 'app-entry.js?v=11.37.0' index.html
           grep -Fq 'https://script.google.com/macros/s/AKfycbwjl1JCfE0eV92P6DCn6h8jIVIBlSwLOQj8U7Mz1_7YW2Xan8DPI5tpWJuiG7znSCSs/exec' assets/js/config.js
-          grep -Fxq '// previous-cache: crm-suministros-v11-36-6-20260924-21' service-worker.js
-          grep -Fxq 'const CACHE="crm-suministros-v11-36-7-20260924-22";' service-worker.js
+          grep -Fxq '// previous-cache: crm-suministros-v11-36-7-20260924-22' service-worker.js
+          grep -Fxq 'const CACHE="crm-suministros-v11-37-0-20260924-23";' service-worker.js
           grep -q 'manifest.webmanifest' vercel.json
           test "$(grep -c '<link rel="stylesheet" href="./assets/css/' index.html)" -eq 4
           test "$(find assets/css -maxdepth 1 -type f -name '*.css' | wc -l)" -eq 4
@@ -121,6 +124,13 @@ jobs:
           test -s "assets/js/modules/workforce-evidence-manager-v11360.js"
           grep -q "./assets/js/modules/workforce-calendar-v11360.js" service-worker.js
           grep -q "./assets/js/modules/workforce-evidence-manager-v11360.js" service-worker.js
+
+          test -s "assets/js/modules/paco-operational-v11370.js"
+          test -s "assets/runtime-css/paco-operational-v11370.css"
+          test -s "scripts/paco-operational-v11370-test.mjs"
+          grep -q "./assets/js/modules/paco-operational-v11370.js" service-worker.js
+          grep -q "./assets/runtime-css/paco-operational-v11370.css" service-worker.js
+          grep -q 'pacoSnapshot:()=>rpc("erp_x_paco_snapshot")' assets/js/services/api.js
 
           for css in guides-layout-v11291 receiving-workspace-v11290 inventory-dialogs-v11260 inventory-visual-v11270 inventory-ui-v11240 inventory-workspace-v11251 workforce-experience-v11344 workforce-timeline-v11350 workforce-calendar-v11360; do
             test -s "assets/runtime-css/${css}.css"
@@ -159,10 +169,10 @@ jobs:
           test ! -e assets/js/modules/inventory-modal-v11253.js
           test ! -e assets/js/modules/inventory-modal-workspace-v11254.js
           test "$(find .github/workflows -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \) | wc -l)" -eq 1
-          grep -q '"main"[[:space:]]*:[[:space:]]*true' vercel.json
+          grep -q '"main"[[:space:]]*:[[:space:]]*false' vercel.json
           grep -q '"\*"[[:space:]]*:[[:space:]]*false' vercel.json
 
-          for migration in 098_profiles_rls_scope_v11_27_0 099_work_my_day_role_cache_v11_27_0 100_inventory_filtered_hotpath_v11_27_0 101_inventory_count_plan_hotpath_v11_27_0 108_integral_health_audit_v11_30_0 109_auditoria_erp_contract_health_v11_30_0 110_security_definer_contract_v11_30_1 111_security_definer_contract_regex_fix_v11_30_1 112_delivery_satisfaction_distance_v11_31_0 113_delivery_satisfaction_fk_indexes_v11_31_0 114_impersonation_metrics_security_v11_32_0 115_workforce_planner_calendar_v11_33_0 116_workforce_my_day_automation_v11_34_0 117_workforce_manager_review_v11_34_1 118_workforce_catalog_taxonomy_v11_34_3 119_workforce_timeline_evidence_v11_35_0 120_workforce_calendar_feed_v11_36_0; do
+          for migration in 098_profiles_rls_scope_v11_27_0 099_work_my_day_role_cache_v11_27_0 100_inventory_filtered_hotpath_v11_27_0 101_inventory_count_plan_hotpath_v11_27_0 108_integral_health_audit_v11_30_0 109_auditoria_erp_contract_health_v11_30_0 110_security_definer_contract_v11_30_1 111_security_definer_contract_regex_fix_v11_30_1 112_delivery_satisfaction_distance_v11_31_0 113_delivery_satisfaction_fk_indexes_v11_31_0 114_impersonation_metrics_security_v11_32_0 115_workforce_planner_calendar_v11_33_0 116_workforce_my_day_automation_v11_34_0 117_workforce_manager_review_v11_34_1 118_workforce_catalog_taxonomy_v11_34_3 119_workforce_timeline_evidence_v11_35_0 120_workforce_calendar_feed_v11_36_0 121_paco_operational_snapshot_v11_37_0; do
             test -s "supabase/migrations/${migration}.sql"
           done
 
@@ -225,21 +235,21 @@ jobs:
           touch dist-deployable/.nojekyll
           printf '%s\n' \
             "commit=${GITHUB_SHA}" \
-            "version=11.36.7" \
-            "build=2026-09-24.22" \
+            "version=11.37.0" \
+            "build=2026-09-24.23" \
             "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             > dist-deployable/BUILD_INFO.txt
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v7
         with:
-          name: crm-suministros-v11.36.7-build22-deployable
+          name: crm-suministros-v11.37.0-build23-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
 
       - name: Prepare GitHub Pages preview artifact
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/hardening/repository-cleanup-v11-32-0')
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/hardening/repository-cleanup-v11-32-0' || github.ref == 'refs/heads/integration/paco-v11-37-0-calendar-v11-36-8')
         uses: actions/upload-pages-artifact@v5
         with:
           path: dist-deployable
@@ -280,7 +290,7 @@ jobs:
     concurrency:
       group: crm-suministros-github-pages
       cancel-in-progress: true
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/hardening/repository-cleanup-v11-32-0')
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/hardening/repository-cleanup-v11-32-0' || github.ref == 'refs/heads/integration/paco-v11-37-0-calendar-v11-36-8')
     needs: validate
     runs-on: ubuntu-latest
     permissions:
@@ -367,7 +377,7 @@ jobs:
       - name: Preserve SBOM
         uses: actions/upload-artifact@v7
         with:
-          name: crm-suministros-v11.36.7-sbom
+          name: crm-suministros-v11.37.0-sbom
           path: crm-suministros-sbom.cdx.json
           if-no-files-found: error
           retention-days: 90

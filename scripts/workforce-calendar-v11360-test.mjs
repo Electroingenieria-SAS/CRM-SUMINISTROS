@@ -95,6 +95,9 @@ for(const label of ["07:00–09:00","09:00–11:00","11:00–12:00","13:40–15:
 }
 assert.equal((dayHtml.match(/work-calendar-slot-head-v11367/g)||[]).length,5,"Vista Día debe renderizar exactamente cinco bloques horarios.");
 assert.equal((dayHtml.match(/work-calendar-slot-cell-v11367/g)||[]).length,5,"Cada trabajador debe tener exactamente cinco casillas horarias.");
+assert.equal(dayHtml.includes("work-calendar-day-table-grid-v11368"),true,"Día debe usar una sola grilla tabular para encabezado y filas.");
+assert.equal(dayHtml.includes("work-calendar-segment-heads-v11360"),false,"El encabezado Día no debe volver a anidar otra grilla de horarios.");
+assert.equal(dayHtml.includes("work-calendar-segments-v11360"),false,"Las filas Día no deben volver a anidar otra grilla de horarios.");
 assert.equal(dayHtml.includes("work-calendar-hour-axis-v11363"),false,"Vista Día V11.36.7 no debe volver a la escala horaria fragmentada.");
 
 const hiddenByWorker=renderWorkforceCalendarBoard({
@@ -163,12 +166,14 @@ for(const token of [
 const css=fs.readFileSync(new URL("../assets/runtime-css/workforce-calendar-v11360.css",import.meta.url),"utf8");
 
 for(const token of [
-  "work-calendar-day-slots-v11367",
-  "grid-template-columns:repeat(5,minmax(0,1fr))",
+  "work-calendar-day-table-v11368",
+  "work-calendar-day-table-grid-v11368",
+  "grid-template-columns:var(--day-team-col) repeat(5,minmax(var(--day-slot-min),1fr))!important",
+  "--day-team-col:190px",
+  "--day-slot-min:180px",
   "work-calendar-slot-head-v11367",
   "work-calendar-slot-cell-v11367",
-  "work-calendar-slot-event-v11367",
-  "minmax(900px,1fr)"
+  "work-calendar-slot-event-v11367"
 ]){
   assert.equal(css.includes(token),true,`V11.36.7 debe conservar la grilla de cinco bloques: ${token}`);
 }
@@ -263,4 +268,4 @@ for(const legacyPurple of ["#7657a8","#4d3a6d","#7a62ae","#5f478f","#6c55a0","#b
   assert.equal(css.includes(legacyPurple),false,`No debe reaparecer el morado heredado ${legacyPurple}.`);
 }
 
-console.log("workforce calendar v11.36.7 five-slot day tests: OK");
+console.log("workforce calendar six-column day table tests: OK");

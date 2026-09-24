@@ -126,6 +126,7 @@ export const api={
   workAnalytics:(from,to,profileId=null)=>rpc("erp_x_work_analytics",{p_from:from,p_to:to,p_profile_id:profileId||null}),
   workOccupation:(from,to,profileId=null)=>rpc("erp_x_work_occupation",{p_from:from,p_to:to,p_profile_id:profileId||null}),
   workHealth:()=>rpc("erp_x_work_health"),
+  pacoSnapshot:()=>rpc("erp_x_paco_snapshot"),
   creditList:(status=null,search="",page=1,pageSize=50)=>rpc("erp_x_credit_list",{p_status:status,p_search:search||null,p_page:page,p_page_size:pageSize}),
   creditCreate:payload=>mutationRpc("erp_x_credit_create",{p_payload:payload}),
   creditTransition:(id,action,reason=null)=>mutationRpc("erp_x_credit_transition",{p_request_id:id,p_action:action,p_reason:reason}),
