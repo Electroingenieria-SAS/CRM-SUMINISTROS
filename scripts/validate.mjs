@@ -97,8 +97,8 @@ const normalizedJsRuntime=jsRuntime
   .replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
 // Release identity.
-check(version==="11.36.4","CONFIG.version debe ser 11.36.4.");
-check(build==="2026-09-23.19","CONFIG.build debe ser 2026-09-23.19.");
+check(version==="11.36.5","CONFIG.version debe ser 11.36.5.");
+check(build==="2026-09-24.20","CONFIG.build debe ser 2026-09-24.20.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
@@ -154,8 +154,8 @@ check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía instit
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
 // PWA and Vercel routing.
-check(sw.includes('// previous-cache: crm-suministros-v11-36-3-20260923-18'),"previous-cache PWA debe apuntar a V11.36.3.");
-check(sw.includes('const CACHE="crm-suministros-v11-36-4-20260923-19";'),"CACHE activo PWA no corresponde a V11.36.4.");
+check(sw.includes('// previous-cache: crm-suministros-v11-36-4-20260923-19'),"previous-cache PWA debe apuntar a V11.36.4.");
+check(sw.includes('const CACHE="crm-suministros-v11-36-5-20260924-20";'),"CACHE activo PWA no corresponde a V11.36.5.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
 check(vercel.includes('manifest\\\\.webmanifest')||vercel.includes('/manifest.webmanifest'),"Vercel debe excluir o tratar explícitamente el manifest real.");
@@ -354,7 +354,7 @@ console.log(`VALIDACIÓN CRM ${version} CORRECTA`);
 console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
 console.log("- Inventario conserva captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
-console.log("- V11.36.4 eleva Indicadores con KPIs visuales, balance de jornada, distribución, referencias, desviaciones y equipo activo.");
+console.log("- V11.36.5 integra Filtros en la barra del Cronograma, elimina la fila vacía y corrige el contador 0.");
 console.log("- Observers responsive y popup procesan únicamente el ámbito dinámico afectado.");
 console.log("- PWA, Vercel, RLS y hotpaths SQL quedan incorporados al contrato canónico.");
 console.log("- Conteo ciego, RLS granular y aprobación contable permanecen como contratos obligatorios.");

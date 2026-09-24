@@ -206,8 +206,26 @@ for(const token of [
   assert.equal(workforce.includes(token),true,`Workforce debe conservar filtro ${token}`);
 }
 
+
+assert.equal(
+  workforce.indexOf('work-calendar-filterbox-v11362')>workforce.indexOf('work-planner-actions') &&
+  workforce.indexOf('work-calendar-filterbox-v11362')<workforce.indexOf('work-planner-context-strip'),
+  true,
+  "Filtros deben vivir dentro de la barra del planificador y no ocupar una fila independiente."
+);
+for(const token of [
+  ".work-planner-actions{",
+  "width:176px",
+  "position:absolute",
+  "top:calc(100% + 8px)",
+  ">b[hidden]",
+  "display:none!important"
+]){
+  assert.equal(css.includes(token),true,`CSS filtros compactos debe conservar ${token}`);
+}
+
 for(const legacyPurple of ["#7657a8","#4d3a6d","#7a62ae","#5f478f","#6c55a0","#b49bd9"]){
   assert.equal(css.includes(legacyPurple),false,`No debe reaparecer el morado heredado ${legacyPurple}.`);
 }
 
-console.log("workforce calendar v11.36.3 tests: OK");
+console.log("workforce calendar v11.36.5 filters tests: OK");
