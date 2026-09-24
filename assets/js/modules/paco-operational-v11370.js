@@ -139,6 +139,10 @@ const INTENTS={
   novelties:["novedades","que novedades hay","qué novedades hay","excepciones","bloqueos"],
   operation:["estado de la operacion","estado operación","como va la operacion","cómo va la operación","resumen operativo"],
   myDay:["mi jornada","que estoy haciendo","qué estoy haciendo","mi actividad"],
+  team:["que esta haciendo","qué está haciendo","quien esta trabajando","quién está trabajando","equipo trabajando","estado del equipo","actividad del equipo"],
+  unassigned:["pedidos sin responsable","pedido sin responsable","sin asignar","pedidos sin asignar","cola sin responsable"],
+  longWork:["actividades largas","actividad larga","actividad prolongada","quien lleva mucho tiempo","quién lleva mucho tiempo","mucho tiempo en actividad"],
+  capabilities:["que puedes hacer","qué puedes hacer","como me ayudas","cómo me ayudas","funciones paco","ayuda paco"],
   order:["buscar pedido","consultar pedido","ver pedido","estado pedido","en que parte va","en qué parte va","donde va el pedido","dónde va el pedido","pedido"]
 };
 
@@ -231,7 +235,7 @@ function toggleOpen(){setOpen(!isOpen())}
 
 function quickPrompts(){
   const base=["Registrar actividad","Pedidos demorados","Mi jornada","Novedades"];
-  if(isManager())base.splice(2,0,"¿Quién está desocupado?");
+  if(isManager())base.splice(2,0,"Estado del equipo","¿Quién está desocupado?");
   return base;
 }
 function renderQuick(){
@@ -533,6 +537,54 @@ async function idleMessage(){
   if(!rows.length)return message({text:"No veo auxiliares de logística o corte con inactividad superior a 30 minutos laborales."});
   return message({text:`Hay ${rows.length} auxiliar${rows.length===1?"":"es"} con tiempo disponible.`,card:rows.map(row=>[row.name,duration(row.idleSeconds)]),actions:[{label:"Abrir cronograma",action:"navigate",module:"workforce",icon:"◷"}]});
 }
+async function teamActivityMessage(input=""){
+  if(!isManager())return myDayMessage();
+  const snapshot=paco.previous||await loadSnapshot();
+  const rows=snapshotTeam(snapshot);
+  if(!rows.length)return message({text:"No veo auxiliares de logística o corte en tu ámbito actual."});
+  const query=norm(input).replace(/que|esta|haciendo|quien|trabajando|estado|del|equipo|actividad/g," ").replace(/\s+/g," ").trim();
+  const filtered=query?rows.filter(row=>norm(row.name).includes(query)||query.split(" ").some(word=>word.length>2&&norm(row.name).includes(word))):rows;
+  if(query&&!filtered.length)return message({text:`No encontré un auxiliar visible que coincida con “${input}”.`,actions:[{label:"Ver equipo",action:"navigate",module:"workforce",icon:"◷"}]});
+  return message({
+    text:query?"Esto es lo que veo de esa persona.":"Así está el equipo auxiliar en este momento.",
+    card:filtered.slice(0,10).map(row=>[
+      row.name||"Auxiliar",
+      row.activeTitle?`${row.activeTitle} · ${duration(Number(row.activeBusinessSeconds||0))}`:`Disponible · ${duration(Number(row.idleBusinessSeconds||0))}`
+    ]),
+    actions:[{label:"Abrir cronograma",action:"navigate",module:"workforce",icon:"◷"}]
+  });
+}
+async function unassignedOrdersMessage(){
+  const snapshot=paco.previous||await loadSnapshot();
+  const rows=(snapshot.orders||[]).filter(row=>activeOrder(row)&&!orderAssignee(row)).sort((a,b)=>orderAge(b)-orderAge(a)).slice(0,8);
+  if(!rows.length)return message({text:"No veo pedidos activos visibles sin responsable en este momento."});
+  return message({
+    text:`Hay ${rows.length} pedido${rows.length===1?"":"s"} activo${rows.length===1?"":"s"} sin responsable visible.`,
+    actions:rows.map(row=>({label:`${orderNumber(row)} · ${duration(orderAge(row))}`,sub:row.stepName||row.currentStepName||orderStep(row)||"En cola",icon:"!",action:"diagnose-order-id",orderId:row.id||row.orderId}))
+  });
+}
+async function longWorkMessage(){
+  if(!isManager())return message({text:"El seguimiento de actividades prolongadas está disponible para liderazgo y coordinación autorizados."});
+  const snapshot=paco.previous||await loadSnapshot();
+  const rows=longActivities(snapshot).slice(0,8);
+  if(!rows.length)return message({text:"No veo actividades auxiliares que superen 90 minutos laborales en este momento."});
+  return message({
+    text:`Hay ${rows.length} actividad${rows.length===1?"":"es"} prolongada${rows.length===1?"":"s"} para revisar.`,
+    card:rows.map(row=>[row.name||"Auxiliar",`${row.activeTitle||"Actividad"} · ${duration(row.activeSeconds)}`]),
+    actions:[{label:"Abrir cronograma",action:"navigate",module:"workforce",icon:"◷"}]
+  });
+}
+function capabilitiesMessage(){
+  return message({
+    text:"Puedo consultar la operación y ayudarte a ejecutar acciones permitidas por tu sesión: pedidos y su etapa, demoras, pedidos sin responsable, novedades, despachos, jornada, actividades terminadas, estado del equipo y registro guiado de actividades.",
+    actions:[
+      {label:"Registrar actividad",action:"activity-begin",kind:"primary",icon:"▶"},
+      {label:"Estado operativo",action:"operation",icon:"↗"},
+      {label:"Pedidos demorados",action:"delayed",icon:"!"}
+    ]
+  });
+}
+
 async function recentWorkMessage(){
   const snapshot=paco.previous||await loadSnapshot();
   const rows=snapshotExecutions(snapshot).filter(x=>x.endedAt).sort((a,b)=>new Date(b.endedAt)-new Date(a.endedAt)).slice(0,8);
@@ -612,8 +664,12 @@ async function resolveQuery(input){
     const cleaned=text.replace(/registrar|registar|crear|iniciar|anotar|hacer|actividad|actvidad|nueva/g," ").replace(/\s+/g," ").trim();
     return beginActivityFlow(cleaned);
   }
+  if(matchesAny(text,INTENTS.capabilities))return capabilitiesMessage();
   if(matchesAny(text,INTENTS.delayed))return delayedMessage();
+  if(matchesAny(text,INTENTS.unassigned))return unassignedOrdersMessage();
   if(matchesAny(text,INTENTS.idle))return idleMessage();
+  if(matchesAny(text,INTENTS.longWork))return longWorkMessage();
+  if(matchesAny(text,INTENTS.team))return teamActivityMessage(input);
   if(matchesAny(text,INTENTS.recentWork))return recentWorkMessage();
   if(matchesAny(text,INTENTS.shipped))return shippedMessage();
   if(matchesAny(text,INTENTS.novelties))return noveltyMessage();
