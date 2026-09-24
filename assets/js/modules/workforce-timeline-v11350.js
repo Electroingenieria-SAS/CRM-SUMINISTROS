@@ -16,6 +16,7 @@ export function ensureWorkforceTimelineStyles(){
 export function composePlannerTimeline(raw={}){
   const assignments=Array.isArray(raw.assignments)?raw.assignments:[];
   const executions=Array.isArray(raw.executions)?raw.executions:[];
+  const operationalExecutions=Array.isArray(raw.operationalExecutions)?raw.operationalExecutions:[];
   const canPlanTeam=Boolean(raw.permissions?.canPlanTeam);
   const byAssignment=new Map();
 
@@ -37,6 +38,10 @@ export function composePlannerTimeline(raw={}){
   for(const execution of executions){
     if(matched.has(execution.id))continue;
     timeline.push(timelineFromExecution(execution));
+  }
+
+  for(const execution of operationalExecutions){
+    timeline.push(timelineFromOperational(execution));
   }
 
   timeline.sort((a,b)=>dateValue(a.plannedStart||a.dueAt)-dateValue(b.plannedStart||b.dueAt)||String(a.title||"").localeCompare(String(b.title||""),"es"));
@@ -64,7 +69,7 @@ export async function openWorkTimelineCard(item,loadDetail,loadPreview){
     <aside class="work-timeline-sheet-v11350" role="dialog" aria-modal="true" aria-label="Detalle de actividad" tabindex="-1">
       <header class="work-timeline-sheet-head-v11350">
         <div>
-          <span class="work-timeline-kicker-v11350">${fmt.escape(item?.sourceType==="EXECUTION"?"Actividad registrada":"Actividad del cronograma")}</span>
+          <span class="work-timeline-kicker-v11350">${fmt.escape(item?.sourceType==="ORDER_PROCESS"?"Trabajo de pedido":item?.sourceType==="EXECUTION"?"Actividad registrada":"Actividad del cronograma")}</span>
           <h3>${fmt.escape(item?.title||"Actividad")}</h3>
         </div>
         <button type="button" class="work-timeline-close-v11350" data-timeline-close aria-label="Cerrar">×</button>
