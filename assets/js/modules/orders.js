@@ -400,7 +400,8 @@ function renderSimpleOrder(host,data){
         </header>
         <div class="modal-body simple-process-body">
           <section class="simple-order-summary">
-            <div><small>Situación actual</small><strong class="simple-status-title ${status.tone}">${fmt.escape(status.label)}</strong></div>
+            <div><small>Etapa actual</small><strong>${fmt.escape(fmt.step(order.current_step_code))}</strong></div>
+            <div><small>Estado de etapa</small><strong class="simple-status-title ${status.tone}">${fmt.escape(status.label)}</strong></div>
             <div><small>Responsable</small><strong>${fmt.escape(currentAssignee(data))}</strong></div>
             <div><small>Condición</small><strong>${fmt.escape(fmt.payment(order.payment_condition_code))}</strong></div>
             <div><small>Entrega</small><strong>${fmt.escape(fmt.route(order.delivery_route_code))}</strong></div>
