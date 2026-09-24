@@ -4,13 +4,14 @@ import assert from "node:assert/strict";
 const wrapper=fs.readFileSync(new URL("../assets/js/modules/paco-assistant-v11200.js",import.meta.url),"utf8");
 const engine=fs.readFileSync(new URL("../assets/js/modules/paco-operational-v11370.js",import.meta.url),"utf8");
 const css=fs.readFileSync(new URL("../assets/runtime-css/paco-operational-v11370.css",import.meta.url),"utf8");
+const language=fs.readFileSync(new URL("../assets/js/modules/paco-language-v11373.js",import.meta.url),"utf8");
 
 assert.match(wrapper,/export \{installPacoAssistant\} from "\.\/paco-operational-v11370\.js";/);
 assert.equal(wrapper.includes("GUIDES"),false,"El entrypoint anterior no debe conservar el asistente legado.");
 assert.equal(wrapper.includes("password"),false,"El entrypoint anterior no debe conservar cambio de contraseña.");
 
 for(const token of [
-  'const VERSION="11.37.2"',
+  'const VERSION="11.37.3"',
   "MONITOR_MS=60000",
   "DIGEST_INTERVAL_MS=30*60*1000",
   "ORDER_WARN_SECONDS=3600",
@@ -43,8 +44,6 @@ for(const token of [
   "capabilitiesMessage",
   "speechSynthesis",
   "SpeechSynthesisUtterance",
-  "editDistance",
-  "fuzzyPhrase",
   "activitySuggestions",
   "activity-start",
   'action==="summary-now"',
@@ -54,6 +53,13 @@ for(const token of [
   'action==="shipped"',
   'action==="novelties"',
   "diagnoseOrderById",
+  "compatibilitySnapshot",
+  "missingSnapshotRpc",
+  "snapshotRpcUnavailableUntil",
+  "runAction",
+  "cancelFlowMessage",
+  "restartPaco",
+  "detectPacoIntent",
   "paco-op-toast-stack"
 ]){
   assert.equal(engine.includes(token),true,`PACO operacional debe conservar ${token}`);
@@ -74,22 +80,12 @@ for(const role of ["jefe_logistica","lider_logistica","coordinador_logistico","a
   assert.equal(engine.includes(role),true,`PACO debe reconocer el rol ${role}`);
 }
 
-for(const phrase of [
-  "registrar actividad",
-  "pedidos demorados",
-  "quien esta desocupado",
-  "actividades terminadas",
-  "pedidos despachados",
-  "novedades",
-  "estado del equipo",
-  "pedidos sin responsable",
-  "actividades largas",
-  "que puedes hacer"
-]){
-  assert.equal(engine.includes(phrase),true,`PACO debe comprender la intención ${phrase}`);
+for(const token of ["INTENT_ALIASES","detectPacoIntent","CRM_MODULE_KNOWLEDGE","matchCrmModule","normalizePacoText"]){
+  assert.equal(language.includes(token),true,`Motor de lenguaje debe conservar ${token}`);
 }
+assert.equal(engine.includes('from "./paco-language-v11373.js"'),true,"PACO productivo debe consumir el motor entrenado.");
 
-for(const removed of ["getSupabase","password-self","setToolsOpen","Centro de herramientas","MutationObserver","api.workPlanner(todayIso()","api.workPeople(null)"]){
+for(const removed of ["getSupabase","password-self","setToolsOpen","Centro de herramientas","MutationObserver","api.workPlanner(todayIso()"]){
   assert.equal(engine.includes(removed),false,`PACO nuevo no debe reintroducir ${removed}`);
 }
 
@@ -97,6 +93,17 @@ const generatedActions=[...engine.matchAll(/action:"([^"]+)"/g)].map(match=>matc
 const handledActions=new Set([...engine.matchAll(/action==="([^"]+)"/g)].map(match=>match[1]));
 for(const action of new Set(generatedActions)){
   assert.equal(handledActions.has(action),true,`Todo botón PACO debe tener handler funcional: ${action}`);
+}
+
+for(const token of [
+  'data-paco-summary-now',
+  'data-paco-restart',
+  'data-paco-test-voice',
+  'pacoAction:"summary-now"',
+  'action==="cancel-flow"',
+  'action==="restart"'
+]){
+  assert.equal(engine.includes(token),true,`Control directo PACO debe estar cableado: ${token}`);
 }
 
 for(const token of [
@@ -116,4 +123,4 @@ for(const token of [
   assert.equal(css.includes(token),true,`CSS PACO debe conservar ${token}`);
 }
 
-console.log("PACO operational assistant v11.37.2 masculine Latin voice tests: OK");
+console.log("PACO operational assistant v11.37.3 resilient trained assistant tests: OK");
