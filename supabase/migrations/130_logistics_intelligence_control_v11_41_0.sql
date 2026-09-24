@@ -169,7 +169,7 @@ select
     when c.delivered_at is not null then 'ON_TIME'
     when c.dispatched_at is not null
       and coalesce(c.predicted_transit_p80_days,c.predicted_transit_p50_days) is not null
-      and (c.dispatched_at + make_interval(secs=round(86400*coalesce(c.predicted_transit_p80_days,c.predicted_transit_p50_days))::int))::date>c.requested_delivery_date
+      and (c.dispatched_at + make_interval(secs => round(86400*coalesce(c.predicted_transit_p80_days,c.predicted_transit_p50_days))::int))::date>c.requested_delivery_date
       then 'AT_RISK'
     when c.dispatched_at is null
       and coalesce(c.predicted_transit_p80_days,c.predicted_transit_p50_days) is not null
@@ -179,7 +179,7 @@ select
   end delivery_risk,
   case
     when c.dispatched_at is not null and coalesce(c.predicted_transit_p80_days,c.predicted_transit_p50_days) is not null
-      then (c.dispatched_at + make_interval(secs=round(86400*coalesce(c.predicted_transit_p80_days,c.predicted_transit_p50_days))::int))::date
+      then (c.dispatched_at + make_interval(secs => round(86400*coalesce(c.predicted_transit_p80_days,c.predicted_transit_p50_days))::int))::date
     when c.dispatched_at is null and coalesce(c.predicted_transit_p80_days,c.predicted_transit_p50_days) is not null
       then current_date+ceil(coalesce(c.predicted_transit_p80_days,c.predicted_transit_p50_days))::int
   end estimated_arrival_p80,
