@@ -643,16 +643,47 @@ function deliverDigest(snapshot,{automatic=true,force=false}={}){
   }
 }
 
-async function loadSnapshot(){
-  const data=await api.pacoSnapshot();
+function snapshotShape(data={},extra={}){
   return {
     at:Date.now(),
     orders:Array.isArray(data?.orders)?data.orders:[],
     team:Array.isArray(data?.team)?data.team:[],
     executions:Array.isArray(data?.executions)?data.executions:[],
     managerScope:Boolean(data?.managerScope),
-    serverTime:data?.serverTime||null
+    serverTime:data?.serverTime||null,
+    ...extra
   };
+}
+function missingSnapshotRpc(error){
+  const text=[error?.code,error?.message,error?.technicalMessage].filter(Boolean).join(" ");
+  return /PGRST202|erp_x_paco_snapshot|schema cache/i.test(text);
+}
+async function compatibilitySnapshot(){
+  const [ordersResult,myDayResult,peopleResult]=await Promise.allSettled([
+    api.listOrders({page:1,pageSize:120,includeHistory:true,assignment:isManager()?"ALL":"MINE"}),
+    api.workMyDay(),
+    isManager()?api.workPeople(null):Promise.resolve([])
+  ]);
+  const orders=ordersResult.status==="fulfilled"?itemArray(ordersResult.value):[];
+  const myDay=myDayResult.status==="fulfilled"?(myDayResult.value||{}):{};
+  const team=peopleResult.status==="fulfilled"?itemArray(peopleResult.value).map(person=>({
+    ...person,
+    activeBusinessSeconds:person.activeStartedAt?Math.max(0,Math.floor((Date.now()-new Date(person.activeStartedAt).getTime())/1000)):0,
+    idleBusinessSeconds:0
+  })):[];
+  const executions=[...(myDay.history||[])];
+  if(myDay.active&&!executions.some(row=>String(row.id)===String(myDay.active.id)))executions.unshift(myDay.active);
+  return snapshotShape({orders,team,executions,managerScope:isManager(),serverTime:new Date().toISOString()},{degraded:true});
+}
+async function loadSnapshot(){
+  try{
+    const data=await api.pacoSnapshot();
+    return snapshotShape(data);
+  }catch(error){
+    if(!missingSnapshotRpc(error))throw error;
+    console.warn("[PACO SNAPSHOT] RPC especializada no disponible; usando modo compatible.");
+    return compatibilitySnapshot();
+  }
 }
 
 function executionMap(snapshot){
@@ -869,11 +900,13 @@ async function resolveQuery(input){
   const text=norm(input);
   if(!text)return message({text:"Dime qué necesitas. Puedo revisar pedidos, jornada, novedades o registrar una actividad."});
 
+  if(isRestartText(text)){
+    setFlow(null);
+    return message({text:"Reinicié el contexto de la consulta. Empecemos de nuevo.",actions:[{label:"Ver opciones",action:"capabilities",kind:"primary",icon:"↗"},{label:"Escribir consulta",action:"focus-input",icon:"⌕"}]});
+  }
+  if(isCancelText(text))return cancelFlowMessage();
+
   if(paco.flow?.type==="activity"){
-    if(matchesAny(text,["cancelar","salir","olvidalo","olvídalo"])){
-      setFlow(null);
-      return message({text:"Listo. Cancelé el registro guiado de actividad."});
-    }
     if(paco.flow.step==="confirm"){
       if(matchesAny(text,["si","sí","dale","iniciar","empieza","comenzar"]))return startActivity(paco.flow.catalogId);
       if(matchesAny(text,["no","otra","cambiar","elegir otra"]))return beginActivityFlow();
@@ -901,10 +934,27 @@ async function resolveQuery(input){
   const term=orderTerm(input);
   if(term||matchesAny(text,INTENTS.order))return diagnoseOrder(term);
 
-  const moduleHit=Object.entries(MODULES).find(([id,label])=>norm(label).split(" ").some(word=>word.length>4&&text.includes(word))&&allowed(id));
-  if(moduleHit)return message({text:`Puedo llevarte a ${moduleHit[1]} y seguir ayudándote desde allí.`,actions:[{label:`Abrir ${moduleHit[1]}`,action:"navigate",module:moduleHit[0],kind:"primary",icon:"→"}]});
+  const moduleHit=matchCrmModule(text);
+  if(moduleHit&&allowed(moduleHit.id)){
+    return message({
+      text:`${moduleHit.label}: ${moduleHit.summary}`,
+      actions:[
+        {label:`Abrir ${moduleHit.label}`,action:"navigate",module:moduleHit.id,kind:"primary",icon:"→"},
+        {label:"Nueva consulta",action:"focus-input",icon:"⌕"},
+        {label:"Reiniciar PACO",action:"restart",icon:"↻"}
+      ]
+    });
+  }
 
-  return message({text:"No encontré una acción exacta, pero puedo entender frases aproximadas. Prueba con “registrar actividad”, “en qué parte va el pedido 12345”, “qué está demorado” o “quién está desocupado”.",actions:[{label:"Registrar actividad",action:"activity-begin",icon:"▶"},{label:"Estado operativo",action:"operation",icon:"↗"}]});
+  return message({
+    text:"No encontré una acción exacta. Puedes escribir como hablas normalmente, incluso con errores: pedidos, inventario, compras, recepción, alistamiento, corte, facturación, despachos, jornada, excepciones, reportes, auditoría, usuarios y demás módulos del CRM.",
+    actions:[
+      {label:"¿Qué puede hacer PACO?",action:"capabilities",icon:"↗"},
+      {label:"Registrar actividad",action:"activity-begin",icon:"▶"},
+      {label:"Resumen operativo",action:"operation",icon:"◎"},
+      {label:"Reiniciar",action:"restart",icon:"↻"}
+    ]
+  });
 }
 
 async function submit(input){
@@ -929,6 +979,8 @@ async function handleAction(button){
   if(action==="navigate"){if(allowed(button.dataset.module)){navigate(button.dataset.module);setOpen(false)}return}
   if(action==="open-order"){window.dispatchEvent(new CustomEvent("erp:open-order",{detail:button.dataset.orderId}));setOpen(false);return}
   if(action==="focus-input"){const input=paco.root?.querySelector("[data-paco-input]");input?.focus();return}
+  if(action==="cancel-flow"){add(cancelFlowMessage());return}
+  if(action==="restart"){restartPaco();return}
   if(action==="test-voice"){testVoice();return}
   if(action==="summary-now"){
     const snapshot=await loadSnapshot();
@@ -951,6 +1003,23 @@ async function handleAction(button){
   if(action==="capabilities"){add(capabilitiesMessage());return}
   if(action==="operation"){add(await operationMessage());return}
   if(action==="diagnose-order-id"){setBusy(true);typing();try{replaceTyping(await diagnoseOrderById(button.dataset.orderId))}catch(error){replaceTyping(message({text:error.message}))}finally{setBusy(false)}return}
+  throw new Error(`Acción de PACO no reconocida: ${action||"(vacía)"}`);
+}
+function actionFailure(error){
+  console.error("[PACO ACTION]",error);
+  add(message({
+    text:"No pude completar esa acción. Ya puedes corregir la consulta o reiniciar PACO sin cerrar el chat.",
+    alert:{title:"La acción no se completó",text:error?.message||"Error inesperado",tone:"warning"},
+    actions:[
+      {label:"Reintentar consulta",action:"focus-input",kind:"primary",icon:"⌕"},
+      {label:"Cancelar consulta",action:"cancel-flow",icon:"×"},
+      {label:"Reiniciar PACO",action:"restart",icon:"↻"}
+    ]
+  }));
+}
+async function runAction(button){
+  try{await handleAction(button)}
+  catch(error){actionFailure(error)}
 }
 
 function bindRoot(){
@@ -967,15 +1036,12 @@ function bindRoot(){
     testVoice();
   });
   root.querySelector("[data-paco-test-voice]")?.addEventListener("click",testVoice);
-  root.querySelector("[data-paco-summary-now]")?.addEventListener("click",async()=>{
-    const snapshot=await loadSnapshot();
-    paco.previous=snapshot;
-    deliverDigest(snapshot,{automatic:false,force:true});
-  });
+  root.querySelector("[data-paco-summary-now]")?.addEventListener("click",()=>runAction({dataset:{pacoAction:"summary-now"}}));
+  root.querySelector("[data-paco-restart]")?.addEventListener("click",restartPaco);
   root.querySelector("[data-paco-form]")?.addEventListener("submit",event=>{event.preventDefault();const input=root.querySelector("[data-paco-input]");const value=input.value;input.value="";submit(value)});
   root.querySelector("[data-paco-input]")?.addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.shiftKey){event.preventDefault();root.querySelector("[data-paco-form]")?.requestSubmit()}});
   root.addEventListener("click",event=>{
-    const action=event.target.closest?.("[data-paco-action]");if(action){handleAction(action);return}
+    const action=event.target.closest?.("[data-paco-action]");if(action){void runAction(action);return}
     const quick=event.target.closest?.("[data-paco-quick]");if(quick)submit(quick.dataset.pacoQuick);
   });
 }
