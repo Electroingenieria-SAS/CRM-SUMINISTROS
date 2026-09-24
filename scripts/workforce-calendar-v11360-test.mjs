@@ -224,8 +224,27 @@ for(const token of [
   assert.equal(css.includes(token),true,`CSS filtros compactos debe conservar ${token}`);
 }
 
+
+for(const token of [
+  "z-index:220!important",
+  "z-index:99999!important",
+  "grid-template-columns:repeat(3,minmax(0,1fr))",
+  "min-height:48px",
+  "font-size:13px",
+  "border-left:4px solid #197fbb",
+  "border-left:4px solid #2c9a79",
+  "border-left:4px solid #e0a51c"
+]){
+  assert.equal(css.includes(token),true,`V11.36.6 debe conservar la mejora visual: ${token}`);
+}
+assert.equal(
+  css.indexOf("z-index:99999!important")>css.indexOf(".work-calendar-filter-panel-v11362"),
+  true,
+  "El panel de filtros debe tener una capa superior explícita."
+);
+
 for(const legacyPurple of ["#7657a8","#4d3a6d","#7a62ae","#5f478f","#6c55a0","#b49bd9"]){
   assert.equal(css.includes(legacyPurple),false,`No debe reaparecer el morado heredado ${legacyPurple}.`);
 }
 
-console.log("workforce calendar v11.36.5 filters tests: OK");
+console.log("workforce calendar v11.36.6 layer tests: OK");
