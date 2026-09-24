@@ -4,13 +4,15 @@ import {api} from "../services/api.js";
 import {fmt} from "../core/format.js";
 import {toast} from "../core/ui.js";
 
-const VERSION="11.37.0";
+const VERSION="11.37.1";
 const STYLE_ID="paco-operational-v11370-style";
 const MONITOR_MS=60000;
+const DIGEST_INTERVAL_MS=30*60*1000;
 const ORDER_WARN_SECONDS=3600;
-const IDLE_WARN_SECONDS=1800;
+const IDLE_WARN_SECONDS=20*60;
 const LONG_ACTIVITY_SECONDS=5400;
 const ALERT_COOLDOWN_MS=30*60*1000;
+const DIGEST_ORDER_LIMIT=12;
 const MANAGER_ROLES=new Set(["super_admin","gerencia","jefe_logistica","lider_logistica","coordinador_logistico"]);
 const AUX_ROLES=new Set(["aux_logistica","auxiliar_corte"]);
 const ACTIVE_ORDER_STATUSES=new Set(["OPEN","QUEUED","ASSIGNED","IN_PROGRESS","WAITING","BLOCKED","READY","PENDING"]);
@@ -52,7 +54,8 @@ const paco={
   flow:null,
   unsubscribe:null,
   globalBound:false,
-  alertMemory:new Map()
+  alertMemory:new Map(),
+  lastDigestAt:0
 };
 
 function ensureStyles(){
@@ -60,7 +63,7 @@ function ensureStyles(){
   const link=document.createElement("link");
   link.id=STYLE_ID;
   link.rel="stylesheet";
-  link.href="./assets/runtime-css/paco-operational-v11370.css?v=11.37.0";
+  link.href="./assets/runtime-css/paco-operational-v11370.css?v=11.37.1";
   document.head.appendChild(link);
 }
 
@@ -69,6 +72,14 @@ function readVoicePreference(){
 }
 function saveVoicePreference(){
   try{localStorage.setItem("paco_voice_v11370",paco.voiceEnabled?"1":"0")}catch{}
+}
+
+function digestStorageKey(){return `paco_digest_v11371_${profileId()||"anonymous"}`}
+function readLastDigest(){
+  try{return Number(sessionStorage.getItem(digestStorageKey())||0)}catch{return 0}
+}
+function saveLastDigest(){
+  try{sessionStorage.setItem(digestStorageKey(),String(paco.lastDigestAt||0))}catch{}
 }
 
 function esc(value){return fmt.escape(String(value??""))}
@@ -99,6 +110,17 @@ function orderAge(row){return Number(row?.ageBusinessSeconds||row?.age_business_
 function orderAssignee(row){return row?.assigneeName||row?.assignedToName||row?.assigned_to_name||row?.assignedTo||row?.assigned_to||""}
 function activeOrder(row){const status=orderStatus(row);return !status||ACTIVE_ORDER_STATUSES.has(status)}
 function itemArray(value){return Array.isArray(value)?value:Array.isArray(value?.items)?value.items:[]}
+
+function stepName(row){return row?.stepName||row?.currentStepName||orderStep(row)||"En proceso"}
+function stageBreakdown(snapshot){
+  const counts=new Map();
+  (snapshot?.orders||[]).filter(activeOrder).forEach(row=>{
+    const label=stepName(row);
+    counts.set(label,(counts.get(label)||0)+1);
+  });
+  return [...counts.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"es"));
+}
+function businessClockLabel(){return timeLabel(new Date())}
 
 function editDistance(a,b){
   const x=norm(a),y=norm(b);
@@ -155,36 +177,51 @@ function orderTerm(text){
 
 function renderRoot(){
   return `<div id="paco-bot" class="paco2-root paco-op-root" data-paco-version="${VERSION}" hidden>
-    <button type="button" class="paco2-launcher" aria-label="Abrir Paco" aria-expanded="false" data-paco-toggle>
-      <img class="paco2-launcher-face" src="${ASSETS.idle}" alt="" aria-hidden="true">
+    <button type="button" class="paco2-launcher paco-op-launcher" aria-label="Abrir PACO" aria-expanded="false" data-paco-toggle>
+      <span class="paco-op-launcher-glyph" aria-hidden="true">⚡</span>
       <span class="paco-op-badge" data-paco-badge hidden>0</span>
       <span class="paco2-launcher-dot" aria-hidden="true"></span>
     </button>
-    <section class="paco2-panel paco-op-panel" role="dialog" aria-label="Paco, asistente operativo del CRM">
+    <section class="paco2-panel paco-op-panel" role="dialog" aria-label="PACO, asistente operativo del CRM">
       <header class="paco2-head paco-op-head">
-        <img class="paco2-head-face" src="${ASSETS.idle}" alt="" aria-hidden="true" data-paco-face>
-        <div class="paco2-head-copy"><span>Asistente operativo</span><strong>PACO</strong><small data-paco-context>${esc(moduleLabel())}</small></div>
-        <button type="button" class="paco-op-voice ${paco.voiceEnabled?"is-on":""}" data-paco-voice aria-label="Activar o silenciar voz" title="Voz en español latino">◖</button>
+        <div class="paco-op-avatar-wrap">
+          <img class="paco2-head-face" src="${ASSETS.idle}" alt="" aria-hidden="true" data-paco-face>
+          <span class="paco-op-presence" aria-hidden="true"></span>
+        </div>
+        <div class="paco2-head-copy">
+          <span>Asistente operativo</span>
+          <strong>PACO</strong>
+          <small><span class="paco-op-online-text">Activo ahora</span> · <span data-paco-context>${esc(moduleLabel())}</span></small>
+        </div>
+        <button type="button" class="paco-op-voice ${paco.voiceEnabled?"is-on":""}" data-paco-voice aria-label="Activar o silenciar voz" title="Voz en español latino"><span data-paco-voice-icon>${paco.voiceEnabled?"🔊":"🔇"}</span></button>
         <button type="button" class="paco2-close" data-paco-close aria-label="Cerrar PACO">×</button>
       </header>
       <div class="paco-op-status">
-        <span class="paco2-online"></span>
-        <strong>Conectado al CRM</strong>
-        <span data-paco-monitor-status>Monitoreo activo</span>
+        <div class="paco-op-status-copy">
+          <span class="paco2-online"></span>
+          <strong>Conectado al CRM</strong>
+          <span data-paco-monitor-status>Monitoreo activo · resumen cada 30 min</span>
+        </div>
+        <div class="paco-op-status-actions">
+          <button type="button" data-paco-test-voice>Probar voz</button>
+          <button type="button" data-paco-summary-now>Resumen ahora</button>
+        </div>
       </div>
       <div class="paco2-messages paco-op-messages" data-paco-messages aria-live="polite"></div>
       <div class="paco2-quick paco-op-quick" data-paco-quick></div>
       <form class="paco2-composer paco-op-composer" data-paco-form>
-        <textarea rows="1" maxlength="500" data-paco-input aria-label="Escribe a PACO" placeholder="Pregúntame por pedidos, personas o registra una actividad…"></textarea>
-        <button type="submit" class="paco2-send" data-paco-send aria-label="Enviar">➜</button>
+        <div class="paco-op-input-shell">
+          <textarea rows="1" maxlength="500" data-paco-input aria-label="Escribe a PACO" placeholder="Mensaje a PACO…"></textarea>
+        </div>
+        <button type="submit" class="paco2-send" data-paco-send aria-label="Enviar mensaje">➜</button>
       </form>
-      <div class="paco2-safe-note">PACO consulta y ejecuta únicamente acciones permitidas por tu sesión.</div>
+      <div class="paco2-safe-note">PACO usa los datos y permisos reales de tu sesión.</div>
     </section>
     <div class="paco-op-toast-stack" data-paco-toast-stack aria-live="assertive"></div>
   </div>`;
 }
 
-function message({role="assistant",text="",actions=[],card=null,alert=null,type="normal"}={}){return {id:uid(),role,text,actions,card,alert,type}}
+function message({role="assistant",text="",actions=[],card=null,alert=null,orderRows=[],type="normal",time=Date.now()}={}){return {id:uid(),role,text,actions,card,alert,orderRows,type,time}}
 function actionHtml(action){
   return `<button type="button" class="paco2-action ${esc(action.kind||"")}" data-paco-action="${esc(action.action||"")}"${action.value!=null?` data-value="${esc(action.value)}"`:""}${action.module?` data-module="${esc(action.module)}"`:""}${action.orderId?` data-order-id="${esc(action.orderId)}"`:""}${action.prompt?` data-prompt="${esc(action.prompt)}"`:""}>
     <span class="paco2-action-icon">${esc(action.icon||"→")}</span>
@@ -192,15 +229,24 @@ function actionHtml(action){
     <span class="paco2-action-arrow">›</span>
   </button>`;
 }
+function orderRowsHtml(rows=[]){
+  if(!rows.length)return "";
+  return `<div class="paco-op-order-list">${rows.map(row=>`<button type="button" class="paco-op-order-row" data-paco-action="diagnose-order-id" data-order-id="${esc(row.id||row.orderId||"")}">
+    <span class="paco-op-order-main"><b>${esc(orderNumber(row))}</b><small>${esc(stepName(row))}</small></span>
+    <span class="paco-op-order-meta"><b>${esc(duration(orderAge(row)))}</b><small>${esc(orderAssignee(row)||"Sin responsable")}</small></span>
+    <span class="paco-op-order-arrow">›</span>
+  </button>`).join("")}</div>`;
+}
 function messageHtml(item){
-  if(item.role==="user")return `<article class="paco2-message user"><div class="paco2-bubble"><div class="paco2-text">${esc(item.text)}</div></div></article>`;
+  const stamp=timeLabel(item.time||Date.now());
+  if(item.role==="user")return `<article class="paco2-message user"><div class="paco2-bubble"><div class="paco2-text">${esc(item.text)}</div><small class="paco-op-message-time">${esc(stamp)}</small></div></article>`;
   if(item.type==="typing")return `<article class="paco2-message assistant"><img class="paco2-mini" src="${ASSETS.thinking}" alt=""><div class="paco2-bubble"><span class="paco2-typing"><i></i><i></i><i></i></span></div></article>`;
   const card=item.card?.length?`<div class="paco2-data-card">${item.card.map(row=>`<div><small>${esc(row[0])}</small><b>${esc(row[1])}</b></div>`).join("")}</div>`:"";
   const alert=item.alert?`<div class="paco2-alert ${esc(item.alert.tone||"")}"><strong>${esc(item.alert.title||"Atención")}</strong><span>${esc(item.alert.text||"")}</span></div>`:"";
   const actions=(item.actions||[]).filter(action=>allowed(action.module));
   return `<article class="paco2-message assistant ${item.type==="proactive"?"paco-op-proactive":""}">
     <img class="paco2-mini" src="${item.type==="success"?ASSETS.success:ASSETS.idle}" alt="">
-    <div class="paco2-bubble"><div class="paco2-text">${esc(item.text)}</div>${card}${alert}${actions.length?`<div class="paco2-actions">${actions.map(actionHtml).join("")}</div>`:""}</div>
+    <div class="paco-op-message-stack"><span class="paco-op-sender">PACO</span><div class="paco2-bubble"><div class="paco2-text">${esc(item.text)}</div>${card}${alert}${orderRowsHtml(item.orderRows||[])}${actions.length?`<div class="paco2-actions">${actions.map(actionHtml).join("")}</div>`:""}<small class="paco-op-message-time">${esc(stamp)}</small></div></div>
   </article>`;
 }
 function renderMessages(){
@@ -235,7 +281,7 @@ function toggleOpen(){setOpen(!isOpen())}
 
 function quickPrompts(){
   const base=["Registrar actividad","Pedidos demorados","Mi jornada","Novedades"];
-  if(isManager())base.splice(2,0,"Estado del equipo","¿Quién está desocupado?");
+  if(isManager())base.splice(1,0,"Resumen operativo","Estado del equipo","¿Quién está desocupado?");
   return base;
 }
 function renderQuick(){
@@ -255,7 +301,8 @@ function ensureWelcome(){
       {label:"Registrar actividad",sub:"Te guío desde aquí",icon:"◷",kind:"primary",action:"activity-begin"},
       {label:"Pedidos demorados",sub:"Revisar cola y SLA",icon:"!",action:"delayed"},
       ...(isManager()?[{label:"Equipo disponible",sub:"Auxiliares sin actividad",icon:"◎",action:"idle"}]:[]),
-      {label:"Estado operativo",sub:"Resumen en vivo",icon:"↗",action:"operation"}
+      {label:"Resumen operativo",sub:"Etapas, demoras y responsables",icon:"↗",action:"operation"},
+      {label:"Probar voz",sub:"Escuchar PACO en español latino",icon:"🔊",action:"test-voice"}
     ]
   }));
 }
@@ -282,27 +329,49 @@ function latinVoice(){
     ||voices.find(v=>/^es/i.test(v.lang))
     ||null;
 }
-function speak(text){
-  if(!paco.voiceEnabled||!("speechSynthesis" in window)||!text)return;
+function updateVoiceButton(){
+  const button=paco.root?.querySelector("[data-paco-voice]");
+  button?.classList.toggle("is-on",paco.voiceEnabled);
+  const icon=button?.querySelector("[data-paco-voice-icon]");
+  if(icon)icon.textContent=paco.voiceEnabled?"🔊":"🔇";
+  if(button)button.title=paco.voiceEnabled?"Voz activa · clic para silenciar":"Voz silenciada · clic para activar";
+}
+function speak(text,{force=false}={}){
+  if((!paco.voiceEnabled&&!force)||!("speechSynthesis" in window)||!text)return false;
   try{
     speechSynthesis.cancel();
-    const utterance=new SpeechSynthesisUtterance(String(text).slice(0,260));
-    utterance.lang=latinVoice()?.lang||"es-CO";
-    const voice=latinVoice();if(voice)utterance.voice=voice;
-    utterance.rate=.98;utterance.pitch=1;utterance.volume=.92;
+    const utterance=new SpeechSynthesisUtterance(String(text).slice(0,420));
+    const voice=latinVoice();
+    utterance.lang=voice?.lang||"es-CO";
+    if(voice)utterance.voice=voice;
+    utterance.rate=.96;utterance.pitch=1;utterance.volume=.95;
     speechSynthesis.speak(utterance);
-  }catch{}
+    return true;
+  }catch{return false}
 }
 function toggleVoice(){
   paco.voiceEnabled=!paco.voiceEnabled;
   saveVoicePreference();
-  paco.root?.querySelector("[data-paco-voice]")?.classList.toggle("is-on",paco.voiceEnabled);
+  updateVoiceButton();
   toast(paco.voiceEnabled?"PACO hablará en español latino.":"Voz de PACO silenciada.");
-  if(paco.voiceEnabled)speak("Listo, activé mi voz.");
+  if(paco.voiceEnabled)speak("Listo. Mi voz está activa y te avisaré sobre la operación.");
+}
+function testVoice(){
+  paco.voiceEnabled=true;
+  saveVoicePreference();
+  updateVoiceButton();
+  const voice=latinVoice();
+  const voiceLabel=voice?[voice.name,voice.lang].filter(Boolean).join(" · "):"español latino del dispositivo";
+  const ok=speak("Hola. Soy PACO. Esta es una prueba de voz. Te avisaré cuando haya pedidos demorados, personas sin actividad y cambios importantes en la operación.",{force:true});
+  add(message({
+    type:ok?"success":"normal",
+    text:ok?`Prueba de voz enviada. Estoy usando ${voiceLabel}.`:"El navegador no permitió reproducir voz. Revisa el volumen del equipo y vuelve a pulsar Probar voz.",
+    actions:[{label:"Resumen ahora",action:"summary-now",icon:"↗"}]
+  }));
 }
 
-function showProactive({text,title="PACO",tone="warning",actions=[],voice=true}){
-  const item=message({text,actions,alert:{title,text:"",tone},type:"proactive"});
+function showProactive({text,title="PACO",tone="warning",actions=[],voice=true,voiceText=null,card=null,orderRows=[]}){
+  const item=message({text,actions,card,orderRows,alert:{title,text:"",tone},type:"proactive"});
   add(item);
   if(!isOpen()){
     setBadge(1);
@@ -315,10 +384,10 @@ function showProactive({text,title="PACO",tone="warning",actions=[],voice=true})
       note.onclick=()=>{note.remove();setOpen(true)};
       stack.prepend(note);
       while(stack.children.length>3)stack.lastElementChild?.remove();
-      setTimeout(()=>note.remove(),14000);
+      setTimeout(()=>note.remove(),18000);
     }
   }
-  if(voice)speak(text);
+  if(voice)speak(voiceText||text);
 }
 
 function alertAllowed(key){
@@ -431,6 +500,88 @@ function longActivities(snapshot){
     .sort((a,b)=>b.activeSeconds-a.activeSeconds);
 }
 
+function unassignedOrders(snapshot){
+  return (snapshot?.orders||[])
+    .filter(row=>activeOrder(row)&&!orderAssignee(row))
+    .sort((a,b)=>orderAge(b)-orderAge(a));
+}
+function activeOrdersForDigest(snapshot){
+  return (snapshot?.orders||[])
+    .filter(activeOrder)
+    .slice()
+    .sort((a,b)=>{
+      const bd=Number(Boolean(b.slaExceeded||b.sla_exceeded)),ad=Number(Boolean(a.slaExceeded||a.sla_exceeded));
+      return (bd-ad)||orderAge(b)-orderAge(a);
+    });
+}
+function digestVoiceText(snapshot){
+  const active=activeOrdersForDigest(snapshot);
+  const delayed=delayedOrders(snapshot);
+  const unassigned=unassignedOrders(snapshot);
+  const idle=isManager()?idleAuxiliaries(snapshot):[];
+  const top=delayed.slice(0,3).map(row=>orderNumber(row)).join(", ");
+  return [
+    `Resumen de operación. Hay ${active.length} pedidos visibles`,
+    `${delayed.length} demorados`,
+    `${unassigned.length} sin responsable`,
+    isManager()?`${idle.length} auxiliares con más de 20 minutos sin actividad`:"",
+    top?`Los más demorados son ${top}`:"No hay pedidos con demora crítica"
+  ].filter(Boolean).join(". ")+".";
+}
+function buildOperationalDigest(snapshot,{automatic=false}={}){
+  const active=activeOrdersForDigest(snapshot);
+  const delayed=delayedOrders(snapshot);
+  const unassigned=unassignedOrders(snapshot);
+  const idle=isManager()?idleAuxiliaries(snapshot):[];
+  const long=isManager()?longActivities(snapshot):[];
+  const stages=stageBreakdown(snapshot);
+  const stageText=stages.length?stages.slice(0,6).map(([label,count])=>`${label}: ${count}`).join(" · "):"Sin pedidos activos";
+  const rows=active.slice(0,DIGEST_ORDER_LIMIT);
+  return message({
+    type:automatic?"proactive":"normal",
+    text:`${automatic?"Resumen automático":"Resumen operativo"} · ${businessClockLabel()}. Así está la operación en este momento.`,
+    alert:automatic?{title:"Parte de operación · cada 30 min",text:"",tone:delayed.length?"warning":"info"}:null,
+    card:[
+      ["Pedidos visibles",String(active.length)],
+      ["Pedidos demorados",String(delayed.length)],
+      ["Sin responsable",String(unassigned.length)],
+      ...(isManager()?[["Sin actividad >20 min",String(idle.length)],["Actividades >90 min",String(long.length)]]:[]),
+      ["Distribución por etapa",stageText]
+    ],
+    orderRows:rows,
+    actions:[
+      {label:"Pedidos demorados",sub:delayed.length?`${delayed.length} requieren revisión`:"Sin demoras críticas",action:"delayed",icon:"!"},
+      {label:"Sin responsable",sub:unassigned.length?`${unassigned.length} en cola`:"Todos tienen responsable",action:"unassigned",icon:"◎"},
+      ...(isManager()?[{label:"Estado del equipo",sub:idle.length?`${idle.length} auxiliares disponibles`:"Sin inactividad >20 min",action:"team",icon:"◷"}]:[]),
+      {label:"Abrir todos los pedidos",action:"navigate",module:"orders",icon:"→"}
+    ]
+  });
+}
+function digestDue(){
+  return isManager()&&(!paco.lastDigestAt||Date.now()-paco.lastDigestAt>=DIGEST_INTERVAL_MS);
+}
+function deliverDigest(snapshot,{automatic=true,force=false}={}){
+  if(!isManager()&&!force)return;
+  const digest=buildOperationalDigest(snapshot,{automatic});
+  if(automatic){
+    paco.lastDigestAt=Date.now();
+    saveLastDigest();
+    showProactive({
+      title:"Resumen de operación · 30 min",
+      text:digest.text,
+      tone:delayedOrders(snapshot).length?"warning":"info",
+      voice:true,
+      voiceText:digestVoiceText(snapshot),
+      card:digest.card,
+      orderRows:digest.orderRows,
+      actions:digest.actions
+    });
+  }else{
+    add(digest);
+    speak(digestVoiceText(snapshot));
+  }
+}
+
 async function loadSnapshot(){
   const data=await api.pacoSnapshot();
   return {
@@ -478,23 +629,29 @@ function monitorTransitions(previous,current){
 function monitorThresholds(snapshot,initial=false){
   const delayed=delayedOrders(snapshot);
   delayed.slice(0,initial?2:5).forEach(row=>{
-    const key=`order-delay:${row.id||row.orderId}:${Math.floor(orderAge(row)/1800)}`;
+    const key=`order-delay:${row.id||row.orderId}`;
     if(!alertAllowed(key))return;
-    const text=`${orderNumber(row)} lleva ${duration(orderAge(row))} en ${row.stepName||row.currentStepName||orderStep(row)||"cola"}${orderAssignee(row)?` con ${orderAssignee(row)}`:" sin responsable"}.`;
-    showProactive({title:"Pedido demorado",text,tone:"warning",voice:true,actions:[{label:"Diagnosticar",action:"diagnose-order-id",orderId:row.id||row.orderId}]});
+    const text=`${orderNumber(row)} lleva ${duration(orderAge(row))} en ${stepName(row)}${orderAssignee(row)?` con ${orderAssignee(row)}`:" sin responsable"}.`;
+    showProactive({title:"Pedido demorado",text,tone:"warning",voice:!initial,actions:[{label:"Diagnosticar",action:"diagnose-order-id",orderId:row.id||row.orderId}]});
   });
 
   if(isManager()){
-    idleAuxiliaries(snapshot).slice(0,initial?1:4).forEach(person=>{
-      const key=`idle:${person.id}:${Math.floor(person.idleSeconds/1800)}`;
+    idleAuxiliaries(snapshot).slice(0,initial?2:6).forEach(person=>{
+      const key=`idle:${person.id}`;
       if(!alertAllowed(key))return;
-      showProactive({title:"Auxiliar disponible",text:`${person.name} lleva ${duration(person.idleSeconds)} sin actividad registrada.`,tone:"info",voice:true,actions:[{label:"Abrir Jornada",action:"navigate",module:"workforce"}]});
+      showProactive({
+        title:"20 min sin actividad",
+        text:`${person.name} lleva ${duration(person.idleSeconds)} sin actividad registrada. Está disponible para nueva asignación.`,
+        tone:"info",
+        voice:!initial,
+        actions:[{label:"Ver estado del equipo",action:"team",icon:"◷"},{label:"Abrir Jornada",action:"navigate",module:"workforce"}]
+      });
     });
 
     longActivities(snapshot).slice(0,3).forEach(person=>{
-      const key=`long-work:${person.id}:${Math.floor(person.activeSeconds/1800)}`;
+      const key=`long-work:${person.id}`;
       if(!alertAllowed(key))return;
-      showProactive({title:"Actividad prolongada",text:`${person.name} lleva ${duration(person.activeSeconds)} en “${person.activeTitle}”.`,tone:"warning",voice:true,actions:[{label:"Ver cronograma",action:"navigate",module:"workforce"}]});
+      showProactive({title:"Actividad prolongada",text:`${person.name} lleva ${duration(person.activeSeconds)} en “${person.activeTitle}”.`,tone:"warning",voice:!initial,actions:[{label:"Ver cronograma",action:"navigate",module:"workforce"}]});
     });
   }
 }
@@ -506,10 +663,12 @@ async function refreshMonitor(force=false){
   if(status&&force)status.textContent="Actualizando…";
   try{
     const snapshot=await loadSnapshot();
+    const initial=!paco.previous;
     monitorTransitions(paco.previous,snapshot);
-    monitorThresholds(snapshot,!paco.previous);
+    monitorThresholds(snapshot,initial);
     paco.previous=snapshot;
-    if(status)status.textContent=`Actualizado ${timeLabel(new Date())}`;
+    if(digestDue())deliverDigest(snapshot,{automatic:true});
+    if(status)status.textContent=`Actualizado ${timeLabel(new Date())} · resumen cada 30 min`;
   }catch(error){
     if(status)status.textContent="Monitoreo con datos parciales";
     console.warn("[PACO MONITOR]",error);
@@ -517,6 +676,7 @@ async function refreshMonitor(force=false){
 }
 function startMonitor(){
   clearInterval(paco.monitorTimer);
+  paco.lastDigestAt=readLastDigest();
   setTimeout(()=>refreshMonitor(false),3500);
   paco.monitorTimer=setInterval(()=>refreshMonitor(false),MONITOR_MS);
 }
@@ -534,7 +694,7 @@ async function idleMessage(){
   if(!isManager())return message({text:"La disponibilidad del equipo solo se muestra a liderazgo y coordinación autorizados."});
   const snapshot=paco.previous||await loadSnapshot();
   const rows=idleAuxiliaries(snapshot).slice(0,8);
-  if(!rows.length)return message({text:"No veo auxiliares de logística o corte con inactividad superior a 30 minutos laborales."});
+  if(!rows.length)return message({text:"No veo auxiliares de logística o corte con inactividad superior a 20 minutos laborales."});
   return message({text:`Hay ${rows.length} auxiliar${rows.length===1?"":"es"} con tiempo disponible.`,card:rows.map(row=>[row.name,duration(row.idleSeconds)]),actions:[{label:"Abrir cronograma",action:"navigate",module:"workforce",icon:"◷"}]});
 }
 async function teamActivityMessage(input=""){
@@ -556,7 +716,7 @@ async function teamActivityMessage(input=""){
 }
 async function unassignedOrdersMessage(){
   const snapshot=paco.previous||await loadSnapshot();
-  const rows=(snapshot.orders||[]).filter(row=>activeOrder(row)&&!orderAssignee(row)).sort((a,b)=>orderAge(b)-orderAge(a)).slice(0,8);
+  const rows=unassignedOrders(snapshot).slice(0,8);
   if(!rows.length)return message({text:"No veo pedidos activos visibles sin responsable en este momento."});
   return message({
     text:`Hay ${rows.length} pedido${rows.length===1?"":"s"} activo${rows.length===1?"":"s"} sin responsable visible.`,
@@ -576,10 +736,11 @@ async function longWorkMessage(){
 }
 function capabilitiesMessage(){
   return message({
-    text:"Puedo consultar la operación y ayudarte a ejecutar acciones permitidas por tu sesión: pedidos y su etapa, demoras, pedidos sin responsable, novedades, despachos, jornada, actividades terminadas, estado del equipo y registro guiado de actividades.",
+    text:"Puedo consultar la operación y ayudarte a ejecutar acciones permitidas por tu sesión: ubicación y etapa de pedidos, demoras, pedidos sin responsable, novedades, despachos, jornada, actividades terminadas, estado del equipo, alertas desde 20 minutos sin actividad, resúmenes automáticos cada 30 minutos y registro guiado de actividades.",
     actions:[
       {label:"Registrar actividad",action:"activity-begin",kind:"primary",icon:"▶"},
-      {label:"Estado operativo",action:"operation",icon:"↗"},
+      {label:"Resumen operativo",action:"operation",icon:"↗"},
+      {label:"Probar voz",action:"test-voice",icon:"🔊"},
       {label:"Pedidos demorados",action:"delayed",icon:"!"}
     ]
   });
@@ -615,8 +776,8 @@ async function myDayMessage(){
 }
 async function operationMessage(){
   const snapshot=paco.previous||await loadSnapshot();
-  const delayed=delayedOrders(snapshot),idle=isManager()?idleAuxiliaries(snapshot):[],long=isManager()?longActivities(snapshot):[];
-  return message({text:"Este es el resumen operativo que puedo ver ahora.",card:[["Pedidos visibles",String(snapshot.orders.length)],["Pedidos demorados",String(delayed.length)],...(isManager()?[["Auxiliares disponibles",String(idle.length)],["Actividades prolongadas",String(long.length)]]:[])],actions:[{label:"Pedidos demorados",action:"delayed",icon:"!"},...(isManager()?[{label:"Equipo disponible",action:"idle",icon:"◎"}]:[])]});
+  paco.previous=snapshot;
+  return buildOperationalDigest(snapshot,{automatic:false});
 }
 
 async function diagnoseOrder(term){
@@ -707,12 +868,26 @@ async function handleAction(button){
   if(action==="navigate"){if(allowed(button.dataset.module)){navigate(button.dataset.module);setOpen(false)}return}
   if(action==="open-order"){window.dispatchEvent(new CustomEvent("erp:open-order",{detail:button.dataset.orderId}));setOpen(false);return}
   if(action==="focus-input"){const input=paco.root?.querySelector("[data-paco-input]");input?.focus();return}
+  if(action==="test-voice"){testVoice();return}
+  if(action==="summary-now"){
+    const snapshot=await loadSnapshot();
+    paco.previous=snapshot;
+    deliverDigest(snapshot,{automatic:false,force:true});
+    return;
+  }
   if(action==="activity-begin"){add(await beginActivityFlow());return}
   if(action==="activity-category"){add(await categoryActivities(value));return}
   if(action==="activity-select"){add(await selectActivity(value));return}
   if(action==="activity-start"){setBusy(true);typing();try{replaceTyping(await startActivity(value))}catch(error){replaceTyping(message({text:"No pude iniciar esa actividad.",alert:{title:"Actividad",text:error.message||"Error",tone:"warning"}}))}finally{setBusy(false)}return}
   if(action==="delayed"){add(await delayedMessage());return}
+  if(action==="unassigned"){add(await unassignedOrdersMessage());return}
   if(action==="idle"){add(await idleMessage());return}
+  if(action==="team"){add(await teamActivityMessage());return}
+  if(action==="long-work"){add(await longWorkMessage());return}
+  if(action==="recent-work"){add(await recentWorkMessage());return}
+  if(action==="shipped"){add(await shippedMessage());return}
+  if(action==="novelties"){add(await noveltyMessage());return}
+  if(action==="capabilities"){add(capabilitiesMessage());return}
   if(action==="operation"){add(await operationMessage());return}
   if(action==="diagnose-order-id"){setBusy(true);typing();try{replaceTyping(await diagnoseOrderById(button.dataset.orderId))}catch(error){replaceTyping(message({text:error.message}))}finally{setBusy(false)}return}
 }
@@ -723,6 +898,12 @@ function bindRoot(){
   root.querySelector("[data-paco-toggle]")?.addEventListener("click",toggleOpen);
   root.querySelector("[data-paco-close]")?.addEventListener("click",()=>setOpen(false));
   root.querySelector("[data-paco-voice]")?.addEventListener("click",toggleVoice);
+  root.querySelector("[data-paco-test-voice]")?.addEventListener("click",testVoice);
+  root.querySelector("[data-paco-summary-now]")?.addEventListener("click",async()=>{
+    const snapshot=await loadSnapshot();
+    paco.previous=snapshot;
+    deliverDigest(snapshot,{automatic:false,force:true});
+  });
   root.querySelector("[data-paco-form]")?.addEventListener("submit",event=>{event.preventDefault();const input=root.querySelector("[data-paco-input]");const value=input.value;input.value="";submit(value)});
   root.querySelector("[data-paco-input]")?.addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.shiftKey){event.preventDefault();root.querySelector("[data-paco-form]")?.requestSubmit()}});
   root.addEventListener("click",event=>{
@@ -744,8 +925,13 @@ function syncProfile(next=state){
   if(!paco.root)return;
   const active=Boolean(next.profile);
   paco.root.hidden=!active;
-  if(active){updateContext();startMonitor()}else{
-    clearInterval(paco.monitorTimer);paco.monitorTimer=null;paco.previous=null;paco.messages=[];paco.flow=null;renderMessages();setOpen(false);
+  if(active){
+    updateContext();
+    updateVoiceButton();
+    paco.lastDigestAt=readLastDigest();
+    startMonitor();
+  }else{
+    clearInterval(paco.monitorTimer);paco.monitorTimer=null;paco.previous=null;paco.messages=[];paco.flow=null;paco.lastDigestAt=0;renderMessages();setOpen(false);
   }
 }
 
