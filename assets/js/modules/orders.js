@@ -139,7 +139,11 @@ function openCreateOrder(){
             <div class="conditional-routing-direct" data-direct-reception><strong>Ruta inicial: Recepción de pedidos</strong><small>Si no existe una condición excepcional, el pedido no pasa por Cartera ni Caja.</small></div>
           </div>
           <div class="field"><label>Modalidad de entrega *</label>${formSelect("deliveryRoute",routes,"code","name",routes[0]?.code)}</div>
-          <div class="field"><label>Prioridad *</label>${formSelect("priority",["LOW","MEDIUM","HIGH","URGENT","CRITICAL"])}</div>
+          <section class="sales-intelligence-card full" data-customer-intelligence>
+            <div class="sales-intelligence-mark">◎</div>
+            <div><span>SEGMENTACIÓN AUTOMÁTICA</span><strong data-customer-segment>Normal · aprendiendo</strong><p data-customer-intelligence-copy>El CRM clasificará al cliente por cantidad de pedidos y valor facturado. Mientras la muestra sea pequeña todos parten en condición Normal.</p></div>
+            <small data-customer-confidence>50% frecuencia · 50% valor</small>
+          </section>
         </div>
         <section class="sales-address-card">
           <header class="sales-address-head"><span>Dirección</span><div><strong>Lugar de entrega obligatorio</strong><p>Selecciona el departamento y el municipio. Después escribe la dirección exactamente como debe verla Logística.</p></div></header>
@@ -149,6 +153,11 @@ function openCreateOrder(){
             <div class="field"><label>Municipio o ciudad *</label><select class="control" name="clientCity" required disabled><option value="">Primero selecciona el departamento</option></select><small class="field-help" data-municipality-help>La lista se cargará según el departamento.</small></div>
             <div class="field full"><label>Dirección completa *</label><input class="control" name="clientAddress" placeholder="Ejemplo: Carrera 40 # 28-15, Bodega 3" required autocomplete="street-address"><small class="field-help">Incluye vía, número, barrio, vereda, bodega, local o referencia cuando aplique.</small></div>
           </div>
+          <section class="sales-freight-estimate" data-freight-estimate>
+            <div class="sales-freight-icon">↗</div>
+            <div><span>FLETE ESTIMADO</span><strong data-freight-estimate-value>Selecciona modalidad y destino</strong><p data-freight-estimate-copy>El rango se aprenderá de guías y facturas reales por ciudad, modalidad, peso, paquetes y volumen cuando exista.</p></div>
+            <small data-freight-confidence>Sin histórico todavía</small>
+          </section>
         </section>
         <details class="simple-details"><summary>Datos adicionales del cliente</summary><div class="form-grid" style="padding:14px"><div class="field"><label>NIT o documento</label><input class="control" name="clientDocument"></div><div class="field"><label>Teléfono</label><input class="control" name="clientPhone"></div><div class="field"><label>Referencia externa</label><input class="control" name="externalReference"></div><div class="field"><label>Fecha solicitada</label><input class="control" name="requestedDeliveryDate" type="date"></div></div></details>`,validate:({root})=>{
             const department=root.querySelector('[name="clientDepartment"]')?.value.trim();
