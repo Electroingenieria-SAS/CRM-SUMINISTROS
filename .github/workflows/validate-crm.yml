@@ -290,7 +290,7 @@ jobs:
     concurrency:
       group: crm-suministros-github-pages
       cancel-in-progress: true
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/hardening/repository-cleanup-v11-32-0')
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/hardening/repository-cleanup-v11-32-0' || github.ref == 'refs/heads/integration/paco-v11-37-0-calendar-v11-36-8')
     needs: validate
     runs-on: ubuntu-latest
     permissions:
