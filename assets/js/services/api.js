@@ -58,6 +58,7 @@ async function edgeFunction(name,body={}){
 export const api={
   session:()=>rpc("erp_x_session"),
   health:()=>rpc("erp_x_health_check"),
+  pacoSnapshot:(since=null)=>rpc("erp_x_paco_snapshot",{p_since:since||null}),
   dashboard:()=>rpc("erp_x_dashboard"),
   listOrders:(filters={})=>rpc("erp_x_list_orders",{
     p_search:filters.search||null,p_step:filters.step||null,p_status:filters.status||null,
