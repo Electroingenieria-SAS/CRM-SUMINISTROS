@@ -1945,3 +1945,47 @@
     justify-content:flex-start;
   }
 }
+
+
+/* V11.39.0 · customer Pareto */
+.work-customer-learning-v11390{
+  display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:7px 10px;
+  border-radius:10px;background:#edf5fa;color:#2f7096;font-size:9.5px;font-weight:950
+}
+.work-customer-ranking-v11390{display:grid;gap:0}
+.work-customer-ranking-v11390>article{
+  display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:12px;
+  min-height:76px;padding:10px 2px;border-bottom:1px solid #edf2f5
+}
+.work-customer-ranking-v11390>article:last-child{border-bottom:0}
+.work-customer-rank-v11390{
+  width:34px;height:34px;display:grid;place-items:center;border-radius:10px;
+  background:#eef5fa;color:#32749b;font-size:9px;font-weight:950
+}
+.work-customer-copy-v11390{min-width:0;display:grid;gap:5px}
+.work-customer-copy-v11390>div{display:flex;align-items:center;gap:8px;min-width:0}
+.work-customer-copy-v11390 strong{
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#264e6c;font-size:11px
+}
+.work-customer-copy-v11390 small{color:#82919e;font-size:9px}
+.work-customer-segment-v11390{
+  flex:0 0 auto;padding:3px 7px;border-radius:999px;font-size:7.8px;font-weight:950;text-transform:uppercase
+}
+.work-customer-segment-v11390.tone-urgent{background:#fff0f1;color:#a34f5b}
+.work-customer-segment-v11390.tone-premium{background:#eaf4fb;color:#246f9c}
+.work-customer-segment-v11390.tone-normal{background:#eef6f2;color:#39755f}
+.work-customer-segment-v11390.tone-basic{background:#f1f3f5;color:#6f7d87}
+.work-customer-track-v11390{height:8px;overflow:hidden;border-radius:999px;background:#edf2f5}
+.work-customer-track-v11390>span{
+  display:block;width:var(--customer-score,0%);height:100%;border-radius:inherit;
+  background:linear-gradient(90deg,#347ea9,#69a8c5)
+}
+.work-customer-ranking-v11390>article>b{
+  min-width:52px;padding:7px 8px;border-radius:9px;background:#f7fafc;color:#285b7a;
+  font-size:11px;text-align:center;font-variant-numeric:tabular-nums
+}
+@media(max-width:620px){
+  .work-customer-ranking-v11390>article{grid-template-columns:32px minmax(0,1fr)}
+  .work-customer-ranking-v11390>article>b{grid-column:2;justify-self:start}
+  .work-customer-copy-v11390>div{align-items:flex-start;flex-direction:column;gap:4px}
+}
