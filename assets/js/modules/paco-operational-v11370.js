@@ -328,27 +328,49 @@ function latinVoice(){
     ||voices.find(v=>/^es/i.test(v.lang))
     ||null;
 }
-function speak(text){
-  if(!paco.voiceEnabled||!("speechSynthesis" in window)||!text)return;
+function updateVoiceButton(){
+  const button=paco.root?.querySelector("[data-paco-voice]");
+  button?.classList.toggle("is-on",paco.voiceEnabled);
+  const icon=button?.querySelector("[data-paco-voice-icon]");
+  if(icon)icon.textContent=paco.voiceEnabled?"🔊":"🔇";
+  if(button)button.title=paco.voiceEnabled?"Voz activa · clic para silenciar":"Voz silenciada · clic para activar";
+}
+function speak(text,{force=false}={}){
+  if((!paco.voiceEnabled&&!force)||!("speechSynthesis" in window)||!text)return false;
   try{
     speechSynthesis.cancel();
-    const utterance=new SpeechSynthesisUtterance(String(text).slice(0,260));
-    utterance.lang=latinVoice()?.lang||"es-CO";
-    const voice=latinVoice();if(voice)utterance.voice=voice;
-    utterance.rate=.98;utterance.pitch=1;utterance.volume=.92;
+    const utterance=new SpeechSynthesisUtterance(String(text).slice(0,420));
+    const voice=latinVoice();
+    utterance.lang=voice?.lang||"es-CO";
+    if(voice)utterance.voice=voice;
+    utterance.rate=.96;utterance.pitch=1;utterance.volume=.95;
     speechSynthesis.speak(utterance);
-  }catch{}
+    return true;
+  }catch{return false}
 }
 function toggleVoice(){
   paco.voiceEnabled=!paco.voiceEnabled;
   saveVoicePreference();
-  paco.root?.querySelector("[data-paco-voice]")?.classList.toggle("is-on",paco.voiceEnabled);
+  updateVoiceButton();
   toast(paco.voiceEnabled?"PACO hablará en español latino.":"Voz de PACO silenciada.");
-  if(paco.voiceEnabled)speak("Listo, activé mi voz.");
+  if(paco.voiceEnabled)speak("Listo. Mi voz está activa y te avisaré sobre la operación.");
+}
+function testVoice(){
+  paco.voiceEnabled=true;
+  saveVoicePreference();
+  updateVoiceButton();
+  const voice=latinVoice();
+  const voiceLabel=voice?[voice.name,voice.lang].filter(Boolean).join(" · "):"español latino del dispositivo";
+  const ok=speak("Hola. Soy PACO. Esta es una prueba de voz. Te avisaré cuando haya pedidos demorados, personas sin actividad y cambios importantes en la operación.",{force:true});
+  add(message({
+    type:ok?"success":"normal",
+    text:ok?`Prueba de voz enviada. Estoy usando ${voiceLabel}.`:"El navegador no permitió reproducir voz. Revisa el volumen del equipo y vuelve a pulsar Probar voz.",
+    actions:[{label:"Resumen ahora",action:"summary-now",icon:"↗"}]
+  }));
 }
 
-function showProactive({text,title="PACO",tone="warning",actions=[],voice=true}){
-  const item=message({text,actions,alert:{title,text:"",tone},type:"proactive"});
+function showProactive({text,title="PACO",tone="warning",actions=[],voice=true,voiceText=null,card=null,orderRows=[]}){
+  const item=message({text,actions,card,orderRows,alert:{title,text:"",tone},type:"proactive"});
   add(item);
   if(!isOpen()){
     setBadge(1);
@@ -361,10 +383,10 @@ function showProactive({text,title="PACO",tone="warning",actions=[],voice=true})
       note.onclick=()=>{note.remove();setOpen(true)};
       stack.prepend(note);
       while(stack.children.length>3)stack.lastElementChild?.remove();
-      setTimeout(()=>note.remove(),14000);
+      setTimeout(()=>note.remove(),18000);
     }
   }
-  if(voice)speak(text);
+  if(voice)speak(voiceText||text);
 }
 
 function alertAllowed(key){
