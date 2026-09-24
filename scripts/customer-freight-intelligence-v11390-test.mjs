@@ -8,6 +8,7 @@ const api=fs.readFileSync(new URL("../assets/js/services/api.js",import.meta.url
 const migration=fs.readFileSync(new URL("../supabase/migrations/125_customer_freight_intelligence_v11_39_0.sql",import.meta.url),"utf8");
 const permissions=fs.readFileSync(new URL("../supabase/migrations/126_customer_freight_intelligence_permissions_v11_39_0.sql",import.meta.url),"utf8");
 const paymentTruth=fs.readFileSync(new URL("../supabase/migrations/127_customer_payment_truth_v11_39_1.sql",import.meta.url),"utf8");
+const customerSecurity=fs.readFileSync(new URL("../supabase/migrations/128_customer_intelligence_security_v11_39_1.sql",import.meta.url),"utf8");
 const financialFlow=fs.readFileSync(new URL("../assets/js/modules/financial-flow.js",import.meta.url),"utf8");
 
 assert.equal(orders.includes('formSelect("priority"'),false,"Creación de pedidos no debe exponer prioridad manual.");
@@ -73,6 +74,11 @@ for(const token of [
   "paymentConfirmed:true",
   'paymentMeasurementVersion:"11.39.1"'
 ]) assert.equal(financialFlow.includes(token),true,`Caja debe registrar pago real mediante ${token}`);
+
+for(const token of [
+  "set search_path=pg_catalog",
+  "revoke all on function erp_supply.customer_key(text,text) from public,anon,authenticated"
+]) assert.equal(customerSecurity.toLowerCase().includes(token.toLowerCase()),true,`Hardening customer_key debe incluir ${token}`);
 
 for(const token of [
   "can_access_module('sales','read')",
