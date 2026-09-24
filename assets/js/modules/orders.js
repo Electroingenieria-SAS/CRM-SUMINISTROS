@@ -218,6 +218,99 @@ function openCreateOrder(){
   assistant.root.querySelector('[name="requiresPurchase"]')?.addEventListener("change",syncRoutingConditions);
   syncRoutingConditions();
 
+  const routeControl=assistant.root.querySelector('[name="deliveryRoute"]');
+  const clientNameControl=assistant.root.querySelector('[name="clientName"]');
+  const clientDocumentControl=assistant.root.querySelector('[name="clientDocument"]');
+  let intelligenceTimer=null;
+  let intelligenceRequest=0;
+  let freightRequest=0;
+
+  const refreshCustomerIntelligence=async()=>{
+    const clientName=clientNameControl?.value.trim()||"";
+    const clientDocument=clientDocumentControl?.value.trim()||"";
+    const card=assistant.root.querySelector("[data-customer-intelligence]");
+    if(!card||(!clientName&&!clientDocument))return;
+    const request=++intelligenceRequest;
+    try{
+      const data=await api.customerIntelligence(clientDocument||null,clientName||null);
+      if(request!==intelligenceRequest)return;
+      const segment=customerSegmentLabel(data?.segment);
+      const status=data?.learningActive?segment:`${segment} · aprendiendo`;
+      const orders=Number(data?.orderCount||0);
+      const score=Number(data?.score||0);
+      const paid=moneyCop(data?.paidAmount||0);
+      card.dataset.segment=String(data?.segment||"NORMAL");
+      card.querySelector("[data-customer-segment]").textContent=status;
+      card.querySelector("[data-customer-intelligence-copy]").textContent=data?.learningActive
+        ? `${orders} pedido${orders===1?"":"s"} · ${paid} facturado · puntaje ${fmt.number(score,1)}/100. La prioridad del pedido se asignará automáticamente.`
+        : `${orders} pedido${orders===1?"":"s"} registrado${orders===1?"":"s"} · ${paid} facturado. El CRM mantiene condición Normal hasta reunir una muestra confiable.`;
+      card.querySelector("[data-customer-confidence]").textContent=`Confianza: ${customerConfidenceLabel(data?.confidence)} · 50% frecuencia · 50% valor`;
+      assistant.root.dataset.customerSegmentLabel=status;
+    }catch(error){
+      if(request!==intelligenceRequest)return;
+      card.querySelector("[data-customer-segment]").textContent="Normal · aprendiendo";
+      card.querySelector("[data-customer-intelligence-copy]").textContent="No fue posible consultar el ranking ahora. El pedido seguirá con prioridad automática neutral.";
+      card.querySelector("[data-customer-confidence]").textContent="Aprendizaje disponible al crear";
+      assistant.root.dataset.customerSegmentLabel="Normal · aprendiendo";
+    }
+  };
+
+  const scheduleCustomerIntelligence=()=>{
+    clearTimeout(intelligenceTimer);
+    intelligenceTimer=setTimeout(refreshCustomerIntelligence,350);
+  };
+
+  const refreshFreightEstimate=async()=>{
+    const route=routeControl?.value||"";
+    const department=assistant.root.querySelector('[name="clientDepartment"]')?.value.trim()||"";
+    const city=assistant.root.querySelector('[name="clientCity"]')?.value.trim()||"";
+    const card=assistant.root.querySelector("[data-freight-estimate]");
+    if(!card)return;
+    if(!route||!city){
+      card.querySelector("[data-freight-estimate-value]").textContent="Selecciona modalidad y destino";
+      card.querySelector("[data-freight-estimate-copy]").textContent="El CRM mostrará un rango cuando conozca la ruta y la ciudad.";
+      card.querySelector("[data-freight-confidence]").textContent="Esperando ubicación";
+      assistant.root.dataset.freightEstimateLabel="Aprendiendo con históricos";
+      return;
+    }
+    const request=++freightRequest;
+    card.classList.add("is-loading");
+    try{
+      const data=await api.freightEstimate({route,department,city});
+      if(request!==freightRequest)return;
+      if(!data?.available){
+        card.querySelector("[data-freight-estimate-value]").textContent="Aún sin histórico suficiente";
+        card.querySelector("[data-freight-estimate-copy]").textContent=`Destino: ${city}. Las próximas guías con costo real comenzarán a formar este estimado.`;
+        card.querySelector("[data-freight-confidence]").textContent="Confianza: aprendiendo";
+        assistant.root.dataset.freightEstimateLabel="Sin histórico suficiente";
+        return;
+      }
+      const low=moneyCop(data.estimateLow||0),high=moneyCop(data.estimateHigh||0);
+      const basis=freightBasisLabel(data.basis);
+      const distance=data.estimatedDistanceKm!=null?` · ~${fmt.number(data.estimatedDistanceKm,1)} km`:"";
+      const transit=data.estimatedTransitHours!=null?` · ~${fmt.number(data.estimatedTransitHours,1)} h`:"";
+      const label=low===high?low:`${low} – ${high}`;
+      card.querySelector("[data-freight-estimate-value]").textContent=label;
+      card.querySelector("[data-freight-estimate-copy]").textContent=`${data.samples||0} caso${Number(data.samples||0)===1?"":"s"} comparable${Number(data.samples||0)===1?"":"s"} · patrón principal: ${basis}${distance}${transit}.`;
+      card.querySelector("[data-freight-confidence]").textContent=`Confianza: ${customerConfidenceLabel(data.confidence)} · ${String(data.scope||"ROUTE").toLowerCase()}`;
+      assistant.root.dataset.freightEstimateLabel=`${label} · ${basis}`;
+    }catch(error){
+      if(request!==freightRequest)return;
+      card.querySelector("[data-freight-estimate-value]").textContent="Estimación temporalmente no disponible";
+      card.querySelector("[data-freight-estimate-copy]").textContent="El destino quedó registrado; el pedido puede continuar normalmente.";
+      card.querySelector("[data-freight-confidence]").textContent="Se reintentará con nuevos históricos";
+      assistant.root.dataset.freightEstimateLabel="Estimación no disponible";
+    }finally{
+      if(request===freightRequest)card.classList.remove("is-loading");
+    }
+  };
+
+  clientNameControl?.addEventListener("input",scheduleCustomerIntelligence);
+  clientNameControl?.addEventListener("blur",refreshCustomerIntelligence);
+  clientDocumentControl?.addEventListener("input",scheduleCustomerIntelligence);
+  clientDocumentControl?.addEventListener("blur",refreshCustomerIntelligence);
+  routeControl?.addEventListener("change",refreshFreightEstimate);
+
   const departmentSelect=assistant.root.querySelector('[name="clientDepartmentCode"]');
   const departmentName=assistant.root.querySelector('[name="clientDepartment"]');
   const municipalitySelect=assistant.root.querySelector('[name="clientCity"]');
