@@ -586,6 +586,7 @@ function snapshotTeam(snapshot){return Array.isArray(snapshot?.team)?snapshot.te
 function idleAuxiliaries(snapshot){
   if(!isManager())return [];
   return snapshotTeam(snapshot)
+    .filter(person=>!person.specialTreatment)
     .filter(person=>(person.roles||[]).some(role=>AUX_ROLES.has(role)))
     .filter(person=>!person.activeTitle&&Number(person.idleBusinessSeconds||0)>=IDLE_WARN_SECONDS)
     .map(person=>({...person,idleSeconds:Number(person.idleBusinessSeconds||0)}))
@@ -601,6 +602,7 @@ function delayedOrders(snapshot){
 function longActivities(snapshot){
   if(!isManager())return [];
   return snapshotTeam(snapshot)
+    .filter(person=>!person.specialTreatment)
     .filter(person=>person.activeTitle&&Number(person.activeBusinessSeconds||0)>=LONG_ACTIVITY_SECONDS)
     .map(person=>({...person,activeSeconds:Number(person.activeBusinessSeconds||0)}))
     .sort((a,b)=>b.activeSeconds-a.activeSeconds);
