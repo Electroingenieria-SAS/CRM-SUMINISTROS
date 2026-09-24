@@ -93,6 +93,23 @@ function ordersTable(rows){
   }).join("")}</div>`;
 }
 
+function moneyCop(value){
+  try{return new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}).format(Number(value||0))}
+  catch{return fmt.number(value||0)}
+}
+
+function customerSegmentLabel(segment){
+  return ({URGENT:"Urgente",PREMIUM:"Premium",NORMAL:"Normal",BASIC:"Básico"})[String(segment||"NORMAL").toUpperCase()]||"Normal";
+}
+
+function customerConfidenceLabel(value){
+  return ({HIGH:"alta",MEDIUM:"media",LOW:"baja",LEARNING:"aprendiendo"})[String(value||"LEARNING").toUpperCase()]||"aprendiendo";
+}
+
+function freightBasisLabel(value){
+  return ({WEIGHT:"peso",PACKAGE_COUNT:"cantidad de paquetes",VOLUME:"volumen",ROUTE_HISTORY:"histórico de ruta"})[String(value||"ROUTE_HISTORY").toUpperCase()]||"histórico de ruta";
+}
+
 function orderStageBadge(order={}){
   const status=String(order.status||"").toUpperCase();
   const step=String(order.currentStep||order.current_step_code||"").toUpperCase();
@@ -335,7 +352,10 @@ function openCreateOrder(){
       municipalityHelp?.querySelector('[data-retry-municipalities]')?.addEventListener("click",loadMunicipalities,{once:true});
     }
   };
-  departmentSelect?.addEventListener("change",loadMunicipalities);
+  departmentSelect?.addEventListener("change",async()=>{await loadMunicipalities();await refreshFreightEstimate()});
+  municipalitySelect?.addEventListener("change",refreshFreightEstimate);
+  refreshCustomerIntelligence();
+  refreshFreightEstimate();
 
   const editor=assistant.root.querySelector("#items-editor");
   const add=()=>{
