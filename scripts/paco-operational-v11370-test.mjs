@@ -16,9 +16,8 @@ for(const token of [
   "IDLE_WARN_SECONDS=1800",
   "MANAGER_ROLES",
   "AUX_ROLES",
+  "api.pacoSnapshot",
   "api.listOrders",
-  "api.workPlanner",
-  "api.workPeople",
   "api.workCatalog",
   "api.workStart",
   "monitorTransitions",
@@ -38,6 +37,9 @@ for(const token of [
   assert.equal(engine.includes(token),true,`PACO operacional debe conservar ${token}`);
 }
 
+assert.equal(engine.includes("api.pacoSnapshot()"),true,"El monitor debe usar un único snapshot operacional.");
+assert.equal(engine.includes("MONITOR_MS=60000"),true,"El polling operativo debe permanecer en un minuto.");
+
 for(const role of ["jefe_logistica","lider_logistica","coordinador_logistico","aux_logistica","auxiliar_corte"]){
   assert.equal(engine.includes(role),true,`PACO debe reconocer el rol ${role}`);
 }
@@ -53,7 +55,7 @@ for(const phrase of [
   assert.equal(engine.includes(phrase),true,`PACO debe comprender la intención ${phrase}`);
 }
 
-for(const removed of ["getSupabase","password-self","setToolsOpen","Centro de herramientas","MutationObserver"]){
+for(const removed of ["getSupabase","password-self","setToolsOpen","Centro de herramientas","MutationObserver","api.workPlanner(todayIso()","api.workPeople(null)"]){
   assert.equal(engine.includes(removed),false,`PACO nuevo no debe reintroducir ${removed}`);
 }
 
