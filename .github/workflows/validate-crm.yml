@@ -61,6 +61,9 @@ jobs:
       - name: Workforce indicators · visual analytics contract
         run: node scripts/workforce-indicators-v11363-test.mjs
 
+      - name: PACO · virtual assistant and operational snapshot contract
+        run: node scripts/paco-assistant-v11370-test.mjs
+
       - name: Security contract
         id: security
         continue-on-error: true
