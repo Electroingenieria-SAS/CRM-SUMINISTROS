@@ -321,7 +321,7 @@ function dayPersonRow(person,assignments,slots,day){
 }
 
 function daySlot(rows,slot,index,slots,specialTreatment=false){
-  const events=rows.filter(row=>row.plannedStart&&eventSlotIndex(row,slots)===index);
+  const events=rows.filter(row=>row.plannedStart&&eventOverlapsSlot(row,slot));
   return `
     <div class="work-calendar-segment-cell-v11360 work-calendar-slot-cell-v11367" data-slot-start="${fmt.escape(slot.startTime)}" data-slot-end="${fmt.escape(slot.endTime)}">
       ${specialTreatment
@@ -330,6 +330,15 @@ function daySlot(rows,slot,index,slots,specialTreatment=false){
           ? `<div class="work-calendar-slot-events-v11367">${events.map(dayEvent).join("")}</div>`
           : '<span class="work-calendar-slot-empty-v11367">Disponible</span>'}
     </div>`;
+}
+
+function eventOverlapsSlot(row,slot){
+  if(!row?.plannedStart)return false;
+  const from=bogotaMinutes(row.plannedStart);
+  const to=row.plannedEnd?bogotaMinutes(row.plannedEnd):from+1;
+  const start=toMinutes(slot.startTime);
+  const end=toMinutes(slot.endTime);
+  return to>start&&from<end;
 }
 
 function eventSlotIndex(row,slots){
