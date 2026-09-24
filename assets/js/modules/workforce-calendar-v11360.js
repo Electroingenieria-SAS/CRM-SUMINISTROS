@@ -55,6 +55,8 @@ export function bindWorkforceCalendar({
   const detailKey=item=>[
     item?.assignmentId||"",
     item?.executionId||"",
+    item?.taskSessionId||"",
+    item?.cutExecutionId||"",
     item?.profileId||""
   ].join(":");
 
@@ -62,7 +64,9 @@ export function bindWorkforceCalendar({
     const key=detailKey(item);
     if(detailCache.has(key))return detailCache.get(key);
 
-    const request=api.workPlannerDetail(timelineDetailRequest(item))
+    const request=(item?.sourceType==="ORDER_PROCESS"
+      ? api.workOperationalDetail({taskSessionId:item.taskSessionId||null,cutExecutionId:item.cutExecutionId||null})
+      : api.workPlannerDetail(timelineDetailRequest(item)))
       .catch(error=>{
         detailCache.delete(key);
         throw error;
@@ -303,26 +307,28 @@ function slotHeader(slot){
 }
 
 function dayPersonRow(person,assignments,slots,day){
-  const rows=assignmentsForDay(assignments,person.id,day);
+  const rows=person?.specialTreatment?[]:assignmentsForDay(assignments,person.id,day);
   const noTime=rows.filter(row=>!row.plannedStart);
 
   return `
-    <article class="work-calendar-person-row-v11360 work-calendar-day-table-grid-v11368">
+    <article class="work-calendar-person-row-v11360 work-calendar-day-table-grid-v11368${person?.specialTreatment?" is-special-treatment":""}">
       <div class="work-calendar-person-v11360">
         ${personIdentity(person)}
       </div>
-      ${slots.map((slot,index)=>daySlot(rows,slot,index,slots)).join("")}
+      ${slots.map((slot,index)=>daySlot(rows,slot,index,slots,Boolean(person?.specialTreatment))).join("")}
       ${noTime.length?`<div class="work-calendar-floating-v11360">${noTime.map(compactEvent).join("")}</div>`:""}
     </article>`;
 }
 
-function daySlot(rows,slot,index,slots){
+function daySlot(rows,slot,index,slots,specialTreatment=false){
   const events=rows.filter(row=>row.plannedStart&&eventSlotIndex(row,slots)===index);
   return `
     <div class="work-calendar-segment-cell-v11360 work-calendar-slot-cell-v11367" data-slot-start="${fmt.escape(slot.startTime)}" data-slot-end="${fmt.escape(slot.endTime)}">
-      ${events.length
-        ? `<div class="work-calendar-slot-events-v11367">${events.map(dayEvent).join("")}</div>`
-        : '<span class="work-calendar-slot-empty-v11367">Disponible</span>'}
+      ${specialTreatment
+        ? '<span class="work-calendar-special-slot-v11380">Tratamiento especial</span>'
+        : events.length
+          ? `<div class="work-calendar-slot-events-v11367">${events.map(dayEvent).join("")}</div>`
+          : '<span class="work-calendar-slot-empty-v11367">Disponible</span>'}
     </div>`;
 }
 
@@ -349,7 +355,7 @@ function dayEvent(item){
   const status=eventStatus(item);
   return `
     <article
-      class="work-calendar-event-v11360 work-calendar-event-day-v11360 work-calendar-slot-event-v11367 tone-${status.tone}${item.hasPhoto?" has-photo":""}${item.executionId?" is-executed":""}"
+      class="work-calendar-event-v11360 work-calendar-event-day-v11360 work-calendar-slot-event-v11367 tone-${status.tone}${item.hasPhoto?" has-photo":""}${item.executionId||item.sourceType==="ORDER_PROCESS"?" is-executed":""}"
       data-assignment-open="${fmt.escape(item.id)}"
       role="button"
       tabindex="0"
@@ -385,8 +391,8 @@ function weekBoard(data,calendar,anchor){
           ${days.map(weekDayHeader).join("")}
 
           ${people.map(person=>`
-            <div class="work-calendar-week-person-v11360">${personIdentity(person)}</div>
-            ${days.map(day=>weekCell(assignments,person.id,day)).join("")}
+            <div class="work-calendar-week-person-v11360${person?.specialTreatment?" is-special-treatment":""}">${personIdentity(person)}</div>
+            ${days.map(day=>weekCell(assignments,person.id,day,Boolean(person?.specialTreatment))).join("")}
           `).join("")}
         </div>
       </div>
@@ -405,7 +411,7 @@ function weekDayHeader(day){
     </button>`;
 }
 
-function weekCell(assignments,profileId,day){
+function weekCell(assignments,profileId,day,specialTreatment=false){
   if(day.isHoliday){
     return `<div class="work-calendar-week-cell-v11360 is-holiday"><span class="work-calendar-holiday-v11360">Festivo</span></div>`;
   }
@@ -419,7 +425,9 @@ function weekCell(assignments,profileId,day){
       data-plan-day="${day.date}"
       role="button"
       tabindex="0">
-      ${rows.length?rows.map(weekEvent).join(""):'<span class="work-calendar-available-v11360">Disponible</span>'}
+      ${specialTreatment
+        ? '<span class="work-calendar-special-slot-v11380">Tratamiento especial</span>'
+        : rows.length?rows.map(weekEvent).join(""):'<span class="work-calendar-available-v11360">Disponible</span>'}
     </div>`;
 }
 
@@ -427,7 +435,7 @@ function weekEvent(item){
   const status=eventStatus(item);
   return `
     <article
-      class="work-calendar-event-v11360 work-calendar-event-week-v11360 tone-${status.tone}${item.hasPhoto?" has-photo":""}${item.executionId?" is-executed":""}"
+      class="work-calendar-event-v11360 work-calendar-event-week-v11360 tone-${status.tone}${item.hasPhoto?" has-photo":""}${item.executionId||item.sourceType==="ORDER_PROCESS"?" is-executed":""}"
       data-assignment-open="${fmt.escape(item.id)}"
       role="button"
       tabindex="0">
@@ -694,6 +702,7 @@ function cameraSvg(){
   return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.4 5 10.8 3h2.4l1.4 2H18a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3h3.4ZM12 8a4 4 0 1 0 4 4 4 4 0 0 0-4-4Z"/></svg>';
 }
 function personState(person){
+  if(person?.specialTreatment)return {label:person.specialTreatmentLabel||"Tratamiento especial",tone:"special"};
   const status=String(person?.activeStatus||"").toUpperCase();
   if(status==="PAUSED")return {label:"En pausa",tone:"paused"};
   if(person?.activeTitle)return {label:"Ocupado",tone:"busy"};
