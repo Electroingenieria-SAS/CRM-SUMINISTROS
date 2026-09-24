@@ -12,7 +12,7 @@ import {
   isRestartText
 } from "./paco-language-v11373.js";
 
-const VERSION="11.37.3";
+const VERSION="11.37.4";
 const STYLE_ID="paco-operational-v11370-style";
 const MONITOR_MS=60000;
 const DIGEST_INTERVAL_MS=30*60*1000;
@@ -73,7 +73,7 @@ function ensureStyles(){
   const link=document.createElement("link");
   link.id=STYLE_ID;
   link.rel="stylesheet";
-  link.href="./assets/runtime-css/paco-operational-v11370.css?v=11.37.3";
+  link.href="./assets/runtime-css/paco-operational-v11370.css?v=11.37.4";
   document.head.appendChild(link);
 }
 
