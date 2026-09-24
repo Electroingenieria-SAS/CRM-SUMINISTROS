@@ -425,4 +425,181 @@ begin
     v_high90:=v_high;
   else
     v_log:=v_model.intercept
-      +coalesce(erp_supply.safe_numeric(v_model.
+      +coalesce(erp_supply.safe_numeric(v_model.coefficients->>('carrier='||v_carrier)),0)
+      +coalesce(erp_supply.safe_numeric(v_model.coefficients->>('dest='||v_city)),0)
+      +coalesce(erp_supply.safe_numeric(v_model.coefficients->>('dept='||v_department)),0)
+      +coalesce(erp_supply.safe_numeric(v_model.coefficients->>('band='||v_band::text)),0)
+      +coalesce(erp_supply.safe_numeric(v_model.coefficients->>'lw'),0)*v_lw
+      +coalesce(erp_supply.safe_numeric(v_model.coefficients->>'lw2'),0)*v_lw*v_lw
+      +coalesce(erp_supply.safe_numeric(v_model.coefficients->>(v_carrier||':lw')),0)*v_lw
+      +coalesce(erp_supply.safe_numeric(v_model.coefficients->>(v_carrier||':lw2')),0)*v_lw*v_lw
+      +coalesce(erp_supply.safe_numeric(v_model.coefficients->>('destlw='||v_city)),0)*v_lw;
+
+    v_mid:=greatest(0,exp(v_log)-1);
+    v_p20:=coalesce(erp_supply.safe_numeric(v_model.calibration#>>array[v_carrier,'p20']),0.80);
+    v_p80:=coalesce(erp_supply.safe_numeric(v_model.calibration#>>array[v_carrier,'p80']),1.25);
+    v_p10:=coalesce(erp_supply.safe_numeric(v_model.calibration#>>array[v_carrier,'p10']),0.70);
+    v_p90:=coalesce(erp_supply.safe_numeric(v_model.calibration#>>array[v_carrier,'p90']),1.50);
+    v_low:=v_mid*v_p20;
+    v_high:=v_mid*v_p80;
+    v_low90:=v_mid*v_p10;
+    v_high90:=v_mid*v_p90;
+  end if;
+
+  v_uncertainty:=case when v_mid>0 then greatest(0,(v_high-v_low)/(2*v_mid)*100) else null end;
+  v_confidence:=case
+    when v_weight is null then
+      case when coalesce(v_ref.sample_count,0)>=10 then 'MEDIUM'
+           when coalesce(v_ref.sample_count,0)>=3 then 'LOW'
+           else 'LEARNING' end
+    when coalesce(v_ref.sample_count,0)>=10 then 'HIGH'
+    when coalesce(v_ref.sample_count,0)>=3 then 'MEDIUM'
+    else 'LOW'
+  end;
+
+  return jsonb_build_object(
+    'available',true,
+    'carrier',v_carrier,
+    'city',p_city,
+    'department',p_department,
+    'originCity',v_model.origin_city,
+    'weightKg',v_weight,
+    'basis',case when v_weight is null then 'ROUTE_HISTORY' else 'WEIGHT_MODEL' end,
+    'estimateLow',round(v_low,0),
+    'estimateMid',round(v_mid,0),
+    'estimateHigh',round(v_high,0),
+    'conservativeLow',round(v_low90,0),
+    'conservativeHigh',round(v_high90,0),
+    'uncertaintyPct',case when v_uncertainty is null then null else round(v_uncertainty,1) end,
+    'confidence',v_confidence,
+    'routeSamples',coalesce(v_ref.sample_count,0),
+    'sourcePeriod',jsonb_build_object('from',v_model.source_start,'to',v_model.source_end),
+    'transit',jsonb_build_object(
+      'samples',coalesce(v_ref.transit_sample_count,0),
+      'medianDays',v_ref.transit_p50_days,
+      'p80Days',v_ref.transit_p80_days
+    ),
+    'risk',jsonb_build_object(
+      'noveltySamples',coalesce(v_ref.novelty_sample_count,0),
+      'noveltyRate',v_ref.novelty_rate,
+      'onTimeSamples',coalesce(v_ref.on_time_sample_count,0),
+      'onTimeRate',v_ref.on_time_rate,
+      'chargeRealSamples',coalesce(v_ref.charge_real_sample_count,0),
+      'chargeToRealP50',v_ref.charge_to_real_p50,
+      'dimensionalUpliftRate',v_ref.dimensional_uplift_rate
+    ),
+    'modelMetrics',v_model.metrics,
+    'modelVersion',v_model.model_version
+  );
+end;
+$$;
+revoke all on function erp_supply.freight_model_predict_v1140(uuid,text,text,text,numeric) from public,anon,authenticated;
+
+create or replace function public.erp_x_freight_predictions(
+  p_department text default null,
+  p_city text default null,
+  p_weight_kg numeric default null
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path=erp_supply,public,auth,pg_catalog
+as $$
+declare
+  v_org uuid:=erp_supply.current_org_id();
+  v_rows jsonb;
+  v_cheapest text;
+  v_fastest text;
+  v_stable text;
+  v_model erp_supply.freight_prediction_models%rowtype;
+begin
+  perform erp_supply.require_profile();
+  if nullif(trim(coalesce(p_city,'')),'') is null then
+    return jsonb_build_object('available',false,'reason','CITY_REQUIRED','version','11.40.0');
+  end if;
+
+  select * into v_model
+  from erp_supply.freight_prediction_models m
+  where m.organization_id=v_org and m.model_code='EI_FREIGHT_RIDGE_WEIGHT' and m.active
+  order by m.source_end desc,m.created_at desc limit 1;
+  if not found then return jsonb_build_object('available',false,'reason','MODEL_NOT_AVAILABLE','version','11.40.0'); end if;
+
+  with carriers(carrier) as(values('COLVANES'),('TCC'),('VELOENVIOS')),
+  pred as(
+    select carrier,erp_supply.freight_model_predict_v1140(v_org,carrier,p_department,p_city,p_weight_kg) prediction
+    from carriers
+  ),
+  available as(
+    select carrier,prediction
+    from pred
+    where coalesce((prediction->>'available')::boolean,false)
+  )
+  select coalesce(jsonb_agg(prediction order by coalesce(erp_supply.safe_numeric(prediction->>'estimateMid'),1e18)),'[]'::jsonb)
+  into v_rows
+  from available;
+
+  with carriers(carrier) as(values('COLVANES'),('TCC'),('VELOENVIOS')),
+  pred as(
+    select carrier,erp_supply.freight_model_predict_v1140(v_org,carrier,p_department,p_city,p_weight_kg) prediction
+    from carriers
+  ),
+  available as(
+    select carrier,prediction
+    from pred
+    where coalesce((prediction->>'available')::boolean,false)
+  )
+  select carrier into v_cheapest
+  from available
+  order by erp_supply.safe_numeric(prediction->>'estimateMid') nulls last
+  limit 1;
+
+  with carriers(carrier) as(values('COLVANES'),('TCC'),('VELOENVIOS')),
+  pred as(
+    select carrier,erp_supply.freight_model_predict_v1140(v_org,carrier,p_department,p_city,p_weight_kg) prediction
+    from carriers
+  ),
+  available as(
+    select carrier,prediction
+    from pred
+    where coalesce((prediction->>'available')::boolean,false)
+  )
+  select carrier into v_fastest
+  from available
+  where erp_supply.safe_numeric(prediction#>>'{transit,medianDays}') is not null
+  order by erp_supply.safe_numeric(prediction#>>'{transit,medianDays}') asc
+  limit 1;
+
+  with carriers(carrier) as(values('COLVANES'),('TCC'),('VELOENVIOS')),
+  pred as(
+    select carrier,erp_supply.freight_model_predict_v1140(v_org,carrier,p_department,p_city,p_weight_kg) prediction
+    from carriers
+  ),
+  available as(
+    select carrier,prediction
+    from pred
+    where coalesce((prediction->>'available')::boolean,false)
+  )
+  select carrier into v_stable
+  from available
+  where erp_supply.safe_numeric(prediction->>'uncertaintyPct') is not null
+  order by erp_supply.safe_numeric(prediction->>'uncertaintyPct') asc
+  limit 1;
+
+  return jsonb_build_object(
+    'available',jsonb_array_length(v_rows)>0,
+    'city',p_city,
+    'department',p_department,
+    'weightKg',p_weight_kg,
+    'mode',case when coalesce(p_weight_kg,0)>0 then 'REFINED_WEIGHT_MODEL' else 'PRELIMINARY_ROUTE_HISTORY' end,
+    'carriers',v_rows,
+    'cheapestCarrier',v_cheapest,
+    'fastestCarrier',v_fastest,
+    'mostStableCarrier',v_stable,
+    'training',jsonb_build_object(
+      'samples',v_model.sample_count,
+      'sourceFrom',v_model.source_start,
+      'sourceTo',v_model.source_end,
+      'metrics',v_model.metrics,
+      'privacy','AGGREGATED_NO_PII'
+    ),
