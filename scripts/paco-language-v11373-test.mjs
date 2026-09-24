@@ -91,7 +91,12 @@ const noisyIntentCases=[
   ["por dnde va la orden","order"],
   ["rastrear pedio","order"],
   ["ubicacoin pedido","order"],
-  ["estado del peddo","order"]
+  ["estado del peddo","order"],
+  ["resumen aora no me sale","operation"],
+  ["qien esta sin actvidad ace rato","idle"],
+  ["dnde esta el peddo 12345","order"],
+  ["q pedios siguen en cola","delayed"],
+  ["q pedios ya se despacharon","shipped"]
 ];
 for(const [phrase,intent] of noisyIntentCases)eq(detectPacoIntent(phrase),intent,`Noisy intent ${intent}: ${phrase}`);
 
@@ -170,7 +175,10 @@ const noisyModuleCases=[
   ["abrir reprotes e indicadores","reports"],
   ["ver historcio","imports"],
   ["abrir audtoria","audit"],
-  ["gestionar usarios y roles","admin"]
+  ["gestionar usarios y roles","admin"],
+  ["quiero ber inbentario","inventory"],
+  ["revisar factuacion","billing"],
+  ["abrir crongrama","workforce"]
 ];
 for(const [phrase,id] of noisyModuleCases)eq(matchCrmModule(phrase)?.id,id,`Noisy module ${id}: ${phrase}`);
 
