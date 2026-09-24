@@ -54,6 +54,7 @@ assert.equal(/create\s+(unique\s+)?index/i.test(migration+permissions),false,"V1
 for(const token of [
   "customer_order_value_v11391",
   "PAYMENT_AMOUNT",
+  "CAJA_FACTURACION",
   "INVOICE_AMOUNT_FALLBACK",
   "PAYMENT_WITH_INVOICE_FALLBACK",
   "actualPaymentOrders",
