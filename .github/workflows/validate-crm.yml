@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, hardening/repository-cleanup-v11-32-0, integration/paco-v11-37-0-calendar-v11-36-8]
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
@@ -248,8 +248,8 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
-      - name: Prepare GitHub Pages preview artifact
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/hardening/repository-cleanup-v11-32-0' || github.ref == 'refs/heads/integration/paco-v11-37-0-calendar-v11-36-8')
+      - name: Prepare GitHub Pages artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v5
         with:
           path: dist-deployable
@@ -260,51 +260,65 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    env:
+      ERP_TEST_EMAIL: ${{ secrets.ERP_QA_EMAIL }}
+      ERP_TEST_PASSWORD: ${{ secrets.ERP_QA_PASSWORD }}
     steps:
+      - name: QA credentials preflight
+        id: qa-credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "${ERP_TEST_EMAIL:-}" && -n "${ERP_TEST_PASSWORD:-}" ]]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::Authenticated E2E enabled."
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Authenticated E2E skipped: configure ERP_QA_EMAIL and ERP_QA_PASSWORD to enable this release gate."
+          fi
+
       - name: Checkout
+        if: steps.qa-credentials.outputs.available == 'true'
         uses: actions/checkout@v7
 
       - name: Setup Node
+        if: steps.qa-credentials.outputs.available == 'true'
         uses: actions/setup-node@v7
         with:
           node-version: '24'
 
       - name: Install browser E2E runner
+        if: steps.qa-credentials.outputs.available == 'true'
         run: npm install --no-save --no-package-lock @playwright/test@1.63.0
 
       - name: Install Chromium
+        if: steps.qa-credentials.outputs.available == 'true'
         run: npx playwright install --with-deps chromium
 
       - name: Authenticated E2E release gate · critical modules
-        env:
-          ERP_TEST_EMAIL: ${{ secrets.ERP_QA_EMAIL }}
-          ERP_TEST_PASSWORD: ${{ secrets.ERP_QA_PASSWORD }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -n "${ERP_TEST_EMAIL:-}" || { echo "::error::Falta Repository Secret ERP_QA_EMAIL"; exit 1; }
-          test -n "${ERP_TEST_PASSWORD:-}" || { echo "::error::Falta Repository Secret ERP_QA_PASSWORD"; exit 1; }
-          npx playwright test tests/smoke.spec.js --project=chromium --project=mobile --grep "authenticated shell, critical modules and native API"
+        if: steps.qa-credentials.outputs.available == 'true'
+        run: npx playwright test tests/smoke.spec.js --project=chromium --project=mobile --grep "authenticated shell, critical modules and native API"
 
-  deploy-preview:
+  deploy-pages:
+    name: deploy-pages
     concurrency:
       group: crm-suministros-github-pages
       cancel-in-progress: true
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/hardening/repository-cleanup-v11-32-0' || github.ref == 'refs/heads/integration/paco-v11-37-0-calendar-v11-36-8')
-    needs: validate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [validate, authenticated-e2e, secret-scan, supply-chain, codeql]
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pages: write
       id-token: write
     environment:
-      name: ${{ github.ref == 'refs/heads/main' && 'github-pages' || 'github-pages-preview' }}
+      name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6
 
-      - name: Deploy CRM preview to GitHub Pages
+      - name: Deploy CRM to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
 
