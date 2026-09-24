@@ -186,8 +186,7 @@ begin
           'kind','ORDER_QUEUE',
           'severity',case when q.queue_seconds>=q.critical_seconds then 'critical' else 'warning' end,
           'title','Pedido demorado en cola',
-          'text','El pedido '||q.order_number||' lleva '||
-            erp_supply.humanize_seconds(q.queue_seconds)||' esperando en '||q.step_name||'.',
+          'stepName',q.step_name,
           'orderId',q.order_id,
           'orderNumber',q.order_number,
           'profileId',q.assigned_profile_id,
@@ -209,12 +208,8 @@ begin
           'kind','ACTIVITY_LONG',
           'severity','warning',
           'title','Actividad excedida',
-          'text',a.profile_name||' lleva '||
-            erp_supply.humanize_seconds(a.active_business_seconds)||' en '||a.title||
-            case when coalesce(a.standard_minutes,0)>0 then
-              '. El estándar es '||a.standard_minutes::text||' min.'
-            else '.'
-            end,
+          'activityTitle',a.title,
+          'standardMinutes',a.standard_minutes,
           'executionId',a.execution_id,
           'profileId',a.profile_id,
           'profileName',a.profile_name,
@@ -234,9 +229,6 @@ begin
           'kind','AUXILIARY_IDLE',
           'severity',case when i.idle_seconds>=3600 then 'critical' else 'warning' end,
           'title','Auxiliar disponible hace tiempo',
-          'text',i.profile_name||' lleva '||
-            erp_supply.humanize_seconds(i.idle_seconds)||
-            ' sin una actividad o tarea en ejecución.',
           'profileId',i.profile_id,
           'profileName',i.profile_name,
           'roles',to_jsonb(i.roles),
