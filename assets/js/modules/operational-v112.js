@@ -182,6 +182,7 @@ function openInvoiceDialog(data){
         <div class="field"><label>Valor</label><input class="control" name="amount" type="number" min="0" step="any"></div>
         <div class="field"><label>Cantidad asociada *</label><input class="control" name="packageQuantity" type="number" min="0.000001" step="any" value="${quantity||1}" required></div>
         <div class="field"><label>Peso total de factura (kg) *</label><input class="control" name="packageWeightKg" type="number" min="0.001" step="0.001" required></div>
+        <div class="field"><label>Volumen total (m³)</label><input class="control" name="packageVolumeM3" type="number" min="0" step="0.0001" placeholder="Opcional"><small class="field-help">Ayuda al CRM a aprender cuándo el flete depende del volumen.</small></div>
         <div class="field v112-ratio-field"><label>Relación peso / cantidad</label><output data-v112-weight-ratio>— kg/unidad</output></div>
         <div class="field full"><label>Factura / soporte institucional *</label><input class="control" name="invoiceFile" type="file" accept="image/*,.pdf,application/pdf" required><small class="field-help">Se guarda en Google Drive dentro del expediente del pedido.</small></div>
       </div>`,
@@ -192,13 +193,14 @@ function openInvoiceDialog(data){
       const amount=dialog.querySelector('[name="amount"]').value;
       const packageQuantity=Number(dialog.querySelector('[name="packageQuantity"]').value);
       const packageWeightKg=Number(dialog.querySelector('[name="packageWeightKg"]').value);
+      const packageVolumeM3=Number(dialog.querySelector('[name="packageVolumeM3"]')?.value||0);
       const file=dialog.querySelector('[name="invoiceFile"]').files?.[0];
       if(!file)throw new Error("Adjunta la factura o soporte institucional.");
       if(!(packageQuantity>0)||!(packageWeightKg>0))throw new Error("Cantidad y peso deben ser mayores que cero.");
       const uploaded=await uploadOrderFile(data.order.id,file,"INVOICE",task.id,data.order.order_number);
       const recordId=uploaded?.file?.id;
       if(!recordId)throw new Error("El expediente no devolvió el registro del archivo de factura.");
-      const payload={invoiceNumber,invoiceDate,currency:"COP",driveFileRecordId:recordId,metadata:{packageQuantity,packageWeightKg,weightPerUnitKg:packageWeightKg/packageQuantity,uiVersion:"11.2.0"}};
+      const payload={invoiceNumber,invoiceDate,currency:"COP",driveFileRecordId:recordId,metadata:{packageQuantity,packageWeightKg,packageVolumeM3:packageVolumeM3>0?packageVolumeM3:null,weightPerUnitKg:packageWeightKg/packageQuantity,uiVersion:"11.39.0"}};
       if(amount)payload.amount=amount;
       await api.saveInvoice(data.order.id,payload);
       await finalizeAfterDomain(data.order.id,"Factura registrada con peso y soporte; pedido liberado");
