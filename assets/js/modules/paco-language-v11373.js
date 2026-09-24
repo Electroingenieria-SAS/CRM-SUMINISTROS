@@ -13,6 +13,8 @@ const TOKEN_REWRITES=Object.freeze({
   actvidad:"actividad",activdad:"actividad",actvdad:"actividad",atividad:"actividad",
   activdades:"actividades",actvidades:"actividades",
   asiendo:"haciendo",asiendo:"haciendo",hasiendo:"haciendo",
+  ase:"hace",acer:"hacer",ago:"hago",asen:"hacen",asia:"hacia",
+  eqipo:"equipo",equpo:"equipo",ekipo:"equipo",
   desocpado:"desocupado",desocupdo:"desocupado",desocpados:"desocupados",
   auxliar:"auxiliar",auxilar:"auxiliar",auxliares:"auxiliares",
   responzable:"responsable",responsble:"responsable",repsonsable:"responsable",
