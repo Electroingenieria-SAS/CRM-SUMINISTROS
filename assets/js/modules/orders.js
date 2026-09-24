@@ -418,6 +418,7 @@ function renderSimpleOrder(host,data){
             <div><small>Etapa actual</small><strong>${fmt.escape(fmt.step(order.current_step_code))}</strong></div>
             <div><small>Estado de etapa</small><strong class="simple-status-title ${status.tone}">${fmt.escape(status.label)}</strong></div>
             <div><small>Responsable</small><strong>${fmt.escape(currentAssignee(data))}</strong></div>
+            <div><small>Vendedor</small><strong>${fmt.escape(order.sellerName||"—")}</strong></div>
             <div><small>Condición</small><strong>${fmt.escape(fmt.payment(order.payment_condition_code))}</strong></div>
             <div><small>Entrega</small><strong>${fmt.escape(fmt.route(order.delivery_route_code))}</strong></div>
           </section>
@@ -466,7 +467,7 @@ function renderSimpleOrder(host,data){
 
 function activeTask(data){return (data.tasks||[]).find(task=>["QUEUED","ASSIGNED","IN_PROGRESS","WAITING","BLOCKED"].includes(task.status))||null}
 function actionCodes(data){return new Set((data.actions?.actions||[]).map(action=>action.code))}
-function currentAssignee(data){const task=activeTask(data);return task?.assigned_profile_id?task.assigned_name||fmt.role(task.assigned_role_code||data.order.current_role_code):data.order.current_role_code?fmt.role(data.order.current_role_code):"Sin asignar"}
+function currentAssignee(data){const task=activeTask(data);return data.order?.currentResponsibleName||task?.assignedName||task?.assigned_name||(task?.assigned_profile_id?fmt.role(task.assigned_role_code||data.order.current_role_code):"En cola")}
 function statusOption(code,title,detail,current,enabled){return `<button type="button" class="simple-status-option ${current?"current":""}" data-status-choice="${code}" ${enabled||current?"":"disabled"}><span></span><strong>${fmt.escape(title)}</strong><small>${fmt.escape(detail)}</small>${current?'<b>Estado actual</b>':""}</button>`}
 function workflowMini(tasks,current){return `<section class="simple-flow-line">${(tasks||[]).map(task=>`<div class="${task.step_code===current?"current":""} ${task.status==="COMPLETED"?"done":""}"><span></span><small>${fmt.escape(fmt.step(task.step_code))}</small></div>`).join("")}</section>`}
 
