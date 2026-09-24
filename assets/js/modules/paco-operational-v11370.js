@@ -182,6 +182,7 @@ function renderRoot(){
           </label>
           <button type="button" data-paco-test-voice>Probar voz</button>
           <button type="button" data-paco-summary-now>Resumen ahora</button>
+          <button type="button" data-paco-restart>↻ Reiniciar</button>
         </div>
       </div>
       <div class="paco2-messages paco-op-messages" data-paco-messages aria-live="polite"></div>
@@ -259,7 +260,37 @@ function toggleOpen(){setOpen(!isOpen())}
 function quickPrompts(){
   const base=["Registrar actividad","Pedidos demorados","Mi jornada","Novedades"];
   if(isManager())base.splice(1,0,"Resumen operativo","Estado del equipo","¿Quién está desocupado?");
+  if(paco.flow)base.push("Cancelar consulta");
   return base;
+}
+function setFlow(next){
+  paco.flow=next||null;
+  renderQuick();
+}
+function choiceControls(){
+  return [
+    {label:"Cancelar consulta",sub:"Salir de esta selección",icon:"×",action:"cancel-flow"},
+    {label:"Reiniciar PACO",sub:"Empezar una consulta nueva",icon:"↻",action:"restart"}
+  ];
+}
+function cancelFlowMessage(){
+  const hadFlow=Boolean(paco.flow);
+  setFlow(null);
+  return message({
+    text:hadFlow?"Cancelé la consulta actual. Puedes empezar otra cuando quieras.":"No había una consulta guiada activa. Puedes escribir una nueva.",
+    actions:[{label:"Nueva consulta",action:"focus-input",kind:"primary",icon:"⌕"},{label:"Ver opciones",action:"capabilities",icon:"↗"}]
+  });
+}
+function restartPaco(){
+  setFlow(null);
+  paco.previous=null;
+  paco.messages=[];
+  clearBadge();
+  ensureWelcome();
+  renderMessages();
+  renderQuick();
+  const input=paco.root?.querySelector("[data-paco-input]");
+  if(input){input.value="";setTimeout(()=>input.focus(),50)}
 }
 function renderQuick(){
   const row=paco.root?.querySelector("[data-paco-quick]");
@@ -454,7 +485,7 @@ function activityActions(rows){
   }));
 }
 async function beginActivityFlow(query=""){
-  paco.flow={type:"activity",step:"search"};
+  setFlow({type:"activity",step:"search"});
   if(!query){
     const rows=await catalog();
     const categories=[...new Set(rows.map(x=>x.uiCategoryLabel).filter(Boolean))].slice(0,6);
@@ -462,29 +493,31 @@ async function beginActivityFlow(query=""){
       text:"¿Qué actividad vas a realizar? Puedes escribir el nombre aunque no lo recuerdes exacto, o escoger una categoría.",
       actions:[
         ...categories.map(name=>({label:name,sub:"Ver actividades",icon:"▦",action:"activity-category",value:name})),
-        {label:"Escribir actividad",sub:"Ejemplo: alistar pedido",icon:"⌕",action:"focus-input"}
+        {label:"Escribir actividad",sub:"Ejemplo: alistar pedido",icon:"⌕",action:"focus-input"},
+        ...choiceControls()
       ]
     });
   }
   const rows=await activitySuggestions(query);
-  if(!rows.length)return message({text:`No encontré una actividad parecida a “${query}”. Prueba con menos palabras o dime la categoría.`,actions:[{label:"Ver categorías",icon:"▦",action:"activity-begin"}]});
-  return message({text:`Encontré ${rows.length} opción${rows.length===1?"":"es"} que pueden corresponder. ¿Cuál vas a realizar?`,actions:activityActions(rows)});
+  if(!rows.length)return message({text:`No encontré una actividad parecida a “${query}”. Prueba con menos palabras o dime la categoría.`,actions:[{label:"Ver categorías",icon:"▦",action:"activity-begin"},...choiceControls()]});
+  return message({text:`Encontré ${rows.length} opción${rows.length===1?"":"es"} que pueden corresponder. ¿Cuál vas a realizar?`,actions:[...activityActions(rows),...choiceControls()]});
 }
 async function categoryActivities(categoryName){
   const rows=(await catalog()).filter(item=>norm(item.uiCategoryLabel)===norm(categoryName)).slice(0,10);
-  paco.flow={type:"activity",step:"search"};
-  return message({text:`Estas son las actividades de ${categoryName}. Elige una.`,actions:activityActions(rows)});
+  setFlow({type:"activity",step:"search"});
+  return message({text:`Estas son las actividades de ${categoryName}. Elige una.`,actions:[...activityActions(rows),...choiceControls()]});
 }
 async function selectActivity(catalogId){
   const item=(await catalog()).find(row=>String(row.id)===String(catalogId));
   if(!item)return message({text:"Esa actividad ya no está disponible en el catálogo."});
-  paco.flow={type:"activity",step:"confirm",catalogId:item.id,item};
+  setFlow({type:"activity",step:"confirm",catalogId:item.id,item});
   return message({
     text:`Voy a registrar “${item.name}” como tu actividad actual. ¿La inicio ahora?`,
     card:[["Categoría",item.uiCategoryLabel||"—"],["Subcategoría",item.uiSubcategory||"—"],["Tiempo estándar",item.standardMinutes?`${item.standardMinutes} min`:"Sin tiempo estándar"]],
     actions:[
       {label:"Sí, iniciar ahora",sub:"Empieza el cronómetro",icon:"▶",kind:"primary",action:"activity-start",value:item.id},
-      {label:"Elegir otra",sub:"Volver al catálogo",icon:"↩",action:"activity-begin"}
+      {label:"Elegir otra",sub:"Volver al catálogo",icon:"↩",action:"activity-begin"},
+      ...choiceControls()
     ]
   });
 }
@@ -492,7 +525,7 @@ async function startActivity(catalogId){
   const item=(await catalog()).find(row=>String(row.id)===String(catalogId));
   if(!item)throw new Error("La actividad seleccionada ya no está disponible.");
   await api.workStart(item.id,null,{source:"PACO_ASSISTANT",assistantVersion:VERSION});
-  paco.flow=null;
+  setFlow(null);
   setTimeout(()=>refreshMonitor(true),900);
   speak(`Listo. Inicié ${item.name}.`);
   return message({
@@ -813,7 +846,7 @@ async function diagnoseOrder(term){
   const result=await api.listOrders({search:term,page:1,pageSize:8,includeHistory:true,assignment:"ALL"});
   const rows=itemArray(result);
   if(!rows.length)return message({text:`No encontré un pedido visible con “${term}”.`});
-  if(rows.length>1)return message({text:"Encontré varias coincidencias. Elige el pedido.",actions:rows.slice(0,6).map(row=>({label:orderNumber(row),sub:row.clientName||row.client_name||"Cliente",action:"diagnose-order-id",orderId:row.id||row.orderId,icon:"⌕"}))});
+  if(rows.length>1)return message({text:"Encontré varias coincidencias. Elige el pedido.",actions:[...rows.slice(0,6).map(row=>({label:orderNumber(row),sub:row.clientName||row.client_name||"Cliente",action:"diagnose-order-id",orderId:row.id||row.orderId,icon:"⌕"})),...choiceControls()]});
   return diagnoseOrderById(rows[0].id||rows[0].orderId);
 }
 async function diagnoseOrderById(id){
@@ -838,7 +871,7 @@ async function resolveQuery(input){
 
   if(paco.flow?.type==="activity"){
     if(matchesAny(text,["cancelar","salir","olvidalo","olvídalo"])){
-      paco.flow=null;
+      setFlow(null);
       return message({text:"Listo. Cancelé el registro guiado de actividad."});
     }
     if(paco.flow.step==="confirm"){
@@ -966,7 +999,7 @@ function syncProfile(next=state){
     paco.lastDigestAt=readLastDigest();
     startMonitor();
   }else{
-    clearInterval(paco.monitorTimer);paco.monitorTimer=null;paco.previous=null;paco.messages=[];paco.flow=null;paco.lastDigestAt=0;renderMessages();setOpen(false);
+    clearInterval(paco.monitorTimer);paco.monitorTimer=null;paco.previous=null;paco.messages=[];setFlow(null);paco.lastDigestAt=0;renderMessages();setOpen(false);
   }
 }
 
