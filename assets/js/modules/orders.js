@@ -403,18 +403,19 @@ function openCreateOrder(){
         const carriers=Array.isArray(data?.carriers)?data.carriers:[];
         const cheapest=carriers.find(row=>row.carrier===data?.cheapestCarrier)||carriers[0]||null;
         if(!data?.available||!cheapest){
-          card.querySelector("[data-freight-estimate-value]").textContent=weightKg?"Modelo sin estimación para esta ruta":"Completa los materiales para refinar";
-          card.querySelector("[data-freight-estimate-copy]").textContent=weightKg
-            ? `Destino: ${city} · ${fmt.number(weightKg,2)} kg. El pedido puede continuar y el histórico operativo seguirá alimentando el modelo.`
-            : `Destino: ${city}. Hay una lectura preliminar limitada; al completar los materiales se calculará automáticamente el peso.`;
-          card.querySelector("[data-freight-confidence]").textContent="Modelo predictivo V11.40 · aprendizaje continuo";
+          card.querySelector("[data-freight-estimate-value]").textContent="Base histórica temporalmente no disponible";
+          card.querySelector("[data-freight-estimate-copy]").textContent="El archivo histórico sigue cargado, pero no fue posible obtener una lectura para "+city+" en este momento.";
+          card.querySelector("[data-freight-confidence]").textContent="Base histórica integrada · reintento disponible";
           if(carrierHost)carrierHost.innerHTML="";
-          assistant.root.dataset.freightEstimateLabel="Predicción aún no disponible";
+          assistant.root.dataset.freightEstimateLabel="Base histórica no consultable";
           return;
         }
         const low=moneyCop(cheapest.estimateLow||0),high=moneyCop(cheapest.estimateHigh||0),mid=moneyCop(cheapest.estimateMid||0);
         const range=low===high?mid:`${low} – ${high}`;
         const refined=String(data.mode||"")==="REFINED_WEIGHT_MODEL";
+        const baseSamples=Number(data?.historicalBase?.samples||data?.training?.samples||749);
+        const referenceSamples=Number(cheapest.referenceSamples??cheapest.routeSamples??0);
+        const referenceScope=freightReferenceScopeLabel(cheapest.referenceScope);
         card.querySelector("[data-freight-estimate-value]").textContent=`${cheapest.carrier} · ${range}`;
         card.querySelector("[data-freight-estimate-copy]").textContent=refined
           ? `Predicción refinada con ${fmt.number(weightKg,2)} kg calculados desde Siesa. Compara las tres transportadoras con 749 despachos históricos.`
