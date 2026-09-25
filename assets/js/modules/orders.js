@@ -418,7 +418,7 @@ function openCreateOrder(){
         const referenceScope=freightReferenceScopeLabel(cheapest.referenceScope);
         card.querySelector("[data-freight-estimate-value]").textContent=`${cheapest.carrier} · ${range}`;
         card.querySelector("[data-freight-estimate-copy]").textContent=refined
-          ? `Predicción refinada con ${fmt.number(weightKg,2)} kg calculados desde Siesa. Usa la base cargada de ${fmt.number(baseSamples)} despachos y compara las tres transportadoras.`
+          ? `Predicción refinada con ${fmt.number(weightKg,2)} kg calculados desde Siesa. Usa los 749 despachos históricos cargados y compara las tres transportadoras.`
           : `Base histórica activa desde ahora: ${fmt.number(baseSamples)} despachos cargados. Para ${city}, la referencia actual usa ${fmt.number(referenceSamples)} muestra${referenceSamples===1?"":"s"} de ${referenceScope}; el peso solo refinará el cálculo.`;
         const modelError=Number(data?.training?.metrics?.medianAbsolutePercentageError||0)*100;
         card.querySelector("[data-freight-confidence]").textContent=refined
