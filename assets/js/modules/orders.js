@@ -418,12 +418,12 @@ function openCreateOrder(){
         const referenceScope=freightReferenceScopeLabel(cheapest.referenceScope);
         card.querySelector("[data-freight-estimate-value]").textContent=`${cheapest.carrier} · ${range}`;
         card.querySelector("[data-freight-estimate-copy]").textContent=refined
-          ? `Predicción refinada con ${fmt.number(weightKg,2)} kg calculados desde Siesa. Compara las tres transportadoras con 749 despachos históricos.`
-          : `Estimación preliminar por ruta para ${city}. Completa los materiales y el CRM recalculará por peso automáticamente.`;
+          ? `Predicción refinada con ${fmt.number(weightKg,2)} kg calculados desde Siesa. Usa la base cargada de ${fmt.number(baseSamples)} despachos y compara las tres transportadoras.`
+          : `Base histórica activa desde ahora: ${fmt.number(baseSamples)} despachos cargados. Para ${city}, la referencia actual usa ${fmt.number(referenceSamples)} muestra${referenceSamples===1?"":"s"} de ${referenceScope}; el peso solo refinará el cálculo.`;
         const modelError=Number(data?.training?.metrics?.medianAbsolutePercentageError||0)*100;
         card.querySelector("[data-freight-confidence]").textContent=refined
           ? `Modelo validado fuera de muestra · error mediano ${fmt.number(modelError||12.1,1)}%`
-          : "Preliminar · histórico por destino";
+          : `Base histórica cargada · ${fmt.number(baseSamples)} despachos · ${fmt.number(data?.historicalBase?.cities||85)} ciudades`;
         if(carrierHost)carrierHost.innerHTML=freightPredictionsHtml(data);
         if(materialPanel){
           materialPanel.innerHTML=refined
