@@ -107,7 +107,10 @@ function customerConfidenceLabel(value){
 }
 
 function freightBasisLabel(value){
-  return ({WEIGHT:"peso",PACKAGE_COUNT:"cantidad de paquetes",VOLUME:"volumen",ROUTE_HISTORY:"histórico de ruta"})[String(value||"ROUTE_HISTORY").toUpperCase()]||"histórico de ruta";
+  return ({WEIGHT:"peso",PACKAGE_COUNT:"cantidad de paquetes",VOLUME:"volumen",ROUTE_HISTORY:"histórico de ruta",HISTORICAL_BASE:"base histórica cargada",WEIGHT_MODEL:"modelo por peso"})[String(value||"ROUTE_HISTORY").toUpperCase()]||"histórico de ruta";
+}
+function freightReferenceScopeLabel(value){
+  return ({CITY_HISTORY:"histórico de ciudad",DEPARTMENT_HISTORY:"histórico departamental",NATIONAL_BASELINE:"base nacional de la transportadora"})[String(value||"").toUpperCase()]||"base histórica";
 }
 
 function estimatedSalesWeight(root){
@@ -140,6 +143,10 @@ function freightPredictionSnapshot(data){
       uncertaintyPct:row.uncertaintyPct,
       confidence:row.confidence,
       routeSamples:row.routeSamples,
+      referenceSamples:row.referenceSamples,
+      referenceScope:row.referenceScope||null,
+      historicalBaseSamples:row.historicalBaseSamples,
+      source:row.source||null,
       transit:row.transit||null,
       risk:row.risk||null
     }))
