@@ -107,7 +107,10 @@ function customerConfidenceLabel(value){
 }
 
 function freightBasisLabel(value){
-  return ({WEIGHT:"peso",PACKAGE_COUNT:"cantidad de paquetes",VOLUME:"volumen",ROUTE_HISTORY:"histórico de ruta"})[String(value||"ROUTE_HISTORY").toUpperCase()]||"histórico de ruta";
+  return ({WEIGHT:"peso",PACKAGE_COUNT:"cantidad de paquetes",VOLUME:"volumen",ROUTE_HISTORY:"histórico de ruta",HISTORICAL_BASE:"base histórica cargada",WEIGHT_MODEL:"modelo por peso"})[String(value||"ROUTE_HISTORY").toUpperCase()]||"histórico de ruta";
+}
+function freightReferenceScopeLabel(value){
+  return ({CITY_HISTORY:"histórico de ciudad",DEPARTMENT_HISTORY:"histórico departamental",NATIONAL_BASELINE:"base nacional de la transportadora"})[String(value||"").toUpperCase()]||"base histórica";
 }
 
 function estimatedSalesWeight(root){
@@ -140,6 +143,10 @@ function freightPredictionSnapshot(data){
       uncertaintyPct:row.uncertaintyPct,
       confidence:row.confidence,
       routeSamples:row.routeSamples,
+      referenceSamples:row.referenceSamples,
+      referenceScope:row.referenceScope||null,
+      historicalBaseSamples:row.historicalBaseSamples,
+      source:row.source||null,
       transit:row.transit||null,
       risk:row.risk||null
     }))
@@ -152,13 +159,15 @@ function freightPredictionsHtml(data={}){
   return rows.map(row=>{
     const eta=Number(row?.transit?.medianDays);
     const uplift=Number(row?.risk?.dimensionalUpliftRate);
+    const referenceSamples=Number(row.referenceSamples??row.routeSamples??0);
+    const referenceScope=freightReferenceScopeLabel(row.referenceScope);
     const tags=[];
     if(row.carrier===data.cheapestCarrier)tags.push("Más económico");
     if(row.carrier===data.fastestCarrier)tags.push("Más rápido histórico");
     if(row.carrier===data.mostStableCarrier)tags.push("Más estable");
     return `<article class="sales-freight-carrier-v1140">
       <div><strong>${fmt.escape(row.carrier||"Transportadora")}</strong><span>${moneyCop(row.estimateLow||0)} – ${moneyCop(row.estimateHigh||0)}</span></div>
-      <small>${eta>0?`ETA típico ~${fmt.number(eta,1)} días`:"ETA no disponible"} · ${fmt.number(row.routeSamples||0)} muestra${Number(row.routeSamples||0)===1?"":"s"} de ruta${Number.isFinite(uplift)&&uplift>0?` · riesgo peso cobrado ${fmt.number(uplift*100,0)}%`:""}</small>
+      <small>${eta>0?`ETA típico ~${fmt.number(eta,1)} días`:"ETA no disponible"} · ${fmt.number(referenceSamples)} muestra${referenceSamples===1?"":"s"} · ${fmt.escape(referenceScope)}${Number.isFinite(uplift)&&uplift>0?` · riesgo peso cobrado ${fmt.number(uplift*100,0)}%`:""}</small>
       ${tags.length?`<em>${tags.map(tag=>`<b>${fmt.escape(tag)}</b>`).join("")}</em>`:""}
     </article>`;
   }).join("");
@@ -378,7 +387,7 @@ function openCreateOrder(){
       card.querySelector("[data-freight-confidence]").textContent="Esperando ubicación";
       if(carrierHost)carrierHost.innerHTML="";
       if(materialPanel)materialPanel.innerHTML='<span>PREDICCIÓN LOGÍSTICA</span><div><strong>Selecciona destino y materiales</strong><p>La comparación se activa para despacho nacional.</p></div>';
-      assistant.root.dataset.freightEstimateLabel="Aprendiendo con históricos";
+      assistant.root.dataset.freightEstimateLabel="Base histórica nacional disponible";
       assistant.root.__freightPrediction=null;
       return;
     }
@@ -394,31 +403,32 @@ function openCreateOrder(){
         const carriers=Array.isArray(data?.carriers)?data.carriers:[];
         const cheapest=carriers.find(row=>row.carrier===data?.cheapestCarrier)||carriers[0]||null;
         if(!data?.available||!cheapest){
-          card.querySelector("[data-freight-estimate-value]").textContent=weightKg?"Modelo sin estimación para esta ruta":"Completa los materiales para refinar";
-          card.querySelector("[data-freight-estimate-copy]").textContent=weightKg
-            ? `Destino: ${city} · ${fmt.number(weightKg,2)} kg. El pedido puede continuar y el histórico operativo seguirá alimentando el modelo.`
-            : `Destino: ${city}. Hay una lectura preliminar limitada; al completar los materiales se calculará automáticamente el peso.`;
-          card.querySelector("[data-freight-confidence]").textContent="Modelo predictivo V11.40 · aprendizaje continuo";
+          card.querySelector("[data-freight-estimate-value]").textContent="Base histórica temporalmente no disponible";
+          card.querySelector("[data-freight-estimate-copy]").textContent="El archivo histórico sigue cargado, pero no fue posible obtener una lectura para "+city+" en este momento.";
+          card.querySelector("[data-freight-confidence]").textContent="Base histórica integrada · reintento disponible";
           if(carrierHost)carrierHost.innerHTML="";
-          assistant.root.dataset.freightEstimateLabel="Predicción aún no disponible";
+          assistant.root.dataset.freightEstimateLabel="Base histórica no consultable";
           return;
         }
         const low=moneyCop(cheapest.estimateLow||0),high=moneyCop(cheapest.estimateHigh||0),mid=moneyCop(cheapest.estimateMid||0);
         const range=low===high?mid:`${low} – ${high}`;
         const refined=String(data.mode||"")==="REFINED_WEIGHT_MODEL";
+        const baseSamples=Number(data?.historicalBase?.samples||data?.training?.samples||749);
+        const referenceSamples=Number(cheapest.referenceSamples??cheapest.routeSamples??0);
+        const referenceScope=freightReferenceScopeLabel(cheapest.referenceScope);
         card.querySelector("[data-freight-estimate-value]").textContent=`${cheapest.carrier} · ${range}`;
         card.querySelector("[data-freight-estimate-copy]").textContent=refined
-          ? `Predicción refinada con ${fmt.number(weightKg,2)} kg calculados desde Siesa. Compara las tres transportadoras con 749 despachos históricos.`
-          : `Estimación preliminar por ruta para ${city}. Completa los materiales y el CRM recalculará por peso automáticamente.`;
+          ? `Predicción refinada con ${fmt.number(weightKg,2)} kg calculados desde Siesa. Usa los 749 despachos históricos cargados y compara las tres transportadoras.`
+          : `Base histórica activa desde ahora: ${fmt.number(baseSamples)} despachos cargados. Para ${city}, la referencia actual usa ${fmt.number(referenceSamples)} muestra${referenceSamples===1?"":"s"} de ${referenceScope}; el peso solo refinará el cálculo.`;
         const modelError=Number(data?.training?.metrics?.medianAbsolutePercentageError||0)*100;
         card.querySelector("[data-freight-confidence]").textContent=refined
           ? `Modelo validado fuera de muestra · error mediano ${fmt.number(modelError||12.1,1)}%`
-          : "Preliminar · histórico por destino";
+          : `Base histórica cargada · ${fmt.number(baseSamples)} despachos · ${fmt.number(data?.historicalBase?.cities||85)} ciudades`;
         if(carrierHost)carrierHost.innerHTML=freightPredictionsHtml(data);
         if(materialPanel){
           materialPanel.innerHTML=refined
-            ? `<span>PREDICCIÓN REFINADA</span><div><strong>${fmt.escape(data.cheapestCarrier||cheapest.carrier)} desde ${fmt.escape(mid)}</strong><p>Peso estimado: ${fmt.number(weightKg,2)} kg · ${carriers.length} transportadoras comparadas · ${data.fastestCarrier?`más rápida histórica: ${fmt.escape(data.fastestCarrier)}`:"ETA aún insuficiente"}.</p></div>`
-            : '<span>PREDICCIÓN LOGÍSTICA</span><div><strong>Completa cantidades y materiales</strong><p>Cuando el peso del pedido esté completo, el rango se recalculará con el modelo de 749 despachos.</p></div>';
+            ? `<span>PREDICCIÓN REFINADA</span><div><strong>${fmt.escape(data.cheapestCarrier||cheapest.carrier)} desde ${fmt.escape(mid)}</strong><p>Peso estimado: ${fmt.number(weightKg,2)} kg · ${carriers.length} transportadoras comparadas · ${data.fastestCarrier?`más rápida histórica: ${fmt.escape(data.fastestCarrier)}`:"ETA no disponible para esta transportadora"}.</p></div>`
+            : `<span>BASE HISTÓRICA ACTIVA</span><div><strong>${fmt.number(baseSamples)} despachos ya están siendo usados</strong><p>El costo mostrado ya sale del archivo integrado. Completa cantidades y materiales únicamente para afinar la estimación por peso.</p></div>`;
         }
         assistant.root.dataset.freightEstimateLabel=`${cheapest.carrier} · ${range}${refined?` · ${fmt.number(weightKg,2)} kg`:" · preliminar"}`;
       }else{
@@ -427,10 +437,10 @@ function openCreateOrder(){
         const data=await api.freightEstimate({route,department,city});
         if(request!==freightRequest)return;
         if(!data?.available){
-          card.querySelector("[data-freight-estimate-value]").textContent="Aún sin histórico suficiente";
-          card.querySelector("[data-freight-estimate-copy]").textContent=`Destino: ${city}. Las próximas entregas con costo real comenzarán a formar este estimado.`;
-          card.querySelector("[data-freight-confidence]").textContent="Confianza: aprendiendo";
-          assistant.root.dataset.freightEstimateLabel="Sin histórico suficiente";
+          card.querySelector("[data-freight-estimate-value]").textContent="Sin histórico específico para esta modalidad";
+          card.querySelector("[data-freight-estimate-copy]").textContent=`La base cargada de 749 despachos corresponde a transporte nacional. Para ${city}, esta modalidad se medirá con sus propios costos reales para no mezclar tarifas nacionales con entregas locales o recogidas.`;
+          card.querySelector("[data-freight-confidence]").textContent="Base nacional disponible · modalidad local separada";
+          assistant.root.dataset.freightEstimateLabel="Sin histórico específico de modalidad";
           return;
         }
         const low=moneyCop(data.estimateLow||0),high=moneyCop(data.estimateHigh||0);
