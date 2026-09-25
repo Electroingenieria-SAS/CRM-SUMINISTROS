@@ -159,13 +159,15 @@ function freightPredictionsHtml(data={}){
   return rows.map(row=>{
     const eta=Number(row?.transit?.medianDays);
     const uplift=Number(row?.risk?.dimensionalUpliftRate);
+    const referenceSamples=Number(row.referenceSamples??row.routeSamples??0);
+    const referenceScope=freightReferenceScopeLabel(row.referenceScope);
     const tags=[];
     if(row.carrier===data.cheapestCarrier)tags.push("Más económico");
     if(row.carrier===data.fastestCarrier)tags.push("Más rápido histórico");
     if(row.carrier===data.mostStableCarrier)tags.push("Más estable");
     return `<article class="sales-freight-carrier-v1140">
       <div><strong>${fmt.escape(row.carrier||"Transportadora")}</strong><span>${moneyCop(row.estimateLow||0)} – ${moneyCop(row.estimateHigh||0)}</span></div>
-      <small>${eta>0?`ETA típico ~${fmt.number(eta,1)} días`:"ETA no disponible"} · ${fmt.number(row.routeSamples||0)} muestra${Number(row.routeSamples||0)===1?"":"s"} de ruta${Number.isFinite(uplift)&&uplift>0?` · riesgo peso cobrado ${fmt.number(uplift*100,0)}%`:""}</small>
+      <small>${eta>0?`ETA típico ~${fmt.number(eta,1)} días`:"ETA no disponible"} · ${fmt.number(referenceSamples)} muestra${referenceSamples===1?"":"s"} · ${fmt.escape(referenceScope)}${Number.isFinite(uplift)&&uplift>0?` · riesgo peso cobrado ${fmt.number(uplift*100,0)}%`:""}</small>
       ${tags.length?`<em>${tags.map(tag=>`<b>${fmt.escape(tag)}</b>`).join("")}</em>`:""}
     </article>`;
   }).join("");
