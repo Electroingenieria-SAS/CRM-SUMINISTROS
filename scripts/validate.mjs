@@ -102,8 +102,8 @@ const normalizedJsRuntime=jsRuntime
   .replace(/\bObject\s*\.\s*fromEntries\s*\(/g,"Object_fromEntries(");
 
 // Release identity.
-check(version==="11.41.0","CONFIG.version debe ser 11.41.0.");
-check(build==="2026-09-24.35","CONFIG.build debe ser 2026-09-24.35.");
+check(version==="11.42.0","CONFIG.version debe ser 11.42.0.");
+check(build==="2026-09-25.36","CONFIG.build debe ser 2026-09-25.36.");
 check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
 check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
 check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
@@ -127,6 +127,8 @@ check(exists("scripts/freight-prediction-v11400-test.mjs"),"Falta contrato V11.4
 check(exists("supabase/migrations/130_logistics_intelligence_control_v11_41_0.sql"),"Falta migración V11.41.0 de control logístico.");
 check(exists("scripts/logistics-intelligence-v11410-test.mjs"),"Falta contrato V11.41.0 de inteligencia logística.");
 check(exists("assets/js/modules/freight-intelligence-v11410.js"),"Falta módulo visual V11.41.0 de inteligencia logística.");
+check(exists("supabase/migrations/131_freight_historical_base_v11_42_0.sql"),"Falta migración V11.42.0 de base histórica activa.");
+check(exists("scripts/freight-historical-base-v11420-test.mjs"),"Falta contrato V11.42.0 de base histórica activa.");
 check(exists("supabase/migrations/125_customer_freight_intelligence_v11_39_0.sql"),"Falta migración 125 de inteligencia comercial/logística.");
 check(exists("supabase/migrations/126_customer_freight_intelligence_permissions_v11_39_0.sql"),"Falta migración 126 de permisos de inteligencia.");
 check(exists("supabase/migrations/124_order_responsible_seller_v11_38_2.sql"),"Falta migración 124 de responsable activo y vendedor.");
@@ -204,8 +206,8 @@ check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía instit
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
 
 // PWA and Vercel routing.
-check(sw.includes('// previous-cache: crm-suministros-v11-40-0-20260924-34'),"previous-cache PWA debe apuntar a V11.40.0.");
-check(sw.includes('const CACHE="crm-suministros-v11-41-0-20260924-35";'),"CACHE activo PWA no corresponde a V11.41.0.");
+check(sw.includes('// previous-cache: crm-suministros-v11-41-0-20260924-35'),"previous-cache PWA debe apuntar a V11.41.0.");
+check(sw.includes('const CACHE="crm-suministros-v11-42-0-20260925-36";'),"CACHE activo PWA no corresponde a V11.42.0.");
 check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
 check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
 check(vercel.includes('manifest\\\\.webmanifest')||vercel.includes('/manifest.webmanifest'),"Vercel debe excluir o tratar explícitamente el manifest real.");
@@ -405,7 +407,7 @@ console.log(`VALIDACIÓN CRM ${version} CORRECTA`);
 console.log(`- Build ${build}`);
 console.log(`- ${jsFiles.length} archivos JavaScript bajo un único app-entry.`);
 console.log("- Inventario conserva captura, exprés, metraje, stickers, revisión, historial, existencias, kardex e inteligencia.");
-console.log("- V11.41.0 agrega auditoría predicho-vs-real, ahorro, precisión, riesgo de entrega, presupuesto y alertas PACO.");
+console.log("- V11.42.0 activa inmediatamente la base histórica de 749 fletes con normalización geográfica y fallbacks.");
 console.log("- Observers responsive y popup procesan únicamente el ámbito dinámico afectado.");
 console.log("- PWA, Vercel, RLS y hotpaths SQL quedan incorporados al contrato canónico.");
 console.log("- Conteo ciego, RLS granular y aprobación contable permanecen como contratos obligatorios.");
