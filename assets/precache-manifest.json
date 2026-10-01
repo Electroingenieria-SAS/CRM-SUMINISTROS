@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": "9c1b5d74f63d5f5b",
-  "sourceBytes": 2555203,
+  "revision": "2e069bc20c4d88ba",
+  "sourceBytes": 2553326,
   "assets": [
     "./assets/css/analytics.css",
     "./assets/css/base/accessibility.css",
@@ -590,7 +590,6 @@
     "./assets/js/modules/admin.js",
     "./assets/js/modules/approvals.js",
     "./assets/js/modules/audit.js",
-    "./assets/js/modules/auditoria-erp-bridge-v11280.js",
     "./assets/js/modules/billing-focus-v1198.js",
     "./assets/js/modules/billing-multiformat-v11101.js",
     "./assets/js/modules/billing-upload-v1199.js",
