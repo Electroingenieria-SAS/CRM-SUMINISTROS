@@ -1,4 +1,5 @@
 import { fmt } from "../../../../core/format.js";
+import { icon } from "../../../../core/icons.js";
 import { isPdf, formatBytes } from "../pdf/file-metadata.js";
 
 export function readOnlyLines(items){
@@ -17,9 +18,33 @@ export function fullDetails(data){
 
 export function detail(label,value){return `<div class="info-box"><label>${fmt.escape(label)}</label><strong>${fmt.escape(value??"—")}</strong></div>`}
 
+export function orderSummary(data){
+  const order=data.order;
+  return `<section class="reception-order-strip reception-order-summary">
+    <div><small>Responsable actual</small><strong>${fmt.escape(data.assigneeLabel||"—")}</strong></div>
+    <div><small>Pago</small><strong>${fmt.escape(fmt.payment(order.payment_condition_code))}</strong></div>
+    <div><small>Entrega</small><strong>${fmt.escape(fmt.route(order.delivery_route_code))}</strong></div>
+    <div><small>Archivos del asesor</small><strong>${(data.files||[]).length}</strong></div>
+  </section>`;
+}
+
+export function summaryDisclosure(data){
+  return `<details class="reception-summary-disclosure">
+    <summary><span aria-hidden="true">${icon("orders")}</span><div><strong>Ver resumen del pedido</strong><small>Pago, entrega, responsable y soportes</small></div><b aria-hidden="true">+</b></summary>
+    ${orderSummary(data)}
+  </details>`;
+}
+
+export function disclosure({title,action,iconName,content}){
+  return `<details class="reception-disclosure">
+    <summary><span aria-hidden="true">${icon(iconName)}</span><div><strong>${fmt.escape(title)}</strong><small>${fmt.escape(action)}</small></div><b aria-hidden="true">+</b></summary>
+    ${content}
+  </details>`;
+}
+
 export function progressBar(stage){
   const current={REVIEW:2,PDF:2,EDIT:3,ASSIGN:4}[stage]||2;
-  return `<div class="reception-progress">${["Tomar pedido","Revisar información","Validar líneas","Asignar auxiliares"].map((label,index)=>`<div class="${index+1<current?"done":index+1===current?"current":""}"><span>${index+1}</span><small>${label}</small></div>`).join("")}</div>`;
+  return `<div class="reception-progress reception-stepper">${["Tomar","Revisar","Corregir","Asignar"].map((label,index)=>`<div class="${index+1<current?"done":index+1===current?"current":""}"><span>${index+1}</span><small>${label}</small></div>`).join("")}</div>`;
 }
 
 export function summaryChip(label,value){return `<span class="reception-summary-chip"><small>${fmt.escape(label)}</small><strong>${fmt.escape(value)}</strong></span>`}

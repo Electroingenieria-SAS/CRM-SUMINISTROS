@@ -1,6 +1,8 @@
-import { fmt } from "../../../core/format.js";
 import { toast } from "../../../core/ui.js";
-import { baseShell, bindClose } from "./ui/reception-shell.js";
+import { baseShell, bindClose, bindDisclosureMarkers } from "./ui/reception-shell.js";
+import { bindFooterNavigation } from "./ui/footer-navigation.js";
+import { takeStage } from "./stages/take.js";
+import { statusStage } from "./stages/status.js";
 import { reviewStage } from "./stages/review.js";
 import { pdfStage } from "./stages/pdf.js";
 import { editStage } from "./stages/edit-lines.js";
@@ -10,8 +12,14 @@ import { progressBar } from "./ui/order-context.js";
 import { loadDraft } from "./draft/reception-draft.js";
 import { activeTask, actionCodes, assigneeName, beginReception } from "./actions/start-reception.js";
 
-export function isOrderReceptionStep(data){
-  return data?.order?.current_step_code==="RECEPCION_PEDIDO";
+export function isOrderReceptionStep(data){return data?.order?.current_step_code==="RECEPCION_PEDIDO"}
+
+function viewData(data){return {...data,assigneeLabel:assigneeName(data)}}
+
+function bindShell(host,stage){
+  bindClose(host);
+  bindDisclosureMarkers(host);
+  bindFooterNavigation(host,stage);
 }
 
 export function renderOrderReception(host,data,{reload,refreshLists}={}){
@@ -19,30 +27,20 @@ export function renderOrderReception(host,data,{reload,refreshLists}={}){
   const actions=actionCodes(data);
   const canStart=actions.has("CLAIM")||actions.has("START")||actions.has("RESUME");
   const inProgress=task?.status==="IN_PROGRESS";
+  const presentation=viewData(data);
 
   if(!task){
-    host.innerHTML=baseShell(data,`<div class="reception-empty-state"><strong>El pedido no tiene una tarea activa.</strong><p>Solicita a la jefatura logística revisar el flujo.</p></div>`,false);
-    bindClose(host);
+    host.innerHTML=baseShell(presentation,statusStage({title:"El pedido no tiene una tarea activa.",text:"Solicita a la jefatura logística revisar el flujo."}),{stage:"STATUS"});
+    bindShell(host,"STATUS");
     return;
   }
 
   if(!inProgress){
     const label=task.status==="WAITING"||task.status==="BLOCKED"?"Retomar pedido":"Tomar pedido";
-    const detail=task.status==="WAITING"||task.status==="BLOCKED"
-      ?"La recepción quedó pausada. Retómala para continuar exactamente donde estaba."
-      :"Al tomarlo quedará asignado a tu usuario y nadie podrá procesarlo al mismo tiempo.";
-    const blocked=!canStart;
-    host.innerHTML=baseShell(data,`
-      <section class="reception-take-card">
-        <span class="reception-step-tag">Paso 1 de 4</span>
-        <h4>${fmt.escape(label)}</h4>
-        <p>${fmt.escape(detail)}</p>
-        <button type="button" class="btn btn-primary reception-take-button" data-take-order ${blocked?"disabled":""}>${fmt.escape(label)}</button>
-        ${blocked?`<div class="reception-assigned-warning">Este pedido está asignado a <strong>${fmt.escape(assigneeName(data))}</strong> y tu usuario no tiene permiso para tomarlo.</div>`:""}
-      </section>`,false);
-    bindClose(host);
-    host.querySelector("[data-take-order]")?.addEventListener("click",async event=>{
-      const button=event.currentTarget;
+    host.innerHTML=baseShell(presentation,takeStage(presentation,{label,blocked:!canStart}),{stage:"TAKE"});
+    bindShell(host,"TAKE");
+    const button=host.querySelector("[data-take-order]");
+    if(button)button.onclick=async()=>{
       button.disabled=true;
       try{
         await beginReception(data);
@@ -52,25 +50,23 @@ export function renderOrderReception(host,data,{reload,refreshLists}={}){
         toast(error.message,"error",7000);
         button.disabled=false;
       }
-    });
+    };
     return;
   }
 
   if(!actions.has("COMPLETE")){
-    host.innerHTML=baseShell(data,`<section class="reception-take-card"><span class="reception-step-tag">Pedido en gestión</span><h4>Este pedido está siendo atendido</h4><p>La recepción permanece bloqueada para evitar que dos usuarios modifiquen las líneas o las asignaciones al mismo tiempo.</p><div class="reception-assigned-warning">Responsable actual: <strong>${fmt.escape(assigneeName(data))}</strong></div></section>`,false);
-    bindClose(host);
+    host.innerHTML=baseShell(presentation,statusStage({title:"Este pedido está siendo atendido",text:"La recepción permanece bloqueada para evitar que dos usuarios modifiquen las líneas o las asignaciones al mismo tiempo.",assignee:presentation.assigneeLabel}),{stage:"STATUS"});
+    bindShell(host,"STATUS");
     return;
   }
 
-  const draft=loadDraft(data);
-  renderWorkbench(host,data,draft,{reload,refreshLists});
+  renderWorkbench(host,data,loadDraft(data),{reload,refreshLists});
 }
 
 export function renderWorkbench(host,data,draft,callbacks){
   const content=draft.stage==="PDF"?pdfStage(data,draft):draft.stage==="EDIT"?editStage(data,draft):draft.stage==="ASSIGN"?assignmentStageLoading(data,draft):reviewStage(data,draft);
-  host.innerHTML=baseShell(data,`
-    ${progressBar(draft.stage)}
-    <div class="reception-workspace" data-reception-workspace>${content}</div>`,true);
-  bindClose(host);
+  const presentation=viewData(data);
+  host.innerHTML=baseShell(presentation,`${progressBar(draft.stage)}<div class="reception-workspace" data-reception-workspace>${content}</div>`,{showDetails:true,stage:draft.stage});
+  bindShell(host,draft.stage);
   bindStage(host,data,draft,callbacks);
 }
