@@ -1,0 +1,279 @@
+.work-review-evidence-v11363 a,.work-review-evidence-v11363 span {
+  padding:4px 6px;
+  border-radius:7px;
+  background:#eef5fa;
+  color:#346f96;
+  font-size:7.5px;
+  font-weight:850;
+  text-decoration:none;
+}
+
+.work-review-actions-v11363 { display:flex; gap:5px; }
+
+.work-review-actions-v11363 .btn { min-height:31px; padding:5px 8px; font-size:8.5px; }
+
+.work-indicator-method-v11363 { overflow:hidden; border:1px solid #d8e3ec; border-radius:13px; background:#f8fafc; }
+
+.work-indicator-method-v11363>summary {
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 11px;
+  list-style:none;
+  cursor:pointer;
+}
+
+.work-indicator-method-v11363>summary::-webkit-details-marker { display:none; }
+
+.work-indicator-method-v11363>summary svg { width:16px; height:16px; fill:#4f7a98; }
+
+.work-indicator-method-v11363>summary>div { display:grid; gap:1px; flex:1; }
+
+.work-indicator-method-v11363>summary strong { color:#45647b; font-size:9.5px; }
+
+.work-indicator-method-v11363>summary small { color:#8a98a4; font-size:7.8px; }
+
+.work-indicator-method-v11363>summary>b { color:#7890a2; font-size:12px; transition:transform .16s ease; }
+
+.work-indicator-method-v11363[open]>summary>b { transform:rotate(180deg); }
+
+.work-indicator-method-v11363>div { padding:0 12px 11px; color:#718497; font-size:8.5px; line-height:1.55; }
+
+.work-indicator-method-v11363 p { margin:5px 0; }
+
+.work-indicator-method-v11363 strong { color:#45647b; }
+
+.work-indicator-empty-v11363 {
+  min-height:110px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  padding:14px;
+  text-align:center;
+}
+
+.work-indicator-empty-v11363>span {
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border-radius:9px;
+  background:#eef4f8;
+  color:#62839a;
+  font-size:15px;
+}
+
+.work-indicator-empty-v11363 strong { display:block; color:#536d81; font-size:9.5px; }
+
+.work-indicator-empty-v11363 p { max-width:300px; margin:3px 0 0; color:#8a99a6; font-size:8px; line-height:1.4; }
+
+@media (max-width:1380px) {
+  .work-indicator-metrics-v11363 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+
+@media (max-width:1000px) {
+  .work-indicator-hero-v11363 { grid-template-columns:1fr; }
+  .work-indicator-hero-side-v11363 { justify-content:space-between; }
+  .work-indicator-layout-v11363 { grid-template-columns:1fr; }
+  .work-indicator-panel-v11363.span-2 { grid-column:auto; }
+}
+
+@media (max-width:720px) {
+  .work-indicator-hero-v11363 { padding:16px; }
+  .work-indicator-hero-side-v11363 { align-items:flex-start; }
+  .work-indicator-ring-v11363 { width:96px; height:96px; flex-basis:96px; }
+  .work-indicator-ring-v11363 strong { font-size:18px; }
+  .work-indicator-filter-v11363 { flex:1; }
+  .work-indicator-filter-v11363>summary { width:100%; }
+  .work-indicator-filter-panel-v11363 { position:absolute; left:auto; right:0; width:min(320px,calc(100vw - 44px)); }
+  .work-indicator-metrics-v11363 { grid-template-columns:1fr 1fr; }
+  .work-indicator-balance-legend-v11363 { grid-template-columns:1fr; }
+  .work-indicator-team-v11363 { grid-template-columns:1fr; }
+  .work-review-list-v11363>article { grid-template-columns:1fr; }
+  .work-review-actions-v11363 { justify-content:flex-end; }
+}
+
+@media (max-width:480px) {
+  .work-indicator-hero-v11363 { border-radius:16px; }
+  .work-indicator-hero-copy-v11363 h2 { font-size:21px; }
+  .work-indicator-hero-side-v11363 { display:grid; grid-template-columns:92px 1fr; }
+  .work-indicator-filter-panel-v11363 { grid-template-columns:1fr; width:min(280px,calc(100vw - 34px)); }
+  .work-indicator-filter-panel-v11363 .wide { grid-column:1; }
+  .work-indicator-metrics-v11363 { grid-template-columns:1fr; }
+  .work-indicator-standard-values-v11363 { display:none; }
+  .work-indicator-standards-v11363>article { grid-template-columns:30px minmax(0,1fr); }
+}
+
+/* Workforce Indicators V11.38.3 · professional executive layout */
+
+.work-indicators-v11363 { gap:22px; --wi-ink:#173b60; --wi-muted:#667d90; --wi-line:#d4e1ea; --wi-soft:#f5f8fb; }
+
+.work-indicator-hero-v11363 {
+  min-height:210px;
+  gap:32px;
+  padding:28px 30px;
+  border-radius:24px;
+  box-shadow:0 16px 38px rgba(30,79,113,.09);
+}
+
+.work-indicator-kicker-v11363 { margin-bottom:7px; font-size:11px; letter-spacing:.12em; }
+
+.work-indicator-hero-copy-v11363 h2 { font-size:32px; line-height:1.08; }
+
+.work-indicator-hero-copy-v11363>p { max-width:760px; margin-top:9px; font-size:13.5px; line-height:1.6; }
+
+.work-indicator-context-v11363 { margin-top:18px; gap:9px; }
+
+.work-indicator-context-v11363>span { min-height:36px; gap:7px; padding:7px 10px; border-radius:10px; font-size:10.5px; }
+
+.work-indicator-hero-side-v11363 { gap:16px; }
+
+.work-indicator-ring-v11363 { width:136px; height:136px; flex-basis:136px; padding:11px; }
+
+.work-indicator-ring-v11363 strong { font-size:27px; }
+
+.work-indicator-ring-v11363 span { font-size:9.5px; line-height:1.35; }
+
+.work-indicator-filter-v11363>summary { min-width:184px; min-height:58px; padding:9px 12px; border-radius:14px; }
+
+.work-indicator-filter-v11363>summary strong { font-size:11.5px; }
+
+.work-indicator-filter-v11363>summary small { font-size:9.5px; }
+
+.work-indicator-filter-panel-v11363 { top:65px; width:350px; padding:14px; gap:10px; border-radius:15px; }
+
+.work-indicator-filter-panel-v11363 label>span { font-size:9.5px; }
+
+.work-indicator-filter-panel-v11363 .control { min-height:40px; padding:8px 10px; font-size:11px; }
+
+/* Section architecture */
+
+.work-indicator-section-v11383 { display:grid; gap:13px; min-width:0; }
+
+.work-indicator-section-v11383+.work-indicator-section-v11383 { padding-top:4px; }
+
+.work-indicator-section-head-v11383 {
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:18px;
+  padding:0 3px 11px;
+  border-bottom:1px solid #dce6ed;
+}
+
+.work-indicator-section-head-v11383>div { min-width:0; display:grid; gap:3px; }
+
+.work-indicator-section-head-v11383 span { color:#2e78a5; font-size:10px; font-weight:950; letter-spacing:.11em; text-transform:uppercase; }
+
+.work-indicator-section-head-v11383 h3 { margin:0; color:#173f62; font-size:19px; line-height:1.2; letter-spacing:-.02em; }
+
+.work-indicator-section-head-v11383 p { max-width:900px; margin:2px 0 0; color:#728596; font-size:11.5px; line-height:1.55; }
+
+.work-indicator-section-summary-v11383 {
+  padding:18px;
+  border:1px solid #d8e4ec;
+  border-radius:20px;
+  background:linear-gradient(180deg,#ffffff,#f8fbfd);
+  box-shadow:0 9px 24px rgba(28,72,103,.045);
+}
+
+.work-indicator-section-summary-v11383 .work-indicator-section-head-v11383 { margin-bottom:1px; }
+
+.work-indicator-panel-featured-v11383 { box-shadow:0 10px 26px rgba(28,72,103,.06); }
+
+.work-indicator-layout-paired-v11383 { align-items:stretch; }
+
+/* Executive KPIs */
+
+.work-indicator-metrics-v11363 { grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+
+.work-indicator-metric-v11363 {
+  min-height:164px;
+  gap:6px;
+  padding:17px 17px 14px;
+  border-radius:16px;
+  box-shadow:0 7px 18px rgba(28,72,103,.055);
+}
+
+.work-indicator-metric-v11363.tone-violet { --metric-accent:#527795; }
+
+.work-indicator-metric-top-v11363>span { font-size:10.5px; letter-spacing:.05em; }
+
+.work-indicator-metric-top-v11363 i { width:9px; height:9px; flex-basis:9px; }
+
+.work-indicator-metric-v11363>strong { margin-top:4px; font-size:29px; line-height:1.05; }
+
+.work-indicator-metric-v11363>small { min-height:28px; font-size:10.5px; line-height:1.4; }
+
+.work-indicator-metric-progress-v11363 { height:7px; margin-top:4px; }
+
+.work-indicator-metric-v11363>p { margin-top:3px; font-size:9.5px; line-height:1.45; }
+
+/* Analytical cards */
+
+.work-indicator-layout-v11363 { gap:14px; }
+
+.work-indicator-panel-v11363 { border-radius:18px; box-shadow:0 8px 22px rgba(28,72,103,.055); }
+
+.work-indicator-panel-v11363>header { min-height:92px; padding:17px 19px; gap:14px; }
+
+.work-indicator-panel-v11363>header>div>span { margin-bottom:4px; font-size:9.5px; letter-spacing:.1em; }
+
+.work-indicator-panel-v11363 h3 { font-size:16px; line-height:1.25; }
+
+.work-indicator-panel-v11363 header p { margin-top:5px; font-size:10.8px; line-height:1.5; }
+
+.work-indicator-panel-body-v11363 { padding:18px 19px 20px; }
+
+/* Balance chart */
+
+.work-indicator-balance-visual-v11363 { gap:16px; }
+
+.work-indicator-balance-bar-v11363 { height:28px; }
+
+.work-indicator-balance-legend-v11363 { gap:10px; }
+
+.work-indicator-balance-legend-v11363>div { gap:7px; padding:11px 12px; border-radius:11px; }
+
+.work-indicator-balance-legend-v11363 i { width:11px; height:11px; }
+
+.work-indicator-balance-legend-v11363 span { font-size:10.5px; }
+
+.work-indicator-balance-legend-v11363 strong { font-size:13px; }
+
+.work-indicator-balance-legend-v11363 small { font-size:9px; }
+
+/* Distribution and deviation charts */
+
+.work-indicator-bars-v11363 { gap:14px; }
+
+.work-indicator-bar-v11363 { gap:6px; }
+
+.work-indicator-bar-copy-v11363 strong { font-size:11px; }
+
+.work-indicator-bar-copy-v11363 small,
+.work-indicator-bar-v11363>small { font-size:9px; }
+
+.work-indicator-bar-copy-v11363>b { font-size:11px; }
+
+.work-indicator-bar-track-v11363 { height:10px; }
+
+.work-indicator-deviations-v11363 { gap:11px; }
+
+.work-indicator-deviations-v11363>article { grid-template-columns:30px minmax(0,1fr); gap:9px; }
+
+.work-indicator-deviation-index-v11363 { width:28px; height:28px; border-radius:8px; font-size:9px; }
+
+.work-indicator-deviations-v11363 article>div { gap:4px; }
+
+.work-indicator-deviations-v11363 strong { font-size:10.5px; }
+
+.work-indicator-deviations-v11363 small { font-size:9px; }
+
+.work-indicator-deviations-v11363 article>div>div { height:7px; }
+
+/* Learned times */
+
+.work-indicator-standards-v11363>article { grid-template-columns:42px minmax(0,1fr) auto; gap:13px; min-height:82px; padding:12px 3px; }

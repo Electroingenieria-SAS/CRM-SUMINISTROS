@@ -1,0 +1,278 @@
+/* CRM Suministros · Centro de Control Administrativo V11.16.0 */
+
+.admin-center-v11160 { display:grid; gap:16px; min-width:0; }
+
+.admin-hero-v11160 {
+  display:flex;
+  justify-content:space-between;
+  gap:24px;
+  align-items:flex-start;
+  padding:22px 24px;
+  border:1px solid var(--border,#d9e1ec);
+  border-radius:18px;
+  background:linear-gradient(145deg,rgba(7,59,120,.08),rgba(255,255,255,.96));
+  box-shadow:0 10px 28px rgba(11,42,76,.08);
+}
+
+.admin-hero-v11160 h2 { margin:4px 0 6px; font-size:clamp(1.35rem,2vw,1.9rem); line-height:1.15; }
+
+.admin-hero-v11160 p { margin:0; max-width:880px; color:var(--muted,#5f6f82); }
+
+.admin-kicker-v11160,.admin-section-head-v11160>div>span {
+  font-size:.73rem;
+  font-weight:800;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+  color:var(--primary,#0b5dbb);
+}
+
+.admin-hero-actions-v11160 { display:flex; gap:8px; flex-wrap:wrap; }
+
+.admin-shell-v11160 { display:grid; grid-template-columns:220px minmax(0,1fr); gap:16px; align-items:start; }
+
+.admin-nav-v11160 {
+  position:sticky;
+  top:76px;
+  display:grid;
+  gap:6px;
+  padding:10px;
+  border:1px solid var(--border,#d9e1ec);
+  border-radius:16px;
+  background:var(--surface,#fff);
+  box-shadow:0 6px 20px rgba(11,42,76,.05);
+}
+
+.admin-nav-v11160 button {
+  border:0;
+  background:transparent;
+  border-radius:12px;
+  padding:11px 12px;
+  text-align:left;
+  cursor:pointer;
+  display:grid;
+  gap:2px;
+  color:inherit;
+}
+
+.admin-nav-v11160 button span { font-weight:800; }
+
+.admin-nav-v11160 button small { color:var(--muted,#6a7787); font-size:.74rem; }
+
+.admin-nav-v11160 button:hover,.admin-nav-v11160 button.active { background:rgba(7,59,120,.08); }
+
+.admin-nav-v11160 button.active { box-shadow:inset 3px 0 0 var(--primary,#0b5dbb); }
+
+.admin-workspace-v11160 { min-width:0; display:grid; gap:14px; }
+
+.admin-workspace-v11160>section { display:grid; gap:14px; }
+
+.admin-section-head-v11160 { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; padding:4px 2px; }
+
+.admin-section-head-v11160 h3 { margin:3px 0 4px; font-size:1.25rem; }
+
+.admin-section-head-v11160 p { margin:0; color:var(--muted,#667587); }
+
+.admin-readonly-v11160,.admin-warning-v11160 {
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  border-radius:12px;
+  padding:12px 14px;
+  background:rgba(237,173,0,.1);
+  border:1px solid rgba(211,150,0,.25);
+}
+
+.admin-readonly-v11160 { justify-content:space-between; }
+
+.admin-readonly-v11160 span,.admin-warning-v11160 p { color:var(--muted,#5f6f82); margin:0; }
+
+.admin-kpis-v11160 { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; }
+
+.admin-kpi-v11160 {
+  border:1px solid var(--border,#dbe3ed);
+  border-radius:14px;
+  background:#fff;
+  padding:14px 15px;
+  display:grid;
+  gap:3px;
+  min-width:0;
+}
+
+.admin-kpi-v11160 small,.admin-kpi-v11160 span { color:var(--muted,#6b7785); }
+
+.admin-kpi-v11160 strong { font-size:1.35rem; line-height:1.05; }
+
+.admin-kpi-v11160.ok { box-shadow:inset 0 3px 0 #2e9f66; }
+
+.admin-kpi-v11160.warn { box-shadow:inset 0 3px 0 #d99b00; }
+
+.admin-overview-grid-v11160,.admin-access-grid-v11160,.admin-system-grid-v11160 {
+  display:grid;
+  grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);
+  gap:12px;
+}
+
+.admin-panel-v11160 { border:1px solid var(--border,#dbe3ed); border-radius:15px; background:#fff; min-width:0; overflow:hidden; }
+
+.admin-panel-v11160>header {
+  padding:14px 16px;
+  border-bottom:1px solid var(--border,#e1e7ef);
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:center;
+}
+
+.admin-panel-v11160>header h4 { margin:0; font-size:1rem; }
+
+.admin-panel-v11160>header span { font-size:.8rem; color:var(--muted,#6d7885); }
+
+.admin-panel-v11160>header>div { display:grid; gap:2px; }
+
+.admin-map-v11160 { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; padding:14px; }
+
+.admin-map-v11160 button {
+  border:1px solid var(--border,#dce4ed);
+  border-radius:12px;
+  background:#fbfdff;
+  padding:12px;
+  text-align:left;
+  display:grid;
+  gap:5px;
+  cursor:pointer;
+}
+
+.admin-map-v11160 button:hover { border-color:#a9c4e4; background:#f5f9ff; }
+
+.admin-map-v11160 button b { font-size:1.25rem; }
+
+.admin-map-v11160 button small { color:var(--muted,#6c7784); }
+
+.admin-health-list-v11160 { display:grid; max-height:430px; overflow:auto; }
+
+.admin-health-list-v11160>div {
+  display:grid;
+  grid-template-columns:10px minmax(0,1fr) auto;
+  gap:9px;
+  padding:10px 14px;
+  border-bottom:1px solid #edf1f5;
+  align-items:center;
+}
+
+.admin-health-list-v11160 i { width:9px; height:9px; border-radius:50%; background:#c89300; }
+
+.admin-health-list-v11160 .ok i { background:#2a9c63; }
+
+.admin-health-list-v11160 strong,.admin-health-list-v11160 small { display:block; }
+
+.admin-health-list-v11160 small { color:var(--muted,#6d7783); }
+
+.admin-health-list-v11160 b { font-size:.69rem; letter-spacing:.06em; }
+
+.admin-audit-compact-v11160 { display:grid; }
+
+.admin-audit-compact-v11160>div {
+  display:grid;
+  grid-template-columns:140px minmax(0,1fr) auto;
+  gap:12px;
+  padding:10px 16px;
+  border-bottom:1px solid #edf1f5;
+  align-items:center;
+}
+
+.admin-audit-compact-v11160 time,.admin-audit-compact-v11160 small { font-size:.76rem; color:var(--muted,#6b7785); }
+
+.admin-audit-compact-v11160 span strong,.admin-audit-compact-v11160 span small { display:block; }
+
+.admin-audit-compact-v11160 code {
+  font-size:.72rem;
+  background:#f3f6f9;
+  padding:4px 6px;
+  border-radius:6px;
+  max-width:220px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.admin-toolbar-v11160 { display:grid; grid-template-columns:minmax(240px,1.3fr) minmax(180px,.6fr) minmax(150px,.45fr); gap:9px; }
+
+.admin-user-table-wrap-v11160,.admin-table-scroll-v11160,.admin-permission-table-v11160 {
+  overflow:auto;
+  border:1px solid var(--border,#dce4ed);
+  border-radius:13px;
+  background:#fff;
+}
+
+.admin-table-v11160 { width:100%; border-collapse:collapse; min-width:760px; }
+
+.admin-table-v11160 th {
+  position:sticky;
+  top:0;
+  background:#f7f9fc;
+  z-index:1;
+  font-size:.72rem;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  color:#627084;
+}
+
+.admin-table-v11160 th,.admin-table-v11160 td {
+  padding:10px 12px;
+  border-bottom:1px solid #edf1f5;
+  text-align:left;
+  vertical-align:middle;
+}
+
+.admin-table-v11160 td small { display:block; color:var(--muted,#6d7885); margin-top:2px; }
+
+.admin-table-v11160 td input[type=checkbox] { width:18px; height:18px; }
+
+.admin-user-id-v11160 { display:flex; gap:9px; align-items:center; }
+
+.admin-user-id-v11160>span {
+  width:34px;
+  height:34px;
+  border-radius:10px;
+  display:grid;
+  place-items:center;
+  background:#eaf2fb;
+  color:#114e8d;
+  font-weight:900;
+}
+
+.admin-user-id-v11160 strong,.admin-user-id-v11160 small { display:block; }
+
+.admin-tags-v11160 { display:flex; gap:5px; flex-wrap:wrap; }
+
+.admin-tags-v11160 span { font-size:.7rem; padding:4px 6px; border-radius:999px; background:#edf4fc; }
+
+.admin-form-grid-v11160 { display:grid; grid-template-columns:1fr 1fr; gap:11px; }
+
+.admin-form-grid-v11160 label { display:grid; gap:5px; font-weight:700; font-size:.82rem; }
+
+.admin-form-grid-v11160 .span2 { grid-column:1/-1; }
+
+.admin-role-picker-v11160 { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-top:12px; max-height:300px; overflow:auto; }
+
+.admin-role-picker-v11160.compact { grid-template-columns:repeat(3,1fr); }
+
+.admin-role-picker-v11160 label {
+  display:flex;
+  gap:8px;
+  border:1px solid #dfe7f0;
+  border-radius:11px;
+  padding:9px;
+  align-items:flex-start;
+}
+
+.admin-role-picker-v11160 label span { display:grid; }
+
+.admin-role-picker-v11160 small { color:var(--muted,#6e7986); }
+
+.admin-switch-v11160 { display:flex; gap:9px; align-items:center; margin-top:12px; font-weight:800; }
+
+.admin-switch-v11160 input { width:18px; height:18px; }
+
+.admin-danger-actions-v11160 { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top:1px solid #e5eaf0; }
+
+.admin-role-strip-v11160,.admin-subtabs-v11160 { display:flex; gap:7px; overflow:auto; padding-bottom:2px; }

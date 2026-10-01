@@ -1,3 +1,4 @@
+import {readCssSource} from "./tests/read-css-source.mjs";
 import {readDomainSource} from "./tests/read-domain-source.mjs";
 import fs from "node:fs";
 import assert from "node:assert/strict";
@@ -114,11 +115,11 @@ assert.equal(drive.includes("metadata: preview"),false,"No se deben persistir pr
 const timelineUi=readDomainSource("workforce/timeline","assets/js/domains/workforce/timeline/index.js");
 assert.equal(timelineUi.includes("bindEvidenceGallery(layer,resolvedDetail,loadPreview,firstPreviewPromise)"),true,"La tarjeta debe reutilizar un preview ya iniciado cuando exista.");
 assert.equal(timelineUi.includes("work-timeline-preview-btn-v11351"),true,"La evidencia debe usar el botón visual V11.35.1.");
-const timelineCss=fs.readFileSync(new URL("../assets/runtime-css/workforce-timeline-v11350.css",import.meta.url),"utf8");
+const timelineCss=readCssSource(new URL("../assets/runtime-css/workforce-timeline-v11350.css",import.meta.url));
 assert.equal(timelineCss.includes("\\n"),false,"El CSS timeline no debe contener saltos de línea escapados literales.");
 assert.equal(timelineCss.includes("work-timeline-preview-btn-v11351"),true,"Falta estilo del botón de vista previa.");
 assert.equal(timelineCss.includes(".work-timeline-photo-v11350.is-ready img"),true,"La foto debe quedar visible explícitamente sin depender de hover.");
-assert.equal(timelineCss.includes(".work-timeline-photo-loader-v11350[hidden]{display:none!important}"),true,"El loader debe desaparecer por completo cuando la foto esté lista.");
+assert.match(timelineCss,/\.work-timeline-photo-loader-v11350\[hidden\]\{\s*display:none\s*!important;?\s*\}/,"El loader debe desaparecer por completo cuando la foto esté lista.");
 assert.equal(timelineCss.includes("@media(hover:hover) and (pointer:fine)"),true,"El hover debe ser solo una mejora opcional para puntero fino.");
 assert.equal(drive.includes("PREVIEW_TIMEOUT_MS = 30000"),true,"La vista previa debe fallar rápido si el bridge no responde.");
 

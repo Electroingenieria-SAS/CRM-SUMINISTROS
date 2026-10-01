@@ -1,0 +1,81 @@
+@media (max-width:760px) {
+  .work-now { grid-template-columns:1fr; gap:12px; padding:14px; }
+  .work-now-clock,.work-now-context { text-align:left; }
+  .work-now-actions { grid-column:1; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .work-now-actions .btn:last-child { grid-column:1/3; }
+  .work-day-command { grid-template-columns:1fr; gap:12px; padding:15px; }
+  .work-add-activity { width:100%; }
+  .agenda-row { grid-template-columns:64px minmax(0,1fr); }
+  .agenda-actions { grid-column:1/3; }
+  .agenda-actions .btn { width:100%; }
+  .work-history-row { grid-template-columns:72px minmax(0,1fr); }
+  .work-history-actions { grid-column:1/3; justify-content:stretch; }
+  .work-history-actions .btn { flex:1; }
+  .work-search-shell,.work-reason-panel,.work-planning-context,.work-catalog-mode { grid-template-columns:1fr; }
+  .work-request-review { grid-template-columns:1fr; }
+  .work-approval-hero { grid-template-columns:1fr; }
+  .work-approval-hero-stats { justify-content:flex-start; }
+  .work-approval-item { grid-template-columns:1fr; }
+  .work-approval-actions { grid-column:1; justify-content:stretch; }
+  .work-approval-actions .btn { flex:1; }
+  .work-planner-toolbar { grid-template-columns:1fr; }
+  .work-planner-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .work-planner-actions .segment-control { grid-column:1/-1; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .work-planner-actions .btn { width:100%; }
+  .work-assignee-picker { grid-template-columns:1fr; }
+  .work-month-board { overflow-x:auto; }
+  .work-month-weekdays,.work-month-grid { min-width:700px; }
+  .work-analytics-toolbar>.form-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .work-analytics-toolbar .analytics-apply { grid-column:1/3; }
+  .work-occupation-hero { grid-template-columns:1fr auto; }
+  .work-occupation-team-list>article { grid-template-columns:minmax(0,1fr) 90px; }
+  .work-stacked-meter { grid-column:1/3; }
+  .work-team-hours { grid-column:2; grid-row:1; }
+  .work-analytics-grid,.work-occupation-breakdown { grid-template-columns:1fr; }
+  .work-review-list>article { grid-template-columns:1fr; }
+  .work-review-actions { justify-content:stretch; }
+  .work-review-actions .btn { flex:1; }
+  .work-ethics-note { display:grid; }
+}
+
+@media (max-width:520px) {
+  .work-clock-slot { flex:1 1 auto; }
+  .work-clock-trigger { width:100%; max-width:100%; padding:7px 9px; }
+  .workforce-tabs { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .work-occupation-strip,.workforce-summary-grid { grid-template-columns:1fr 1fr; gap:7px; }
+  .work-occupation-metric { padding:11px; }
+  .work-occupation-metric>strong { font-size:17px; }
+  .work-now-actions { grid-template-columns:1fr; }
+  .work-now-actions .btn:last-child { grid-column:1; }
+  .agenda-row,.agenda-row.compact { grid-template-columns:1fr; gap:7px; }
+  .agenda-time { display:flex; gap:6px; align-items:baseline; padding:0 0 6px; border-right:0; border-bottom:1px solid #e7edf4; }
+  .agenda-actions { grid-column:1; }
+  .work-history-row { grid-template-columns:1fr; }
+  .work-history-time { display:flex; gap:6px; align-items:baseline; }
+  .work-history-actions { grid-column:1; }
+  .work-time-choice { grid-template-columns:1fr; }
+  .work-activity-option { grid-template-columns:34px minmax(0,1fr); }
+  .work-activity-option>i { grid-column:2; }
+  .work-approval-hero-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); width:100%; }
+  .work-approval-hero-stats article { min-width:0; }
+  .work-approval-actions { display:grid; grid-template-columns:1fr; }
+  .work-planner-actions { grid-template-columns:1fr; }
+  .work-planner-actions .segment-control { grid-column:1; }
+  .work-person-choice { grid-template-columns:auto 34px minmax(0,1fr); }
+  .work-person-choice>b { grid-column:3; }
+  .work-assignment-review { grid-template-columns:1fr; }
+  .work-analytics-toolbar>.form-grid { grid-template-columns:1fr; }
+  .work-analytics-toolbar .analytics-apply { grid-column:1; }
+  .work-occupation-hero { grid-template-columns:1fr; }
+  .work-occupation-ring { width:76px; height:76px; }
+  .work-occupation-team-list>article { grid-template-columns:1fr; }
+  .work-stacked-meter,.work-team-hours { grid-column:1; grid-row:auto; }
+  .work-team-hours { justify-items:start; }
+  .work-standard-list>article { grid-template-columns:1fr 62px 62px; }
+  .work-cause-list>article { grid-template-columns:1fr auto; }
+  .work-cause-list b { grid-column:2; }
+  .work-cause-list span { grid-column:1; }
+  .team-now-list>article { grid-template-columns:32px minmax(0,1fr); }
+  .team-now-list>article>.badge { grid-column:2; width:max-content; }
+  .team-now-list .avatar { width:32px; height:32px; }
+}

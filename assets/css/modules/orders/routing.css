@@ -1,0 +1,22 @@
+.order-routing-conditions { display:grid; gap:10px; margin-top:4px; }
+
+.conditional-routing-card,.conditional-routing-direct {
+  border:1px solid var(--line,#dce3ea);
+  border-radius:10px;
+  padding:14px 16px;
+  background:var(--surface-raised);
+}
+
+.conditional-routing-card[hidden] { display:none!important; }
+
+.conditional-routing-card label { display:flex; align-items:flex-start; gap:12px; cursor:pointer; }
+
+.conditional-routing-card input { width:20px; height:20px; margin-top:2px; accent-color:var(--primary,#0f5fc4); }
+
+.conditional-routing-card span { display:grid; gap:4px; }
+
+.conditional-routing-card strong,.conditional-routing-direct strong { font-size:14px; color:var(--ink,#152536); }
+
+.conditional-routing-card small,.conditional-routing-direct small { font-size:12px; line-height:1.45; color:var(--muted,#65758b); }
+
+.conditional-routing-direct { display:grid; gap:4px; background:linear-gradient(135deg,#f7faff,#f1f6ff); border-style:dashed; }

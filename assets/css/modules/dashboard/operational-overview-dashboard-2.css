@@ -1,0 +1,117 @@
+.dashboard-v1185 .dashboard-queue-card .queue-name {
+  min-width:0;
+  color:#25415e;
+  font-size:11px;
+  font-weight:900;
+  line-height:1.3;
+  white-space:normal;
+}
+
+.dashboard-v1185 .dashboard-queue-card .queue-number {
+  margin:15px 0 10px;
+  color:#173d66;
+  font-size:29px;
+  line-height:1;
+  letter-spacing:-.04em;
+}
+
+.dashboard-v1185 .dashboard-queue-card .progress { height:7px; margin-bottom:11px; background:#eaf0f5; }
+
+.dashboard-v1185 .dashboard-queue-card .queue-meta { padding-top:2px; color:#758699; font-size:9.5px; }
+
+.dashboard-v1185 .dashboard-queue-card[data-step="CARTERA"]:before { background:#6b63b6; }
+
+.dashboard-v1185 .dashboard-queue-card[data-step="CARTERA"] .dashboard-queue-figure {
+  border-color:#d6d2ef;
+  background:#f4f2ff;
+  color:#5b4ea2;
+}
+
+.dashboard-v1185 .dashboard-queue-card[data-step="CAJA"]:before,.dashboard-v1185 .dashboard-queue-card[data-step="CAJA_FACTURACION"]:before {
+  background:#2f8d6b;
+}
+
+.dashboard-v1185 .dashboard-queue-card[data-step="CAJA"] .dashboard-queue-figure,.dashboard-v1185 .dashboard-queue-card[data-step="CAJA_FACTURACION"] .dashboard-queue-figure {
+  border-color:#c7e3d7;
+  background:#f1faf6;
+  color:#297657;
+}
+
+.dashboard-v1185 .dashboard-queue-card[data-step="COMPRAS"]:before { background:#d39b21; }
+
+.dashboard-v1185 .dashboard-queue-card[data-step="COMPRAS"] .dashboard-queue-figure {
+  border-color:#ecd79e;
+  background:#fff8e5;
+  color:#9c6810;
+}
+
+.dashboard-v1185 .dashboard-queue-card[data-step^="RECEPCION"]:before { background:#2384a7; }
+
+.dashboard-v1185 .dashboard-queue-card[data-step^="RECEPCION"] .dashboard-queue-figure {
+  border-color:#c5e0e9;
+  background:#eef9fc;
+  color:#1d6f8c;
+}
+
+.dashboard-v1185 .dashboard-queue-card[data-step="ALISTAMIENTO"]:before { background:#2b76bf; }
+
+.dashboard-v1185 .dashboard-queue-card[data-step="CORTE"]:before { background:#d36d2d; }
+
+.dashboard-v1185 .dashboard-queue-card[data-step="CORTE"] .dashboard-queue-figure {
+  border-color:#edd1c0;
+  background:#fff5ef;
+  color:#a95321;
+}
+
+.dashboard-v1185 .dashboard-queue-card[data-step="FACTURACION"]:before { background:#4f66b3; }
+
+.dashboard-v1185 .dashboard-queue-card[data-step="FACTURACION"] .dashboard-queue-figure {
+  border-color:#d0d8ef;
+  background:#f2f4fd;
+  color:#44589a;
+}
+
+.dashboard-v1185 .dashboard-queue-card[data-step*="DISPATCH"]:before,.dashboard-v1185 .dashboard-queue-card[data-step="CLIENT_POINT"]:before,.dashboard-v1185 .dashboard-queue-card[data-step="CLIENT_PICKUP"]:before,.dashboard-v1185 .dashboard-queue-card[data-step="CLOSURE"]:before {
+  background:#26857d;
+}
+
+.dashboard-v1185 .dashboard-queue-card[data-step*="DISPATCH"] .dashboard-queue-figure,.dashboard-v1185 .dashboard-queue-card[data-step="CLIENT_POINT"] .dashboard-queue-figure,.dashboard-v1185 .dashboard-queue-card[data-step="CLIENT_PICKUP"] .dashboard-queue-figure,.dashboard-v1185 .dashboard-queue-card[data-step="CLOSURE"] .dashboard-queue-figure {
+  border-color:#c6e2df;
+  background:#eff9f8;
+  color:#27756f;
+}
+
+/* Aire adicional en bloques secundarios del Centro. */
+
+.dashboard-v1185>.section-gap { height:16px; }
+
+.dashboard-v1185 .partial-time-card>.card-head,.dashboard-v1185>.card>.card-head,.dashboard-v1185>.grid-2 .card-head { padding:17px 19px; }
+
+.dashboard-v1185 .partial-time-card>.card-body,.dashboard-v1185>.card>.card-body,.dashboard-v1185>.grid-2 .card-body { padding:18px 19px; }
+
+@media (max-width:1320px) {
+  .dashboard-v1185 .guided-action-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .dashboard-v1185 .grid-kpi { grid-template-columns:repeat(4,minmax(0,1fr)); }
+}
+
+@media (max-width:1120px) {
+  .dashboard-v1185 .grid-kpi { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+
+@media (max-width:720px) {
+  .dashboard-v1185 .guided-workspace-head { padding:17px 16px 14px; }
+  .dashboard-v1185 .guided-action-grid { grid-template-columns:1fr; padding:13px; }
+  .dashboard-v1185 .guided-action-card { min-height:132px; grid-template-columns:54px minmax(0,1fr) 30px; padding:15px; gap:11px; }
+  .dashboard-v1185 .guided-action-icon { width:52px; height:52px; border-radius:15px; }
+  .dashboard-v1185 .guided-action-icon .ui-icon { width:23px; height:23px; }
+  .dashboard-v1185 .grid-kpi { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+  .dashboard-v1185 .dashboard-kpi { min-height:144px; padding:14px; }
+  .dashboard-kpi-head { align-items:flex-start; flex-direction:column; gap:7px; margin-bottom:9px; }
+  .dashboard-v1185 .dashboard-kpi .kpi-value { font-size:27px; }
+}
+
+@media (max-width:480px) {
+  .dashboard-v1185 .grid-kpi { grid-template-columns:1fr; }
+  .dashboard-kpi-head { align-items:center; flex-direction:row; }
+  .dashboard-v1185 .dashboard-kpi { min-height:132px; }
+}

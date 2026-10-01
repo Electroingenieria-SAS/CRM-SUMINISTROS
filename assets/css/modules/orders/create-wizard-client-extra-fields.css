@@ -1,0 +1,34 @@
+.client-extra-fields-v1191 label { display:grid; gap:7px; }
+
+.client-extra-fields-v1191 label>span { color:#294a68; font-size:10.5px; font-weight:850; }
+
+.client-extra-fields-v1191 .control { min-height:48px; border-radius:11px; border-color:#acc5da; font-size:12px; }
+
+.client-extra-form-v1191>footer { display:flex; justify-content:flex-end; gap:9px; padding-top:13px; border-top:1px solid #e1eaf1; }
+
+.client-extra-form-v1191>footer .btn { min-height:45px; min-width:130px; border-radius:10px; }
+
+@keyframes clientExtraInV1191 {
+  from { opacity:0; transform:translateY(10px) scale(.985); }
+  to { opacity:1; transform:none; }
+}
+
+@media (max-width:720px) {
+  .modal.create-order-v1191 .wizard-head h3 { font-size:19px; }
+  .modal.create-order-v1191 .wizard-progress-item { min-width:128px; }
+  .client-extra-shell-v1191 { padding:10px; }
+  .client-extra-dialog-v1191 { width:100%; border-radius:16px; }
+  .client-extra-question-v1191 { padding:26px 18px 20px; }
+  .client-extra-question-v1191 h4 { font-size:19px; }
+  .client-extra-choice-grid-v1191 { grid-template-columns:1fr; }
+  .client-extra-choice-v1191 { min-height:70px; }
+  .client-extra-form-v1191 { padding:22px 16px 16px; }
+  .client-extra-fields-v1191 { grid-template-columns:1fr; }
+  .client-extra-form-v1191>footer { display:grid; grid-template-columns:1fr 1fr; }
+  .client-extra-form-v1191>footer .btn { width:100%; min-width:0; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .client-extra-dialog-v1191 { animation:none!important; }
+  .client-extra-choice-v1191 { transition:none!important; }
+}

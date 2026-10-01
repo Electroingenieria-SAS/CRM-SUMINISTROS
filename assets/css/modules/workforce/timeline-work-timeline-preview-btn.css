@@ -1,0 +1,47 @@
+.work-timeline-preview-btn-v11351 {
+  appearance:none;
+  display:inline-flex!important;
+  min-height:40px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+  padding:8px 12px!important;
+  border:1px solid #b9d6e7!important;
+  border-radius:12px!important;
+  background:linear-gradient(180deg,#f8fcff,#eaf5fb)!important;
+  color:#1f6897!important;
+  box-shadow:0 4px 12px rgba(24,91,135,.08)!important;
+  font:inherit!important;
+  font-size:11px!important;
+  font-weight:900!important;
+  cursor:pointer!important;
+  transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease,background .16s ease!important;
+}
+
+.work-timeline-preview-btn-v11351:hover {
+  transform:translateY(-1px);
+  border-color:#7fb6d5!important;
+  background:linear-gradient(180deg,#fff,#e1f1fa)!important;
+  box-shadow:0 7px 16px rgba(24,91,135,.13)!important;
+}
+
+.work-timeline-preview-btn-v11351:active { transform:translateY(0) scale(.98); }
+
+.work-timeline-preview-btn-v11351:disabled { cursor:wait!important; opacity:.72; }
+
+.work-timeline-preview-icon-v11351 { width:17px; height:17px; display:grid; place-items:center; flex:0 0 17px; }
+
+.work-timeline-preview-icon-v11351 svg { width:17px; height:17px; fill:currentColor; }
+
+.work-timeline-preview-btn-v11351.is-loading .work-timeline-preview-icon-v11351 {
+  animation:workTimelinePhotoPulse .8s ease-in-out infinite alternate;
+}
+
+@keyframes workTimelinePhotoPulse {
+  from { opacity:.42; transform:scale(.9); }
+  to { opacity:1; transform:scale(1.05); }
+}
+
+@media (max-width:720px) {
+  .work-timeline-preview-btn-v11351 { min-height:44px!important; padding:9px 13px!important; font-size:12px!important; }
+}

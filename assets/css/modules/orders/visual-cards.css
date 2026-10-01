@@ -1,0 +1,178 @@
+.order-visual-grid,.queue-visual-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:15px; }
+
+.order-visual-card:hover { transform:translateY(-3px); border-color:#a9c2e7; box-shadow:0 16px 34px rgba(7,26,69,.11); }
+
+.order-card-head { padding:19px 18px 12px; display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+
+.order-card-number { display:block; color:var(--blue-950); font-size:18px; font-weight:900; }
+
+.order-card-reference { display:block; margin-top:2px; color:var(--gray-500); font-size:10px; }
+
+.order-card-body { padding:0 18px 14px; }
+
+.order-card-client { margin:0 0 11px; color:var(--gray-950); font-size:14px; font-weight:800; }
+
+.order-card-route {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:11px;
+  padding:9px 10px;
+  border-radius:9px;
+  background:var(--surface-soft);
+}
+
+.order-card-route strong { color:#12366f; font-size:11px; }
+
+.order-card-route span { color:#657387; font-size:10px; }
+
+.order-card-meta { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+
+.order-card-meta div { padding:8px; border:1px solid #e4e9f0; border-radius:9px; background:var(--surface-raised); }
+
+.order-card-meta label { display:block; color:#8792a5; font-size:10px; font-weight:850; letter-spacing:.06em; text-transform:uppercase; }
+
+.order-card-meta strong { display:block; margin-top:3px; color:#334257; font-size:10px; }
+
+.order-card-foot {
+  padding:12px 18px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  border-top:1px solid #edf0f5;
+  background:#fbfcfe;
+}
+
+.operation-guide { margin-bottom:0; padding:15px 16px; border-radius:10px 13px 0 0; background:linear-gradient(115deg,#081b31,#10477e); }
+
+.operation-guide strong { display:block; color:#fff; font-size:14px; }
+
+.operation-guide p { margin:4px 0 0; color:rgba(255,255,255,.66); font-size:10px; }
+
+.items-wizard-head { display:flex; align-items:center; justify-content:space-between; gap:15px; margin-bottom:13px; }
+
+.items-wizard-head strong { color:var(--blue-950); font-size:14px; }
+
+.items-wizard-head p { margin:2px 0 0; color:var(--gray-600); font-size:10px; }
+
+.item-row-guided { display:grid; grid-template-columns:34px .8fr .8fr 1.6fr .65fr .55fr .8fr .7fr .65fr 38px; gap:8px; align-items:center; }
+
+.item-row-number {
+  width:30px;
+  height:30px;
+  border-radius:8px;
+  display:grid;
+  place-items:center;
+  color:#081b31;
+  background:var(--yellow-500);
+  font-weight:900;
+}
+
+.review-text { margin-top:13px; padding:14px; border:1px solid var(--line); border-radius:11px; background:var(--surface-raised); }
+
+.review-text strong { display:block; color:var(--blue-950); font-size:11px; }
+
+.review-text p { margin:5px 0 0; color:var(--gray-700); font-size:11px; white-space:pre-wrap; }
+
+.assignee-grid,.inventory-choice-grid,.role-choice-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+
+.assignee-card,.inventory-choice,.role-choice,.status-choice { position:relative; }
+
+.assignee-card input,.inventory-choice input,.role-choice input,.status-choice input { position:absolute; opacity:0; }
+
+.assignee-card span,.inventory-choice span,.role-choice span,.status-choice span {
+  min-height:100px;
+  padding:14px;
+  border:2px solid #dfe6ef;
+  border-radius:10px;
+  background:var(--surface-raised);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:5px;
+  cursor:pointer;
+}
+
+.assignee-card strong,.inventory-choice strong,.role-choice strong,.status-choice strong { color:var(--blue-950); font-size:12px; }
+
+.assignee-card small,.inventory-choice small,.role-choice small,.status-choice small { color:var(--gray-600); font-size:10px; }
+
+.inventory-choice b { color:var(--success); font-size:10px; }
+
+.assignee-card input:checked+span,.inventory-choice input:checked+span,.role-choice input:checked+span,.status-choice input:checked+span {
+  border-color:var(--blue-600);
+  background:var(--blue-50);
+  box-shadow:0 0 0 3px rgba(23,101,216,.09);
+}
+
+.decision-grid,.credit-grid,.inventory-grid,.user-grid,.system-run-grid,.health-grid {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:15px;
+}
+
+.decision-card,.credit-card,.inventory-card,.user-card,.system-run-card,.health-card {
+  overflow:hidden;
+  border:1px solid #dbe3ee;
+  border-radius:10px;
+  background:var(--surface-raised);
+  box-shadow:0 5px 17px rgba(7,26,69,.055);
+}
+
+.decision-card-head,.credit-card header,.inventory-card header,.user-card header,.system-run-card header {
+  padding:15px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  border-bottom:1px solid #e7ebf1;
+  background:#fbfcfe;
+}
+
+.decision-card-head strong,.credit-card header strong,.inventory-card header strong,.user-card header strong,.system-run-card header strong {
+  display:block;
+  color:var(--blue-950);
+  font-size:13px;
+}
+
+.decision-card-head span,.credit-card header span,.inventory-card header span,.user-card header span,.system-run-card header span {
+  display:block;
+  margin-top:3px;
+  color:var(--gray-500);
+  font-size:10px;
+}
+
+.decision-card-body,.credit-card-body,.inventory-card-body,.user-card-body { padding:16px; }
+
+.decision-card-body label { color:var(--gray-500); font-size:10px; font-weight:900; text-transform:uppercase; }
+
+.decision-card-body h3,.credit-card-body h3,.inventory-card-body h3 { margin:5px 0 8px; color:var(--blue-950); font-size:15px; }
+
+.decision-card-body p,.credit-card-body p { color:var(--gray-600); font-size:10px; }
+
+.decision-meta,.credit-meta,.user-meta { display:grid; gap:5px; margin-top:12px; color:var(--gray-600); font-size:10px; }
+
+.decision-card-foot,.credit-card footer,.inventory-card footer,.user-card footer,.system-run-card footer {
+  padding:12px 15px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border-top:1px solid #e7ebf1;
+  background:#fbfcfe;
+}
+
+.credit-amount { margin:14px 0; color:var(--blue-700); font-size:25px; font-weight:900; }
+
+.inventory-numbers,.system-run-metrics { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+
+.inventory-numbers div,.system-run-metrics div { padding:9px; border:1px solid #e4e9f0; border-radius:9px; }
+
+.inventory-numbers label,.system-run-metrics label {
+  display:block;
+  color:var(--gray-500);
+  font-size:10px;
+  font-weight:900;
+  text-transform:uppercase;
+}

@@ -1,0 +1,126 @@
+/* ERP Electroingeniería · V10.33.1 · Regresión Total · base visual Refined Workspaces */
+
+:root {
+  --blue-1000:#04172b;
+  --blue-950:#061d38;
+  --blue-900:#08294f;
+  --blue-850:#0a3767;
+  --blue-800:#0b4f91;
+  --blue-700:#0b65c7;
+  --blue-600:#1479df;
+  --blue-500:#3693ed;
+  --blue-400:#65acf2;
+  --blue-300:#9acaf7;
+  --blue-200:#c4def7;
+  --blue-100:#dfedfb;
+  --blue-75:#e8f3fd;
+  --blue-50:#f0f7fe;
+  --cyan-700:#0574a6;
+  --cyan-600:#078fc3;
+  --cyan-100:#dff6ff;
+  --teal-700:#08766f;
+  --teal-600:#0b968c;
+  --teal-100:#def7f4;
+  --violet-700:#5542b6;
+  --violet-600:#6b58d3;
+  --violet-100:#eeeaff;
+  --orange-700:#a84b08;
+  --orange-600:#d4640d;
+  --orange-100:#fff0df;
+  --yellow-700:#8a6100;
+  --yellow-600:#c48b00;
+  --yellow-500:#f3bd2f;
+  --yellow-400:#ffd65a;
+  --yellow-200:#f8df9b;
+  --yellow-100:#fff0bf;
+  --yellow-50:#fff8df;
+  --gray-950:#102033;
+  --gray-900:#192d45;
+  --gray-800:#30465f;
+  --gray-700:#455d76;
+  --gray-600:#61758a;
+  --gray-500:#7a8ba0;
+  --gray-400:#9aacbe;
+  --gray-300:#bfd0e0;
+  --gray-200:#d6e2ee;
+  --gray-150:#e1ebf4;
+  --gray-100:#ebf2f8;
+  --gray-50:#f4f8fc;
+  --white:#fff;
+  --success:#0d7a53;
+  --success-strong:#086742;
+  --success-bg:#e6f8f0;
+  --warning:#a75a0a;
+  --warning-bg:#fff0dc;
+  --danger:#b5263b;
+  --danger-strong:#941b2d;
+  --danger-bg:#fff0f3;
+  --info:#0b65c7;
+  --info-bg:#e8f3ff;
+  --text:#14283d;
+  --muted:#617284;
+  --faint:#7d8c9d;
+  --line:#d5e0ea;
+  --line-strong:#b5c8da;
+  --surface-raised:#ffffff;
+  --surface:#ffffff;
+  --surface-soft:#f6f8fb;
+  --surface-blue:#eef4fa;
+  --surface-blue-strong:#e1ebf5;
+  --app-bg:#eef3f8;
+  --shell-bg:#061f3d;
+  --shell-bg-2:#0a3767;
+  --shell-height:68px;
+  --sidebar:264px;
+  --shadow-xs:0 2px 4px rgba(5,35,68,.07),0 1px 1px rgba(5,35,68,.04);
+  --shadow-sm:0 7px 18px rgba(5,35,68,.10),0 2px 5px rgba(5,35,68,.06);
+  --shadow-md:0 14px 34px rgba(5,35,68,.14),0 4px 10px rgba(5,35,68,.07);
+  --shadow-lg:0 30px 82px rgba(3,24,47,.30),0 10px 26px rgba(3,24,47,.17);
+  --shadow-blue:0 10px 24px rgba(8,79,145,.23),0 3px 7px rgba(5,35,68,.11);
+  --shadow-button:0 5px 12px rgba(5,35,68,.18),inset 0 1px 0 rgba(255,255,255,.24);
+  --radius-xs:7px;
+  --radius-sm:10px;
+  --radius:13px;
+  --radius-lg:18px;
+  font-family:"Century Gothic","Aptos","Segoe UI",Arial,sans-serif;
+  color-scheme:light;
+}
+
+* { box-sizing:border-box; }
+
+html { min-height:100%; background:var(--app-bg); scroll-behavior:smooth; }
+
+body {
+  margin:0;
+  min-height:100%;
+  background:var(--app-bg);
+  color:var(--text);
+  font-size:13px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+button,input,select,textarea { font:inherit; }
+
+button { cursor:pointer; }
+
+a { color:inherit; }
+
+::selection { background:#c5e2ff; color:var(--blue-1000); }
+
+:focus-visible { outline:3px solid rgba(20,121,223,.32); outline-offset:2px; }
+
+.hidden { display:none!important; }
+
+.muted { color:var(--muted); }
+
+.faint { color:var(--faint); }
+
+.danger { color:var(--danger)!important; }
+
+.success { color:var(--success)!important; }
+
+.warning { color:var(--warning)!important; }
+
+.ui-icon { display:block; width:18px; height:18px; flex:0 0 auto; }

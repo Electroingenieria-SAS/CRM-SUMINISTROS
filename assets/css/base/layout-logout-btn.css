@@ -1,0 +1,54 @@
+.logout-btn { width:32px; height:32px; color:#bdd7ed; background:rgba(255,255,255,.045); border-color:rgba(143,194,239,.13); }
+
+.logout-btn:hover { color:#fff; background:linear-gradient(135deg,#c9344a,#9f1d31); border-color:#d14a5d; }
+
+.logout-btn .ui-icon { width:15px; height:15px; }
+
+.sidebar-backdrop { display:none; }
+
+.nav-item[data-nav="dashboard"],.nav-item[data-nav="orders"] { --nav-accent:#58adff; }
+
+.nav-item[data-nav="sales"] { --nav-accent:#36c2ff; }
+
+.nav-item[data-nav="credit"] { --nav-accent:#9c83ff; }
+
+.nav-item[data-nav="cartera"],.nav-item[data-nav="caja"] { --nav-accent:#4ed8bc; }
+
+.nav-item[data-nav="purchasing"] { --nav-accent:#ffad56; }
+
+.nav-item[data-nav="receiving"] { --nav-accent:#39d4cf; }
+
+.nav-item[data-nav="picking"] { --nav-accent:#72d793; }
+
+.nav-item[data-nav="cutting"] { --nav-accent:#ffd35d; }
+
+.nav-item[data-nav="billing"] { --nav-accent:#8ea4ff; }
+
+.nav-item[data-nav="shipping"] { --nav-accent:#58c8ff; }
+
+.nav-item[data-nav="workforce"] { --nav-accent:#b090ff; }
+
+.nav-item[data-nav="inventory"] { --nav-accent:#33c5a8; }
+
+.nav-item[data-nav="approvals"] { --nav-accent:#ff9653; }
+
+.nav-item[data-nav="vsm"] { --nav-accent:#4fa8f3; }
+
+.nav-item[data-nav="reports"] { --nav-accent:#6fb8ff; }
+
+.nav-item[data-nav="imports"] { --nav-accent:#b6a0ff; }
+
+.nav-item[data-nav="audit"] { --nav-accent:#87a7c8; }
+
+.nav-item[data-nav="admin"] { --nav-accent:#d998ff; }
+
+.main {
+  position:relative;
+  min-width:0;
+  min-height:100dvh;
+  margin-left:var(--sidebar);
+  padding-top:var(--shell-height);
+  background:radial-gradient(circle at 8% 0%,rgba(20,121,223,.055),transparent 24%),linear-gradient(180deg,#eef3f8 0%,#f3f6f9 48%,#edf2f6 100%);
+}
+
+.content { position:relative; width:100%; max-width:1700px; margin:0 auto; padding:26px clamp(24px,2.2vw,38px) 58px; }

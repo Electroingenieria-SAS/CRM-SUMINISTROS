@@ -1,0 +1,198 @@
+.commercial-credit-v1187 .credit-amount {
+  margin:17px 0 15px;
+  padding:12px 13px;
+  border:1px solid #d7e6f3;
+  border-radius:12px;
+  background:#f2f8fd;
+  color:#0b5f9f;
+  font-size:24px;
+  font-weight:900;
+  letter-spacing:-.025em;
+}
+
+.commercial-credit-v1187 .credit-meta { display:grid; grid-template-columns:1fr; gap:7px; color:#64778a; font-size:10px; }
+
+.commercial-credit-v1187 .credit-meta>span {
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:8px 0;
+  border-bottom:1px solid #edf1f5;
+}
+
+.commercial-credit-v1187 .credit-meta strong { color:#36516d; text-align:right; }
+
+.commercial-credit-v1187 .commercial-credit-card>footer {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  padding:12px 14px;
+  border-top:1px solid #e3eaf1;
+  background:#fbfcfe;
+}
+
+.commercial-credit-v1187 .commercial-credit-card>footer .btn { min-height:44px; flex:1; min-width:110px; }
+
+.commercial-credit-v1187 .review-text {
+  margin-top:14px;
+  padding:11px 12px;
+  border-radius:10px;
+  background:#f8fafc;
+  border:1px solid #e2e8ee;
+}
+
+.commercial-credit-v1187 .review-text p { line-height:1.55; }
+
+/* Asistentes de creación y crédito */
+
+.commercial-wizard { width:min(1100px,calc(100vw - 34px))!important; max-height:min(92dvh,940px)!important; border-radius:19px!important; }
+
+.commercial-wizard .wizard-head { min-height:86px; padding:18px 22px 17px 25px; }
+
+.commercial-wizard .wizard-head h3 { font-size:22px; }
+
+.commercial-wizard .wizard-head p { max-width:780px; font-size:10.5px; line-height:1.55; }
+
+.commercial-wizard-assist {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  padding:10px 18px;
+  border-bottom:1px solid #e2e9f0;
+  background:#f7fafc;
+}
+
+.commercial-wizard-assist>span {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 9px;
+  border:1px solid #dbe5ee;
+  border-radius:999px;
+  background:#fff;
+  color:#60778d;
+  font-size:9px;
+  font-weight:800;
+}
+
+.commercial-wizard-assist .ui-icon { width:14px; height:14px; color:#0b65c7; }
+
+.commercial-wizard .wizard-progress { padding:14px 18px 13px; gap:8px; background:#fff; }
+
+.commercial-wizard .wizard-progress-item { min-height:54px; border-radius:11px; }
+
+.commercial-wizard .wizard-progress-item>span { width:30px; height:30px; font-size:10px; }
+
+.commercial-wizard .wizard-progress-item strong { font-size:10px; }
+
+.commercial-wizard .wizard-body { padding:23px 24px; background:#f7f9fc; }
+
+.commercial-wizard .wizard-step-intro { margin-bottom:18px; padding:0 0 14px; border-bottom:1px solid #dfe7ef; }
+
+.commercial-wizard .wizard-step-intro>span { font-size:9px; }
+
+.commercial-wizard .wizard-step-intro h4 { margin:4px 0 5px; font-size:19px; color:#153b61; }
+
+.commercial-wizard .wizard-step-intro p { max-width:800px; font-size:11px; line-height:1.6; }
+
+.commercial-wizard .field { gap:7px; margin-bottom:17px; }
+
+.commercial-wizard .field label { font-size:11px; color:#314e6b; }
+
+.commercial-wizard .field-help { font-size:9.5px; line-height:1.5; }
+
+.commercial-wizard .control { min-height:48px; padding:11px 13px; border-radius:10px; font-size:12px; background:#fff; }
+
+.commercial-wizard textarea.control { min-height:120px; }
+
+.commercial-wizard .form-grid { gap:14px 16px; }
+
+.commercial-wizard .wizard-foot { min-height:66px; padding:12px 18px; }
+
+.commercial-wizard .wizard-foot .btn { min-height:44px; padding:9px 16px; font-size:10.5px; }
+
+.commercial-order-wizard .sales-address-card,.commercial-order-wizard .sales-materials-intro,.commercial-order-wizard .simple-details {
+  border-radius:14px;
+}
+
+/* Responsive y accesibilidad */
+
+@media (max-width:1320px) {
+  .commercial-v1187 .orders-master-row.commercial-order-row { grid-template-columns:minmax(210px,1fr) minmax(0,2fr) 132px; }
+  .commercial-v1187 .orders-master-row .erp-work-status { grid-column:1; grid-row:2; }
+  .commercial-v1187 .orders-master-row .erp-work-meta { grid-column:2; grid-row:1/3; }
+  .commercial-v1187 .orders-master-row .erp-work-action { grid-column:3; grid-row:1/3; }
+  .commercial-credit-v1187 .credit-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+
+@media (max-width:1080px) {
+  .commercial-v1187 .page-head.commercial-page-head { align-items:flex-start; flex-direction:column; }
+  .commercial-v1187 .commercial-page-actions { width:100%; justify-content:flex-start; }
+  .commercial-v1187 .guided-action-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .commercial-journey-steps { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .commercial-journey-step:nth-child(2):after { display:none; }
+  .commercial-advanced-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .commercial-v1187 .orders-master-row.commercial-order-row { grid-template-columns:1fr auto; }
+  .commercial-v1187 .orders-master-row .erp-work-meta {
+    grid-column:1/-1;
+    grid-row:auto;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    order:3;
+  }
+  .commercial-v1187 .orders-master-row .erp-work-status { grid-column:1; grid-row:auto; order:2; }
+  .commercial-v1187 .orders-master-row .erp-work-action { grid-column:2; grid-row:1/3; min-width:130px; }
+}
+
+@media (max-width:760px) {
+  .commercial-v1187 { font-size:15px; }
+  .commercial-v1187 .page-head.commercial-page-head { min-height:0; padding:20px 18px; border-radius:15px; }
+  .commercial-v1187 .commercial-page-head h2 { font-size:25px; }
+  .commercial-v1187 .commercial-page-head p { font-size:12px; }
+  .commercial-v1187 .commercial-page-actions { display:grid; grid-template-columns:1fr 1fr; }
+  .commercial-v1187 .commercial-page-actions .btn { width:100%; min-width:0; }
+  .commercial-v1187 .guided-action-grid { grid-template-columns:1fr; padding:12px; }
+  .commercial-v1187 .commercial-action-card { min-height:118px; grid-template-columns:52px minmax(0,1fr) 30px; padding:15px; }
+  .commercial-v1187 .commercial-action-card .guided-action-icon { width:50px; height:50px; border-radius:14px; }
+  .commercial-journey { padding:14px; }
+  .commercial-journey-steps { grid-template-columns:1fr; }
+  .commercial-journey-step:after { display:none!important; }
+  .commercial-search-shell { padding:17px 15px; }
+  .commercial-search-head { display:grid; }
+  .commercial-search-hint { width:max-content; max-width:100%; }
+  .commercial-search-primary { grid-template-columns:1fr; }
+  .commercial-v1187 .commercial-search-cta { width:100%; }
+  .commercial-advanced-grid { grid-template-columns:1fr; }
+  .commercial-v1187 .commercial-result-heading { padding:14px 15px!important; }
+  .commercial-v1187 #orders-result { padding:0 12px 15px; }
+  .commercial-v1187 .orders-master-row.commercial-order-row {
+    display:grid;
+    grid-template-columns:1fr;
+    gap:13px;
+    min-height:0;
+    padding:16px;
+  }
+  .commercial-v1187 .orders-master-row .erp-work-meta { grid-column:auto; grid-template-columns:repeat(2,minmax(0,1fr)); order:3; }
+  .commercial-v1187 .orders-master-row .erp-work-status { grid-column:auto; order:2; }
+  .commercial-v1187 .orders-master-row .erp-work-action { grid-column:auto; grid-row:auto; order:4; width:100%; min-height:48px; }
+  .commercial-credit-v1187 .credit-grid { grid-template-columns:1fr; }
+  .commercial-credit-v1187 #credit-result { padding:13px; }
+  .commercial-wizard { width:100%!important; max-height:100dvh!important; height:100dvh; border-radius:0!important; }
+  .commercial-wizard .wizard-head { padding:16px 17px; }
+  .commercial-wizard .wizard-head h3 { font-size:20px; }
+  .commercial-wizard-assist { padding:9px 12px; overflow-x:auto; flex-wrap:nowrap; }
+  .commercial-wizard-assist>span { flex:0 0 auto; }
+  .commercial-wizard .wizard-progress { overflow-x:auto; grid-template-columns:none!important; display:flex; }
+  .commercial-wizard .wizard-progress-item { min-width:150px; flex:0 0 150px; }
+  .commercial-wizard .wizard-body { padding:18px 15px; }
+  .commercial-wizard .form-grid { grid-template-columns:1fr; }
+}
+
+@media (max-width:460px) {
+  .commercial-v1187 .commercial-page-actions { grid-template-columns:1fr; }
+  .commercial-result-heading { align-items:flex-start!important; flex-direction:column; }
+  .commercial-v1187 .orders-master-row .erp-work-meta { grid-template-columns:1fr; }
+  .commercial-credit-status,.commercial-presets { display:grid; grid-template-columns:1fr 1fr; }
+  .commercial-credit-status>span { grid-column:1/-1; }
+}

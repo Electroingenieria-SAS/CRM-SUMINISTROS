@@ -1,0 +1,278 @@
+/* PACO Operational Assistant V11.37.1 * Messenger / Instagram inspired operational conversation layer. * Keeps the stable PACO root and overrides only the assistant presentation. */
+
+#paco-bot.paco-op-root {
+  --paco2-width:min(520px,calc(100vw - 92px));
+  --paco2-height:min(780px,calc(100dvh - 28px));
+  --paco-op-blue:#0866c6;
+  --paco-op-blue-2:#0a7be0;
+  --paco-op-blue-dark:#073f78;
+  --paco-op-text:#172b3d;
+  --paco-op-muted:#6f8192;
+  --paco-op-line:#dce7f0;
+  --paco-op-soft:#f5f8fb;
+  --paco-op-green:#1aa678;
+  --paco-op-amber:#c78a22;
+  --paco-op-red:#c34b53;
+}
+
+#paco-bot.paco-op-root .paco-op-launcher {
+  overflow:visible!important;
+  border:0!important;
+  background:linear-gradient(145deg,#0874d7,#0756ad)!important;
+  box-shadow:0 16px 34px rgba(4,63,122,.30),0 0 0 5px rgba(255,255,255,.92)!important;
+}
+
+#paco-bot.paco-op-root .paco-op-launcher:hover {
+  background:linear-gradient(145deg,#0a7ce4,#075bb7)!important;
+  box-shadow:0 19px 40px rgba(4,63,122,.36),0 0 0 7px rgba(20,125,224,.10)!important;
+}
+
+#paco-bot.paco-op-root .paco-op-launcher-glyph {
+  display:grid!important;
+  place-items:center!important;
+  width:100%!important;
+  height:100%!important;
+  color:#fff!important;
+  font-size:29px!important;
+  line-height:1!important;
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,.13));
+  pointer-events:none!important;
+}
+
+#paco-bot.paco-op-root.is-open .paco-op-launcher { border:0!important; background:linear-gradient(145deg,#fff5b8,#f7c934)!important; }
+
+#paco-bot.paco-op-root.is-open .paco-op-launcher-glyph { color:#073f78!important; font-size:24px!important; }
+
+#paco-bot.paco-op-root .paco-op-panel {
+  border:1px solid #cdddea!important;
+  border-radius:24px!important;
+  background:#fff!important;
+  box-shadow:0 30px 82px rgba(6,42,77,.28),0 8px 26px rgba(7,59,107,.10)!important;
+}
+
+#paco-bot.paco-op-root .paco-op-head {
+  min-height:84px!important;
+  grid-template-columns:54px minmax(0,1fr) 42px 42px!important;
+  gap:10px!important;
+  padding:11px 12px 11px 14px!important;
+  border-bottom:0!important;
+  background:linear-gradient(120deg,#06467f 0%,#075da8 52%,#0c76cf 100%)!important;
+}
+
+#paco-bot.paco-op-root .paco-op-avatar-wrap { position:relative!important; width:52px!important; height:52px!important; }
+
+#paco-bot.paco-op-root .paco-op-head .paco2-head-face {
+  width:52px!important;
+  height:52px!important;
+  padding:2px!important;
+  border:2px solid rgba(255,255,255,.68)!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  object-fit:contain!important;
+  filter:none!important;
+}
+
+#paco-bot.paco-op-root .paco-op-presence {
+  position:absolute!important;
+  right:0!important;
+  bottom:2px!important;
+  width:13px!important;
+  height:13px!important;
+  border:3px solid #075da8!important;
+  border-radius:50%!important;
+  background:#28c38f!important;
+  box-shadow:0 0 0 1px rgba(255,255,255,.9)!important;
+}
+
+#paco-bot.paco-op-root .paco-op-head .paco2-head-copy>span {
+  color:#cce8ff!important;
+  font-size:9px!important;
+  letter-spacing:.12em!important;
+}
+
+#paco-bot.paco-op-root .paco-op-head .paco2-head-copy>strong {
+  margin-top:2px!important;
+  color:#fff!important;
+  font-size:22px!important;
+  line-height:1.05!important;
+  letter-spacing:.01em!important;
+}
+
+#paco-bot.paco-op-root .paco-op-head .paco2-head-copy>small {
+  margin-top:4px!important;
+  color:#dceeff!important;
+  font-size:10.5px!important;
+}
+
+#paco-bot.paco-op-root .paco-op-online-text { color:#bdf4df!important; }
+
+#paco-bot.paco-op-root .paco-op-voice,
+#paco-bot.paco-op-root .paco2-close {
+  width:40px!important;
+  height:40px!important;
+  min-width:40px!important;
+  min-height:40px!important;
+  display:grid!important;
+  place-items:center!important;
+  border:1px solid rgba(255,255,255,.24)!important;
+  border-radius:50%!important;
+  background:rgba(255,255,255,.09)!important;
+  color:#fff!important;
+  cursor:pointer!important;
+  transition:transform .16s ease,background .16s ease,box-shadow .16s ease!important;
+}
+
+#paco-bot.paco-op-root .paco-op-voice { font-size:17px!important; }
+
+#paco-bot.paco-op-root .paco2-close { font-size:21px!important; }
+
+#paco-bot.paco-op-root .paco-op-voice:hover,
+#paco-bot.paco-op-root .paco2-close:hover {
+  transform:translateY(-1px)!important;
+  background:rgba(255,255,255,.18)!important;
+}
+
+#paco-bot.paco-op-root .paco-op-voice.is-on {
+  border-color:rgba(181,244,220,.72)!important;
+  background:rgba(27,166,117,.32)!important;
+  box-shadow:0 0 0 3px rgba(141,239,203,.10)!important;
+}
+
+#paco-bot.paco-op-root .paco-op-status {
+  flex:0 0 auto!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:10px!important;
+  min-height:54px!important;
+  padding:8px 10px 8px 13px!important;
+  border-bottom:1px solid #e2ebf2!important;
+  background:#fff!important;
+}
+
+#paco-bot.paco-op-root .paco-op-status-copy {
+  min-width:0!important;
+  display:grid!important;
+  grid-template-columns:9px auto minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:6px!important;
+}
+
+#paco-bot.paco-op-root .paco-op-status-copy .paco2-online { width:8px!important; height:8px!important; flex-basis:8px!important; }
+
+#paco-bot.paco-op-root .paco-op-status-copy strong { color:#35536d!important; font-size:9.8px!important; white-space:nowrap!important; }
+
+#paco-bot.paco-op-root .paco-op-status-copy>span:last-child {
+  min-width:0!important;
+  overflow:hidden!important;
+  color:#778b9d!important;
+  font-size:9px!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+
+#paco-bot.paco-op-root .paco-op-status-actions { display:flex!important; align-items:center!important; gap:5px!important; }
+
+#paco-bot.paco-op-root .paco-op-voice-picker {
+  min-width:0!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  padding:4px 7px!important;
+  border:1px solid #d1e0eb!important;
+  border-radius:999px!important;
+  background:#f8fbfe!important;
+  color:#55758d!important;
+  font-size:8.5px!important;
+  font-weight:800!important;
+  white-space:nowrap!important;
+}
+
+#paco-bot.paco-op-root .paco-op-voice-picker select {
+  max-width:185px!important;
+  min-height:22px!important;
+  border:0!important;
+  outline:0!important;
+  background:transparent!important;
+  color:#1765a2!important;
+  font:inherit!important;
+  font-size:8.8px!important;
+  font-weight:800!important;
+  cursor:pointer!important;
+  text-overflow:ellipsis!important;
+}
+
+#paco-bot.paco-op-root .paco-op-voice-picker select:disabled { opacity:.65!important; cursor:not-allowed!important; }
+
+#paco-bot.paco-op-root .paco-op-status-actions button {
+  min-height:30px!important;
+  padding:6px 9px!important;
+  border:1px solid #d1e0eb!important;
+  border-radius:999px!important;
+  background:#f8fbfe!important;
+  color:#1765a2!important;
+  font:inherit!important;
+  font-size:8.8px!important;
+  font-weight:800!important;
+  white-space:nowrap!important;
+  cursor:pointer!important;
+}
+
+#paco-bot.paco-op-root .paco-op-status-actions button:hover { border-color:#9fc6e4!important; background:#edf6fd!important; }
+
+#paco-bot.paco-op-root .paco-op-messages {
+  gap:10px!important;
+  padding:18px 15px 16px!important;
+  background:
+    radial-gradient(circle at 100% 0,rgba(31,132,210,.035),transparent 35%),
+    linear-gradient(180deg,#f8fafc 0%,#f4f7fa 100%)!important;
+}
+
+#paco-bot.paco-op-root .paco2-message { max-width:92%!important; gap:8px!important; }
+
+#paco-bot.paco-op-root .paco2-message.user { max-width:82%!important; }
+
+#paco-bot.paco-op-root .paco2-mini {
+  width:31px!important;
+  height:31px!important;
+  flex:0 0 31px!important;
+  margin-top:18px!important;
+  padding:1px!important;
+  border:1px solid #d7e4ee!important;
+  border-radius:50%!important;
+  background:#fff!important;
+}
+
+#paco-bot.paco-op-root .paco-op-message-stack {
+  min-width:0!important;
+  max-width:100%!important;
+  display:grid!important;
+  gap:3px!important;
+}
+
+#paco-bot.paco-op-root .paco-op-sender {
+  padding-left:4px!important;
+  color:#60778a!important;
+  font-size:9px!important;
+  font-weight:800!important;
+}
+
+#paco-bot.paco-op-root .paco2-bubble {
+  padding:10px 12px 8px!important;
+  border:1px solid #d9e4ed!important;
+  border-radius:17px 17px 17px 5px!important;
+  background:#fff!important;
+  color:var(--paco-op-text)!important;
+  box-shadow:0 2px 7px rgba(16,58,93,.045)!important;
+  font-size:13px!important;
+  line-height:1.48!important;
+}
+
+#paco-bot.paco-op-root .paco2-message.user .paco2-bubble {
+  padding:10px 12px 7px!important;
+  border:0!important;
+  border-radius:17px 17px 5px 17px!important;
+  background:linear-gradient(145deg,#0874d4,#0863bd)!important;
+  color:#fff!important;
+  box-shadow:0 4px 10px rgba(8,91,168,.14)!important;
+}

@@ -1,8 +1,9 @@
+import {readCssSource} from "./tests/read-css-source.mjs";
 import {readDomainSource} from "./tests/read-domain-source.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-const css=fs.readFileSync(new URL("../assets/css/operations.css",import.meta.url),"utf8");
+const css=readCssSource(new URL("../assets/css/operations.css",import.meta.url));
 const orders=readDomainSource("orders","assets/js/modules/orders.js");
 
 for(const token of [

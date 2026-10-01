@@ -1,0 +1,186 @@
+.commercial-credit-v1187 .compact-credit-record-v1188 .credit-card-body {
+  display:grid;
+  grid-template-columns:minmax(180px,.9fr) 150px minmax(250px,1.25fr);
+  grid-template-rows:auto auto;
+  align-items:center;
+  gap:3px 16px;
+  min-width:0;
+  padding:11px 15px;
+  border:0;
+  background:#fff;
+}
+
+.commercial-credit-v1187 .compact-credit-record-v1188 .credit-card-body h3 {
+  grid-column:1;
+  grid-row:1;
+  margin:0;
+  color:#12385d;
+  font-size:15px;
+  line-height:1.2;
+}
+
+.commercial-credit-v1187 .compact-credit-record-v1188 .credit-card-body>p {
+  grid-column:1;
+  grid-row:2;
+  margin:0;
+  color:#687c90;
+  font-size:10px;
+  line-height:1.35;
+}
+
+.commercial-credit-v1187 .compact-credit-record-v1188 .credit-amount {
+  grid-column:2;
+  grid-row:1/3;
+  align-self:center;
+  margin:0;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:#11385f;
+  font-size:17px;
+  font-weight:850;
+  white-space:nowrap;
+}
+
+.commercial-credit-v1187 .compact-credit-record-v1188 .credit-meta {
+  grid-column:3;
+  grid-row:1/3;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:0;
+  overflow:hidden;
+  border:1px solid #e4ebf2;
+  border-radius:10px;
+  background:#fafcfe;
+  font-size:10px;
+}
+
+.commercial-credit-v1187 .compact-credit-record-v1188 .credit-meta>span {
+  display:grid;
+  gap:3px;
+  align-content:center;
+  min-height:48px;
+  padding:7px 10px;
+  border-left:1px solid #e7edf3;
+  color:#718497;
+}
+
+.commercial-credit-v1187 .compact-credit-record-v1188 .credit-meta>span:first-child { border-left:0; }
+
+.commercial-credit-v1187 .compact-credit-record-v1188 .credit-meta strong { color:#35516c; font-size:10.5px; }
+
+.commercial-credit-v1187 .compact-credit-record-v1188 .review-text {
+  grid-column:1/-1;
+  grid-row:3;
+  margin:7px 0 0;
+  padding:8px 10px;
+  border-radius:9px;
+  font-size:9.5px;
+}
+
+.commercial-credit-v1187 .compact-credit-record-v1188>footer {
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:7px;
+  min-width:0;
+  padding:11px 12px;
+  border:0;
+  border-left:1px solid #e5ecf2;
+  background:#fbfcfe;
+}
+
+.commercial-credit-v1187 .compact-credit-record-v1188>footer .btn {
+  min-width:82px;
+  min-height:42px;
+  padding:8px 10px;
+  border-radius:10px;
+  font-size:10px;
+}
+
+.commercial-credit-v1187 .compact-credit-record-v1188>footer .muted { font-size:10px; line-height:1.35; text-align:center; }
+
+/* Responsive: antes de comprimir texto, redistribuir la lista */
+
+@media (max-width:1450px) {
+  .commercial-v1187 .orders-master-row.compact-order-record-v1188 {
+    grid-template-columns:34px minmax(205px,.95fr) minmax(440px,2.2fr) minmax(90px,.4fr) 112px;
+  }
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-meta { grid-template-columns:repeat(5,minmax(78px,1fr)); }
+  .commercial-credit-v1187 .credit-card.compact-credit-record-v1188 { grid-template-columns:minmax(235px,.85fr) minmax(470px,2fr) 174px; }
+  .commercial-credit-v1187 .compact-credit-record-v1188 .credit-card-body {
+    grid-template-columns:minmax(165px,.8fr) 135px minmax(220px,1.1fr);
+    gap:3px 12px;
+  }
+}
+
+@media (max-width:1180px) {
+  .commercial-v1187 .orders-master-row.compact-order-record-v1188 {
+    grid-template-columns:34px minmax(210px,1fr) minmax(0,2fr) 112px;
+    grid-template-rows:auto auto;
+    min-height:104px;
+  }
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-meta { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-status { grid-column:2; grid-row:2; }
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-action { grid-column:4; grid-row:1/3; align-self:stretch; }
+  .commercial-credit-v1187 .credit-card.compact-credit-record-v1188 {
+    grid-template-columns:minmax(230px,.85fr) minmax(0,2fr);
+    grid-template-rows:auto auto;
+  }
+  .commercial-credit-v1187 .compact-credit-record-v1188>footer {
+    grid-column:1/-1;
+    justify-content:flex-end;
+    border-left:0;
+    border-top:1px solid #e5ecf2;
+    padding:8px 12px;
+  }
+}
+
+@media (max-width:900px) {
+  .commercial-v1187 .orders-master-row.compact-order-record-v1188 { grid-template-columns:34px minmax(0,1fr) 108px; gap:10px; }
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-meta {
+    grid-column:2/-1;
+    grid-row:2;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-status { grid-column:2; grid-row:3; }
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-action { grid-column:3; grid-row:1; align-self:center; }
+  .commercial-credit-v1187 .credit-card.compact-credit-record-v1188 { grid-template-columns:1fr; }
+  .commercial-credit-v1187 .compact-credit-record-v1188>header { border-right:0; border-bottom:1px solid #e5ecf2; }
+  .commercial-credit-v1187 .compact-credit-record-v1188 .credit-card-body {
+    grid-template-columns:minmax(170px,1fr) 140px minmax(220px,1.25fr);
+  }
+}
+
+@media (max-width:680px) {
+  #page-content .erp-work-list:not(.orders-master-list) .erp-work-row { padding:12px; }
+  .commercial-v1187 #orders-result { padding:0 10px 14px; }
+  .commercial-v1187 .orders-master-row.compact-order-record-v1188 {
+    grid-template-columns:34px minmax(0,1fr);
+    grid-template-rows:auto;
+    min-height:0;
+    padding:12px;
+    gap:10px;
+  }
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-main { grid-column:2; }
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-meta {
+    grid-column:1/-1;
+    grid-row:auto;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-status { grid-column:1/-1; grid-row:auto; }
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-action { grid-column:1/-1; grid-row:auto; width:100%; min-height:46px; }
+  .commercial-credit-v1187 .compact-credit-record-v1188 .credit-card-body {
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:auto auto auto;
+    gap:8px 10px;
+    padding:12px;
+  }
+  .commercial-credit-v1187 .compact-credit-record-v1188 .credit-card-body h3 { grid-column:1/-1; grid-row:1; }
+  .commercial-credit-v1187 .compact-credit-record-v1188 .credit-card-body>p { grid-column:1/-1; grid-row:2; }
+  .commercial-credit-v1187 .compact-credit-record-v1188 .credit-amount { grid-column:1; grid-row:3; font-size:16px; }
+  .commercial-credit-v1187 .compact-credit-record-v1188 .credit-meta { grid-column:1/-1; grid-row:4; }
+  .commercial-credit-v1187 .compact-credit-record-v1188 .review-text { grid-column:1/-1; grid-row:5; }
+  .commercial-credit-v1187 .compact-credit-record-v1188>footer { justify-content:stretch; flex-wrap:wrap; }
+  .commercial-credit-v1187 .compact-credit-record-v1188>footer .btn { flex:1; min-height:44px; }
+}

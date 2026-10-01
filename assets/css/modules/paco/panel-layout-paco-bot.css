@@ -1,0 +1,280 @@
+/* CRM Suministros · Paco Assistant V11.20.0 Isolated namespace. This is the only stylesheet allowed to control Paco Assistant geometry/state. */
+
+#paco-bot.paco2-root {
+  --paco2-width:clamp(720px,46vw,820px);
+  --paco2-height:min(760px,calc(100dvh - 40px));
+  --paco2-launcher:68px;
+  --paco2-gap:16px;
+  position:fixed!important;
+  z-index:2147483000!important;
+  right:max(20px,env(safe-area-inset-right,0px))!important;
+  bottom:max(20px,env(safe-area-inset-bottom,0px))!important;
+  width:var(--paco2-launcher)!important;
+  height:var(--paco2-launcher)!important;
+  overflow:visible!important;
+  pointer-events:none!important;
+  isolation:isolate!important;
+  font-family:"Century Gothic","Aptos","Segoe UI",Arial,sans-serif!important;
+  color:#173a5c;
+}
+
+#paco-bot.paco2-root[hidden] { display:none!important; }
+
+#paco-bot.paco2-root * { box-sizing:border-box; }
+
+/* Closed state is physically absent from hit testing. No opacity-only hidden panel. */
+
+#paco-bot.paco2-root .paco2-panel { display:none!important; }
+
+#paco-bot.paco2-root.is-open .paco2-panel { display:flex!important; }
+
+#paco-bot.paco2-root .paco2-launcher {
+  position:absolute!important;
+  z-index:4!important;
+  right:0!important;
+  bottom:0!important;
+  width:var(--paco2-launcher)!important;
+  height:var(--paco2-launcher)!important;
+  min-width:var(--paco2-launcher)!important;
+  min-height:var(--paco2-launcher)!important;
+  margin:0!important;
+  padding:3px!important;
+  display:grid!important;
+  place-items:center!important;
+  border:1px solid rgba(71,143,211,.70)!important;
+  border-radius:50%!important;
+  background:linear-gradient(145deg,#fff,#eef7ff 68%,#e5f2fd)!important;
+  box-shadow:0 16px 38px rgba(5,42,81,.22),0 0 0 5px rgba(255,255,255,.84),inset 0 1px 0 #fff!important;
+  cursor:pointer!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  transform-origin:center!important;
+  transition:transform .72s cubic-bezier(.16,.86,.2,1),box-shadow .22s ease,background .22s ease!important;
+  will-change:transform;
+}
+
+#paco-bot.paco2-root .paco2-launcher:hover {
+  box-shadow:0 20px 46px rgba(5,42,81,.29),0 0 0 7px rgba(29,130,224,.09),inset 0 1px 0 #fff!important;
+}
+
+#paco-bot.paco2-root .paco2-launcher:focus-visible { outline:3px solid rgba(22,126,221,.34)!important; outline-offset:5px!important; }
+
+#paco-bot.paco2-root .paco2-launcher-face {
+  width:59px!important;
+  height:59px!important;
+  display:block!important;
+  object-fit:contain!important;
+  filter:drop-shadow(0 6px 9px rgba(18,48,77,.17));
+  pointer-events:none!important;
+  transition:opacity .18s ease .3s,transform .24s ease .28s!important;
+}
+
+#paco-bot.paco2-root .paco2-launcher-dot {
+  position:absolute!important;
+  z-index:6!important;
+  top:0!important;
+  right:0!important;
+  width:12px!important;
+  height:12px!important;
+  border:3px solid #fff!important;
+  border-radius:50%!important;
+  background:#18a875!important;
+  box-shadow:0 2px 7px rgba(10,81,57,.25)!important;
+  pointer-events:none!important;
+}
+
+#paco-bot.paco2-root.has-alert .paco2-launcher-dot { background:#e19516!important; }
+
+#paco-bot.paco2-root .paco2-launcher-bolt {
+  position:absolute!important;
+  inset:0!important;
+  display:grid!important;
+  place-items:center!important;
+  font-size:0!important;
+  opacity:0!important;
+  color:#073d78!important;
+  pointer-events:none!important;
+  transition:opacity .18s ease .36s,font-size .18s ease .36s!important;
+}
+
+/* Open: Paco rolls to the viewer's left and becomes a lightning companion. */
+
+#paco-bot.paco2-root.is-open .paco2-launcher {
+  transform:translateX(calc(-1 * (var(--paco2-width) + var(--paco2-gap)))) rotate(-720deg)!important;
+  width:52px!important;
+  height:52px!important;
+  min-width:52px!important;
+  min-height:52px!important;
+  border-color:#f5c22d!important;
+  background:linear-gradient(145deg,#fff8d7,#ffd64a)!important;
+  box-shadow:0 13px 30px rgba(4,55,103,.25),0 0 0 5px rgba(255,255,255,.86)!important;
+}
+
+#paco-bot.paco2-root.is-open .paco2-launcher-face { opacity:0!important; transform:scale(.15) rotate(-18deg)!important; }
+
+#paco-bot.paco2-root.is-open .paco2-launcher-dot { opacity:0!important; }
+
+#paco-bot.paco2-root.is-open .paco2-launcher-bolt {
+  opacity:1!important;
+  font-size:23px!important;
+  animation:paco2Bolt 2.5s ease-in-out .75s infinite!important;
+}
+
+@keyframes paco2Bolt {
+  0%,100% { transform:scale(1); filter:brightness(1); }
+  50% { transform:scale(1.08); filter:brightness(1.07); }
+}
+
+#paco-bot.paco2-root .paco2-panel {
+  position:absolute!important;
+  z-index:2!important;
+  right:0!important;
+  bottom:0!important;
+  width:var(--paco2-width)!important;
+  height:var(--paco2-height)!important;
+  max-width:calc(100vw - 120px)!important;
+  max-height:calc(100dvh - 40px)!important;
+  min-height:min(620px,calc(100dvh - 40px))!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+  border:1px solid rgba(119,166,208,.72)!important;
+  border-radius:26px!important;
+  background:rgba(255,255,255,.994)!important;
+  box-shadow:0 34px 86px rgba(4,31,62,.25),0 10px 30px rgba(5,34,65,.11)!important;
+  pointer-events:auto!important;
+  transform-origin:100% 100%!important;
+  animation:paco2PanelIn .34s cubic-bezier(.18,.84,.2,1) both!important;
+}
+
+@keyframes paco2PanelIn {
+  from { opacity:0; transform:translateY(18px) scale(.985); }
+  to { opacity:1; transform:none; }
+}
+
+#paco-bot.paco2-root .paco2-head {
+  flex:0 0 auto!important;
+  min-height:108px!important;
+  display:grid!important;
+  grid-template-columns:70px minmax(0,1fr) 44px!important;
+  align-items:center!important;
+  gap:15px!important;
+  padding:16px 18px 15px 20px!important;
+  border-bottom:3px solid #f4bd2d!important;
+  background:linear-gradient(126deg,#073767 0%,#07559d 56%,#177ed1 100%)!important;
+  color:#fff!important;
+}
+
+#paco-bot.paco2-root .paco2-head-face {
+  width:68px!important;
+  height:68px!important;
+  object-fit:contain!important;
+  filter:drop-shadow(0 7px 10px rgba(0,0,0,.17))!important;
+}
+
+#paco-bot.paco2-root .paco2-head-copy { min-width:0!important; }
+
+#paco-bot.paco2-root .paco2-head-copy>span {
+  display:block!important;
+  color:#ffd74a!important;
+  font-size:10px!important;
+  line-height:1.2!important;
+  font-weight:900!important;
+  letter-spacing:.145em!important;
+  text-transform:uppercase!important;
+}
+
+#paco-bot.paco2-root .paco2-head-copy>strong {
+  display:block!important;
+  margin-top:4px!important;
+  color:#fff!important;
+  font-size:29px!important;
+  line-height:1!important;
+  font-weight:900!important;
+}
+
+#paco-bot.paco2-root .paco2-head-copy>small {
+  display:block!important;
+  margin-top:5px!important;
+  overflow:hidden!important;
+  color:#dcecff!important;
+  font-size:13px!important;
+  white-space:nowrap!important;
+  text-overflow:ellipsis!important;
+}
+
+#paco-bot.paco2-root .paco2-close {
+  width:42px!important;
+  height:42px!important;
+  display:grid!important;
+  place-items:center!important;
+  border:1px solid rgba(255,255,255,.28)!important;
+  border-radius:13px!important;
+  background:rgba(255,255,255,.08)!important;
+  color:#fff!important;
+  font-size:22px!important;
+  cursor:pointer!important;
+}
+
+#paco-bot.paco2-root .paco2-close:hover { background:rgba(255,255,255,.17)!important; }
+
+#paco-bot.paco2-root .paco2-context {
+  flex:0 0 auto!important;
+  min-height:52px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:9px!important;
+  padding:9px 14px!important;
+  border-bottom:1px solid #e4edf5!important;
+  background:#fbfdff!important;
+  color:#60778e!important;
+  font-size:12.5px!important;
+}
+
+#paco-bot.paco2-root .paco2-online {
+  width:10px!important;
+  height:10px!important;
+  flex:0 0 10px!important;
+  border-radius:50%!important;
+  background:#22b987!important;
+  box-shadow:0 0 0 5px rgba(34,185,135,.10)!important;
+}
+
+#paco-bot.paco2-root .paco2-context>div {
+  min-width:0!important;
+  flex:1 1 auto!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+  text-overflow:ellipsis!important;
+}
+
+#paco-bot.paco2-root .paco2-context strong { color:#0a579f!important; }
+
+#paco-bot.paco2-root .paco2-context-btn,#paco-bot.paco2-root .paco2-tools-btn {
+  min-height:35px!important;
+  padding:7px 11px!important;
+  border:1px solid #cfddea!important;
+  border-radius:11px!important;
+  background:#fff!important;
+  color:#0b5fae!important;
+  font:inherit!important;
+  font-size:11px!important;
+  font-weight:850!important;
+  white-space:nowrap!important;
+  cursor:pointer!important;
+}
+
+#paco-bot.paco2-root .paco2-tools-btn {
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  background:linear-gradient(180deg,#fff,#f2f8fd)!important;
+}
+
+#paco-bot.paco2-root .paco2-tools {
+  display:none!important;
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow:auto!important;
+  padding:15px 17px 18px!important;
+  background:linear-gradient(180deg,#f8fbff,#f3f8fc)!important;
+}

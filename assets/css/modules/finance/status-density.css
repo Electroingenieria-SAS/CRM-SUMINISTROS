@@ -1,0 +1,111 @@
+.financial-simple-modal,.billing-process-modal { width:min(840px,calc(100vw - 30px)); max-width:none; }
+
+.financial-reason,.cash-invoice-intro {
+  display:grid;
+  gap:5px;
+  border:1px solid #dbe6f1;
+  background:#f7faff;
+  padding:18px 20px;
+  border-radius:11px;
+}
+
+.financial-reason span,.financial-last-update small,.invoice-confirmed span {
+  font-weight:800;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:#6b7a90;
+  font-size:10px;
+}
+
+.financial-reason strong,.cash-invoice-intro strong { color:#18324a; font-size:17px; }
+
+.cash-invoice-intro p { margin:0; color:#607086; line-height:1.5; font-size:13px; }
+
+.financial-current-state {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  border:1px solid #dde5ed;
+  background:var(--surface-raised);
+  padding:20px;
+  border-radius:12px;
+}
+
+.financial-current-state small { text-transform:uppercase; letter-spacing:.07em; color:#77859a; font-weight:800; font-size:10px; }
+
+.financial-current-state strong { color:#172b3f; font-size:25px; }
+
+.financial-current-state p { margin:0; color:#67768a; font-size:14px; }
+
+.financial-main-button {
+  width:100%;
+  display:flex!important;
+  align-items:center;
+  justify-content:flex-start!important;
+  text-align:left;
+  gap:15px;
+  border-radius:11px!important;
+  min-height:84px;
+  padding:16px 19px!important;
+}
+
+.financial-main-button>span {
+  display:grid;
+  place-items:center;
+  border-radius:11px;
+  background:rgba(255,255,255,.18);
+  font-weight:900;
+  flex:0 0 auto;
+  width:40px;
+  height:40px;
+  font-size:16px;
+}
+
+.financial-main-button strong { font-size:17px; }
+
+.financial-main-button small { line-height:1.4; opacity:.85; white-space:normal; font-size:13px; }
+
+.financial-last-update strong,.invoice-confirmed strong { color:#183b2a; font-size:15px; }
+
+.financial-last-update span,.invoice-confirmed small { color:#66788a; font-size:12px; }
+
+.financial-state-choice span {
+  display:grid;
+  gap:4px;
+  border:1px solid #d9e2eb;
+  border-radius:10px;
+  background:var(--surface-raised);
+  min-height:88px;
+  padding:17px;
+}
+
+.financial-state-choice strong { color:#172d42; font-size:15px; }
+
+.financial-state-choice small { line-height:1.4; color:#65758a; font-size:13px; }
+
+.cash-invoice-step {
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:15px;
+  text-align:left;
+  border:1px solid #dce4ed;
+  background:var(--surface-raised);
+  color:#1b3045;
+  transition:.18s ease;
+  padding:17px 19px;
+  border-radius:11px;
+}
+
+.cash-invoice-step>span {
+  display:grid;
+  place-items:center;
+  border-radius:12px;
+  background:#edf2f7;
+  font-weight:900;
+  color:#53667b;
+  flex:0 0 auto;
+  width:42px;
+  height:42px;
+}

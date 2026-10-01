@@ -1,0 +1,28 @@
+/* Security rebuild usability layer · accessibility and motion safety */
+
+:where(button,a,input,select,textarea,[tabindex]):focus-visible {
+  outline:3px solid rgba(23,101,216,.34);
+  outline-offset:2px;
+  box-shadow:0 0 0 2px #fff,0 0 0 5px rgba(23,101,216,.18);
+}
+
+:where(.btn,.icon-btn,.nav-item,.guided-action-card) { touch-action:manipulation; }
+
+.control:invalid:not(:placeholder-shown) { border-color:#c75555; }
+
+@media (prefers-reduced-motion:reduce) {
+  html { scroll-behavior:auto!important; }
+  *,*::before,*::after {
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+    scroll-behavior:auto!important;
+  }
+}
+
+@media (max-width:520px) {
+  .modal { max-height:calc(100dvh - 16px); }
+  .btn { min-height:42px; }
+  .icon-btn { min-width:42px; min-height:42px; }
+  .control { min-height:43px; font-size:16px; }
+}

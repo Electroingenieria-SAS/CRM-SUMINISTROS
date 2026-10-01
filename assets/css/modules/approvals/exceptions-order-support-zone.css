@@ -1,0 +1,277 @@
+.order-support-zone {
+  margin:0 0 18px;
+  padding:14px 16px;
+  border:1px solid var(--line);
+  border-radius:11px;
+  background:var(--surface-soft);
+}
+
+.order-support-toolbar { display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+
+.order-support-title { display:flex; flex-direction:column; gap:2px; }
+
+.order-support-title span { font-size:.72rem; letter-spacing:.08em; font-weight:800; color:#657387; }
+
+.order-support-title strong { font-size:1rem; color:#172033; }
+
+.order-support-actions { display:flex; gap:8px; flex-wrap:wrap; }
+
+.support-btn {
+  border:1px solid transparent;
+  border-radius:10px;
+  padding:9px 12px;
+  font:inherit;
+  font-weight:850;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  background:var(--surface-raised);
+  box-shadow:0 4px 10px rgba(5,35,68,.08),inset 0 1px 0 #fff;
+  transition:transform .12s ease,border-color .12s ease,background .12s ease,box-shadow .12s ease;
+}
+
+.support-btn:hover { transform:translateY(-1px); }
+
+.support-btn span { font-weight:900; }
+
+.support-btn.note { color:#fff; border-color:#0877aa; background:linear-gradient(135deg,#087eb0,#066f9b); }
+
+.support-btn.novelty { color:#fff; border-color:#b85608; background:linear-gradient(135deg,#bf5909,#a84b08); }
+
+.support-btn.report { color:#fff; border-color:#991c30; background:linear-gradient(135deg,#d13a50,#a82035); }
+
+.support-btn.approval { color:#fff; border-color:#4e42ad; background:linear-gradient(135deg,#7968e0,#5848bd); }
+
+.order-support-issues:empty { display:none; }
+
+.support-loading,.support-error { display:block; margin-top:10px; font-size:.83rem; color:#657387; }
+
+.support-open-issue {
+  margin-top:12px;
+  padding:13px 14px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  border-left:4px solid #dc2626;
+  background:var(--surface-raised);
+}
+
+.support-open-issue.novelty { border-left-color:#d97706; background:#fffbeb; }
+
+.support-open-issue.report { background:#fff7f7; }
+
+.support-open-issue div { display:grid; gap:3px; }
+
+.support-open-issue span { font-size:.7rem; font-weight:900; letter-spacing:.08em; color:#991b1b; }
+
+.support-open-issue.novelty span { color:#92400e; }
+
+.support-open-issue strong { font-size:.98rem; }
+
+.support-open-issue p { margin:0; color:#475569; }
+
+.support-open-issue small { color:#657387; }
+
+.support-dialog-intro {
+  padding:14px 16px;
+  border-radius:10px;
+  margin-bottom:16px;
+  border-left:4px solid #657387;
+  background:var(--surface-soft);
+}
+
+.support-dialog-intro p { margin:5px 0 0; color:#526176; }
+
+.support-dialog-intro.novelty { border-left-color:#d97706; background:#fffbeb; }
+
+.support-dialog-intro.report { border-left-color:#dc2626; background:#fff7f7; }
+
+.support-dialog-intro.approval { border-left-color:#2563eb; background:#eff6ff; }
+
+.support-dialog-intro.resolved { border-left-color:#16a34a; background:#f0fdf4; }
+
+.order-exception-tag,.purchase-shadow-tag {
+  display:inline-flex;
+  align-items:center;
+  border-radius:999px;
+  padding:5px 9px;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.03em;
+}
+
+.order-exception-tag { background:#fee2e2; color:#991b1b; }
+
+.order-exception-tag.novelty { background:#fef3c7; color:#92400e; }
+
+.purchase-shadow-tag { background:#e8f1ff; color:#1d4ed8; }
+
+.purchase-shadow-modal .modal-body { padding-top:18px; }
+
+.purchase-shadow-banner {
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  padding:16px;
+  border:1px solid #bfdbfe;
+  border-radius:10px;
+  background:#eff6ff;
+  margin-bottom:14px;
+}
+
+.purchase-shadow-banner>span { font-size:.7rem; font-weight:900; letter-spacing:.07em; color:#1d4ed8; }
+
+.purchase-shadow-banner p { margin:4px 0 0; color:#475569; }
+
+.purchase-shadow-status { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+
+.purchase-shadow-status>div { padding:13px; border:1px solid #e2e8f0; border-radius:12px; background:var(--surface-raised); }
+
+.purchase-shadow-status small { display:block; color:#657387; margin-bottom:4px; }
+
+.purchase-shadow-actions { margin-top:16px; padding:18px; border-top:1px solid #e2e8f0; text-align:center; }
+
+.purchase-shadow-actions p { margin:8px 0 0; color:#657387; }
+
+.picking-parallel-cut-banner {
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+  margin-bottom:14px;
+  padding:15px 16px;
+  border:1px solid #bfdbfe;
+  border-left:4px solid #2563eb;
+  border-radius:10px;
+  background:#eff6ff;
+}
+
+.picking-parallel-cut-banner>span { font-size:.7rem; font-weight:900; letter-spacing:.08em; color:#1d4ed8; white-space:nowrap; }
+
+.picking-parallel-cut-banner p { margin:5px 0 0; color:#475569; }
+
+.picking-waiting-cuts { padding:24px; text-align:center; border:1px dashed #cbd5e1; border-radius:10px; background:var(--surface-soft); }
+
+.picking-waiting-cuts p { margin:6px 0 0; color:#657387; }
+
+.billing-approved-exception {
+  margin:14px 0;
+  padding:14px 16px;
+  border:1px solid #bbf7d0;
+  border-left:4px solid #16a34a;
+  border-radius:10px;
+  background:#f0fdf4;
+  display:grid;
+  gap:3px;
+}
+
+.billing-approved-exception span { font-size:.7rem; font-weight:900; letter-spacing:.08em; color:#15803d; }
+
+.billing-approved-exception small { color:#4b6353; }
+
+.cutting-approval-warning {
+  margin:12px 0;
+  padding:14px;
+  border:1px solid #fde68a;
+  border-left:4px solid #d97706;
+  border-radius:10px;
+  background:#fffbeb;
+}
+
+.cutting-approval-warning span { display:block; font-size:.7rem; font-weight:900; letter-spacing:.08em; color:#92400e; }
+
+.cutting-approval-warning strong { display:block; margin:3px 0; }
+
+.cutting-approval-warning p { margin:4px 0 10px; color:#66552c; }
+
+.cutting-approval-dialog { padding:14px 16px; margin-bottom:16px; border-radius:10px; background:#fffbeb; border-left:4px solid #d97706; }
+
+.cutting-approval-dialog p { margin:5px 0 0; color:#66552c; }
+
+.support-btn.support-create {
+  position:relative;
+  border-color:#d8ab21;
+  background:linear-gradient(180deg,#f8cf58,#efb824);
+  color:#233249;
+  font-weight:900;
+}
+
+.support-btn.support-create:before {
+  content:"+";
+  width:22px;
+  height:22px;
+  display:grid;
+  place-items:center;
+  border-radius:7px;
+  background:#142d4c;
+  color:#fff;
+  font-family:"Segoe UI",Arial,sans-serif;
+  font-size:16px;
+  line-height:1;
+}
+
+.support-btn.support-create:hover { border-color:#c89613; background:linear-gradient(180deg,#ffd86d,#f2bf32); }
+
+@media (max-width:760px) {
+  .order-support-toolbar { align-items:stretch; }
+  .order-support-actions { display:grid; grid-template-columns:1fr 1fr; width:100%; }
+  .support-btn { justify-content:center; }
+  .support-open-issue { align-items:stretch; flex-direction:column; }
+  .purchase-shadow-status { grid-template-columns:1fr; }
+  .picking-parallel-cut-banner { flex-direction:column; }
+}
+
+.exception-page-head { align-items:flex-end; }
+
+.exception-kicker {
+  display:block;
+  margin-bottom:5px;
+  color:var(--blue-700);
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+}
+
+.exception-summary { margin-bottom:18px; }
+
+.exception-metric { border-top:3px solid #d7e4f4; }
+
+.exception-mode-bar { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-bottom:16px; }
+
+.exception-mode {
+  display:grid;
+  gap:3px;
+  min-height:78px;
+  padding:14px 16px;
+  border:1px solid #d9e2ec;
+  border-radius:10px;
+  background:var(--surface-raised);
+  color:#334155;
+  text-align:left;
+  transition:.16s;
+}
+
+.exception-mode:hover { border-color:#a8c2e7; background:#f7faff; }
+
+.exception-mode.active { border-color:#8db5eb; background:#edf5ff; box-shadow:0 6px 16px rgba(31,87,166,.08); }
+
+.exception-mode strong { font-size:.98rem; color:#163d69; }
+
+.exception-mode span { font-size:.78rem; color:#657387; }
+
+.exception-workspace { padding:18px; }
+
+.exception-toolbar {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:15px;
+  padding-bottom:14px;
+  border-bottom:1px solid var(--line);
+}
+
+.exception-filter-group { display:flex; gap:7px; flex-wrap:wrap; }

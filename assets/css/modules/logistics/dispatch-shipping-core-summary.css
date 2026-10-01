@@ -1,0 +1,51 @@
+@media (max-width:1050px) {
+  .shipping-core-summary-v11107 { grid-template-columns:1fr; }
+  .shipping-core-workspace-v11107 { grid-template-columns:220px minmax(0,1fr); }
+  .shipping-core-v11107 .order-support-actions { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+
+@media (max-width:900px) {
+  .shipping-process-modal.shipping-core-v11107 {
+    width:100vw!important;
+    max-width:100vw!important;
+    height:100dvh!important;
+    max-height:100dvh!important;
+    border-radius:0!important;
+  }
+  .shipping-core-v11107 .shipping-process-head { padding:16px 18px; min-height:82px; }
+  .shipping-core-v11107 .shipping-process-body { padding:14px; }
+  .shipping-core-summary-v11107 { padding:16px; gap:14px; }
+  .shipping-core-facts-v11107 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .shipping-core-workspace-v11107 { grid-template-columns:1fr; }
+  .shipping-core-context-v11107 { position:static; }
+  .shipping-core-progress-v11107 { grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+  .shipping-core-progress-v11107>div {
+    grid-template-columns:1fr;
+    text-align:center;
+    min-height:74px;
+    justify-items:center;
+    padding:8px 5px;
+  }
+  .shipping-core-context-note-v11107 { display:none; }
+  .shipping-core-task-v11107 { padding:18px; min-height:0; }
+  .shipping-core-footer-v11107 {
+    padding:10px max(12px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))!important;
+  }
+  .shipping-core-parallel-v11107 { display:none; }
+  .shipping-core-footer-actions-v11107 { width:100%; display:grid; grid-template-columns:1fr 1fr; }
+  .shipping-core-footer-actions-v11107 .btn { min-width:0; width:100%; min-height:50px; }
+}
+
+@media (max-width:560px) {
+  .shipping-core-summary-main-v11107 { gap:10px; }
+  .shipping-core-route-icon-v11107 { width:42px; height:42px; flex-basis:42px; }
+  .shipping-core-summary-copy-v11107 h4 { font-size:19px; }
+  .shipping-core-facts-v11107 { grid-template-columns:1fr 1fr; }
+  .shipping-core-facts-v11107>div { padding:10px; }
+  .shipping-core-task-head-v11107 { display:block; }
+  .shipping-core-step-badge-v11107 { display:inline-block; margin-bottom:10px; }
+  .shipping-core-destination-v11107 { grid-template-columns:1fr; }
+  .shipping-core-destination-v11107 strong { font-size:15px; }
+  .shipping-core-guide-summary-v11107 { grid-template-columns:1fr; }
+  .shipping-core-v11107 .order-support-actions { grid-template-columns:1fr; }
+}

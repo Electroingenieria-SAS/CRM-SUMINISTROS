@@ -1,10 +1,11 @@
+import {readCssSource} from "./tests/read-css-source.mjs";
 import {readDomainSource} from "./tests/read-domain-source.mjs";
 import fs from "node:fs";
 import assert from "node:assert/strict";
 
 const wrapper=fs.readFileSync(new URL("../assets/js/domains/paco/index.js",import.meta.url),"utf8");
 const engine=readDomainSource("paco","assets/js/domains/paco/index.js");
-const css=fs.readFileSync(new URL("../assets/runtime-css/paco-operational-v11370.css",import.meta.url),"utf8");
+const css=readCssSource(new URL("../assets/runtime-css/paco-operational-v11370.css",import.meta.url));
 const language=readDomainSource("paco/language","assets/js/domains/paco/language/index.js");
 
 assert.match(wrapper,/export\s*\{\s*installPacoAssistant\s*\}\s*from "\.\/controller\.js";/);

@@ -1,3 +1,4 @@
+import {readCssSource} from "./tests/read-css-source.mjs";
 import fs from "node:fs";
 import assert from "node:assert/strict";
 import {
@@ -111,7 +112,7 @@ for(const token of ["'calendar'","work_calendar_segments","erp_supply.holidays",
   assert.equal(sql.includes(token),true,`La migración debe contener: ${token}`);
 }
 
-const css=fs.readFileSync(new URL("../assets/css/core-shell.css",import.meta.url),"utf8");
+const css=readCssSource(new URL("../assets/css/core-shell.css",import.meta.url));
 for(const token of [".work-day-timeline-head",".work-person-state.busy",".work-week-grid-v11330",".work-month-grid-v11330",".work-assignment-card-v11330"]){
   assert.equal(css.includes(token),true,`La capa visual del cronograma debe definir: ${token}`);
 }

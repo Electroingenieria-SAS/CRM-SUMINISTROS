@@ -1,0 +1,280 @@
+.work-nonworking-day {
+  min-height:220px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  padding:28px;
+  text-align:left;
+  border:1px dashed #d8e2ec;
+  background:linear-gradient(180deg,#fbfcfe,#f7f9fc);
+}
+
+.work-nonworking-day>span {
+  width:44px;
+  height:44px;
+  display:grid;
+  place-items:center;
+  border-radius:14px;
+  background:#edf3f8;
+  color:#66829b;
+  font-size:20px;
+}
+
+.work-nonworking-day strong { display:block; color:#244968; font-size:14px; }
+
+.work-nonworking-day p { margin:4px 0 0; color:#7a8b9d; font-size:10px; }
+
+/* Día laboral */
+
+.work-day-board { overflow:auto; border:1px solid #dce6ef; border-radius:14px; background:#fff; box-shadow:0 8px 24px rgba(23,57,91,.05); }
+
+.work-day-timeline-head {
+  min-width:1040px;
+  display:grid;
+  grid-template-columns:220px minmax(0,1fr);
+  position:sticky;
+  top:0;
+  z-index:4;
+  border-bottom:1px solid #dce6ef;
+  background:rgba(249,252,255,.97);
+  backdrop-filter:blur(9px);
+}
+
+.work-day-team-label { padding:13px 14px; border-right:1px solid #e0e8f0; display:grid; gap:2px; }
+
+.work-day-team-label strong { color:#244966; font-size:10px; text-transform:uppercase; letter-spacing:.08em; }
+
+.work-day-team-label span { color:#8896a5; font-size:8.5px; }
+
+.work-day-segments-head,.work-day-segments { display:grid; grid-template-columns:300fr 230fr; min-width:0; }
+
+.work-day-segment-head { position:relative; min-height:58px; padding:10px 12px; border-right:1px solid #e4ebf2; }
+
+.work-day-segment-head:last-child { border-right:0; }
+
+.work-day-segment-head>div:first-child { display:flex; align-items:baseline; gap:4px; }
+
+.work-day-segment-head strong { color:#24527c; font-size:10px; font-variant-numeric:tabular-nums; }
+
+.work-day-segment-head span { color:#8191a2; font-size:9px; }
+
+.work-day-hour-marks { position:absolute; inset:auto 12px 5px 12px; height:16px; }
+
+.work-day-hour-marks span {
+  position:absolute;
+  transform:translateX(-50%);
+  color:#9aa7b4;
+  font-size:7.5px;
+  font-variant-numeric:tabular-nums;
+}
+
+.work-day-rows { min-width:1040px; }
+
+.work-day-person-row { display:grid; grid-template-columns:220px minmax(0,1fr); min-height:78px; border-bottom:1px solid #edf1f5; }
+
+.work-day-person-row:last-child { border-bottom:0; }
+
+.work-day-person {
+  position:sticky;
+  left:0;
+  z-index:3;
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr);
+  gap:9px;
+  align-items:center;
+  padding:11px 12px;
+  border-right:1px solid #e0e8f0;
+  background:#fbfdff;
+}
+
+.work-day-person .avatar { width:38px; height:38px; box-shadow:0 3px 10px rgba(24,61,102,.08); }
+
+.work-day-segment-cell {
+  position:relative;
+  min-height:78px;
+  border-right:1px solid #edf1f5;
+  background:
+  linear-gradient(to right,rgba(35,83,126,.045) 1px,transparent 1px);
+  background-size:20% 100%;
+}
+
+.work-day-segment-cell:nth-child(2) { border-right:0; background-size:25% 100%; }
+
+.work-day-task {
+  position:absolute;
+  min-width:82px;
+  max-width:calc(100% - 8px);
+  height:27px;
+  padding:4px 24px 4px 7px;
+  border:1px solid #bfd8ee;
+  border-left:4px solid #3479b9;
+  border-radius:8px;
+  background:#eef6fd;
+  color:#184d79;
+  box-shadow:0 3px 10px rgba(23,76,122,.08);
+  overflow:hidden;
+  transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease;
+}
+
+.work-day-task:hover { z-index:7; transform:translateY(-1px); box-shadow:0 8px 18px rgba(23,76,122,.13); }
+
+.work-day-task>span { display:block; font-size:7.5px; font-weight:850; line-height:1; color:#5681a5; font-variant-numeric:tabular-nums; }
+
+.work-day-task>strong {
+  display:block;
+  margin-top:2px;
+  font-size:9px;
+  line-height:1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.work-day-task>small { display:none; }
+
+.work-day-task>button {
+  position:absolute;
+  right:4px;
+  top:4px;
+  width:18px;
+  height:18px;
+  display:grid;
+  place-items:center;
+  border:0;
+  border-radius:5px;
+  background:rgba(255,255,255,.72);
+  color:inherit;
+  font-size:12px;
+  cursor:pointer;
+}
+
+.work-day-task.deliverable { border-color:#d8ccef; border-left-color:#7658b2; background:#f5f1fc; color:#62479c; }
+
+.work-day-floating {
+  grid-column:1/-1;
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+  padding:5px 8px;
+  border-top:1px dashed #e0e7ee;
+  background:#fafcfe;
+}
+
+.work-floating-assignment {
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:4px 7px;
+  border-radius:7px;
+  background:#eef5fb;
+  color:#365f84;
+  font-size:8px;
+}
+
+.work-floating-assignment small { opacity:.72; }
+
+/* Semana laboral */
+
+.work-week-grid-v11330 { min-width:1120px; display:grid; grid-template-columns:220px repeat(5,minmax(160px,1fr)); align-items:stretch; }
+
+.work-week-grid-v11330>.work-week-corner { padding:12px 13px; display:grid; gap:2px; background:#f7fafd; }
+
+.work-week-grid-v11330>.work-week-corner strong { font-size:9.5px; color:#58728d; text-transform:uppercase; letter-spacing:.08em; }
+
+.work-week-grid-v11330>.work-week-corner span { font-size:8px; color:#96a2af; text-transform:none; }
+
+.work-week-grid-v11330>.work-week-day {
+  min-height:52px;
+  padding:9px 10px;
+  border:0;
+  border-left:1px solid #e2e9f0;
+  border-bottom:1px solid #dfe7ef;
+  background:#f7fafd;
+  transition:background .15s ease,box-shadow .15s ease;
+}
+
+.work-week-grid-v11330>.work-week-day:hover:not(:disabled) { background:#eef6fd; box-shadow:inset 0 -2px 0 #4e91ca; }
+
+.work-week-grid-v11330>.work-week-day.today { background:#edf6ff; box-shadow:inset 0 -3px 0 #2d79b9; }
+
+.work-week-grid-v11330>.work-week-day.holiday { cursor:not-allowed; background:#f5f6f8; color:#9aa4ae; }
+
+.work-week-grid-v11330>.work-week-day small { display:block; margin-top:3px; color:#a0732a; font-size:7.5px; line-height:1.2; }
+
+.work-week-person-v11330 {
+  min-height:104px;
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr);
+  gap:9px;
+  align-content:center;
+  align-items:center;
+  padding:11px 12px;
+  border-right:1px solid #e1e8ef;
+  border-bottom:1px solid #e7edf3;
+  background:#fbfdff;
+}
+
+.work-week-person-v11330 .avatar { width:38px; height:38px; }
+
+.work-week-cell-v11330 {
+  min-height:104px;
+  padding:7px;
+  border-right:1px solid #e8edf2;
+  border-bottom:1px solid #e8edf2;
+  background:#fff;
+  display:grid;
+  align-content:start;
+  gap:6px;
+}
+
+.work-week-cell-v11330.today { background:#f8fbff; }
+
+.work-week-cell-v11330.holiday {
+  place-items:center;
+  background:repeating-linear-gradient(135deg,#fafbfc,#fafbfc 8px,#f5f7f9 8px,#f5f7f9 16px);
+}
+
+.work-holiday-lock {
+  padding:5px 8px;
+  border:1px solid #e0d2ad;
+  border-radius:999px;
+  background:#fff8e8;
+  color:#98701f;
+  font-size:8px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+
+.work-cell-empty-v11330 { display:flex; align-items:center; gap:5px; padding:7px 5px; color:#a1acb8; font-size:8.5px; }
+
+.work-cell-empty-v11330:before { content:""; width:6px; height:6px; border-radius:50%; background:#c8d2db; }
+
+.work-assignment-card-v11330 {
+  position:relative;
+  padding:8px 24px 8px 9px;
+  border:1px solid #d3e2ef;
+  border-left:4px solid #3d7db6;
+  border-radius:9px;
+  background:#f2f7fc;
+  color:#214f79;
+  box-shadow:0 3px 10px rgba(21,65,105,.045);
+  transition:transform .14s ease,box-shadow .14s ease;
+}
+
+.work-assignment-card-v11330:hover { transform:translateY(-1px); box-shadow:0 7px 14px rgba(21,65,105,.08); }
+
+.work-assignment-card-head { display:flex; align-items:center; justify-content:space-between; gap:5px; margin-bottom:3px; }
+
+.work-assignment-card-head>span { font-size:7.5px; font-weight:900; color:#5f84a5; font-variant-numeric:tabular-nums; }
+
+.work-assignment-card-head>em {
+  padding:2px 5px;
+  border-radius:999px;
+  background:rgba(255,255,255,.72);
+  font-size:7px;
+  font-style:normal;
+  font-weight:900;
+  white-space:nowrap;
+}

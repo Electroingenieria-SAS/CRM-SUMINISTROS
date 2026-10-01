@@ -1,0 +1,174 @@
+#modal-root .billing-upload-v1199 .billing-file-icon-v1199 {
+  width:46px;
+  height:46px;
+  display:grid;
+  place-items:center;
+  border-radius:12px;
+  background:#daf4e5;
+  color:#0d8752;
+  font-size:10px;
+  font-weight:900;
+}
+
+#modal-root .billing-upload-v1199 .has-error .billing-file-icon-v1199 { background:#fde6e8; color:#b7283a; }
+
+#modal-root .billing-upload-v1199 .billing-file-copy-v1199 { min-width:0; display:grid; gap:3px; }
+
+#modal-root .billing-upload-v1199 .billing-file-copy-v1199 strong {
+  overflow:hidden;
+  color:#153c62;
+  font-size:12.5px;
+  line-height:1.3;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+#modal-root .billing-upload-v1199 .billing-file-copy-v1199 span { color:#6d8297; font-size:10px; line-height:1.35; }
+
+#modal-root .billing-upload-v1199 .billing-file-remove-v1199 {
+  min-height:36px;
+  padding:7px 10px;
+  border:1px solid #c6d9e8;
+  border-radius:9px;
+  background:#fff;
+  color:#315a7e;
+  font:inherit;
+  font-size:10px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+#modal-root .billing-upload-v1199 .billing-file-remove-v1199:hover { background:#edf6fd; }
+
+/* Tres respuestas rápidas a “qué hará el CRM”. */
+
+#modal-root .billing-upload-v1199 .billing-upload-auto-v1199 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+
+#modal-root .billing-upload-v1199 .billing-upload-auto-v1199>div {
+  min-width:0;
+  display:grid;
+  grid-template-columns:30px minmax(0,1fr);
+  gap:8px;
+  align-items:center;
+  min-height:58px;
+  padding:9px 10px;
+  border:1px solid #dde7ef;
+  border-radius:11px;
+  background:#fff;
+}
+
+#modal-root .billing-upload-v1199 .billing-upload-auto-v1199 b {
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border-radius:9px;
+  background:#edf5fc;
+  color:#1764a8;
+  font-size:13px;
+}
+
+#modal-root .billing-upload-v1199 .billing-upload-auto-v1199 span { min-width:0; color:#60768b; font-size:9.5px; line-height:1.3; }
+
+#modal-root .billing-upload-v1199 .billing-upload-auto-v1199 strong { display:block; margin-bottom:1px; color:#274a6b; font-size:10.5px; }
+
+#modal-root .billing-upload-v1199 .modal-foot {
+  min-height:76px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:10px!important;
+  padding:12px 18px!important;
+  background:#fff!important;
+  border-top:1px solid #dce7f0!important;
+}
+
+#modal-root .billing-upload-v1199 .modal-foot:before {
+  content:"El archivo se guardará únicamente al confirmar";
+  margin-right:auto;
+  color:#74879a;
+  font-size:9.5px;
+  line-height:1.3;
+}
+
+#modal-root .billing-upload-v1199 .modal-foot .btn {
+  min-width:130px;
+  min-height:50px!important;
+  padding:10px 18px!important;
+  border-radius:11px!important;
+  font-size:11.5px!important;
+  font-weight:900!important;
+}
+
+#modal-root .billing-upload-v1199 .modal-foot [data-confirm] {
+  min-width:174px;
+  box-shadow:0 8px 18px rgba(10,102,194,.2),inset 0 1px 0 rgba(255,255,255,.25);
+}
+
+#modal-root .billing-upload-v1199 .modal-foot [data-confirm]:disabled { opacity:.48; box-shadow:none; cursor:not-allowed; }
+
+@media (max-width:760px) {
+  #modal-root .modal.billing-upload-dialog-v1198.billing-upload-v1199 {
+    width:calc(100vw - 18px)!important;
+    max-width:none!important;
+    max-height:calc(100dvh - 18px)!important;
+    border-radius:16px!important;
+  }
+  #modal-root .billing-upload-v1199 .modal-head { min-height:86px!important; padding:15px 14px 14px 17px!important; }
+  #modal-root .billing-upload-v1199 .modal-title-group { padding-left:46px; }
+  #modal-root .billing-upload-v1199 .modal-title-group:before,
+  #modal-root .billing-upload-v1199 .modal-title-group:after {
+    width:36px;
+    height:36px;
+  }
+  #modal-root .billing-upload-v1199 .modal-head h3 { font-size:20px!important; }
+  #modal-root .billing-upload-v1199 .modal-body { padding:14px!important; gap:12px!important; }
+  #modal-root .billing-upload-v1199 .billing-dropzone-v1199 { min-height:190px; padding:22px 15px; }
+  #modal-root .billing-upload-v1199 .billing-upload-auto-v1199 { grid-template-columns:1fr; }
+  #modal-root .billing-upload-v1199 .billing-file-state-v1199.has-file,
+  #modal-root .billing-upload-v1199 .billing-file-state-v1199.has-error {
+    grid-template-columns:44px minmax(0,1fr);
+  }
+  #modal-root .billing-upload-v1199 .billing-file-remove-v1199 { grid-column:1/-1; width:100%; }
+  #modal-root .billing-upload-v1199 .modal-foot {
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    padding:10px 12px calc(10px + env(safe-area-inset-bottom))!important;
+  }
+  #modal-root .billing-upload-v1199 .modal-foot:before { grid-column:1/-1; margin:0; text-align:center; }
+  #modal-root .billing-upload-v1199 .modal-foot .btn { width:100%; min-width:0; min-height:50px!important; }
+}
+
+@media (max-width:430px) {
+  #modal-root .modal.billing-upload-dialog-v1198.billing-upload-v1199 {
+    width:100%!important;
+    height:calc(100dvh - max(8px,env(safe-area-inset-top)) - max(8px,env(safe-area-inset-bottom)))!important;
+    max-height:none!important;
+    border-radius:14px!important;
+  }
+  #modal-root .billing-upload-v1199 .modal-head { padding-top:calc(14px + env(safe-area-inset-top))!important; }
+  #modal-root .billing-upload-v1199 .modal-body { flex:1 1 auto!important; min-height:0!important; }
+  #modal-root .billing-upload-v1199 .billing-upload-note {
+    grid-template-columns:40px minmax(0,1fr)!important;
+    padding:11px!important;
+    gap:3px 10px!important;
+  }
+  #modal-root .billing-upload-v1199 .billing-upload-note:before { width:38px!important; height:38px!important; }
+  #modal-root .billing-upload-v1199 .billing-upload-note:after {
+    left:11px!important;
+    top:11px!important;
+    width:38px!important;
+    height:38px!important;
+    font-size:8px!important;
+  }
+  #modal-root .billing-upload-v1199 .billing-dropzone-v1199 strong { font-size:16.5px; }
+  #modal-root .billing-upload-v1199 .billing-dropzone-v1199 p { font-size:10.5px; }
+  #modal-root .billing-upload-v1199 .modal-foot { grid-template-columns:1fr!important; }
+  #modal-root .billing-upload-v1199 .modal-foot [data-confirm] { grid-row:1; }
+  #modal-root .billing-upload-v1199 .modal-foot [data-close] { grid-row:2; }
+  #modal-root .billing-upload-v1199 .modal-foot:before { grid-row:3; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  #modal-root .billing-upload-v1199 .billing-dropzone-v1199 { transition:none!important; }
+}

@@ -67,3 +67,16 @@ No se ejercitaron sesiones de usuarios reales ni se cambiaron planes.
   Enlace: 256 archivos, 0 imports rotos y 0 módulos huérfanos.
 - Siguiente bloque: CSS. Se conservará el orden original de reglas y la cascada;
   el smoke visual y responsive real queda asignado al auxiliar sobre este PR.
+
+- CSS: cuatro familias críticas y cuatro capas Workforce/PACO divididas por
+  responsabilidad. Las entradas conservan exclusivamente imports ordenados.
+  162 archivos de estilos, máximo 281 líneas. No se quitaron `!important`
+  sin evidencia visual; selectores y declaraciones permanecen equivalentes.
+- Comparación AST original/composición: mismos 8.778 registros de reglas,
+  condiciones, declaraciones y recursos resueltos, en el mismo orden.
+  Huellas registradas en `css-cascade-equivalence-20261001.json`.
+  Ocho contratos afectados y prueba de composición/recursos verdes.
+- Auxiliar: smoke visual del PR #94 en Orders, Jornada, cronograma Día/Semana/Mes,
+  indicadores y PACO; desktop, iPhone/WebKit, tablet, 1024 px y landscape.
+  Confirmar scroll horizontal, teclado/foco, zoom 200 % y reduced motion.
+  No se certifica responsive basándose únicamente en DOM o igualdad CSS.

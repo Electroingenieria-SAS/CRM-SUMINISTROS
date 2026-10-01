@@ -1,0 +1,15 @@
+.toast {
+  padding:12px 14px;
+  border:1px solid #83c9a9;
+  border-left:5px solid #0d7a53;
+  border-radius:10px;
+  background:#f5fcf8;
+  color:#0b6745;
+  font-size:9.5px;
+  font-weight:800;
+  box-shadow:var(--shadow-md);
+}
+
+.toast.error { border-color:#e4a8b2; border-left-color:#b5263b; background:#fff7f8; color:#a21f31; }
+
+.toast.warning { border-color:#e5bd82; border-left-color:#d4640d; background:#fffaf1; color:#8e4c09; }

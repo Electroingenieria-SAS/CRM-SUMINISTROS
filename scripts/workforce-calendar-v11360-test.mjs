@@ -1,3 +1,4 @@
+import {readCssSource} from "./tests/read-css-source.mjs";
 import {readDomainSource} from "./tests/read-domain-source.mjs";
 import fs from "node:fs";
 import assert from "node:assert/strict";
@@ -164,7 +165,7 @@ for(const token of [
   assert.equal(workforce.includes(token),true,`Workforce debe integrar ${token}`);
 }
 
-const css=fs.readFileSync(new URL("../assets/runtime-css/workforce-calendar-v11360.css",import.meta.url),"utf8");
+const css=readCssSource(new URL("../assets/runtime-css/workforce-calendar-v11360.css",import.meta.url));
 
 for(const token of [
   "work-calendar-day-table-v11368",
