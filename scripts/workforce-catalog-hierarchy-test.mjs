@@ -1,3 +1,4 @@
+import {readDomainSource} from "./tests/read-domain-source.mjs";
 import fs from "node:fs";
 import assert from "node:assert/strict";
 import {
@@ -7,7 +8,7 @@ import {
   subcategoryStageHtml,
   activityStageHtml,
   selectedActivityHtml
-} from "../assets/js/modules/workforce-catalog-v11343.js";
+} from "../assets/js/domains/workforce/catalog/index.js";
 
 const catalog=[
   {id:"1",name:"Organización de mercancía",activityKind:"ACTIVITY",uiCategory:"ALISTAMIENTO",uiCategoryLabel:"Alistamiento",uiSubcategory:"Organización de zona de trabajo"},
@@ -42,7 +43,7 @@ for(const token of ["Organización de mercancía","Alistamiento","Organización 
   assert.equal(selected.includes(token),true,`La confirmación debe contener: ${token}`);
 }
 
-const workforce=fs.readFileSync(new URL("../assets/js/modules/workforce.js",import.meta.url),"utf8");
+const workforce=readDomainSource("workforce","assets/js/modules/workforce.js");
 assert.equal(workforce.includes("data-work-start-confirmed"),true,"workforce debe iniciar solo desde confirmación explícita");
 assert.equal(workforce.includes("data-start-catalog"),false,"workforce no debe conservar inicio directo por click/touch");
 for(const token of ["work-active-console","work-timer-face","work-timer-traffic","workday-traffic-legend","renderSubcategories","renderActivities"]){

@@ -1,12 +1,13 @@
+import {readDomainSource} from "./tests/read-domain-source.mjs";
 import fs from "node:fs";
 import assert from "node:assert/strict";
 import {
   createWorkEvidenceManager,
   collectPreviewRefs
-} from "../assets/js/modules/workforce-evidence-manager-v11360.js";
+} from "../assets/js/domains/workforce/evidence/index.js";
 import {
   renderWorkforceCalendarBoard
-} from "../assets/js/modules/workforce-calendar-v11360.js";
+} from "../assets/js/domains/workforce/calendar/index.js";
 
 let transportCalls=0;
 let releaseTransport;
@@ -153,7 +154,7 @@ for(const token of [
 assert.equal(/create\s+table/i.test(migration),false,"V11.36.0 no debe crear tablas.");
 assert.equal(/create\s+(unique\s+)?index/i.test(migration),false,"V11.36.0 no debe crear índices.");
 
-const workforce=fs.readFileSync(new URL("../assets/js/modules/workforce.js",import.meta.url),"utf8");
+const workforce=readDomainSource("workforce","assets/js/modules/workforce.js");
 for(const token of [
   "createWorkEvidenceManager",
   "renderWorkforceCalendarBoard",
@@ -197,7 +198,7 @@ for(const token of [
   assert.equal(css.includes(token),true,`CSS calendario debe conservar ${token}`);
 }
 
-const calendarModule=fs.readFileSync(new URL("../assets/js/modules/workforce-calendar-v11360.js",import.meta.url),"utf8");
+const calendarModule=readDomainSource("workforce/calendar","assets/js/domains/workforce/calendar/index.js");
 for(const token of [
   "dblclick",
   "showCalendarCloud",
@@ -228,9 +229,14 @@ for(const token of [
 }
 
 
+const {renderPlannerShell}=await import('../assets/js/domains/workforce/planner/planner-shell.js');
+const shellContent={innerHTML:''};
+renderPlannerShell({content:shellContent,subtitle:'Semana laboral',canPlanTeam:false,canViewTeam:false,
+  data:{people:[]},timeline:[],plannerData:{people:[],assignments:[]},calendar,
+  activeFilterCount:()=>0,filterWorkerName:()=> 'Todos',selectedWorker:()=>null});
 assert.equal(
-  workforce.indexOf('work-calendar-filterbox-v11362')>workforce.indexOf('work-planner-actions') &&
-  workforce.indexOf('work-calendar-filterbox-v11362')<workforce.indexOf('work-planner-context-strip'),
+  shellContent.innerHTML.indexOf('work-calendar-filterbox-v11362')>shellContent.innerHTML.indexOf('work-planner-actions') &&
+  shellContent.innerHTML.indexOf('work-calendar-filterbox-v11362')<shellContent.innerHTML.indexOf('work-planner-context-strip'),
   true,
   "Filtros deben vivir dentro de la barra del planificador y no ocupar una fila independiente."
 );

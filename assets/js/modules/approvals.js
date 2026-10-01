@@ -4,8 +4,8 @@ import {empty,loading,wizard,toast,guide,modal} from "../core/ui.js";
 import {summaryItem} from "../core/guided.js";
 import {state} from "../core/state.js";
 import {openOrder} from "./orders.js";
-import {timeReviewDialogHtml,durationText} from "./workforce-time-review-v11340.js";
-import {ensureWorkforceExperienceStyles} from "./workforce-experience-v11344.js";
+import {timeReviewDialogHtml,durationText} from "../domains/workforce/analytics/time-review.js";
+import {ensureWorkforceExperienceStyles} from "../domains/workforce/today/experience-styles.js";
 
 let activeMode="CENTER";
 let activeState="OPEN";

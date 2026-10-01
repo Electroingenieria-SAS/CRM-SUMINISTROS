@@ -5,7 +5,7 @@ import {
   timeReviewCardHtml,
   timeReviewDialogHtml,
   recentTimeReviewHtml
-} from "../assets/js/modules/workforce-time-review-v11340.js";
+} from "../assets/js/domains/workforce/analytics/time-review.js";
 
 const row={
   executionId:"exec-1",

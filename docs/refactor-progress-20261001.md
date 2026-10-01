@@ -45,3 +45,16 @@ No se ejercitaron sesiones de usuarios reales ni se cambiaron planes.
   0 módulos huérfanos. Verificación visual del dominio en curso.
 - Próximo bloque: Workforce, después PACO y CSS. Ledger e infraestructura
   permanecen asignados al auxiliar.
+
+- Workforce: jornada, catálogo, cronograma, calendario, timeline, evidencias,
+  capacidad, asignación e indicadores extraídos. Ocho entradas JS versionadas
+  eliminadas después de redirigir y comprobar consumidores. Archivo máximo: 161 líneas.
+- Fallo reproducido y corregido: Actualizar jornada pasaba `true` como datos de
+  `renderToday`, omitiendo el API. Prueba DOM RED (1 llamada) → GREEN (2 llamadas).
+  Añadida regresión de navegador en `tests/domain-refactor.spec.js`.
+- Nueve contratos Workforce verdes. DOM de cronograma, filtros dentro de acciones,
+  modo Día e indicadores verde. Enlace: 228 archivos, 0 rotos/huérfanos.
+- Los contratos de texto ahora leen los módulos canónicos y el orden de filtros
+  se comprueba sobre el HTML compuesto, conservando las mismas exigencias.
+- La instalación del navegador local no obtuvo un ZIP válido. No se insiste.
+  Auxiliar: ejecutar smoke Playwright del PR, incluido `tests/domain-refactor.spec.js`.

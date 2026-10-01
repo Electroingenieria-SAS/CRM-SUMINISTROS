@@ -7,7 +7,7 @@ import {
   nextBusinessAnchor,
   renderPlannerBoard,
   assignmentDetailHtml
-} from "../assets/js/modules/workforce-planner-v11330.js";
+} from "../assets/js/domains/workforce/planner/index.js";
 
 const calendar=normalizePlannerCalendar({
   segments:[

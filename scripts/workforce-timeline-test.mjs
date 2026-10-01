@@ -1,9 +1,10 @@
+import {readDomainSource} from "./tests/read-domain-source.mjs";
 import fs from "node:fs";
 import assert from "node:assert/strict";
 import {
   composePlannerTimeline,
   timelineDetailRequest
-} from "../assets/js/modules/workforce-timeline-v11350.js";
+} from "../assets/js/domains/workforce/timeline/index.js";
 
 const assignment={
   id:"a1",
@@ -110,7 +111,7 @@ assert.equal(drive.includes("buildWorkEvidencePreview"),false,"El navegador no d
 assert.equal(drive.includes("metadata: preview"),false,"No se deben persistir previews Base64 en metadata.");
 
 
-const timelineUi=fs.readFileSync(new URL("../assets/js/modules/workforce-timeline-v11350.js",import.meta.url),"utf8");
+const timelineUi=readDomainSource("workforce/timeline","assets/js/domains/workforce/timeline/index.js");
 assert.equal(timelineUi.includes("bindEvidenceGallery(layer,resolvedDetail,loadPreview,firstPreviewPromise)"),true,"La tarjeta debe reutilizar un preview ya iniciado cuando exista.");
 assert.equal(timelineUi.includes("work-timeline-preview-btn-v11351"),true,"La evidencia debe usar el botón visual V11.35.1.");
 const timelineCss=fs.readFileSync(new URL("../assets/runtime-css/workforce-timeline-v11350.css",import.meta.url),"utf8");
@@ -121,7 +122,7 @@ assert.equal(timelineCss.includes(".work-timeline-photo-loader-v11350[hidden]{di
 assert.equal(timelineCss.includes("@media(hover:hover) and (pointer:fine)"),true,"El hover debe ser solo una mejora opcional para puntero fino.");
 assert.equal(drive.includes("PREVIEW_TIMEOUT_MS = 30000"),true,"La vista previa debe fallar rápido si el bridge no responde.");
 
-const workforce=fs.readFileSync(new URL("../assets/js/modules/workforce.js",import.meta.url),"utf8");
+const workforce=readDomainSource("workforce","assets/js/modules/workforce.js");
 for(const token of [
   "composePlannerTimeline",
   "createWorkEvidenceManager",
@@ -132,7 +133,7 @@ for(const token of [
 ]){
   assert.equal(workforce.includes(token),true,`Integración cronograma debe conservar: ${token}`);
 }
-assert.equal(workforce.includes("detailCache=new Map()"),false,"El caché de detalle no debe volver a dispersarse dentro de workforce.js.");
+assert.equal(readDomainSource("workforce/planner","assets/js/modules/workforce.js").includes("detailCache=new Map()"),false,"El planificador debe delegar el caché de detalle al calendario y timeline.");
 assert.equal(workforce.includes("prefetchWorkEvidencePreview"),false,"Workforce no debe administrar el transporte de precarga directamente.");
 
 const appsScript=fs.readFileSync(new URL("../google-apps-script/Code.gs",import.meta.url),"utf8");

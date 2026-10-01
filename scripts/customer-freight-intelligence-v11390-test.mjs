@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const orders=readDomainSource("orders","assets/js/modules/orders.js");
-const workforce=fs.readFileSync(new URL("../assets/js/modules/workforce.js",import.meta.url),"utf8");
+const workforce=readDomainSource("workforce","assets/js/modules/workforce.js");
 const operational=fs.readFileSync(new URL("../assets/js/modules/operational-v112.js",import.meta.url),"utf8");
 const api=fs.readFileSync(new URL("../assets/js/services/api.js",import.meta.url),"utf8");
 const migration=fs.readFileSync(new URL("../supabase/migrations/125_customer_freight_intelligence_v11_39_0.sql",import.meta.url),"utf8");

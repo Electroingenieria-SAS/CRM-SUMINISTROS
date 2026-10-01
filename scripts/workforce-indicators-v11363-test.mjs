@@ -1,7 +1,8 @@
+import {readDomainSource} from "./tests/read-domain-source.mjs";
 import fs from "node:fs";
 import assert from "node:assert/strict";
 
-const workforce=fs.readFileSync(new URL("../assets/js/modules/workforce.js",import.meta.url),"utf8");
+const workforce=readDomainSource("workforce","assets/js/modules/workforce.js");
 const css=fs.readFileSync(new URL("../assets/css/analytics.css",import.meta.url),"utf8");
 
 for(const token of [
@@ -9,7 +10,7 @@ for(const token of [
   "work-indicator-ring-v11363",
   "work-indicator-filter-v11363",
   "work-indicator-metrics-v11363",
-  "analyticsBalance(summary)",
+  "analyticsBalance(analytics.summary)",
   "work-indicator-layout-v11363",
   "work-indicator-method-v11363",
   "work-indicator-section-v11383",

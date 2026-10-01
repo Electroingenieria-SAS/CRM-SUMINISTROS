@@ -1,3 +1,4 @@
+import {readDomainSource} from "./tests/read-domain-source.mjs";
 import fs from "node:fs";
 import assert from "node:assert/strict";
 
@@ -21,7 +22,7 @@ assert.equal(css.includes("font-size:7px"),false,"La nueva capa Workforce no deb
 assert.equal(css.includes("font-size:8px"),false,"La nueva capa Workforce no debe usar texto de 8px");
 assert.equal(css.includes("font-size:9px"),false,"La nueva capa Workforce no debe usar texto de 9px");
 
-const workforce=fs.readFileSync(new URL("../assets/js/modules/workforce.js",import.meta.url),"utf8");
+const workforce=readDomainSource("workforce","assets/js/modules/workforce.js");
 assert.equal(workforce.includes("ensureWorkforceExperienceStyles"),true,"Mi jornada debe cargar su capa visual aislada");
 assert.equal(workforce.includes("workday-no-schedule"),true,"Estado sin programación debe ser compacto, no una tarjeta vacía grande");
 

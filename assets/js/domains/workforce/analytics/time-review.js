@@ -1,4 +1,4 @@
-import {fmt} from "../core/format.js";
+import { fmt } from "../../../core/format.js";
 
 export function managerQueueSummary(rows=[]){
   const list=Array.isArray(rows)?rows:[];
@@ -84,14 +84,14 @@ export function durationText(seconds=0){
   return `${s} s`;
 }
 
-function finalPhoto(row){
+export function finalPhoto(row){
   const evidence=Array.isArray(row?.evidence)?row.evidence:[];
   return evidence.find(item=>["FINAL_PHOTO","AFTER_PHOTO"].includes(String(item?.type||"").toUpperCase()))
     ||evidence.find(item=>Boolean(item?.webViewLink))
     ||null;
 }
 
-function dateRange(start,end){
+export function dateRange(start,end){
   if(!start)return "Sin horario registrado";
   return end?`${fmt.date(start)} → ${fmt.date(end)}`:fmt.date(start);
 }

@@ -1,6 +1,7 @@
+import {readDomainSource} from "./tests/read-domain-source.mjs";
 import fs from "node:fs";
 import assert from "node:assert/strict";
-import {timeTrafficLight,finalEvidenceType} from "../assets/js/modules/workforce-today-v11340.js";
+import {timeTrafficLight,finalEvidenceType} from "../assets/js/domains/workforce/today/time-traffic.js";
 
 assert.deepEqual(timeTrafficLight(0),{tone:"green",label:"Tiempo normal",review:false});
 assert.deepEqual(timeTrafficLight(44*60+59),{tone:"green",label:"Tiempo normal",review:false});
@@ -11,7 +12,7 @@ assert.equal(finalEvidenceType("BEFORE_AFTER"),"AFTER_PHOTO");
 assert.equal(finalEvidenceType("NONE"),"FINAL_PHOTO");
 assert.equal(finalEvidenceType("FINAL_PHOTO"),"FINAL_PHOTO");
 
-const workforce=fs.readFileSync(new URL("../assets/js/modules/workforce.js",import.meta.url),"utf8");
+const workforce=readDomainSource("workforce","assets/js/modules/workforce.js");
 for(const token of [
   "workday-guide",
   "workday-step",
@@ -25,7 +26,7 @@ for(const token of [
   "Foto final obligatoria",
   "data-time-traffic",
   "Pendiente de revisión",
-  "workforce-today-v11340.js"
+  "time-traffic.js"
 ]){
   assert.equal(workforce.includes(token),true,`Mi jornada debe contener: ${token}`);
 }
