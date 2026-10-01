@@ -143,22 +143,22 @@ jobs:
             grep -q "./assets/css/${css}.css" service-worker.js
           done
 
-          test -s "assets/js/modules/workforce-experience-v11344.js"
-          grep -q "./assets/js/modules/workforce-experience-v11344.js" service-worker.js
-          test -s "assets/js/modules/workforce-timeline-v11350.js"
-          grep -q "./assets/js/modules/workforce-timeline-v11350.js" service-worker.js
-          test -s "assets/js/modules/workforce-calendar-v11360.js"
-          test -s "assets/js/modules/workforce-evidence-manager-v11360.js"
-          grep -q "./assets/js/modules/workforce-calendar-v11360.js" service-worker.js
-          grep -q "./assets/js/modules/workforce-evidence-manager-v11360.js" service-worker.js
+          test -s "assets/js/domains/workforce/today/experience-styles.js"
+          grep -q "./assets/js/domains/workforce/today/experience-styles.js" service-worker.js
+          test -s "assets/js/domains/workforce/timeline/index.js"
+          grep -q "./assets/js/domains/workforce/timeline/index.js" service-worker.js
+          test -s "assets/js/domains/workforce/calendar/index.js"
+          test -s "assets/js/domains/workforce/evidence/index.js"
+          grep -q "./assets/js/domains/workforce/calendar/index.js" service-worker.js
+          grep -q "./assets/js/domains/workforce/evidence/index.js" service-worker.js
 
-          test -s "assets/js/modules/paco-operational-v11370.js"
-          test -s "assets/js/modules/paco-language-v11373.js"
+          test -s "assets/js/domains/paco/index.js"
+          test -s "assets/js/domains/paco/language/index.js"
           test -s "assets/runtime-css/paco-operational-v11370.css"
           test -s "scripts/paco-operational-v11370-test.mjs"
           test -s "scripts/paco-language-v11373-test.mjs"
-          grep -q "./assets/js/modules/paco-operational-v11370.js" service-worker.js
-          grep -q "./assets/js/modules/paco-language-v11373.js" service-worker.js
+          grep -q "./assets/js/domains/paco/index.js" service-worker.js
+          grep -q "./assets/js/domains/paco/language/index.js" service-worker.js
           grep -q "./assets/runtime-css/paco-operational-v11370.css" service-worker.js
           grep -q 'pacoSnapshot:()=>rpc("erp_x_paco_snapshot")' assets/js/services/api.js
 
