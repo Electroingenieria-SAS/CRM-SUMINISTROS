@@ -61,3 +61,21 @@ test("canonical invoice reader remains explicitly reachable from invoice upload"
   assert.match(upload,/buildInvoiceReaderPayload\(dialog,basePayload\)/);
   assert.match(upload,/saveInvoiceExplicit\(data\.order\.id,payload\)/);
 });
+
+test("Picking and Billing remain isolated from Shipping Receiving AuditoriaERP Orders bootstrap and DB owners",()=>{
+  const domainFiles=[
+    ...runtimeSources(path.join(runtimeRoot,"domains/picking")),
+    ...runtimeSources(path.join(runtimeRoot,"domains/billing"))
+  ];
+  const forbidden=[
+    /from\s+["'][^"']*domains\/shipping\//,
+    /from\s+["'][^"']*domains\/receiving\//,
+    /from\s+["'][^"']*integrations\/auditoria-erp\//,
+    /from\s+["'][^"']*domains\/orders\//,
+    /from\s+["'][^"']*core\/bootstrap\//,
+    /supabase\/migrations\//
+  ];
+  const offenders=[];
+  for(const [file,source] of domainFiles)for(const pattern of forbidden)if(pattern.test(source))offenders.push({file,pattern:String(pattern)});
+  assert.deepEqual(offenders,[]);
+});
