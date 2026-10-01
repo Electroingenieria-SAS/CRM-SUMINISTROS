@@ -27,6 +27,8 @@ import {enhanceFreightIntelligenceDashboard} from "./modules/freight-intelligenc
 import {installOperationalResolveGuard} from "./modules/operational-resolve-guard-v112.js";
 import {renderReceivingHub} from "./domains/receiving/index.js";
 import {registerServiceWorker} from "./core/pwa/register-service-worker.js";
+import {getModuleMetadata} from "./core/layout/module-metadata.js";
+import {installGlobalNavigationEvents} from "./core/events/global-navigation.js";
 
 const routes={
   dashboard:async root=>{await renderDashboard(root);await enhanceOperationalDashboard(root);await enhanceFreightIntelligenceDashboard(root)},
@@ -51,8 +53,6 @@ const SESSION_PROFILE_ERROR=/usuario sin perfil operativo activo|perfil operativ
 function moduleReadable(code){return Boolean(state.modules?.find(module=>module.code===code)?.canRead)}
 function firstReadableModule(){return state.modules?.find(module=>module.canRead)?.code||"dashboard"}
 
-const titles={dashboard:["Centro de operaciones","Indicadores, cargas y prioridades de la operación"],orders:["Pedidos","Consulta, trazabilidad y gestión integral"],sales:["Ventas y pedidos","Creación y seguimiento comercial"],credit:["Crédito","Radicación, estudio y decisión"],cartera:["Cartera","Validación financiera y liberación"],caja:["Caja","Retenidos y facturación de pedidos PVN"],purchasing:["Compras","Abastecimiento y órdenes PVE"],receiving:["Recepción","Recepción de mercancía para bodega y Recepción de pedido como procesos separados"],picking:["Alistamiento","Preparación, controles y novedades"],cutting:["Centro de corte","Referencias agrupadas, carretos y entrega a Alistamiento"],billing:["Facturación","Factura, soporte y liberación"],shipping:["Despachos y entregas","Rutas, recogidas, evidencias y cierre"],inventory:["Inventario","Existencias, lotes, ubicaciones y movimientos"],workforce:["Jornada y actividades","Planeación, cronograma, evidencias y capacidad"],approvals:["Excepciones y aprobaciones","Novedades, reportes, decisiones y SLA"],vsm:["Flujo y tiempos","Tiempo total, trabajo productivo, espera y productividad"],reports:["Analítica y reportes","Indicadores, causas y exportaciones"],imports:["Histórico de pedidos","Archivo histórico, expedientes, importaciones y trazabilidad"],audit:["Auditoría","Registro de decisiones y movimientos"],admin:["Administración de CRM Suministros","Usuarios, roles, calendarios y configuración"]};
-
 async function bootAuthenticated(){
   if(authBootPromise)return authBootPromise;
   authBootPromise=(async()=>{
@@ -75,7 +75,7 @@ async function bootAuthenticated(){
         }
         if(route.segments[0]==="order"&&route.segments[1]){navigate("orders");setTimeout(()=>openOrder(route.segments[1]),0);return}
         const moduleId=route.module;
-        const [title,sub]=titles[moduleId]||["CRM Suministros",""];
+        const [title,sub]=getModuleMetadata(moduleId);
         updateShell(moduleId,title,sub);
         const root=document.querySelector("#page-content");
         root.innerHTML=loading();
@@ -155,14 +155,6 @@ async function start(){
     if(!session){setState({profile:null,organization:null,modules:[],catalogs:{}});renderLogin();bindLogin()}
   });
 }
-window.addEventListener("erp:open-order",e=>openOrder(e.detail));
-document.addEventListener("click",event=>{
-  const button=event.target.closest?.("[data-take-another]");
-  if(!button)return;
-  const step=button.dataset.takeAnother||"";
-  document.querySelector("#modal-root")?.replaceChildren();
-  navigate(moduleForStep(step),{step,assignment:"ALL"});
-  toast("El pedido anterior continúa en Mis pedidos activos. Puedes tomar otro sin perder el avance.","success",6000);
-});
+installGlobalNavigationEvents({openOrder,navigate,moduleForStep,toast});
 start().catch(e=>{renderLogin(e.message);bindLogin()});
 registerServiceWorker();
