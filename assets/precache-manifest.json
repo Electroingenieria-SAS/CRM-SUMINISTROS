@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": "f9cffd6ed44f5f62",
-  "sourceBytes": 2550968,
+  "revision": "2cc1a5de0a72c8c2",
+  "sourceBytes": 2549231,
   "assets": [
     "./assets/css/analytics.css",
     "./assets/css/base/accessibility.css",
@@ -610,7 +610,6 @@
     "./assets/js/modules/operational-resolve-guard-v112.js",
     "./assets/js/modules/order-cancellation.js",
     "./assets/js/modules/order-create-v1191.js",
-    "./assets/js/modules/order-priority-v117.js",
     "./assets/js/modules/orders.js",
     "./assets/js/modules/pagination-v1184.js",
     "./assets/js/modules/picking-flow.js",
