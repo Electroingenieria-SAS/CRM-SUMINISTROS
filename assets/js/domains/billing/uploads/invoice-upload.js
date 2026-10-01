@@ -3,9 +3,10 @@ import { modal, toast } from "../../../core/ui.js";
 import { activeTask } from "../../finance/shared/financial-status.js";
 import { storeBillingFile } from "../shared/billing-document.js";
 import { refresh } from "../../finance/shared/flow-callbacks.js";
+import { installBillingUpload } from "./upload-experience.js";
 
 export function openInvoiceUpload(data,{reload,refreshLists,source}){
-  modal({
+  const view=modal({
     title:"Subir factura",
     confirmLabel:"Guardar factura",
     size:"wide",
@@ -26,10 +27,12 @@ export function openInvoiceUpload(data,{reload,refreshLists,source}){
       toast("Factura cargada correctamente.","success");refresh(refreshLists);setTimeout(()=>reload(),80);
     }
   });
+  installBillingUpload(view.root.querySelector(".modal"),{pvp:false});
+  return view;
 }
 
 export function openPvpAnnexUpload(data,{reload,refreshLists}){
-  modal({
+  const view=modal({
     title:"Subir Anexo PVP",
     confirmLabel:"Guardar Anexo PVP",
     size:"wide",
@@ -41,4 +44,6 @@ export function openPvpAnnexUpload(data,{reload,refreshLists}){
       toast("Anexo PVP cargado correctamente.","success");refresh(refreshLists);setTimeout(()=>reload(),80);
     }
   });
+  installBillingUpload(view.root.querySelector(".modal"),{pvp:true});
+  return view;
 }
