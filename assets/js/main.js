@@ -22,7 +22,7 @@ import {installSupportFlow} from "./modules/support-flow.js";
 import {installPacoAssistant} from "./domains/paco/index.js";
 import {renderWorkforce} from "./modules/workforce.js";
 import {initWorkClock} from "./modules/work-clock.js";
-import {installOperationalV112,enhanceOperationalDashboard} from "./modules/operational-v112.js";
+import {installOperationalV112,enhanceOperationalDashboard} from "./core/layout/operational/index.js";
 import {enhanceFreightIntelligenceDashboard} from "./modules/freight-intelligence-v11410.js";
 import {installOperationalResolveGuard} from "./modules/operational-resolve-guard-v112.js";
 import {renderReceivingHub} from "./domains/receiving/index.js";

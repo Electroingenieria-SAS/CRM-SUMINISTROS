@@ -1,3 +1,4 @@
+import {readAppsScriptSource} from "./tests/read-apps-script-source.mjs";
 import {readCssSource} from "./tests/read-css-source.mjs";
 import {readDomainSource,readModuleSource} from "./tests/read-domain-source.mjs";
 import fs from "node:fs";
@@ -137,8 +138,8 @@ for(const token of [
 assert.equal(readDomainSource("workforce/planner","assets/js/modules/workforce.js").includes("detailCache=new Map()"),false,"El planificador debe delegar el caché de detalle al calendario y timeline.");
 assert.equal(workforce.includes("prefetchWorkEvidencePreview"),false,"Workforce no debe administrar el transporte de precarga directamente.");
 
-const appsScript=fs.readFileSync(new URL("../google-apps-script/Code.gs",import.meta.url),"utf8");
-assert.doesNotThrow(()=>new Function(appsScript),"Code.gs 3.5.1 debe conservar sintaxis JavaScript válida.");
+const appsScript=readAppsScriptSource();
+assert.doesNotThrow(()=>new Function(appsScript),"Apps Script 3.5.1 debe conservar sintaxis JavaScript válida.");
 for(const token of ["VERSION: '3.5.1'","PREVIEW_WORK_EVIDENCE","erp_x_work_evidence_preview_allowed","MAX_PREVIEW_BYTES"]){
   assert.equal(appsScript.includes(token),true,`Apps Script debe conservar: ${token}`);
 }

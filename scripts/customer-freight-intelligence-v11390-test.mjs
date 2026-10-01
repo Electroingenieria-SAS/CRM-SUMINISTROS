@@ -10,7 +10,7 @@ const migration=fs.readFileSync(new URL("../supabase/migrations/125_customer_fre
 const permissions=fs.readFileSync(new URL("../supabase/migrations/126_customer_freight_intelligence_permissions_v11_39_0.sql",import.meta.url),"utf8");
 const paymentTruth=fs.readFileSync(new URL("../supabase/migrations/127_customer_payment_truth_v11_39_1.sql",import.meta.url),"utf8");
 const customerSecurity=fs.readFileSync(new URL("../supabase/migrations/128_customer_intelligence_security_v11_39_1.sql",import.meta.url),"utf8");
-const financialFlow=fs.readFileSync(new URL("../assets/js/modules/financial-flow.js",import.meta.url),"utf8");
+const financialFlow=readDomainSource("finance","assets/js/modules/financial-flow.js")+readDomainSource("billing","assets/js/modules/financial-flow.js");
 
 assert.equal(orders.includes('formSelect("priority"'),false,"Creación de pedidos no debe exponer prioridad manual.");
 assert.equal(orders.includes('name="priority"'),false,"No debe existir campo manual priority en el wizard.");

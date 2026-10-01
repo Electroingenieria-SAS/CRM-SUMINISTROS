@@ -115,3 +115,62 @@ No se ejercitaron sesiones de usuarios reales ni se cambiaron planes.
 - Prueba DOM antes/después: upload de pedido, registro de evidencia de actividad,
   preview, bloqueo de HTML/MIME, rechazo de origen/requestId incorrectos y limpieza
   de iframe/form verdes, sin escrituras externas. Contratos Workforce verdes.
+
+- Finance/Billing: liberación financiera, estados/aprobación, acciones y resumen
+  separados de pantallas de facturación, documentos, uploads y cierre.
+  Comparación DOM de diez estados idéntica (Cartera, Caja, factura, PVP y Caja
+  Facturación). Liberación permanece bloqueada antes de aprobación.
+  Contrato comercial/fletes y enlace del dominio verdes.
+
+- Lector de facturas: entrada versionada retirada; instalación/observación,
+  adaptación de guardado, campos manuales, PDF, identidad, fechas, cantidades,
+  peso e importes separados. Seis campos editables y comparación de parsing
+  previo/nuevo verdes, con la corrección intencional descrita abajo.
+- Fallo concreto de importe: `Cantidad total: 3` o `Peso total: 8 kg` eran
+  interpretados como dinero por el detector genérico TOTAL. Se excluyen esos
+  totales físicos; se conservan cantidades/peso y totales monetarios en la línea
+  siguiente. Tres regresiones Node RED → GREEN, sin importaciones muertas.
+
+- Shipping: rutas, permisos/responsable, toma/guía, cierre con evidencia,
+  confirmación de entrega, pie de navegación y vista comercial separados.
+  Comparación DOM original/nuevo de ocho estados (cuatro rutas × cola/en curso)
+  y vista de Ventas idéntica, con roles cargados en `state.profile.roles`.
+  Ventas no muestra acciones de operación. Dependencias del dominio enlazadas.
+
+- VSM: controlador/filtros, carga, cálculos, diagnósticos, gráficos, órdenes,
+  exportación y secciones de presentación separados; dos funciones de más de
+  100 líneas reemplazadas por composición. DOM del mapa original/nuevo idéntico,
+  preset/actualización y bloqueo de rango invertido verdes. Dependencias enlazadas.
+
+- History: entrada versionada retirada; controlador, estado/filtros, RPC,
+  archivo/lista, facetas, importaciones, cobertura, expediente y exportación
+  separados. Tres pestañas DOM idénticas, ausencia de importación sin permiso
+  y envío de búsqueda/origen correctos. Dependencias enlazadas.
+
+- Materials/Siesa: selector, stock/ATP, resolución de líneas, runtime SheetJS,
+  lectura de columnas, parsing y sincronización separados. `services/materials.js`
+  conserva sus siete exports. Selección, ATP, invalidación al editar, parsing de
+  fila física y rechazo de duplicados equivalentes antes/después.
+  Contrato de fletes, Orders como consumidor inmediato y enlace verdes.
+
+- Adaptadores operativos: entrada versionada retirada; captura de acciones queda
+  en core/layout, y recepción/factura/guía/dashboard en sus respectivos dominios.
+  El diálogo de recepción se divide en preparación, plantilla, confirmación y
+  cambio de tipo. Plantilla DOM equivalente, devolución DEV y cantidades parciales
+  correctas. Un conflicto local de nombre de contexto fue corregido antes de
+  publicar; la prueba específica y el enlace del dominio quedaron verdes.
+
+- Capa comercial: entrada versionada retirada; instalación/observación, encabezado,
+  experiencia/búsqueda de Orders, asistentes y experiencia de Crédito separados.
+  DOM original/nuevo de Orders y Crédito idéntico; enhancement idempotente y
+  dependencias enlazadas.
+
+- Apps Script: `Code.gs` retirado; diez archivos semánticos, todos inferiores a
+  200 líneas. La función de upload de 84 líneas ahora compone contenido, contexto,
+  carpetas, descripción y contrato de respuesta, reutilizando el contexto.
+  Contrato Node de Drive privado/locks/identidades/validación/callback y contrato
+  timeline verdes. Sesión ERP denegada impide crear archivos; POST permitido
+  conserva su Authorization. No se ejecutaron escrituras reales de Drive.
+- PENDIENTE EXTERNO — publicar fuentes en el proyecto Apps Script institucional.
+  No hay operación conectada de despliegue en esta sesión. Instrucciones concretas
+  en `google-apps-script/README.md`; conservar el despliegue/URL existente.

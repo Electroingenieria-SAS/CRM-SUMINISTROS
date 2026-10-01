@@ -1,1 +1,1 @@
-export {renderHistoryCenter as renderImports} from "./history-center-v11150.js";
+export {renderHistoryCenter as renderImports} from "../domains/history/index.js";

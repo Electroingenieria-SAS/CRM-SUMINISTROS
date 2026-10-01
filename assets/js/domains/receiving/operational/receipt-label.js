@@ -1,0 +1,16 @@
+import { toast } from "../../../core/ui.js";
+import { fmt } from "../../../core/format.js";
+import { escapeText } from "../../../core/layout/operational/operational-values.js";
+
+export function printReceiptLabel(row){
+  try{
+    if(!window.JsBarcode||!window.qrcode)throw new Error("Los componentes de código de barras/QR todavía no están disponibles.");
+    const barcodeValue=String(row.barcodeValue||`CRM-REC|${row.receiptNumber}`);
+    const qrValue=String(row.qrValue||JSON.stringify({type:"CRM_RECEIPT",number:row.receiptNumber,order:row.orderNumber}));
+    const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+    window.JsBarcode(svg,barcodeValue,{format:"CODE128",displayValue:true,fontSize:14,height:52,margin:6});
+    const qr=window.qrcode(0,"M");qr.addData(qrValue);qr.make();const qrUrl=qr.createDataURL(5,2);
+    const win=window.open("","_blank","width=900,height=700");if(!win)throw new Error("El navegador bloqueó la ventana de impresión.");
+    win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${escapeText(row.receiptNumber)}</title><style>body{font-family:Arial,sans-serif;margin:12mm;color:#111}.label{border:2px solid #111;border-radius:14px;padding:10mm;max-width:185mm}.head{display:flex;justify-content:space-between;gap:12mm;border-bottom:1px solid #bbb;padding-bottom:6mm}.head h1{margin:0;font-size:26px}.meta{display:grid;grid-template-columns:repeat(2,1fr);gap:4mm 10mm;margin:7mm 0}.meta div{border:1px solid #ddd;border-radius:8px;padding:4mm}.meta small{display:block;text-transform:uppercase;color:#555;font-size:10px}.codes{display:grid;grid-template-columns:1fr 46mm;align-items:center;gap:8mm;border-top:1px solid #bbb;padding-top:6mm}.codes svg{max-width:100%;height:auto}.codes img{width:42mm;height:42mm}.note{margin-top:5mm;font-size:11px;color:#555}@media print{body{margin:4mm}.label{max-width:none}}</style></head><body><section class="label"><div class="head"><div><small>Recepción de mercancía</small><h1>${escapeText(row.receiptNumber)}</h1><strong>${row.receiptType==="RETURN"?"DEVOLUCIÓN":"COMPRA"}</strong></div><div><small>Pedido</small><h2>${escapeText(row.orderNumber)}</h2></div></div><div class="meta"><div><small>Proveedor / origen</small><strong>${escapeText(row.supplierName||"—")}</strong></div><div><small>Prefijo / consecutivo</small><strong>${escapeText(row.documentPrefix)} · ${escapeText(row.consecutiveNo)}</strong></div><div><small>Aceptado</small><strong>${fmt.number(row.acceptedQuantity||0,3)}</strong></div><div><small>Rechazado</small><strong>${fmt.number(row.rejectedQuantity||0,3)}</strong></div><div><small>Novedad</small><strong>${row.noveltyStatus==="OPEN"?escapeText(row.noveltyType||"Abierta"):"Sin novedad"}</strong></div><div><small>Verificación</small><strong>${row.verifiedAt?`Verificada · ${escapeText(row.verifiedBy||"")}`:"Pendiente"}</strong></div></div><div class="codes"><div>${svg.outerHTML}</div><img src="${qrUrl}" alt="Código QR"></div><div class="note">Código de barras y QR generados desde el registro trazable del CRM Suministros.</div></section><script>window.addEventListener('load',()=>window.print(),{once:true});<\/script></body></html>`);win.document.close();
+  }catch(error){toast(error.message||String(error),"error",7000)}
+}
