@@ -19,7 +19,7 @@ export function shell(data,content){
           <div><small>Pendientes</small><strong>${pendingItems(data).length}</strong></div>
         </section>
         ${content}
-        <details class="simple-details"><summary>Ver información completa del pedido</summary>${details(data)}</details>
+        <details class="simple-details"><summary>Ver información completa del pedido</summary><div data-order-support-slot></div>${details(data)}</details>
       </div>
       ${parallelWorkFooter(data.order.current_step_code)}
     </section>
