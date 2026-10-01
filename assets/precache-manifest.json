@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": "e4a3d21e3316ee8b",
-  "sourceBytes": 2547424,
+  "revision": "1495579d0446ab48",
+  "sourceBytes": 2551514,
   "assets": [
     "./assets/css/analytics.css",
     "./assets/css/base/accessibility.css",
@@ -551,6 +551,7 @@
     "./assets/js/domains/workforce/today/work-clock.js",
     "./assets/js/domains/workforce/workforce-controller.js",
     "./assets/js/domains/workforce/workforce-state.js",
+    "./assets/js/integrations/auditoria-erp/receiving-sync.js",
     "./assets/js/integrations/documents/spreadsheet-runtime.js",
     "./assets/js/integrations/drive/auth/crm-session.js",
     "./assets/js/integrations/drive/auth/google-download-token.js",
