@@ -71,7 +71,10 @@ test "$(grep -c '<script type="module" src="./assets/js/' index.html)" -eq 1
 grep -q 'import "./main.js";' assets/js/app-entry.js
 grep -q 'import "./modules/inventory-dialogs-v11260.js";' assets/js/app-entry.js
 grep -q 'import "./modules/inventory-visual-v11270.js";' assets/js/app-entry.js
-grep -q 'import "./modules/auditoria-erp-bridge-v11280.js";' assets/js/app-entry.js
+grep -q 'notifyGoodsReceiptCreated' assets/js/domains/receiving/goods/create/receipt-form.js
+grep -q 'installAuditoriaErpRetrySchedulerService' assets/js/core/bootstrap/runtime-installers.js
+! grep -q 'auditoria-erp-bridge-v11280.js' assets/js/app-entry.js
+test ! -e assets/js/modules/auditoria-erp-bridge-v11280.js
 ! grep -q 'inventory-modal-v11253.js' assets/js/app-entry.js
 ! grep -q 'inventory-modal-workspace-v11254.js' assets/js/app-entry.js
 test ! -e assets/js/modules/inventory-modal-v11253.js
