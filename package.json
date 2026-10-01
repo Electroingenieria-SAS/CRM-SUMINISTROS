@@ -28,7 +28,7 @@
     "validate:freight-cards-layout": "node scripts/freight-cards-layout-v11430-test.mjs",
     "validate:paco": "node scripts/paco-operational-v11370-test.mjs && node scripts/paco-language-v11373-test.mjs",
     "validate:paco-language": "node scripts/paco-language-v11373-test.mjs",
-    "validate:domains": "node --test scripts/tests/*.test.mjs",
+    "validate:domains": "node --test scripts/tests/*.test.mjs tests/security/*.test.mjs",
     "pwa:generate": "node scripts/ci/generate-precache-manifest.mjs",
     "pwa:check": "node scripts/ci/generate-precache-manifest.mjs --check && node scripts/architecture/check-asset-budget.mjs"
   }

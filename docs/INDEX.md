@@ -16,6 +16,7 @@ Estos documentos describen el estado que debe usarse para operar o modificar el 
 - `docs/DEPLOYMENT_VERCEL_SUPABASE.md` — detalle de plataformas.
 - `docs/OPERATIONS_RUNBOOK.md` — operación e incidentes.
 - `docs/DISASTER_RECOVERY.md` — recuperación ante desastre, procedencia de migraciones y criterio de rebuild source-only.
+- `docs/integrations/drive-message-boundary.md` — origen y frames permitidos del callback de Drive.
 - `docs/QA_RELEASE_CHECKLIST.md` — checklist de release.
 - `docs/SECURITY_ADVISOR_BACKLOG.md` — observaciones del Advisor.
 - `docs/DELIVERY_SATISFACTION_V11_31.md` — contrato de distancia, satisfacción y tiempos post-entrega.

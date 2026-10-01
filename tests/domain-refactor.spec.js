@@ -1,5 +1,25 @@
 import {test,expect} from '@playwright/test';
 
+test('Drive accepts its nested cross-origin Apps Script callback',async({page})=>{
+  const sandbox='https://n-bxf2muk7rmihub4iuwdqznurqcm6ax6w26p5jdy-0lu-script.googleusercontent.com';
+  const endpoint='https://script.google.com/macros/s/AKfycbwjl1JCfE0eV92P6DCn6h8jIVIBlSwLOQj8U7Mz1_7YW2Xan8DPI5tpWJuiG7znSCSs/exec';
+  await page.route(endpoint,route=>route.fulfill({contentType:'text/html',body:`<iframe src="${sandbox}/bridge-sandbox"></iframe>`}));
+  await page.route(`${sandbox}/bridge-sandbox`,route=>route.fulfill({contentType:'text/html',body:`<iframe src="${sandbox}/bridge-callback"></iframe>`}));
+  await page.route(`${sandbox}/bridge-callback`,route=>route.fulfill({contentType:'text/html',body:`<script>window.top.postMessage({source:'ERP_EI_DRIVE_BRIDGE',requestId:'browser-bridge-fixture',ok:true,file:{id:'fixture'}},${JSON.stringify(new URL(page.url()).origin)});</script>`}));
+  await page.goto('/');
+  await expect(page.getByRole('heading',{name:'Ingresa a CRM Suministros'})).toBeVisible();
+  await page.evaluate(async()=>{
+    const {postToBridge}=await import('/assets/js/integrations/drive/bridge/post-message-request.js');
+    window.__bridgeOutcome='pending';
+    postToBridge({requestId:'browser-bridge-fixture',action:'UPLOAD'}).then(
+      data=>{window.__bridgeOutcome=data.file.id},
+      error=>{window.__bridgeOutcome=error.message}
+    );
+  });
+  await expect.poll(()=>page.evaluate(()=>window.__bridgeOutcome)).toBe('fixture');
+  await expect(page.locator('iframe[name="erp_drive_browser-bridge-fixture"]')).toHaveCount(0);
+});
+
 test('Orders keeps its list and three-step creation assistant',async({page})=>{
   await page.goto('/');
   await expect(page.getByRole('heading',{name:'Ingresa a CRM Suministros'})).toBeVisible();

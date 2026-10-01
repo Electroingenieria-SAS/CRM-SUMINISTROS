@@ -2,6 +2,19 @@ import { bridgeUrl } from "./bridge-url.js";
 
 export const BRIDGE_TIMEOUT_MS = 180000;
 
+function belongsToBridgeFrame(source, bridgeWindow) {
+  if (!bridgeWindow) return false;
+  for (let depth = 0; source && depth < 8; depth++) {
+    if (source === bridgeWindow) return true;
+    try {
+      const parent = source.parent;
+      if (parent === source) break;
+      source = parent;
+    } catch { return false; }
+  }
+  return false;
+}
+
 export function postToBridge(payload, options = {}) {
   return new Promise((resolve, reject) => {
     const requestId = String(payload.requestId || payload.uploadId || (typeof crypto?.randomUUID === "function" ? crypto.randomUUID() : `drive_${Date.now()}_${Math.random().toString(36).slice(2)}`));
@@ -43,8 +56,11 @@ export function postToBridge(payload, options = {}) {
     };
 
     const onMessage = event => {
-      // Apps Script callbacks use Google's HTTPS bridge/sandbox origins.
-      if (!/^https:\/\/(?:script\.google\.com|(?:[a-z0-9-]+\.)+googleusercontent\.com)(?::\d+)?$/i.test(event.origin)) return;
+      // Exact sandbox origin observed on the configured deployment, 2026-10-01.
+      if (event.origin !== "https://script.google.com"
+        && event.origin !== "https://n-bxf2muk7rmihub4iuwdqznurqcm6ax6w26p5jdy-0lu-script.googleusercontent.com") return;
+      // HtmlService posts from a nested frame, not the outer form target.
+      if (!belongsToBridgeFrame(event.source, iframe.contentWindow)) return;
       const data = event.data;
       if (
         data?.source !== "ERP_EI_DRIVE_BRIDGE" ||
