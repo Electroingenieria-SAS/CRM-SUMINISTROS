@@ -5,17 +5,12 @@ import {getSession,onAuthChange,clearLocalSession} from "./services/supabase.js"
 import {api} from "./services/api.js";
 import {toast,loading,installDialogSystem} from "./core/ui.js";
 import {openOrder} from "./modules/orders.js";
-import {initActiveWork,moduleForStep} from "./modules/active-work.js";
-import {installSupportFlow} from "./modules/support-flow.js";
-import {installPacoAssistant} from "./domains/paco/index.js";
-import {initWorkClock} from "./modules/work-clock.js";
-import {installOperationalV112} from "./core/layout/operational/index.js";
-import {installOperationalResolveGuard} from "./modules/operational-resolve-guard-v112.js";
+import {moduleForStep} from "./modules/active-work.js";
 import {registerServiceWorker} from "./core/pwa/register-service-worker.js";
-import {getModuleMetadata} from "./core/layout/module-metadata.js";
 import {installGlobalNavigationEvents} from "./core/events/global-navigation.js";
 import {createLoginController} from "./core/auth/login-controller.js";
 import {createRouteDispatcher} from "./core/routing/route-dispatcher.js";
+import {installAuthenticatedRuntime} from "./core/bootstrap/runtime-installers.js";
 
 let authBootPromise=null;
 const SESSION_PROFILE_ERROR=/usuario sin perfil operativo activo|perfil operativo activo|jwt expired|token.*expired/i;
@@ -28,12 +23,7 @@ async function bootAuthenticated(){
       const context=await api.session();
       setState({profile:context.profile,organization:context.organization,modules:context.modules,catalogs:context.catalogs});
       renderShell();
-      initActiveWork();
-      initWorkClock();
-      installSupportFlow();
-      installPacoAssistant();
-      installOperationalResolveGuard();
-      installOperationalV112();
+      installAuthenticatedRuntime();
       initRouter(createRouteDispatcher({getModules:()=>state.modules,navigate,openOrder}));
     }catch(e){
       const technical=String(e?.technicalMessage||e?.message||"");
