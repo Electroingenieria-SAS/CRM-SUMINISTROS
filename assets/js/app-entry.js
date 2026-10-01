@@ -19,7 +19,6 @@ import "./modules/billing-focus-v1198.js";
 import "./modules/billing-upload-v1199.js";
 import "./domains/billing/invoice-reader/index.js";
 import "./modules/billing-multiformat-v11101.js";
-import "./modules/shipping-guide-reader-v11101.js";
 import "./modules/flow-performance-v11130.js";
 import "./modules/inventory-dialogs-v11260.js";
 import "./modules/inventory-visual-v11270.js";
