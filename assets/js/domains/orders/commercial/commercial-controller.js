@@ -2,6 +2,7 @@ import { enhanceOrders } from "./order-experience.js";
 import { refreshOrderResultMeta } from "./order-search.js";
 import { enhanceCredit, refreshCreditResultMeta } from "../../finance/credit/credit-experience.js";
 import { enhanceCommercialWizards } from "./wizard-experience.js";
+import { enhanceCommercialRecords } from "./record-experience.js";
 
 export function moduleHint(){
   const hash=String(location.hash||"").toLowerCase();
@@ -29,5 +30,6 @@ export function enhanceCommercialExperience(){
     enhanceCredit(root);
     refreshCreditResultMeta(root);
   }
+  enhanceCommercialRecords(root);
   enhanceCommercialWizards();
 }
