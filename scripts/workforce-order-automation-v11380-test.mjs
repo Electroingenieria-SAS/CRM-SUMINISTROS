@@ -1,3 +1,4 @@
+import {readDomainSource} from "./tests/read-domain-source.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
@@ -8,7 +9,7 @@ const calendar=fs.readFileSync(new URL("../assets/js/modules/workforce-calendar-
 const workforce=fs.readFileSync(new URL("../assets/js/modules/workforce.js",import.meta.url),"utf8");
 const api=fs.readFileSync(new URL("../assets/js/services/api.js",import.meta.url),"utf8");
 const paco=fs.readFileSync(new URL("../assets/js/modules/paco-operational-v11370.js",import.meta.url),"utf8");
-const orders=fs.readFileSync(new URL("../assets/js/modules/orders.js",import.meta.url),"utf8");
+const orders=readDomainSource("orders","assets/js/modules/orders.js");
 
 for(const sql of [migration,specialMigration]){
   assert.equal(/create\s+table/i.test(sql),false,"V11.38.0 no debe crear tablas nuevas.");

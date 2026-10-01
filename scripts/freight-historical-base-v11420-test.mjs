@@ -1,8 +1,9 @@
+import {readDomainSource} from "./tests/read-domain-source.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const migration=fs.readFileSync(new URL("../supabase/migrations/131_freight_historical_base_v11_42_0.sql",import.meta.url),"utf8");
-const orders=fs.readFileSync(new URL("../assets/js/modules/orders.js",import.meta.url),"utf8");
+const orders=readDomainSource("orders","assets/js/modules/orders.js");
 
 for(const token of [
   "freight_city_key_v1142",

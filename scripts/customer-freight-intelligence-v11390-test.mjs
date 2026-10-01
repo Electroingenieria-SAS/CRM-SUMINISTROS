@@ -1,7 +1,8 @@
+import {readDomainSource} from "./tests/read-domain-source.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-const orders=fs.readFileSync(new URL("../assets/js/modules/orders.js",import.meta.url),"utf8");
+const orders=readDomainSource("orders","assets/js/modules/orders.js");
 const workforce=fs.readFileSync(new URL("../assets/js/modules/workforce.js",import.meta.url),"utf8");
 const operational=fs.readFileSync(new URL("../assets/js/modules/operational-v112.js",import.meta.url),"utf8");
 const api=fs.readFileSync(new URL("../assets/js/services/api.js",import.meta.url),"utf8");

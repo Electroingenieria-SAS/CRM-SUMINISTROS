@@ -1,7 +1,8 @@
+import {readDomainSource} from "./tests/read-domain-source.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-const orders=fs.readFileSync(new URL("../assets/js/modules/orders.js",import.meta.url),"utf8");
+const orders=readDomainSource("orders","assets/js/modules/orders.js");
 
 assert.equal(
   orders.includes('${orderStageBadge(order)}'),

@@ -1,9 +1,10 @@
+import {readDomainSource} from "./tests/read-domain-source.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const migration=fs.readFileSync(new URL("../supabase/migrations/129_freight_predictive_model_v11_40_0.sql",import.meta.url),"utf8");
 const materials=fs.readFileSync(new URL("../assets/js/services/materials.js",import.meta.url),"utf8");
-const orders=fs.readFileSync(new URL("../assets/js/modules/orders.js",import.meta.url),"utf8");
+const orders=readDomainSource("orders","assets/js/modules/orders.js");
 const api=fs.readFileSync(new URL("../assets/js/services/api.js",import.meta.url),"utf8");
 const css=fs.readFileSync(new URL("../assets/css/operations.css",import.meta.url),"utf8");
 

@@ -1,8 +1,9 @@
+import {readDomainSource} from "./tests/read-domain-source.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const css=fs.readFileSync(new URL("../assets/css/operations.css",import.meta.url),"utf8");
-const orders=fs.readFileSync(new URL("../assets/js/modules/orders.js",import.meta.url),"utf8");
+const orders=readDomainSource("orders","assets/js/modules/orders.js");
 
 for(const token of [
   "sales-freight-carrier-head-v1143",
