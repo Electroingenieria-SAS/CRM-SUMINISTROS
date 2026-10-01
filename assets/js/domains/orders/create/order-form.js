@@ -35,7 +35,7 @@ export function orderFormStep(types,payments,routes,departmentOptions){return {t
             <div class="sales-freight-carriers-v1140" data-freight-carriers></div>
           </section>
         </section>
-        <details class="simple-details"><summary>Datos adicionales del cliente</summary><div class="form-grid" style="padding:14px"><div class="field"><label>NIT o documento</label><input class="control" name="clientDocument"></div><div class="field"><label>Teléfono</label><input class="control" name="clientPhone"></div><div class="field"><label>Referencia externa</label><input class="control" name="externalReference"></div><div class="field"><label>Fecha solicitada</label><input class="control" name="requestedDeliveryDate" type="date"></div></div></details>`,validate:validateDeliveryAddress};}
+        <input type="hidden" name="clientDocument"><input type="hidden" name="clientPhone"><input type="hidden" name="externalReference"><input type="hidden" name="requestedDeliveryDate">`,validate:validateDeliveryAddress};}
 
 export function orderMaterialsStep(){return {title:"Materiales",description:"Ventas define qué se vendió y cuánto. Logística decidirá después de qué lote, ubicación o carreto sale.",content:`
         <section class="sales-materials-intro">
