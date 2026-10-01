@@ -7,6 +7,21 @@ import { blankGoodsLine, goodsLineHtml, bindGoodsLines } from "../lines/goods-li
 import { collectGoodsReceipt } from "./collect-receipt.js";
 import { openGoodsReceiptDetail } from "../detail/receipt-detail.js";
 import { receivingHubState } from "../goods-state.js";
+import { notifyGoodsReceiptCreated } from "../../../../integrations/auditoria-erp/receiving-sync.js";
+
+export function createAuditoriaReceiptNotifier(notify=notifyGoodsReceiptCreated,schedule=queueMicrotask){
+  let notifiedReceiptId=null;
+  return result=>{
+    const receiptId=result?.receipt?.id;
+    if(!receiptId||receiptId===notifiedReceiptId)return false;
+    notifiedReceiptId=receiptId;
+    schedule(()=>{
+      void Promise.resolve(notify(receiptId))
+        .catch(error=>console.warn("[AUDITORIA ERP] Hook post-create no fatal",error?.message||error));
+    });
+    return true;
+  };
+}
 
 export function openGoodsReceiptForm(pveDetail){
   const linked=Boolean(pveDetail?.order?.id);
@@ -17,6 +32,7 @@ export function openGoodsReceiptForm(pveDetail){
   }));
   const lines=initial.length?initial:[blankGoodsLine()];
   const requestId=crypto.randomUUID?.()||`goods-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const notifyAuditoriaReceipt=createAuditoriaReceiptNotifier();
   const view=modal({
     title:"Recepción de mercancía · ingreso a bodega",
     confirmLabel:"Guardar e ingresar a bodega",
@@ -47,6 +63,7 @@ export function openGoodsReceiptForm(pveDetail){
     onConfirm:async dialog=>{
       const payload=collectGoodsReceipt(dialog,pveDetail,requestId);
       const result=await rpc("erp_x_goods_receipt_create",{p_payload:payload});
+      notifyAuditoriaReceipt(result);
       const message=linked?`Recepción ${result.receipt.receipt_number} guardada. Mercancía OK quedó marcada en el PVE sin mover su flujo.`:`Recepción ${result.receipt.receipt_number} guardada e ingresada a bodega.`;
       toast(message,"success",8000);
       window.__erpQueueRefresh?.();
