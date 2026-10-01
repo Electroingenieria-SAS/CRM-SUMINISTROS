@@ -155,10 +155,14 @@ test("Picking MISSING novelty label is structurally associated with its textarea
   assert.ok(nested||(forId&&forId===textId),"MISSING novelty label must wrap textarea or use matching for/id");
 });
 
-test("Picking origin option markup is balanced and origin checkbox has an accessible name",()=>{
+test("Picking origin option markup is balanced",()=>{
   const source=read("assets/js/domains/picking/origins/origin-plan.js");
   assert.doesNotMatch(source,/<div class="picking-origin-option[^>]*>[\s\S]*?<\/label>/,
     "picking-origin-option opens as div and must not close as label");
+});
+
+test("Picking origin checkbox has an accessible name",()=>{
+  const source=read("assets/js/domains/picking/origins/origin-plan.js");
   const checkbox=source.match(/<input type="checkbox"([^>]*)data-origin-check([^>]*)>/);
   assert.ok(checkbox,"origin checkbox must exist");
   const attrs=(checkbox[1]||"")+(checkbox[2]||"");
