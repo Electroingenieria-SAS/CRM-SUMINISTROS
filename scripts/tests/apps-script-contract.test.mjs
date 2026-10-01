@@ -12,7 +12,7 @@ function runtime(authStatus=200){
   const folder=name=>({getId:()=>name,getFoldersByName:()=>({hasNext:()=>false}),
     createFolder:child=>{events.push(['folder',child]);return folder(child);},
     createFile:blob=>{events.push(['file',blob.name]);return file;}});
-  const context=vm.createContext({console,URL,encodeURIComponent,Date,
+  const context=vm.createContext({console:{...console,error:error=>events.push(['error',error.message])},URL,encodeURIComponent,Date,
     DriveApp:{getFolderById:()=>folder('root')},
     LockService:{getScriptLock:()=>({waitLock:ms=>events.push(['lock',ms]),releaseLock:()=>events.push(['unlock'])})},
     Utilities:{base64Decode:value=>Array.from(Buffer.from(value,'base64')),newBlob:(bytes,mimeType,name)=>({bytes,mimeType,name})},

@@ -1,3 +1,4 @@
+import {readOperationalSource} from "./tests/read-operational-source.mjs";
 import fs from "node:fs";
 import assert from "node:assert/strict";
 import {
@@ -49,7 +50,7 @@ for(const token of ["Observado","Ana Gómez","1 h 18 min","Jefe Logística","Val
   assert.equal(recent.includes(token),true,`El historial debe mostrar: ${token}`);
 }
 
-const operational=fs.readFileSync(new URL("../assets/js/modules/operational-v112.js",import.meta.url),"utf8");
+const operational=readOperationalSource();
 assert.equal(operational.includes("workManagerQueue"),false,"Mi jornada no debe duplicar la cola de revisión del jefe");
 assert.equal(operational.includes("openTimeReviewDialog"),false,"La revisión de tiempos debe centralizarse en Excepciones y aprobaciones");
 assert.equal(operational.includes("workQuickRequest"),false,"No debe existir solicitud rápida ni aprobación previa para auxiliares");

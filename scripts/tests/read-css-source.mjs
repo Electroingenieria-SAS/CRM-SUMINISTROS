@@ -10,5 +10,6 @@ export function readCssSource(file,ancestors=[]){
   return fs.readFileSync(absolute,'utf8').replace(/@import\s+["']([^"']+)["']\s*;/g,(statement,target)=>{
     if(/^(?:[a-z]+:|\/\/)/i.test(target))return statement;
     return readCssSource(path.resolve(path.dirname(absolute),target),next);
-  }).replace(/\s*\{\s*/g,'{').replace(/@media\s+\(/g,'@media(');
+  }).replace(/\s*\{\s*/g,'{').replace(/@media\s+\(/g,'@media(')
+    .replace(/;\s*\}/g,'}').replace(/\s+!important/g,'!important');
 }

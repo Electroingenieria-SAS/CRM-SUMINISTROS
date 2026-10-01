@@ -19,3 +19,20 @@ test('amount below a total label and final payable total remain supported',()=>{
   assert.equal(parseInvoiceText('TOTAL A PAGAR\n1.234,50\nCantidad total: 3').amount,1234.5);
   assert.equal(parseInvoiceText('SUBTOTAL 1.000\nTOTAL A PAGAR 1.190').amount,1190);
 });
+
+test('monetary and physical total labels preserve the auxiliary regression cases',()=>{
+  for(const text of [
+    'Valor total: 1.234.567,89\nCantidad total: 3',
+    'Cantidad total: 3\nValor total: 1.234.567,89'
+  ]){
+    const invoice=parseInvoiceText(text);
+    assert.equal(invoice.amount,1234567.89);
+    assert.equal(invoice.packageQuantity,3);
+  }
+  assert.equal(parseInvoiceText('TOTAL A PAGAR COP 987.654,32').amount,987654.32);
+  assert.equal(parseInvoiceText('TOTAL: $45.000,00').amount,45000);
+  for(const label of ['Productos total','Unidades total','Bultos total','Paquetes total','Peso total']){
+    assert.equal(parseInvoiceText(`VALOR TOTAL: 45.000,00\n${label}: 3`).amount,45000,label);
+  }
+  assert.equal(parseInvoiceText('TOTAL\nCantidad: 3').amount,null);
+});

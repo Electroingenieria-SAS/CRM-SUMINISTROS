@@ -1,17 +1,18 @@
 import {extractNumbers} from './localized-values.js';
 
-function isPhysicalTotal(line){
-  return /^(?:(?:cantidad|peso|quantity|weight)\b.*\btotal\b|total\b.*\b(?:cantidad|peso|productos|unidades|bultos|paquetes|quantity|weight)\b)/i.test(line);
+function hasPhysicalLabel(line){
+  return /\b(?:cantidad(?:es)?|productos?|unidades?|peso|kgs?|kilogramos?|items?|l[ií]neas?|bultos?|paquetes?|quantity|weight)\b/i.test(line);
 }
 
 export function detectAmount(lines){
-  const labels=/(TOTAL\s+A\s+PAGAR|TOTAL\s+FACTURA|VALOR\s+TOTAL|TOTAL\s+NETO|TOTAL)\b/i;
+  const monetaryLabels=/\b(TOTAL\s+A\s+PAGAR|TOTAL\s+FACTURA|VALOR\s+TOTAL|TOTAL\s+NETO|TOTAL\s+GENERAL|IMPORTE\s+TOTAL)\b/i;
+  const genericTotal=/^\s*TOTAL\b/i;
   for(let i=lines.length-1;i>=0;i--){
-    if(!labels.test(lines[i])||isPhysicalTotal(lines[i]))continue;
+    if(hasPhysicalLabel(lines[i])||(!monetaryLabels.test(lines[i])&&!genericTotal.test(lines[i])))continue;
     const numbers=extractNumbers(lines[i]);
     if(numbers.length){const n=numbers.at(-1);if(n>0)return n;}
     const following=lines[i+1];
-    if(following&&!isPhysicalTotal(following)){
+    if(following&&!hasPhysicalLabel(following)){
       const next=extractNumbers(following);
       if(next.length&&next.at(-1)>0)return next.at(-1);
     }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "verifiedAt": "2026-09-23",
+  "verifiedAt": "2026-10-01",
   "projectId": "hezjxcxxcjlpmyalftam",
   "policy": "Every new production DDL change must exist in supabase/migrations before it is applied. Historical database-only entries are frozen debt and must never increase.",
   "historicalInstaller": {
@@ -19,6 +19,12 @@
     {
       "productionName": "role_scope_governance_v1181",
       "repositoryFile": "supabase/migrations/078_role_scope_governance_v11_8_1.sql"
+    },
+    {
+      "productionName": "079_jefatura_revision_aprobacion_sin_operacion",
+      "repositoryFile": "supabase/migrations/079_jefatura_revision_aprobacion_sin_operacion_v11_8_1.sql",
+      "productionVersion": "20260904150023",
+      "statementsMd5": "28fc02a957269598f4ab2c5b8ee97022"
     }
   ],
   "knownDatabaseOnly": [
@@ -50,5 +56,47 @@
     "warehouse_receiving_hardening_v11_5",
     "inventory_cyclic_intelligence_v11_22_0"
   ],
-  "debtBudget": 27
+  "debtBudget": 27,
+  "verifiedApplied": [
+    {
+      "productionName": "impersonation_metrics_security_v11_32_0",
+      "productionVersion": "20261001153516",
+      "repositoryFile": "supabase/migrations/114_impersonation_metrics_security_v11_32_0.sql",
+      "verifiedAt": "2026-10-01",
+      "note": "Aplicada en producción y verificada con sus objetos, grants/RPC/triggers y contrato SECURITY DEFINER.",
+      "statementsMd5": "4460ef114800a5869f189f017a710717"
+    }
+  ],
+  "repositoryHistoryEvidence": [
+    {
+      "repositoryFile": "supabase/migrations/083_order_type_labels_v11_9_1.sql",
+      "status": "effect-present-history-row-absent",
+      "verifiedAt": "2026-10-01",
+      "productionEvidence": "erp_supply.order_types mantiene name=code para PVC, PVN, PVE y PVP.",
+      "note": "El efecto está presente en producción, pero no existe una fila equivalente en supabase_migrations.schema_migrations. No fabricar ni insertar una migración histórica."
+    },
+    {
+      "productionName": "qa_flow_pool_protection_v10_25_11",
+      "productionVersion": "20260813220811",
+      "repositoryFile": "sql/migrations/063_qa_flow_pool_protection_v10_25_11.sql",
+      "status": "historical-repository-evidence",
+      "verifiedAt": "2026-10-01",
+      "note": "Existe evidencia SQL histórica en el repositorio fuera de la fuente canónica actual. No se contabiliza como database-only ni se mueve a supabase/migrations retroactivamente.",
+      "productionStatementsMd5": "a3ba19bda22cd0f9802dde7d0d8de6f7"
+    }
+  ],
+  "duplicateAppliedHistory": [
+    {
+      "productionName": "freight_predictive_model_v11_40_0",
+      "productionVersions": [
+        "20260924214248",
+        "20260924215240"
+      ],
+      "statementsMd5": "0d6936c4e8e8210e3400087712fc79c2",
+      "statementCountEach": 1,
+      "verifiedAt": "2026-10-01",
+      "status": "identical-duplicate-history",
+      "note": "Las dos filas registran SQL idéntico. Conservar el historial; no borrar, reescribir ni simular una reparación retroactiva."
+    }
+  ]
 }

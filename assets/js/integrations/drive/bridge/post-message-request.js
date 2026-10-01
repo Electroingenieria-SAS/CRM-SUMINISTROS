@@ -1,4 +1,4 @@
-import { bridgeUrl, isBridgeOrigin } from "./bridge-url.js";
+import { bridgeUrl } from "./bridge-url.js";
 
 export const BRIDGE_TIMEOUT_MS = 180000;
 
@@ -43,9 +43,10 @@ export function postToBridge(payload, options = {}) {
     };
 
     const onMessage = event => {
+      // Apps Script callbacks use Google's HTTPS bridge/sandbox origins.
+      if (!/^https:\/\/(?:script\.google\.com|(?:[a-z0-9-]+\.)+googleusercontent\.com)(?::\d+)?$/i.test(event.origin)) return;
       const data = event.data;
       if (
-        !isBridgeOrigin(event.origin) ||
         data?.source !== "ERP_EI_DRIVE_BRIDGE" ||
         ![data?.requestId, data?.uploadId].filter(Boolean).includes(requestId)
       ) return;

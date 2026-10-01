@@ -1,3 +1,4 @@
+import {readOperationalSource} from "./tests/read-operational-source.mjs";
 import {readDomainSource} from "./tests/read-domain-source.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -6,7 +7,7 @@ const migration=fs.readFileSync(new URL("../supabase/migrations/130_logistics_in
 const dashboard=fs.readFileSync(new URL("../assets/js/modules/freight-intelligence-v11410.js",import.meta.url),"utf8");
 const api=fs.readFileSync(new URL("../assets/js/services/api.js",import.meta.url),"utf8");
 const paco=readDomainSource("paco","assets/js/domains/paco/index.js");
-const operational=fs.readFileSync(new URL("../assets/js/modules/operational-v112.js",import.meta.url),"utf8");
+const operational=readOperationalSource();
 const main=fs.readFileSync(new URL("../assets/js/main.js",import.meta.url),"utf8");
 
 for(const token of [

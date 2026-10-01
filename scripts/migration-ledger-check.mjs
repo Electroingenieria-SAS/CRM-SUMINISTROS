@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
+import {validateReconciledHistory} from "./database/reconciled-history-contract.mjs";
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
 const ledgerPath=path.join(root,"supabase/production-migration-ledger.json");
@@ -25,6 +26,7 @@ if(!migrationFiles.some(name=>name==="114_impersonation_metrics_security_v11_32_
 if(fs.existsSync(path.join(root,"sql/00_INSTALL_ALL.sql")))failures.push("No se debe reintroducir sql/00_INSTALL_ALL.sql como instalador actual: es un artefacto histórico incompleto.");
 
 const badNames=migrationFiles.filter(name=>!/^(?:\d{3}|\d{14})_[a-z0-9_]+\.sql$/i.test(name));
+validateReconciledHistory(ledger,{exists:relative=>fs.existsSync(path.join(root,relative)),check:(ok,message)=>{if(!ok)failures.push(message)}});
 if(badNames.length)failures.push(`Migraciones con nombre no canónico: ${badNames.join(", ")}`);
 
 if(failures.length){

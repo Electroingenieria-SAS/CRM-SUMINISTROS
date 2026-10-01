@@ -174,3 +174,71 @@ No se ejercitaron sesiones de usuarios reales ni se cambiaron planes.
 - PENDIENTE EXTERNO — publicar fuentes en el proyecto Apps Script institucional.
   No hay operación conectada de despliegue en esta sesión. Instrucciones concretas
   en `google-apps-script/README.md`; conservar el despliegue/URL existente.
+
+## Cierre técnico local
+
+- Validator: `scripts/validate.mjs` queda como orquestador de 54 líneas y 17
+  gates separados en architecture/security/database/tests/ci. Los controles
+  existentes se conservan; las lecturas apuntan a implementaciones canónicas.
+  Los tres contratos pendientes del adaptador operativo usan una composición
+  compartida. El workflow queda en 297 líneas; syntax, invariantes de release
+  y empaquetado tienen scripts pequeños.
+- PWA: prueba RED reprodujo la instalación rechazada por rutas eliminadas.
+  Se genera `assets/precache-manifest.json` con todos los JS/CSS actuales,
+  incluidos fragmentos runtime; GREEN en instalación, limpieza de cachés y
+  fallback offline/versionado. La caché incluye una revisión del contenido.
+  `npm run pwa:generate` actualiza manifiesto y revisión; CI rechaza drift.
+  Presupuesto del conjunto offline: 3 MiB de fuente y 750 assets. Actual:
+  2.550.374 bytes y 651 assets. No representa transferencia ni Core Web Vitals.
+- Ledger/DR del auxiliar absorbidos selectivamente desde
+  `d0ffeb1f6a3758f3604d27508a18f5c771bee2f4` (#98), sin sobrescribir CI/PWA.
+  079 se relaciona por alias/version/hash; 083 conserva evidencia de efecto
+  sin fila histórica; 114 conserva timestamp/hash reales; ambas filas 129 se
+  mantienen; QA tiene evidencia en `sql/`. Deuda database-only congelada en 27.
+  Un gate valida consistencia de esta evidencia. No se escribió historia falsa,
+  no se borraron/renombraron migraciones productivas ni se archivó `sql/`.
+- `index.html` incluye `noindex,nofollow,noarchive` con salto de línea real.
+- Revisión CodeQL puntual: fechas de vistas guardadas en Reports podían
+  convertirse en HTML en el Explorador. Regresión RED → GREEN usando el escape
+  compartido; ocho vistas con fechas normales conservan el DOM. El control de
+  origen de Drive ya existía; ahora queda directamente en el receptor, sin
+  duplicar el validador anterior. Origen/requestId, cleanup, uploads y preview
+  pasan. La confirmación de cierre de las alertas depende del próximo CodeQL.
+- Facturación: regresiones del auxiliar ampliadas para total monetario antes/
+  después de cantidad, TOTAL genérico, peso/productos/unidades/bultos/paquetes
+  y valor en línea siguiente. Se excluyen etiquetas físicas del importe sin
+  umbrales arbitrarios. Identidad, fecha y seis campos editables siguen verdes.
+- Verificación de fuentes refactorizadas: 407 archivos JS/MJS canónicos,
+  máximo 161 líneas, ninguna función de más de 80 líneas ni imports sin uso.
+  CI aplica límites de archivo y nombres semánticos a los dominios nuevos.
+- Cierre global local: `npm run validate` completo verde tras corregir las
+  tres lecturas legacy de Operational. Incluye grafo de 475 módulos sin rotos
+  ni huérfanos, contratos funcionales, corpus PACO (1.179 checks), contrato de
+  seguridad, integración y ledger, 16 regresiones Node y presupuesto PWA.
+  Sintaxis JS/MJS y whitespace verdes. Empaquetado estático verificado con
+  manifiesto, módulos, `.nojekyll` y BUILD_INFO.
+- Browser: CI incluye regresiones Orders/Workforce/Receiving/Picking, shell/
+  diálogo, labels, Tab/Shift+Tab/Escape/foco, reduced motion y scroll horizontal
+  en Desktop Chrome, Pixel 7, WebKit/iPhone y tablet/1024/landscape. No confundir
+  configuración/sintaxis con ejecución. El entorno local carece de binarios;
+  las descargas fallaron y no se reiteran. El auxiliar informó bloqueo del
+  navegador/preview y ausencia de credenciales QA para E2E autenticado.
+
+### Pendientes externos de cierre
+
+- `main`: branch protection/rulesets, ya confirmados inaccesibles mediante
+  la integración. No se reintenta ni se cambia un plan.
+- CI/browser: auxiliar verifica el SHA final y distingue pasos ejecutados de
+  skipped. No certificar E2E autenticado sin `ERP_QA_EMAIL`/`ERP_QA_PASSWORD`.
+  Smoke visual, contraste, zoom 200% y Core Web Vitals requieren navegador real.
+- Auth: auxiliar confirma controles gratuitos reales (password leak, rate limit,
+  brute force, MFA administrativo). Si un control exige pago: OMITIDO — requiere
+  funcionalidad de pago. No simular controles de Supabase con JavaScript.
+- Apps Script: publicación institucional siguiendo su README; fuentes/contrato
+  ya probados, sin despliegue conectado ni escrituras reales de Drive.
+- Baseline/rebuild: solo base local/desechable gratuita. No se certifica una
+  reconstrucción 100% ni se usa producción para reconstruir. Deuda histórica
+  conservada hasta que exista esa prueba.
+
+El cierre de la PR sigue condicionado a esas evidencias; no se hace merge con
+checks desconocidos ni se declara equivalencia visual sin smoke real.

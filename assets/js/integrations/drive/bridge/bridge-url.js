@@ -7,16 +7,3 @@ export function bridgeUrl() {
   }
   return url;
 }
-
-export function isBridgeOrigin(origin) {
-  try {
-    const url = new URL(origin);
-    return url.protocol === "https:" && (
-      url.hostname === "script.google.com" ||
-      url.hostname === "script.googleusercontent.com" ||
-      url.hostname.endsWith(".googleusercontent.com")
-    );
-  } catch {
-    return false;
-  }
-}

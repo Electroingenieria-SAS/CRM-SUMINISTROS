@@ -33,8 +33,8 @@ export async function renderReports(root){
         </div>
       </header>
       <section class="bi-filterbar-v11140">
-        <label>Desde<input class="control" type="date" data-bi-from value="${state.from}"></label>
-        <label>Hasta<input class="control" type="date" data-bi-to value="${state.to}"></label>
+        <label>Desde<input class="control" type="date" data-bi-from value="${safe(state.from)}"></label>
+        <label>Hasta<input class="control" type="date" data-bi-to value="${safe(state.to)}"></label>
         <div class="bi-presets-v11140">
           <button class="btn btn-ghost" data-bi-preset="7">7 días</button>
           <button class="btn btn-ghost" data-bi-preset="30">30 días</button>

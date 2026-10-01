@@ -24,7 +24,7 @@ export function renderExplorer(){
       <div class="bi-data-note-v11140">El detalle se obtiene desde el servidor con un máximo de 5.000 filas por consulta. No se exponen tablas ni SQL arbitrario.</div>
     </aside>
     <article class="bi-panel-v11140 bi-explorer-result-v11140">
-      <header><div><h3>${safe(meta.label)} · ${safe(meta.metrics[explorer.metric])}</h3><p>Agrupado por ${safe(meta.dimensions[explorer.dimension])} · ${state.from} → ${state.to}</p></div><span class="bi-chip-v11140">${explorer.result?.rows?.length||0} categorías</span></header>
+      <header><div><h3>${safe(meta.label)} · ${safe(meta.metrics[explorer.metric])}</h3><p>Agrupado por ${safe(meta.dimensions[explorer.dimension])} · ${safe(state.from)} → ${safe(state.to)}</p></div><span class="bi-chip-v11140">${explorer.result?.rows?.length||0} categorías</span></header>
       <div data-exp-result>${explorer.result?renderExplorerResult():empty("Configura el análisis y pulsa Analizar.")}</div>
     </article>
   </section>`;
