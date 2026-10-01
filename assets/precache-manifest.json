@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": "2cc1a5de0a72c8c2",
-  "sourceBytes": 2549231,
+  "revision": "e4a3d21e3316ee8b",
+  "sourceBytes": 2547424,
   "assets": [
     "./assets/css/analytics.css",
     "./assets/css/base/accessibility.css",
@@ -611,7 +611,6 @@
     "./assets/js/modules/order-cancellation.js",
     "./assets/js/modules/order-create-v1191.js",
     "./assets/js/modules/orders.js",
-    "./assets/js/modules/pagination-v1184.js",
     "./assets/js/modules/picking-flow.js",
     "./assets/js/modules/picking-focus-v1195.js",
     "./assets/js/modules/popup-ux-v1190.js",
