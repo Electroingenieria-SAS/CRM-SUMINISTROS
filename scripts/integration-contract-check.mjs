@@ -14,7 +14,21 @@ const migration102=read("supabase/migrations/102_auditoria_erp_bridge_v11_28_0.s
 const migration103=read("supabase/migrations/103_auditoria_erp_bridge_hardening_v11_28_0.sql");
 const migration104=read("supabase/migrations/104_auditoria_erp_server_dispatch_v11_28_1.sql");
 const migration107=read("supabase/migrations/107_auditoria_erp_route_recepcion_v11_28_2.sql");
-const frontendBridge=read("assets/js/modules/auditoria-erp-bridge-v11280.js");
+const frontendAdapter=read("assets/js/integrations/auditoria-erp/receiving-sync.js");
+const receiptForm=read("assets/js/domains/receiving/goods/create/receipt-form.js");
+const runtimeInstallers=read("assets/js/core/bootstrap/runtime-installers.js");
+const appEntry=read("assets/js/app-entry.js");
+const legacyBridgePath=path.join(root,"assets/js/modules/auditoria-erp-bridge-v11280.js");
+
+function collectRuntimeJs(directory){
+  return fs.readdirSync(directory,{withFileTypes:true}).flatMap(entry=>{
+    const target=path.join(directory,entry.name);
+    return entry.isDirectory()?collectRuntimeJs(target):entry.isFile()&&entry.name.endsWith(".js")?[target]:[];
+  });
+}
+const runtimeSource=collectRuntimeJs(path.join(root,"assets/js"))
+  .map(file=>fs.readFileSync(file,"utf8"))
+  .join("\n");
 
 check(bridge.includes('target: "recepciones"'),"El bridge dejó de declarar Recepción como destino funcional.");
 check(bridge.includes('targetRequest(admin, "recepciones"'),"El bridge dejó de insertar en la tabla recepciones.");
@@ -32,8 +46,15 @@ check(bridge.includes('body?.source === "database"'),"El bridge perdió la ruta 
 check(bridge.includes("erp_x_auditoria_erp_claim_webhook_v2"),"El bridge perdió el claim atómico del webhook.");
 check(bridge.includes("admin.auth.getUser(token)"),"El fallback de navegador dejó de validar el JWT del usuario.");
 check(bridge.includes("erp_x_auditoria_erp_authorize"),"El fallback de navegador perdió autorización por organización/permisos.");
-check(frontendBridge.includes("erp_x_auditoria_erp_pending"),"El fallback frontend perdió el drenaje de pendientes.");
-check(frontendBridge.includes("erp-auditoria-bridge"),"El frontend dejó de invocar el bridge autorizado.");
+check(frontendAdapter.includes("erp_x_auditoria_erp_pending"),"El owner frontend perdió el drenaje canónico de pendientes.");
+check(frontendAdapter.includes('SYNC_FUNCTION="erp-auditoria-bridge"'),"El owner frontend dejó de invocar el Edge bridge autorizado.");
+check(frontendAdapter.includes("installAuditoriaErpRetryScheduler"),"El owner frontend perdió el scheduler explícito de reintentos.");
+check(receiptForm.includes("notifyGoodsReceiptCreated"),"Recepción de mercancía perdió el hook post-create de AuditoriaERP.");
+check(receiptForm.includes("notifyAuditoriaReceipt(result);"),"El hook post-create ya no se ejecuta después de crear la recepción.");
+check(runtimeInstallers.includes("installAuditoriaErpRetrySchedulerService"),"El runtime autenticado dejó de instalar el scheduler de AuditoriaERP.");
+check(!appEntry.includes("auditoria-erp-bridge-v11280"),"app-entry volvió a cargar el bridge legacy de AuditoriaERP.");
+check(!fs.existsSync(legacyBridgePath),"El bridge legacy de AuditoriaERP debe permanecer eliminado.");
+check(!/client\.rpc\s*=/.test(runtimeSource),"Runtime no debe reasignar client.rpc; el adapter explícito debe conservar su identidad.");
 
 check(migration102.includes("auditoria_erp_outbox"),"Falta la outbox canónica de AuditoriaERP.");
 check(migration102.includes("tr_queue_auditoria_erp_receipt"),"Falta trigger de encolado de recepciones.");

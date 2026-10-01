@@ -24,6 +24,5 @@ import "./modules/flow-performance-v11130.js";
 import "./modules/inventory-dialogs-v11260.js";
 import "./modules/inventory-visual-v11270.js";
 import "./integrations/auditoria-erp/receiving-sync.js";
-import "./modules/auditoria-erp-bridge-v11280.js";
 
 import "./main.js";
