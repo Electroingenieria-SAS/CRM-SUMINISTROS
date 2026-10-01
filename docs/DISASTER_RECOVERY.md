@@ -27,6 +27,18 @@ Supabase conserva además 27 migraciones históricas aplicadas para las que no e
 
 La CI ejecuta `npm run db:ledger` y prohíbe que esa deuda histórica aumente.
 
+## Reconciliación de historial · 01/10/2026
+
+Se actualizó el ledger sin alterar ni fabricar historia productiva:
+
+- `114_impersonation_metrics_security_v11_32_0.sql` quedó registrada como aplicada en producción con versión `20261001153516` y sus objetos/contratos fueron verificados.
+- `079_jefatura_revision_aprobacion_sin_operacion_v11_8_1.sql` se relaciona mediante alias con el nombre productivo `079_jefatura_revision_aprobacion_sin_operacion`.
+- `083_order_type_labels_v11_9_1.sql` tiene su efecto verificado en producción (PVC/PVN/PVE/PVP conservan `name=code`), pero no existe una fila equivalente en `supabase_migrations.schema_migrations`; no se debe fabricar una entrada retroactiva.
+- `freight_predictive_model_v11_40_0` aparece dos veces en el historial productivo (`20260924214248` y `20260924215240`) con SQL idéntico, MD5 `0d6936c4e8e8210e3400087712fc79c2`; se conserva como evidencia histórica.
+- `qa_flow_pool_protection_v10_25_11` está aplicada en producción y dispone de evidencia histórica en `sql/migrations/063_qa_flow_pool_protection_v10_25_11.sql`; no se clasifica como database-only ni se mueve retroactivamente a la fuente canónica.
+
+La deuda `knownDatabaseOnly` permanece congelada en 27 entradas. Estas reconciliaciones documentan procedencia y drift histórico, pero no cambian artificialmente el `debtBudget`.
+
 ## Estrategia de DR vigente
 
 Ante un incidente de producción, no reconstruir manualmente el esquema ejecutando SQL histórico por ensayo y error.
