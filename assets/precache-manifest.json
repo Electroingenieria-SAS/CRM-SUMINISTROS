@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": "2e069bc20c4d88ba",
-  "sourceBytes": 2553326,
+  "revision": "626bf1e10d90e177",
+  "sourceBytes": 2554216,
   "assets": [
     "./assets/css/analytics.css",
     "./assets/css/base/accessibility.css",
@@ -316,6 +316,9 @@
     "./assets/js/domains/logistics/shipping/dispatch/dispatch-stage.js",
     "./assets/js/domains/logistics/shipping/files/shipping-file.js",
     "./assets/js/domains/logistics/shipping/guide/guide-dialog.js",
+    "./assets/js/domains/logistics/shipping/guide/payload.js",
+    "./assets/js/domains/logistics/shipping/guide/reader.js",
+    "./assets/js/domains/logistics/shipping/guide/save-guide.js",
     "./assets/js/domains/logistics/shipping/index.js",
     "./assets/js/domains/logistics/shipping/permissions/shipping-permissions.js",
     "./assets/js/domains/logistics/shipping/routes/shipping-routes.js",
@@ -635,7 +638,6 @@
     "./assets/js/modules/responsive-foundation-v11190.js",
     "./assets/js/modules/sent-orders.js",
     "./assets/js/modules/shipping-flow.js",
-    "./assets/js/modules/shipping-guide-reader-v11101.js",
     "./assets/js/modules/support-flow.js",
     "./assets/js/modules/vsm.js",
     "./assets/js/modules/work-clock.js",
