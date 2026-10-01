@@ -176,7 +176,7 @@ test("requested carrier aliases are not a hidden Shipping Guide contract",()=>{
   for(const unsupported of ["carrierName","carrierDocument","carrierPhone","carrierVehiclePlate","carrierFreightAmount"]){
     assert.equal(source.includes(unsupported),false,unsupported);
   }
-  for(const canonical of ['name="carrier"','name="trackingNumber"','name="carrierInvoiceNumber"','name="carrierCost"']){
+  for(const canonical of ['field("Transportadora","carrier"','field("Número de guía","trackingNumber"','field("Factura de la transportadora","carrierInvoiceNumber"','field("Costo del flete (COP)","carrierCost"']){
     assert.ok(source.includes(canonical),canonical);
   }
 });
