@@ -6,7 +6,7 @@ export function activeTask(data){return (data.tasks||[]).find(task=>["QUEUED","A
 
 export function actionCodes(data){return new Set((data.actions?.actions||[]).map(action=>action.code))}
 
-export function assigneeName(data){const task=activeTask(data);if(task?.assigned_profile_id===state.profile?.id)return state.profile.name||"Tu usuario";return task?.assigned_name||fmt.role(task?.assigned_role_code||data.order.current_role_code)||"Sin asignar"}
+export function assigneeName(data){const task=activeTask(data);const profileId=state.profile?.id;if(profileId&&task?.assigned_profile_id===profileId)return state.profile?.name||"Tu usuario";return task?.assigned_name||fmt.role(task?.assigned_role_code||data.order.current_role_code)||"Sin asignar"}
 
 export async function beginReception(data){
   let latest=data;
