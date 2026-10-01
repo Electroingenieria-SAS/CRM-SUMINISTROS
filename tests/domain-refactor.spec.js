@@ -76,6 +76,34 @@ test('Receiving keeps ownership permissions and the PDF draft when going back',a
   await expect(page.locator('[data-info-assign]')).toBeVisible();
 });
 
+test('Receiving assignee requires a real profile identity',async({page})=>{
+  await page.goto('/');
+  await expect(page.getByRole('heading',{name:'Ingresa a CRM Suministros'})).toBeVisible();
+  const result=await page.evaluate(async()=>{
+    const {assigneeName}=await import('/assets/js/domains/receiving/order/actions/start-reception.js');
+    const {state}=await import('/assets/js/core/state.js');
+    const originalProfile=state.profile;
+    const data=task=>({order:{current_role_code:'RECEPCION_PEDIDO'},tasks:[task]});
+    try{
+      state.profile=null;
+      const nullProfile=assigneeName(data({status:'QUEUED',assigned_name:'Sin perfil'}));
+      state.profile={id:'profile-current',name:'Usuario actual'};
+      const missingTaskOwner=assigneeName(data({status:'QUEUED',assigned_name:'Sin vínculo'}));
+      const otherUser=assigneeName(data({status:'QUEUED',assigned_profile_id:'profile-other',assigned_name:'Otro usuario'}));
+      const currentUser=assigneeName(data({status:'QUEUED',assigned_profile_id:'profile-current',assigned_name:'Nombre legado'}));
+      return {nullProfile,missingTaskOwner,otherUser,currentUser};
+    }finally{
+      state.profile=originalProfile;
+    }
+  });
+  expect(result).toEqual({
+    nullProfile:'Sin perfil',
+    missingTaskOwner:'Sin vínculo',
+    otherUser:'Otro usuario',
+    currentUser:'Usuario actual'
+  });
+});
+
 test('Picking resumes a found line with its saved physical origin',async({page})=>{
   await page.goto('/');
   await expect(page.getByRole('heading',{name:'Ingresa a CRM Suministros'})).toBeVisible();
