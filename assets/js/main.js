@@ -1,7 +1,7 @@
 import {state,setState} from "./core/state.js";
 import {renderLogin,renderShell,updateShell} from "./core/layout.js";
 import {initRouter,navigate} from "./core/router.js";
-import {signIn,getSession,onAuthChange,clearLocalSession} from "./services/supabase.js";
+import {getSession,onAuthChange,clearLocalSession} from "./services/supabase.js";
 import {api} from "./services/api.js";
 import {toast,loading,installDialogSystem} from "./core/ui.js";
 import {fmt} from "./core/format.js";
@@ -29,6 +29,7 @@ import {renderReceivingHub} from "./domains/receiving/index.js";
 import {registerServiceWorker} from "./core/pwa/register-service-worker.js";
 import {getModuleMetadata} from "./core/layout/module-metadata.js";
 import {installGlobalNavigationEvents} from "./core/events/global-navigation.js";
+import {createLoginController} from "./core/auth/login-controller.js";
 
 const routes={
   dashboard:async root=>{await renderDashboard(root);await enhanceOperationalDashboard(root);await enhanceFreightIntelligenceDashboard(root)},
@@ -102,46 +103,7 @@ async function bootAuthenticated(){
   try{return await authBootPromise}finally{authBootPromise=null}
 }
 
-const LOGIN_GUARD_KEY="erp_ei_login_guard";
-const LOGIN_MAX_ATTEMPTS=10;
-const LOGIN_WINDOW_MS=15*60*1000;
-function readLoginGuard(){try{const v=JSON.parse(localStorage.getItem(LOGIN_GUARD_KEY)||"{}");return {count:Number(v.count||0),resetAt:Number(v.resetAt||0)}}catch{return {count:0,resetAt:0}}}
-function clearLoginGuard(){try{localStorage.removeItem(LOGIN_GUARD_KEY)}catch{}}
-function registerLoginFailure(){const now=Date.now(),old=readLoginGuard(),active=old.resetAt>now?old:{count:0,resetAt:now+LOGIN_WINDOW_MS},next={count:active.count+1,resetAt:active.resetAt};try{localStorage.setItem(LOGIN_GUARD_KEY,JSON.stringify(next))}catch{}return next}
-function loginGuardMessage(guard){const minutes=Math.max(1,Math.ceil((guard.resetAt-Date.now())/60000));return `Demasiados intentos fallidos en este navegador. Intenta nuevamente en ${minutes} min.`}
-function bindLogin(){
-  const form=document.querySelector("#login-form");if(!form)return;
-  form.onsubmit=async e=>{
-    e.preventDefault();
-    const btn=form.querySelector("button"),guard=readLoginGuard();
-    if(guard.count>=LOGIN_MAX_ATTEMPTS&&guard.resetAt>Date.now()){renderLogin(loginGuardMessage(guard));bindLogin();return}
-    if(guard.resetAt&&guard.resetAt<=Date.now())clearLoginGuard();
-    const email=form.email.value.trim();
-    const password=form.password.value;
-    btn.disabled=true;
-    let auth;
-    try{
-      await clearLocalSession();
-      setState({session:null,profile:null,organization:null,modules:[],catalogs:{}});
-      auth=await signIn(email,password);
-      clearLoginGuard();
-    }catch(err){
-      const next=registerLoginFailure();
-      setState({session:null,profile:null,organization:null,modules:[],catalogs:{}});
-      renderLogin(next.count>=LOGIN_MAX_ATTEMPTS?loginGuardMessage(next):(err.message||"No fue posible iniciar sesión."));
-      bindLogin();
-      return;
-    }finally{btn.disabled=false}
-    try{
-      setState({session:auth.session||null});
-      await bootAuthenticated();
-    }catch(err){
-      setState({session:null,profile:null,organization:null,modules:[],catalogs:{}});
-      renderLogin(err.message||"No fue posible iniciar CRM Suministros.");
-      bindLogin();
-    }
-  };
-}
+const {bindLogin}=createLoginController({bootAuthenticated});
 
 installDialogSystem();
 

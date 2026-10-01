@@ -117,3 +117,124 @@ test('global navigation installs once and preserves both event contracts',async(
     assert.deepEqual(toasts,[["El pedido anterior continúa en Mis pedidos activos. Puedes tomar otro sin perder el avance.",'success',6000]]);
   }finally{restoreDocument();restoreWindow()}
 });
+
+
+function memoryStorage(initial={}){
+  const values=new Map(Object.entries(initial));
+  return {
+    getItem:key=>values.has(key)?values.get(key):null,
+    setItem:(key,value)=>values.set(key,String(value)),
+    removeItem:key=>values.delete(key),
+    value:key=>values.get(key)??null
+  };
+}
+
+function loginForm(email=' user@ei.com.co ',password='secret'){
+  const button={disabled:false};
+  return {
+    email:{value:email},
+    password:{value:password},
+    onsubmit:null,
+    querySelector(selector){
+      assert.equal(selector,'button');
+      return button;
+    },
+    button
+  };
+}
+
+function loginHarness({guard,now=1_000_000,signIn,bootAuthenticated}={}){
+  const storage=memoryStorage(guard?{erp_ei_login_guard:JSON.stringify(guard)}:{});
+  const form=loginForm();
+  const states=[],rendered=[];
+  let clearCalls=0,signInCalls=0,bootCalls=0;
+  const documentRef={querySelector(selector){
+    assert.equal(selector,'#login-form');
+    return form;
+  }};
+  const dependencies={
+    storage,documentRef,now:()=>now,
+    async clearLocalSession(){clearCalls+=1},
+    setState(value){states.push(value)},
+    renderLogin(message=''){rendered.push(message)},
+    async signIn(email,password){
+      signInCalls+=1;
+      if(signIn)return signIn(email,password);
+      return {session:{id:'session-1'}};
+    },
+    async bootAuthenticated(){
+      bootCalls+=1;
+      if(bootAuthenticated)return bootAuthenticated();
+    }
+  };
+  return {storage,form,states,rendered,dependencies,counts:()=>({clearCalls,signInCalls,bootCalls})};
+}
+
+async function submit(form){
+  assert.equal(typeof form.onsubmit,'function');
+  await form.onsubmit({preventDefault(){}});
+}
+
+test('login guard blocks attempt 10 inside the active window without calling signIn',async()=>{
+  const h=loginHarness({guard:{count:10,resetAt:1_600_000}});
+  const {createLoginController}=await import('../../assets/js/core/auth/login-controller.js');
+  const {bindLogin}=createLoginController(h.dependencies);
+  bindLogin();
+  await submit(h.form);
+  assert.equal(h.counts().signInCalls,0);
+  assert.match(h.rendered.at(-1),/Demasiados intentos fallidos/);
+  assert.equal(h.form.button.disabled,false);
+});
+
+test('expired login guard is cleared and allows a new authentication attempt',async()=>{
+  const h=loginHarness({guard:{count:10,resetAt:999_999}});
+  const {createLoginController}=await import('../../assets/js/core/auth/login-controller.js');
+  const {bindLogin}=createLoginController(h.dependencies);
+  bindLogin();
+  await submit(h.form);
+  assert.equal(h.counts().signInCalls,1);
+  assert.equal(h.counts().bootCalls,1);
+  assert.equal(h.storage.value('erp_ei_login_guard'),null);
+});
+
+test('credential failure increments the local guard, resets state and renders the error',async()=>{
+  const h=loginHarness({signIn:async()=>{throw new Error('Credenciales inválidas')}});
+  const {createLoginController}=await import('../../assets/js/core/auth/login-controller.js');
+  const {bindLogin}=createLoginController(h.dependencies);
+  bindLogin();
+  await submit(h.form);
+  const guard=JSON.parse(h.storage.value('erp_ei_login_guard'));
+  assert.equal(guard.count,1);
+  assert.equal(h.counts().bootCalls,0);
+  assert.equal(h.rendered.at(-1),'Credenciales inválidas');
+  assert.deepEqual(h.states.at(-1),{session:null,profile:null,organization:null,modules:[],catalogs:{}});
+  assert.equal(h.form.button.disabled,false);
+});
+
+test('successful login clears the guard, stores session and boots exactly once',async()=>{
+  const h=loginHarness({guard:{count:3,resetAt:1_600_000}});
+  const {createLoginController}=await import('../../assets/js/core/auth/login-controller.js');
+  const {bindLogin}=createLoginController(h.dependencies);
+  bindLogin();
+  bindLogin();
+  const installedHandler=h.form.onsubmit;
+  await installedHandler({preventDefault(){}});
+  assert.deepEqual(h.counts(),{clearCalls:1,signInCalls:1,bootCalls:1});
+  assert.equal(h.storage.value('erp_ei_login_guard'),null);
+  assert.deepEqual(h.states.at(-1),{session:{id:'session-1'}});
+  assert.equal(h.form.button.disabled,false);
+});
+
+test('authenticated bootstrap failure returns to a clean login state and rebinds submit',async()=>{
+  const h=loginHarness({bootAuthenticated:async()=>{throw new Error('No fue posible cargar perfil')}});
+  const {createLoginController}=await import('../../assets/js/core/auth/login-controller.js');
+  const {bindLogin}=createLoginController(h.dependencies);
+  bindLogin();
+  const before=h.form.onsubmit;
+  await submit(h.form);
+  assert.equal(h.counts().bootCalls,1);
+  assert.deepEqual(h.states.at(-1),{session:null,profile:null,organization:null,modules:[],catalogs:{}});
+  assert.equal(h.rendered.at(-1),'No fue posible cargar perfil');
+  assert.equal(typeof h.form.onsubmit,'function');
+  assert.notEqual(h.form.onsubmit,before);
+});
