@@ -142,23 +142,24 @@ jobs:
             test -s "assets/css/${css}.css"
             grep -q "./assets/css/${css}.css" service-worker.js
           done
+          grep -q 'precacheCssTree' service-worker.js
 
-          test -s "assets/js/modules/workforce-experience-v11344.js"
-          grep -q "./assets/js/modules/workforce-experience-v11344.js" service-worker.js
-          test -s "assets/js/modules/workforce-timeline-v11350.js"
-          grep -q "./assets/js/modules/workforce-timeline-v11350.js" service-worker.js
-          test -s "assets/js/modules/workforce-calendar-v11360.js"
-          test -s "assets/js/modules/workforce-evidence-manager-v11360.js"
-          grep -q "./assets/js/modules/workforce-calendar-v11360.js" service-worker.js
-          grep -q "./assets/js/modules/workforce-evidence-manager-v11360.js" service-worker.js
+          test -s "assets/js/domains/workforce/today/experience-styles.js"
+          grep -q "./assets/js/domains/workforce/today/experience-styles.js" service-worker.js
+          test -s "assets/js/domains/workforce/timeline/index.js"
+          grep -q "./assets/js/domains/workforce/timeline/index.js" service-worker.js
+          test -s "assets/js/domains/workforce/calendar/index.js"
+          test -s "assets/js/domains/workforce/evidence/index.js"
+          grep -q "./assets/js/domains/workforce/calendar/index.js" service-worker.js
+          grep -q "./assets/js/domains/workforce/evidence/index.js" service-worker.js
 
-          test -s "assets/js/modules/paco-operational-v11370.js"
-          test -s "assets/js/modules/paco-language-v11373.js"
+          test -s "assets/js/domains/paco/index.js"
+          test -s "assets/js/domains/paco/language/index.js"
           test -s "assets/runtime-css/paco-operational-v11370.css"
           test -s "scripts/paco-operational-v11370-test.mjs"
           test -s "scripts/paco-language-v11373-test.mjs"
-          grep -q "./assets/js/modules/paco-operational-v11370.js" service-worker.js
-          grep -q "./assets/js/modules/paco-language-v11373.js" service-worker.js
+          grep -q "./assets/js/domains/paco/index.js" service-worker.js
+          grep -q "./assets/js/domains/paco/language/index.js" service-worker.js
           grep -q "./assets/runtime-css/paco-operational-v11370.css" service-worker.js
           grep -q 'pacoSnapshot:()=>rpc("erp_x_paco_snapshot")' assets/js/services/api.js
 
@@ -179,15 +180,15 @@ jobs:
           grep -q 'confirmShippingSatisfaction' assets/js/services/api.js
           grep -q 'Entregado con satisfacción' assets/js/modules/shipping-flow.js
           grep -q 'data-satisfaction' assets/js/modules/sent-orders.js
-          ! grep -Fq '.btn-danger,.btn.danger{' assets/css/analytics.css
-          grep -Fq '.admin-shell-v11160 .btn-danger,.admin-shell-v11160 .btn.danger{' assets/css/analytics.css
+          ! grep -R -Fq '.btn-danger,.btn.danger{' assets/css
+          grep -R -Fq '.admin-shell-v11160 .btn-danger,.admin-shell-v11160 .btn.danger{' assets/css
 
-          grep -Fq '.modal.popup-ux-v1190:not(.full):not(.split):not(.wizard-modal){width:min(680px,100%)}' assets/css/operations.css
-          grep -Fq '#modal-root .modal.popup-ux-v1190.simple-process-modal.wide{' assets/css/operations.css
-          grep -Fq 'width:min(1120px,calc(100vw - 80px))!important' assets/css/operations.css
-          grep -Fq 'color:#0b65c7!important' assets/css/operations.css
-          grep -Fq 'color:#0a4f91!important' assets/css/operations.css
-          grep -Fq 'color:#416e99!important' assets/css/operations.css
+          grep -R -Fq '.modal.popup-ux-v1190:not(.full):not(.split):not(.wizard-modal){width:min(680px,100%)}' assets/css
+          grep -R -Fq '#modal-root .modal.popup-ux-v1190.simple-process-modal.wide{' assets/css
+          grep -R -Fq 'width:min(1120px,calc(100vw - 80px))!important' assets/css
+          grep -R -Fq 'color:#0b65c7!important' assets/css
+          grep -R -Fq 'color:#0a4f91!important' assets/css
+          grep -R -Fq 'color:#416e99!important' assets/css
 
           test "$(grep -c '<script type="module" src="./assets/js/' index.html)" -eq 1
           grep -q 'import "./main.js";' assets/js/app-entry.js
