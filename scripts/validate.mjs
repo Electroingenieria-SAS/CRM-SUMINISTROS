@@ -1,4 +1,5 @@
 import {readDomainSource,readModuleSource} from "./tests/read-domain-source.mjs";
+import {readCssSource} from "./tests/read-css-source.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
@@ -64,17 +65,17 @@ const workforceManagerMigration=read("supabase/migrations/117_workforce_manager_
 const workforceCatalogMigration=read("supabase/migrations/118_workforce_catalog_taxonomy_v11_34_3.sql");
 const workforceTimelineMigration=read("supabase/migrations/119_workforce_timeline_evidence_v11_35_0.sql");
 const workforceCalendarMigration=read("supabase/migrations/120_workforce_calendar_feed_v11_36_0.sql");
-const workforce=read("assets/js/modules/workforce.js");
-const workforcePlanner=read("assets/js/domains/workforce/planner/index.js");
-const workforceToday=read("assets/js/domains/workforce/today/time-traffic.js");
+const workforce=readDomainSource("workforce","assets/js/modules/workforce.js");
+const workforcePlanner=readModuleSource("assets/js/domains/workforce/planner","assets/js/domains/workforce/planner/index.js");
+const workforceToday=readModuleSource("assets/js/domains/workforce/today","assets/js/domains/workforce/today/time-traffic.js");
 const workforceManager=read("assets/js/domains/workforce/analytics/time-review.js");
-const workforceCatalog=read("assets/js/domains/workforce/catalog/index.js");
+const workforceCatalog=readModuleSource("assets/js/domains/workforce/catalog","assets/js/domains/workforce/catalog/index.js");
 const workforceExperience=read("assets/js/domains/workforce/today/experience-styles.js");
 const workforceExperienceCss=read("assets/runtime-css/workforce-experience-v11344.css");
-const workforceTimeline=read("assets/js/domains/workforce/timeline/index.js");
+const workforceTimeline=readModuleSource("assets/js/domains/workforce/timeline","assets/js/domains/workforce/timeline/index.js");
 const workforceTimelineCss=read("assets/runtime-css/workforce-timeline-v11350.css");
-const workforceEvidenceManager=read("assets/js/domains/workforce/evidence/index.js");
-const workforceCalendar=read("assets/js/domains/workforce/calendar/index.js");
+const workforceEvidenceManager=readModuleSource("assets/js/domains/workforce/evidence","assets/js/domains/workforce/evidence/index.js");
+const workforceCalendar=readModuleSource("assets/js/domains/workforce/calendar","assets/js/domains/workforce/calendar/index.js");
 const workforceCalendarCss=read("assets/runtime-css/workforce-calendar-v11360.css");
 const approvalsModule=read("assets/js/modules/approvals.js");
 const operational=read("assets/js/modules/operational-v112.js");
@@ -87,13 +88,13 @@ const shippingFlow=read("assets/js/modules/shipping-flow.js");
 const sentOrders=read("assets/js/modules/sent-orders.js");
 const api=read("assets/js/services/api.js");
 const reportsEnterprise=readDomainSource("analytics/reports","assets/js/domains/analytics/reports/index.js");
-const analyticsCss=read("assets/css/analytics.css");
-const operationsCss=read("assets/css/operations.css");
-const coreCss=read("assets/css/core-shell.css");
-const experienceCss=read("assets/css/experience.css");
+const analyticsCss=readCssSource(path.join(root,"assets/css/analytics.css"));
+const operationsCss=readCssSource(path.join(root,"assets/css/operations.css"));
+const coreCss=readCssSource(path.join(root,"assets/css/core-shell.css"));
+const experienceCss=readCssSource(path.join(root,"assets/css/experience.css"));
 const pacoEntry=read("assets/js/domains/paco/index.js");
-const pacoOperational=read("assets/js/domains/paco/index.js");
-const pacoLanguage=read("assets/js/domains/paco/language/index.js");
+const pacoOperational=readDomainSource("paco","assets/js/domains/paco/index.js");
+const pacoLanguage=readModuleSource("assets/js/domains/paco/language","assets/js/domains/paco/language/index.js");
 const pacoOperationalCss=read("assets/runtime-css/paco-operational-v11370.css");
 const pacoMigration=read("supabase/migrations/121_paco_operational_snapshot_v11_37_0.sql");
 const jsFiles=walk(path.join(root,"assets/js")).filter(file=>file.endsWith(".js"));
@@ -116,7 +117,7 @@ check(exists("assets/runtime-css/workforce-timeline-v11350.css"),"Falta CSS time
 check(sw.includes("./assets/js/domains/workforce/timeline/index.js"),"PWA debe precachear el módulo timeline.");
 check(sw.includes("./assets/runtime-css/workforce-timeline-v11350.css"),"PWA debe precachear el CSS timeline.");
 check(workforce.includes("composePlannerTimeline")&&workforce.includes("renderWorkforceCalendarBoard")&&workforce.includes("bindWorkforceCalendar"),"Workforce debe delegar el cronograma al motor V11.36.0.");
-check(workforce.includes("work-indicator-hero-v11363")&&workforce.includes("analyticsBalance(summary)"),"Indicadores Workforce V11.36.4 incompletos.");
+check(workforce.includes("work-indicator-hero-v11363")&&workforce.includes("analyticsBalance("),"Indicadores Workforce V11.36.4 incompletos.");
 check(exists("scripts/workforce-order-automation-v11380-test.mjs"),"Falta contrato V11.38.0 de ocupación automática de pedidos.");
 check(exists("scripts/order-stage-status-v11381-test.mjs"),"Falta contrato V11.38.1 del chip Estado por etapa.");
 check(exists("scripts/order-responsible-seller-v11382-test.mjs"),"Falta contrato V11.38.2 de responsable activo y vendedor.");
@@ -151,7 +152,7 @@ check(exists("assets/js/domains/paco/language/index.js"),"Falta motor de lenguaj
 check(exists("scripts/paco-language-v11373-test.mjs"),"Falta corpus de entrenamiento requerido por PACO V11.39.0.");
 check(exists("assets/runtime-css/paco-operational-v11370.css"),"Falta CSS PACO V11.39.0.");
 check(sw.includes("./assets/js/domains/paco/index.js")&&sw.includes("./assets/js/domains/paco/language/index.js")&&sw.includes("./assets/runtime-css/paco-operational-v11370.css"),"PWA debe precachear PACO V11.39.0 y su motor de lenguaje.");
-check(pacoEntry.includes('paco-operational-v11370.js')&&!pacoEntry.includes('GUIDES'),"PACO legado debe quedar reducido a un entrypoint de compatibilidad.");
+check(pacoEntry.includes("installPacoAssistant")&&pacoEntry.includes("./controller.js"),"PACO canónico debe exponer un único entrypoint hacia controller.js.");
 check(
   pacoOperational.includes('api.pacoSnapshot()')
     &&pacoOperational.includes('MONITOR_MS=60000')
@@ -202,7 +203,24 @@ for(const cssPath of runtimeCss){
   check(exists(cssPath),`Falta CSS runtime externalizado: ${cssPath}`);
   check(sw.includes("./"+cssPath),`PWA debe precachear ${cssPath}`);
 }
-check(walk(path.join(root,"assets/css")).filter(file=>file.endsWith(".css")).map(rel).every(file=>canonicalCss.includes(file)),"assets/css conserva una familia no canónica.");
+const cssFiles=walk(path.join(root,"assets/css")).filter(file=>file.endsWith(".css")).map(rel);
+const rootCss=cssFiles.filter(file=>path.posix.dirname(file)==="assets/css");
+check(rootCss.length===canonicalCss.length&&rootCss.every(file=>canonicalCss.includes(file)),"assets/css raíz debe conservar solo las cuatro entradas canónicas.");
+function collectCssImports(cssPath,seen=new Set()){
+  if(seen.has(cssPath))return seen;
+  seen.add(cssPath);
+  const source=read(cssPath);
+  for(const match of source.matchAll(/@import\s+["']([^"']+)["']\s*;/g)){
+    if(/^(?:[a-z]+:|\/\/)/i.test(match[1]))continue;
+    const imported=path.posix.normalize(path.posix.join(path.posix.dirname(cssPath),match[1]));
+    if(exists(imported))collectCssImports(imported,seen);
+  }
+  return seen;
+}
+const reachableCss=new Set();
+for(const cssPath of canonicalCss)for(const file of collectCssImports(cssPath))reachableCss.add(file);
+const nestedCss=cssFiles.filter(file=>!canonicalCss.includes(file));
+check(nestedCss.every(file=>reachableCss.has(file)),"assets/css contiene fragmentos huérfanos o fuera de la composición canónica.");
 check((coreCss.match(/:root\{/g)||[]).length===1,"core-shell.css debe conservar una sola raíz de tokens.");
 check(coreCss.includes('font-family:"Century Gothic"'),"Falta tipografía institucional.");
 check(experienceCss.includes('.paco2-panel{display:none!important}'),"Se perdió el contrato visual de Paco.");
