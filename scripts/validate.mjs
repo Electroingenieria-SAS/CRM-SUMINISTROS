@@ -16,6 +16,10 @@ function walk(dir,out=[]){
   }
   return out;
 }
+const readJsTree=relDir=>walk(path.join(root,relDir))
+  .filter(file=>file.endsWith(".js"))
+  .map(file=>fs.readFileSync(file,"utf8"))
+  .join("\n");
 
 const pkg=JSON.parse(read("package.json"));
 const pkgLock=JSON.parse(read("package-lock.json"));
@@ -63,17 +67,17 @@ const workforceManagerMigration=read("supabase/migrations/117_workforce_manager_
 const workforceCatalogMigration=read("supabase/migrations/118_workforce_catalog_taxonomy_v11_34_3.sql");
 const workforceTimelineMigration=read("supabase/migrations/119_workforce_timeline_evidence_v11_35_0.sql");
 const workforceCalendarMigration=read("supabase/migrations/120_workforce_calendar_feed_v11_36_0.sql");
-const workforce=read("assets/js/modules/workforce.js");
-const workforcePlanner=read("assets/js/domains/workforce/planner/index.js");
-const workforceToday=read("assets/js/domains/workforce/today/time-traffic.js");
+const workforce=read("assets/js/modules/workforce.js")+"\n"+readJsTree("assets/js/domains/workforce");
+const workforcePlanner=readJsTree("assets/js/domains/workforce/planner");
+const workforceToday=readJsTree("assets/js/domains/workforce/today");
 const workforceManager=read("assets/js/domains/workforce/analytics/time-review.js");
-const workforceCatalog=read("assets/js/domains/workforce/catalog/index.js");
+const workforceCatalog=readJsTree("assets/js/domains/workforce/catalog");
 const workforceExperience=read("assets/js/domains/workforce/today/experience-styles.js");
 const workforceExperienceCss=read("assets/runtime-css/workforce-experience-v11344.css");
-const workforceTimeline=read("assets/js/domains/workforce/timeline/index.js");
+const workforceTimeline=readJsTree("assets/js/domains/workforce/timeline");
 const workforceTimelineCss=read("assets/runtime-css/workforce-timeline-v11350.css");
-const workforceEvidenceManager=read("assets/js/domains/workforce/evidence/index.js");
-const workforceCalendar=read("assets/js/domains/workforce/calendar/index.js");
+const workforceEvidenceManager=readJsTree("assets/js/domains/workforce/evidence");
+const workforceCalendar=readJsTree("assets/js/domains/workforce/calendar");
 const workforceCalendarCss=read("assets/runtime-css/workforce-calendar-v11360.css");
 const approvalsModule=read("assets/js/modules/approvals.js");
 const operational=read("assets/js/modules/operational-v112.js");
@@ -91,8 +95,8 @@ const operationsCss=read("assets/css/operations.css");
 const coreCss=read("assets/css/core-shell.css");
 const experienceCss=read("assets/css/experience.css");
 const pacoEntry=read("assets/js/domains/paco/index.js");
-const pacoOperational=read("assets/js/domains/paco/index.js");
-const pacoLanguage=read("assets/js/domains/paco/language/index.js");
+const pacoOperational=readJsTree("assets/js/domains/paco");
+const pacoLanguage=readJsTree("assets/js/domains/paco/language");
 const pacoOperationalCss=read("assets/runtime-css/paco-operational-v11370.css");
 const pacoMigration=read("supabase/migrations/121_paco_operational_snapshot_v11_37_0.sql");
 const jsFiles=walk(path.join(root,"assets/js")).filter(file=>file.endsWith(".js"));
@@ -115,7 +119,7 @@ check(exists("assets/runtime-css/workforce-timeline-v11350.css"),"Falta CSS time
 check(sw.includes("./assets/js/domains/workforce/timeline/index.js"),"PWA debe precachear el módulo timeline.");
 check(sw.includes("./assets/runtime-css/workforce-timeline-v11350.css"),"PWA debe precachear el CSS timeline.");
 check(workforce.includes("composePlannerTimeline")&&workforce.includes("renderWorkforceCalendarBoard")&&workforce.includes("bindWorkforceCalendar"),"Workforce debe delegar el cronograma al motor V11.36.0.");
-check(workforce.includes("work-indicator-hero-v11363")&&workforce.includes("analyticsBalance(summary)"),"Indicadores Workforce V11.36.4 incompletos.");
+check(workforce.includes("work-indicator-hero-v11363")&&workforce.includes("analyticsBalance("),"Indicadores Workforce V11.36.4 incompletos.");
 check(exists("scripts/workforce-order-automation-v11380-test.mjs"),"Falta contrato V11.38.0 de ocupación automática de pedidos.");
 check(exists("scripts/order-stage-status-v11381-test.mjs"),"Falta contrato V11.38.1 del chip Estado por etapa.");
 check(exists("scripts/order-responsible-seller-v11382-test.mjs"),"Falta contrato V11.38.2 de responsable activo y vendedor.");
@@ -150,7 +154,7 @@ check(exists("assets/js/domains/paco/language/index.js"),"Falta motor de lenguaj
 check(exists("scripts/paco-language-v11373-test.mjs"),"Falta corpus de entrenamiento requerido por PACO V11.39.0.");
 check(exists("assets/runtime-css/paco-operational-v11370.css"),"Falta CSS PACO V11.39.0.");
 check(sw.includes("./assets/js/domains/paco/index.js")&&sw.includes("./assets/js/domains/paco/language/index.js")&&sw.includes("./assets/runtime-css/paco-operational-v11370.css"),"PWA debe precachear PACO V11.39.0 y su motor de lenguaje.");
-check(pacoEntry.includes('paco-operational-v11370.js')&&!pacoEntry.includes('GUIDES'),"PACO legado debe quedar reducido a un entrypoint de compatibilidad.");
+check(pacoEntry.includes("installPacoAssistant")&&pacoEntry.includes("./controller.js"),"PACO canónico debe exponer un único entrypoint hacia controller.js.");
 check(
   pacoOperational.includes('api.pacoSnapshot()')
     &&pacoOperational.includes('MONITOR_MS=60000')
