@@ -45,7 +45,7 @@ const client={
 };
 const rpcIdentity=client.rpc;
 
-globalThis.navigator={onLine:true};
+Object.defineProperty(globalThis,"navigator",{value:{onLine:true},configurable:true,writable:true});
 globalThis.document={
   visibilityState:"visible",
   title:"CRM fixture",
