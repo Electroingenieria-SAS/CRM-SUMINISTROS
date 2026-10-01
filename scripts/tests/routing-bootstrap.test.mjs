@@ -154,17 +154,20 @@ test('authenticated runtime installer resumes after a failed installer without d
   assert.deepEqual(calls,['first','second','second','third']);
 });
 
-test('main delegates routing and authenticated installers instead of owning their registries',()=>{
+test('authenticated bootstrap owns routing/runtime while main stays free of registries',()=>{
   const main=fs.readFileSync(new URL('../../assets/js/main.js',import.meta.url),'utf8');
+  const bootstrap=fs.readFileSync(new URL('../../assets/js/core/bootstrap/authenticated-bootstrap.js',import.meta.url),'utf8');
   assert.ok(!main.includes('const routes='));
   assert.ok(!main.includes('const queueModules='));
   assert.ok(!main.includes('function moduleReadable('));
   assert.ok(!main.includes('function firstReadableModule('));
-  assert.ok(main.includes('initRouter(createRouteDispatcher('));
-  assert.ok(main.includes('installAuthenticatedRuntime();'));
+  assert.ok(!main.includes('initRouter('));
+  assert.ok(!main.includes('installAuthenticatedRuntime('));
+  assert.ok(bootstrap.includes('initRouter(createRouteDispatcher('));
+  assert.ok(bootstrap.includes('installAuthenticatedRuntime();'));
   for(const path of [
-    './modules/dashboard.js','./modules/inventory.js','./modules/approvals.js','./modules/vsm.js',
-    './modules/imports.js','./modules/audit.js','./modules/admin.js','./modules/credit.js',
-    './modules/reports.js','./modules/cutting-flow.js','./modules/workforce.js','./domains/receiving/index.js'
-  ])assert.ok(!main.includes(path),`renderer import leaked back into main: ${path}`);
+    '../../modules/dashboard.js','../../modules/inventory.js','../../modules/approvals.js','../../modules/vsm.js',
+    '../../modules/imports.js','../../modules/audit.js','../../modules/admin.js','../../modules/credit.js',
+    '../../modules/reports.js','../../modules/cutting-flow.js','../../modules/workforce.js','../../domains/receiving/index.js'
+  ])assert.ok(!bootstrap.includes(path),`renderer import leaked into authenticated bootstrap: ${path}`);
 });
