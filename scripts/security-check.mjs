@@ -1,3 +1,4 @@
+import {readModuleSource} from "./tests/read-domain-source.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
@@ -62,7 +63,7 @@ if(!fs.existsSync(metricsConfig)||!/\[functions\.erp-auditoria-metrics\][\s\S]*?
 const uiCore=path.join(root,"assets/js/core/ui.js");
 if(!fs.existsSync(uiCore))failures.push("Falta core/ui.js.");
 else{
-  const text=fs.readFileSync(uiCore,"utf8");
+  const text=readModuleSource("assets/js/core/ui","assets/js/core/ui.js");
   for(const token of ["export function sanitizeHtml","BLOCKED_HTML_TAGS","UNSAFE_URL","UNSAFE_STYLE","sanitizeHtml(body","sanitizeHtml(step.content"]){
     if(!text.includes(token))failures.push(`core/ui.js: falta barrera XSS requerida: ${token}.`);
   }

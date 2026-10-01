@@ -25,7 +25,7 @@ import {initWorkClock} from "./modules/work-clock.js";
 import {installOperationalV112,enhanceOperationalDashboard} from "./modules/operational-v112.js";
 import {enhanceFreightIntelligenceDashboard} from "./modules/freight-intelligence-v11410.js";
 import {installOperationalResolveGuard} from "./modules/operational-resolve-guard-v112.js";
-import {renderReceivingHub} from "./modules/receiving-hub-v115.js";
+import {renderReceivingHub} from "./domains/receiving/index.js";
 
 const routes={
   dashboard:async root=>{await renderDashboard(root);await enhanceOperationalDashboard(root);await enhanceFreightIntelligenceDashboard(root)},

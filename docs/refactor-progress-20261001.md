@@ -80,3 +80,38 @@ No se ejercitaron sesiones de usuarios reales ni se cambiaron planes.
   indicadores y PACO; desktop, iPhone/WebKit, tablet, 1024 px y landscape.
   Confirmar scroll horizontal, teclado/foco, zoom 200 % y reduced motion.
   No se certifica responsive basándose únicamente en DOM o igualdad CSS.
+
+- Reports: archivo versionado de 680 líneas retirado; 24 responsabilidades
+  canónicas bajo `domains/analytics/reports`, controlador de menos de 100 líneas.
+  Comparación DOM de ocho pestañas idéntica antes/después; consulta BI y apertura
+  de vista guardada correctas. Enlace de dependencias verde.
+
+- Receiving: pedido y mercancía extraídos en controladores, etapas, líneas,
+  PDF, asignación, borradores, acciones y detalle. Hub versionado retirado.
+  Comparación DOM antes/después de seis estados idéntica, incluyendo bloqueo
+  por permisos, revisión/PDF, persistencia del borrador y lista de mercancía.
+  Dependencias del dominio enlazadas. Regresión Playwright añadida para el auxiliar.
+
+- Picking: verificación, origen físico, recogida de cortes, rondas parciales,
+  confirmación y borradores extraídos. Comparación DOM de cuatro estados idéntica.
+  Permisos y novedad obligatoria verdes; enlace del dominio verde.
+- Fallo concreto reproducido: reanudar una línea FOUND usaba `sync` antes de
+  inicializarlo, cerrando el popup. Inicialización adelantada a la restauración
+  de orígenes; regresión DOM RED → GREEN y Playwright añadido.
+
+- Core UI: saneamiento HTML, diálogos, accesibilidad/foco, toast, loading,
+  empty state, formularios, paginación, task panel y asistente separados.
+  `core/ui.js` conserva la API pública como fachada. El wizard se divide en
+  preparación, plantilla y navegación; ninguna función nueva supera 80 líneas.
+- XSS, avance/validación/cierre del wizard, Tab/Escape y restauración de app
+  pasan tanto con el código previo como con la composición nueva en DOM.
+  Orders sigue verde como consumidor inmediato. Dependencias enlazadas.
+  Los gates de seguridad leen la implementación canónica, sin quitar exigencias.
+
+- Drive: integración institucional separada en sesión, autorización de descarga,
+  validación de archivo, codificación, puente POST/postMessage, uploads, preview
+  y descarga. La fachada `services/drive.js` mantiene sus cuatro exports.
+  Se reubicó correctamente el import dinámico de sesión.
+- Prueba DOM antes/después: upload de pedido, registro de evidencia de actividad,
+  preview, bloqueo de HTML/MIME, rechazo de origen/requestId incorrectos y limpieza
+  de iframe/form verdes, sin escrituras externas. Contratos Workforce verdes.

@@ -2,7 +2,7 @@ import {state} from "../core/state.js";
 import {openModuleGuide} from "./guides-v113.js";
 import {installWorkforceTaxonomyV113} from "./workforce-taxonomy-v113.js";
 import {installAccessibilityV114} from "./accessibility-v114.js";
-import {installReceivingDomainV115} from "./receiving-hub-v115.js";
+import {installReceivingDomainV115} from "../domains/receiving/index.js";
 import {installReceivingGuideV115} from "./receiving-guide-v115.js";
 
 /*

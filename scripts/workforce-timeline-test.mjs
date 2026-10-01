@@ -1,5 +1,5 @@
 import {readCssSource} from "./tests/read-css-source.mjs";
-import {readDomainSource} from "./tests/read-domain-source.mjs";
+import {readDomainSource,readModuleSource} from "./tests/read-domain-source.mjs";
 import fs from "node:fs";
 import assert from "node:assert/strict";
 import {
@@ -102,7 +102,7 @@ assert.equal(/create\s+table/i.test(migration),false,"V11.35.0 no debe crear tab
 assert.equal(/create\s+(unique\s+)?index/i.test(migration),false,"V11.35.0 no debe crear índices redundantes.");
 assert.equal(migration.includes("'preview'"),false,"La base no debe almacenar ni devolver miniaturas embebidas.");
 
-const drive=fs.readFileSync(new URL("../assets/js/services/drive.js",import.meta.url),"utf8");
+const drive=readModuleSource("assets/js/integrations/drive","assets/js/services/drive.js");
 for(const token of ["loadWorkEvidencePreview","PREVIEW_WORK_EVIDENCE"]){
   assert.equal(drive.includes(token),true,`Drive transport debe conservar: ${token}`);
 }

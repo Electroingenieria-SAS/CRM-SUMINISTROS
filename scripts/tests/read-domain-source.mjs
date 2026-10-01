@@ -7,7 +7,11 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
 // Keep historical text contracts pointed at the actual domain implementation.
 // No assertions are dropped when a legacy entry point becomes a facade.
 export function readDomainSource(domain,legacyPath){
-  const directory=path.join(root,'assets/js/domains',domain);
+  return readModuleSource(path.join('assets/js/domains',domain),legacyPath);
+}
+
+export function readModuleSource(relativeDirectory,legacyPath){
+  const directory=path.join(root,relativeDirectory);
   if(!fs.existsSync(directory))return fs.readFileSync(path.join(root,legacyPath),'utf8');
   const read=folder=>fs.readdirSync(folder,{withFileTypes:true}).sort((a,b)=>a.name.localeCompare(b.name)).map(entry=>{
     const target=path.join(folder,entry.name);
