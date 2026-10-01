@@ -7,7 +7,7 @@ import {
   CRM_MODULE_KNOWLEDGE,
   isCancelText,
   isRestartText
-} from "../assets/js/modules/paco-language-v11373.js";
+} from "../assets/js/domains/paco/language/index.js";
 
 let checks=0;
 function eq(actual,expected,label){

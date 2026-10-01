@@ -1,12 +1,13 @@
+import {readDomainSource} from "./tests/read-domain-source.mjs";
 import fs from "node:fs";
 import assert from "node:assert/strict";
 
-const wrapper=fs.readFileSync(new URL("../assets/js/modules/paco-assistant-v11200.js",import.meta.url),"utf8");
-const engine=fs.readFileSync(new URL("../assets/js/modules/paco-operational-v11370.js",import.meta.url),"utf8");
+const wrapper=fs.readFileSync(new URL("../assets/js/domains/paco/index.js",import.meta.url),"utf8");
+const engine=readDomainSource("paco","assets/js/domains/paco/index.js");
 const css=fs.readFileSync(new URL("../assets/runtime-css/paco-operational-v11370.css",import.meta.url),"utf8");
-const language=fs.readFileSync(new URL("../assets/js/modules/paco-language-v11373.js",import.meta.url),"utf8");
+const language=readDomainSource("paco/language","assets/js/domains/paco/language/index.js");
 
-assert.match(wrapper,/export \{installPacoAssistant\} from "\.\/paco-operational-v11370\.js";/);
+assert.match(wrapper,/export\s*\{\s*installPacoAssistant\s*\}\s*from "\.\/controller\.js";/);
 assert.equal(wrapper.includes("GUIDES"),false,"El entrypoint anterior no debe conservar el asistente legado.");
 assert.equal(wrapper.includes("password"),false,"El entrypoint anterior no debe conservar cambio de contraseña.");
 
@@ -83,7 +84,7 @@ for(const role of ["jefe_logistica","lider_logistica","coordinador_logistico","a
 for(const token of ["INTENT_ALIASES","detectPacoIntent","CRM_MODULE_KNOWLEDGE","matchCrmModule","normalizePacoText"]){
   assert.equal(language.includes(token),true,`Motor de lenguaje debe conservar ${token}`);
 }
-assert.equal(engine.includes('from "./paco-language-v11373.js"'),true,"PACO productivo debe consumir el motor entrenado.");
+assert.match(engine,/from "[^\"]*language\/index\.js"/,"PACO productivo debe consumir el motor entrenado.");
 
 for(const removed of ["getSupabase","password-self","setToolsOpen","Centro de herramientas","MutationObserver","api.workPlanner(todayIso()"]){
   assert.equal(engine.includes(removed),false,`PACO nuevo no debe reintroducir ${removed}`);
@@ -118,9 +119,11 @@ for(const token of [
 ]){
   assert.equal(engine.includes(token),true,`PACO V11.37.4 debe conservar la nueva interfaz: ${token}`);
 }
-const messagesAt=engine.indexOf('data-paco-messages');
-const quickMenuAt=engine.indexOf('data-paco-quick-wrap');
-const composerAt=engine.indexOf('data-paco-form');
+const {renderRoot}=await import('../assets/js/domains/paco/ui/root.js');
+const rootMarkup=renderRoot();
+const messagesAt=rootMarkup.indexOf('data-paco-messages');
+const quickMenuAt=rootMarkup.indexOf('data-paco-quick-wrap');
+const composerAt=rootMarkup.indexOf('data-paco-form');
 assert.equal(messagesAt>=0&&quickMenuAt>messagesAt&&composerAt>quickMenuAt,true,"Accesos rápidos deben vivir flotantes entre chat y compositor, no como tira fija.");
 assert.equal(engine.includes('if(paco.root&&!event.target.closest?.("[data-paco-quick-wrap]"))setQuickMenuOpen(false)'),true,"Click fuera debe cerrar accesos rápidos.");
 assert.equal(engine.includes('event.key==="Escape"'),true,"Escape debe cerrar accesos rápidos.");

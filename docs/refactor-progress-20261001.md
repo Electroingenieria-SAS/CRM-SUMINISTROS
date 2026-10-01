@@ -58,3 +58,12 @@ No se ejercitaron sesiones de usuarios reales ni se cambiaron planes.
   se comprueba sobre el HTML compuesto, conservando las mismas exigencias.
 - La instalación del navegador local no obtuvo un ZIP válido. No se insiste.
   Auxiliar: ejecutar smoke Playwright del PR, incluido `tests/domain-refactor.spec.js`.
+
+- PACO: motor dividido en contexto, acciones, respuestas, voz, alertas y UI;
+  lenguaje separado en normalización, coincidencias, aliases e intenciones.
+  Tres entradas JS versionadas retiradas después de redirigir consumidores.
+  Archivo máximo: 122 líneas. 1.179 comprobaciones de lenguaje verdes,
+  contratos operacional/Workforce/logística verdes y apertura en DOM verde.
+  Enlace: 256 archivos, 0 imports rotos y 0 módulos huérfanos.
+- Siguiente bloque: CSS. Se conservará el orden original de reglas y la cascada;
+  el smoke visual y responsive real queda asignado al auxiliar sobre este PR.

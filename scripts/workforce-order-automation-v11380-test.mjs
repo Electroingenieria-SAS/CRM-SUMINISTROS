@@ -8,7 +8,7 @@ const timeline=readDomainSource("workforce/timeline","assets/js/domains/workforc
 const calendar=readDomainSource("workforce/calendar","assets/js/domains/workforce/calendar/index.js");
 const workforce=readDomainSource("workforce","assets/js/modules/workforce.js");
 const api=fs.readFileSync(new URL("../assets/js/services/api.js",import.meta.url),"utf8");
-const paco=fs.readFileSync(new URL("../assets/js/modules/paco-operational-v11370.js",import.meta.url),"utf8");
+const paco=readDomainSource("paco","assets/js/domains/paco/index.js");
 const orders=readDomainSource("orders","assets/js/modules/orders.js");
 
 for(const sql of [migration,specialMigration]){

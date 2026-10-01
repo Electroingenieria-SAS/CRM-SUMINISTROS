@@ -1,10 +1,11 @@
+import {readDomainSource} from "./tests/read-domain-source.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const migration=fs.readFileSync(new URL("../supabase/migrations/130_logistics_intelligence_control_v11_41_0.sql",import.meta.url),"utf8");
 const dashboard=fs.readFileSync(new URL("../assets/js/modules/freight-intelligence-v11410.js",import.meta.url),"utf8");
 const api=fs.readFileSync(new URL("../assets/js/services/api.js",import.meta.url),"utf8");
-const paco=fs.readFileSync(new URL("../assets/js/modules/paco-operational-v11370.js",import.meta.url),"utf8");
+const paco=readDomainSource("paco","assets/js/domains/paco/index.js");
 const operational=fs.readFileSync(new URL("../assets/js/modules/operational-v112.js",import.meta.url),"utf8");
 const main=fs.readFileSync(new URL("../assets/js/main.js",import.meta.url),"utf8");
 

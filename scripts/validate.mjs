@@ -90,9 +90,9 @@ const analyticsCss=read("assets/css/analytics.css");
 const operationsCss=read("assets/css/operations.css");
 const coreCss=read("assets/css/core-shell.css");
 const experienceCss=read("assets/css/experience.css");
-const pacoEntry=read("assets/js/modules/paco-assistant-v11200.js");
-const pacoOperational=read("assets/js/modules/paco-operational-v11370.js");
-const pacoLanguage=read("assets/js/modules/paco-language-v11373.js");
+const pacoEntry=read("assets/js/domains/paco/index.js");
+const pacoOperational=read("assets/js/domains/paco/index.js");
+const pacoLanguage=read("assets/js/domains/paco/language/index.js");
 const pacoOperationalCss=read("assets/runtime-css/paco-operational-v11370.css");
 const pacoMigration=read("supabase/migrations/121_paco_operational_snapshot_v11_37_0.sql");
 const jsFiles=walk(path.join(root,"assets/js")).filter(file=>file.endsWith(".js"));
@@ -145,11 +145,11 @@ check(exists("assets/runtime-css/workforce-calendar-v11360.css"),"Falta CSS cale
 check(sw.includes("./assets/js/domains/workforce/calendar/index.js"),"PWA debe precachear motor calendario V11.36.0.");
 check(sw.includes("./assets/js/domains/workforce/evidence/index.js"),"PWA debe precachear gestor evidencia V11.36.0.");
 check(sw.includes("./assets/runtime-css/workforce-calendar-v11360.css"),"PWA debe precachear CSS calendario V11.36.0.");
-check(exists("assets/js/modules/paco-operational-v11370.js"),"Falta runtime PACO V11.39.0.");
-check(exists("assets/js/modules/paco-language-v11373.js"),"Falta motor de lenguaje requerido por PACO V11.39.0.");
+check(exists("assets/js/domains/paco/index.js"),"Falta runtime PACO V11.39.0.");
+check(exists("assets/js/domains/paco/language/index.js"),"Falta motor de lenguaje requerido por PACO V11.39.0.");
 check(exists("scripts/paco-language-v11373-test.mjs"),"Falta corpus de entrenamiento requerido por PACO V11.39.0.");
 check(exists("assets/runtime-css/paco-operational-v11370.css"),"Falta CSS PACO V11.39.0.");
-check(sw.includes("./assets/js/modules/paco-operational-v11370.js")&&sw.includes("./assets/js/modules/paco-language-v11373.js")&&sw.includes("./assets/runtime-css/paco-operational-v11370.css"),"PWA debe precachear PACO V11.39.0 y su motor de lenguaje.");
+check(sw.includes("./assets/js/domains/paco/index.js")&&sw.includes("./assets/js/domains/paco/language/index.js")&&sw.includes("./assets/runtime-css/paco-operational-v11370.css"),"PWA debe precachear PACO V11.39.0 y su motor de lenguaje.");
 check(pacoEntry.includes('paco-operational-v11370.js')&&!pacoEntry.includes('GUIDES'),"PACO legado debe quedar reducido a un entrypoint de compatibilidad.");
 check(
   pacoOperational.includes('api.pacoSnapshot()')
