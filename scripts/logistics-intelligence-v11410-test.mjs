@@ -8,7 +8,7 @@ const dashboard=fs.readFileSync(new URL("../assets/js/modules/freight-intelligen
 const api=fs.readFileSync(new URL("../assets/js/services/api.js",import.meta.url),"utf8");
 const paco=readDomainSource("paco","assets/js/domains/paco/index.js");
 const operational=readOperationalSource();
-const main=fs.readFileSync(new URL("../assets/js/main.js",import.meta.url),"utf8");
+const registry=fs.readFileSync(new URL("../assets/js/core/routing/module-registry.js",import.meta.url),"utf8");
 
 for(const token of [
   "erp_x_freight_intelligence_dashboard",
@@ -36,7 +36,7 @@ for(const token of [
 
 assert.equal(api.includes("freightIntelligence:"),true);
 assert.equal(api.includes("freightAlerts:"),true);
-assert.equal(main.includes("enhanceFreightIntelligenceDashboard"),true);
+assert.equal(registry.includes("enhanceFreightIntelligenceDashboard"),true);
 
 for(const token of ["freightAlerts","Flete crítico","Entrega en riesgo","freightIntelligenceMessage"]) assert.equal(paco.includes(token),true,`PACO debe integrar ${token}`);
 for(const token of ["data-v1141-carrier-guard","carrierPredictionV1141","Control predictivo"]) assert.equal(operational.includes(token),true,`Guía debe integrar ${token}`);
