@@ -13,6 +13,8 @@ export function validateRequiredMigrationContracts({ check, exists, analyticsCss
   check(exists("supabase/migrations/131_freight_historical_base_v11_42_0.sql"),"Falta migración V11.42.0 de base histórica activa.");
   check(exists("scripts/freight-historical-base-v11420-test.mjs"),"Falta contrato V11.42.0 de base histórica activa.");
   check(exists("scripts/freight-cards-layout-v11430-test.mjs"),"Falta contrato V11.43.0 del layout de fletes.");
+  check(exists("supabase/migrations/20261001205000_shipping_carrier_persistence_v11_43_1.sql"),"Falta migración V11.43.1 de persistencia de transportadora.");
+  check(exists("scripts/tests/shipping-guide-persistence-contract.test.mjs"),"Falta contrato V11.43.1 de persistencia de guía.");
   check(exists("supabase/migrations/125_customer_freight_intelligence_v11_39_0.sql"),"Falta migración 125 de inteligencia comercial/logística.");
   check(exists("supabase/migrations/126_customer_freight_intelligence_permissions_v11_39_0.sql"),"Falta migración 126 de permisos de inteligencia.");
   check(exists("supabase/migrations/124_order_responsible_seller_v11_38_2.sql"),"Falta migración 124 de responsable activo y vendedor.");
