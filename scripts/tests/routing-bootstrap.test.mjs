@@ -2,15 +2,55 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {test} from 'node:test';
 
-import {
-  registeredModuleIds,
-  rendererFor,
-  queueStepsFor,
-  moduleReadable,
-  firstReadableModule
-} from '../../assets/js/core/routing/module-registry.js';
-import {createRouteDispatcher} from '../../assets/js/core/routing/route-dispatcher.js';
-import {createAuthenticatedRuntimeInstaller} from '../../assets/js/core/bootstrap/runtime-installers.js';
+function source(relative){
+  return fs.readFileSync(new URL(relative,import.meta.url),'utf8');
+}
+
+function stripModule(code){
+  return code
+    .replace(/^import[\s\S]*?from\s+["'][^"']+["'];\s*/gm,'')
+    .replace(/^import\s+["'][^"']+["'];\s*/gm,'')
+    .replace(/\bexport\s+(?=(?:async\s+)?function|const|let|var|class)/g,'');
+}
+
+const registrySource=source('../../assets/js/core/routing/module-registry.js');
+const dispatcherSource=source('../../assets/js/core/routing/route-dispatcher.js');
+const installersSource=source('../../assets/js/core/bootstrap/runtime-installers.js');
+const metadataSource=source('../../assets/js/core/layout/module-metadata.js');
+
+const rendererNames=[
+  'renderDashboard','renderOrders','renderInventory','renderApprovals','renderVsm','renderImports',
+  'renderAudit','renderAdmin','renderCredit','renderReports','renderCutting','renderWorkforce',
+  'renderReceivingHub','enhanceOperationalDashboard','enhanceFreightIntelligenceDashboard'
+];
+const renderers=Object.fromEntries(rendererNames.map(name=>{
+  const fn=async()=>{};
+  Object.defineProperty(fn,'name',{value:name});
+  return [name,fn];
+}));
+
+const registry=new Function(
+  ...rendererNames,
+  `${stripModule(registrySource)}; return {registeredModuleIds,rendererFor,queueStepsFor,moduleReadable,firstReadableModule,renderModule};`
+)(...rendererNames.map(name=>renderers[name]));
+
+const {getModuleMetadata}=new Function(
+  `${stripModule(metadataSource)}; return {getModuleMetadata};`
+)();
+
+const {createRouteDispatcher}=new Function(
+  'updateShellView','loadingMarkup','showToast','fmt','renderQueueView','resolveModuleMetadata',
+  'renderRegisteredModule','registeredQueueSteps','canReadModule','findFirstReadableModule',
+  `${stripModule(dispatcherSource)}; return {createRouteDispatcher};`
+)(
+  ()=>{},()=>'<loading>',()=>{},{escape:value=>String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')},
+  ()=>{},getModuleMetadata,registry.renderModule,registry.queueStepsFor,registry.moduleReadable,registry.firstReadableModule
+);
+
+const {createAuthenticatedRuntimeInstaller}=new Function(
+  'initActiveWork','initWorkClock','installSupportFlow','installPacoAssistant','installOperationalResolveGuard','installOperationalV112',
+  `${stripModule(installersSource)}; return {createAuthenticatedRuntimeInstaller};`
+)(()=>{},()=>{},()=>{},()=>{},()=>{},()=>{});
 
 const EXPECTED_MODULES=[
   'dashboard','orders','sales','credit','receiving','inventory','approvals','vsm','imports','audit','admin','reports','cutting','workforce',
@@ -18,41 +58,35 @@ const EXPECTED_MODULES=[
 ];
 
 test('module registry resolves every current module and preserves shared renderers',()=>{
-  assert.deepEqual(new Set(registeredModuleIds()),new Set(EXPECTED_MODULES));
+  assert.deepEqual(new Set(registry.registeredModuleIds()),new Set(EXPECTED_MODULES));
   for(const moduleId of EXPECTED_MODULES){
-    assert.ok(rendererFor(moduleId)||queueStepsFor(moduleId),`module not resolved: ${moduleId}`);
+    assert.ok(registry.rendererFor(moduleId)||registry.queueStepsFor(moduleId),`module not resolved: ${moduleId}`);
   }
-  assert.equal(rendererFor('sales'),rendererFor('orders'));
-  assert.equal(rendererFor('receiving')?.name,'renderReceivingHub');
+  assert.equal(registry.rendererFor('sales'),registry.rendererFor('orders'));
+  assert.equal(registry.rendererFor('receiving')?.name,'renderReceivingHub');
 });
 
 test('module registry preserves exact queue steps and permission fallback',()=>{
-  assert.deepEqual(queueStepsFor('cartera'),['CARTERA']);
-  assert.deepEqual(queueStepsFor('caja'),['CAJA','CAJA_FACTURACION']);
-  assert.deepEqual(queueStepsFor('purchasing'),['COMPRAS']);
-  assert.deepEqual(queueStepsFor('picking'),['ALISTAMIENTO']);
-  assert.deepEqual(queueStepsFor('billing'),['FACTURACION']);
-  assert.deepEqual(queueStepsFor('shipping'),['CLIENT_POINT','CLIENT_PICKUP','LOCAL_DISPATCH','NATIONAL_DISPATCH','CLOSURE']);
-  assert.equal(queueStepsFor('orders'),null);
+  assert.deepEqual(registry.queueStepsFor('cartera'),['CARTERA']);
+  assert.deepEqual(registry.queueStepsFor('caja'),['CAJA','CAJA_FACTURACION']);
+  assert.deepEqual(registry.queueStepsFor('purchasing'),['COMPRAS']);
+  assert.deepEqual(registry.queueStepsFor('picking'),['ALISTAMIENTO']);
+  assert.deepEqual(registry.queueStepsFor('billing'),['FACTURACION']);
+  assert.deepEqual(registry.queueStepsFor('shipping'),['CLIENT_POINT','CLIENT_PICKUP','LOCAL_DISPATCH','NATIONAL_DISPATCH','CLOSURE']);
+  assert.equal(registry.queueStepsFor('orders'),null);
 
   const modules=[{code:'orders',canRead:true},{code:'shipping',canRead:false}];
-  assert.equal(moduleReadable(modules,'orders'),true);
-  assert.equal(moduleReadable(modules,'shipping'),false);
-  assert.equal(moduleReadable(modules,'missing'),false);
-  assert.equal(firstReadableModule(modules),'orders');
-  assert.equal(firstReadableModule([]),'dashboard');
+  assert.equal(registry.moduleReadable(modules,'orders'),true);
+  assert.equal(registry.moduleReadable(modules,'shipping'),false);
+  assert.equal(registry.moduleReadable(modules,'missing'),false);
+  assert.equal(registry.firstReadableModule(modules),'orders');
+  assert.equal(registry.firstReadableModule([]),'dashboard');
 });
 
 function routeHarness({modules=[{code:'orders',canRead:true}],renderModule,renderQueue}={}){
   const calls={navigate:[],open:[],shell:[],render:[],queue:[],toast:[],reload:0};
   const retryButton={listener:null,addEventListener(type,listener){assert.equal(type,'click');this.listener=listener}};
-  const root={
-    innerHTML:'',
-    querySelector(selector){
-      if(selector==='#retry-module')return retryButton;
-      return null;
-    }
-  };
+  const root={innerHTML:'',querySelector(selector){return selector==='#retry-module'?retryButton:null}};
   const dispatcher=createRouteDispatcher({
     getModules:()=>modules,
     navigate:(...args)=>calls.navigate.push(args),
@@ -113,9 +147,7 @@ test('route dispatcher escapes renderer errors, exposes retry and emits the orig
   const h=routeHarness({renderModule:async()=>{throw new Error('<img src=x onerror=1>')}});
   const originalError=console.error;
   console.error=()=>{};
-  try{
-    await h.dispatcher({segments:[],module:'orders',params:{}});
-  }finally{console.error=originalError}
+  try{await h.dispatcher({segments:[],module:'orders',params:{}})}finally{console.error=originalError}
   assert.ok(h.root.innerHTML.includes('module-error'));
   assert.ok(h.root.innerHTML.includes('&lt;img src=x onerror=1&gt;'));
   assert.ok(!h.root.innerHTML.includes('<img src=x onerror=1>'));
@@ -128,12 +160,8 @@ test('route dispatcher escapes renderer errors, exposes retry and emits the orig
 test('authenticated runtime installers preserve order and run each exactly once',()=>{
   const calls=[];
   const install=createAuthenticatedRuntimeInstaller([
-    ()=>calls.push('active-work'),
-    ()=>calls.push('work-clock'),
-    ()=>calls.push('support-flow'),
-    ()=>calls.push('paco'),
-    ()=>calls.push('resolve-guard'),
-    ()=>calls.push('operational')
+    ()=>calls.push('active-work'),()=>calls.push('work-clock'),()=>calls.push('support-flow'),
+    ()=>calls.push('paco'),()=>calls.push('resolve-guard'),()=>calls.push('operational')
   ]);
   assert.equal(install(),true);
   assert.equal(install(),false);
@@ -155,8 +183,8 @@ test('authenticated runtime installer resumes after a failed installer without d
 });
 
 test('authenticated bootstrap owns routing/runtime while main stays free of registries',()=>{
-  const main=fs.readFileSync(new URL('../../assets/js/main.js',import.meta.url),'utf8');
-  const bootstrap=fs.readFileSync(new URL('../../assets/js/core/bootstrap/authenticated-bootstrap.js',import.meta.url),'utf8');
+  const main=source('../../assets/js/main.js');
+  const bootstrap=source('../../assets/js/core/bootstrap/authenticated-bootstrap.js');
   assert.ok(!main.includes('const routes='));
   assert.ok(!main.includes('const queueModules='));
   assert.ok(!main.includes('function moduleReadable('));
