@@ -1,19 +1,40 @@
 {
   "schema_version": 1,
-  "status": "PARAMETERIZED",
-  "purpose": "Example/watch evidence only. The operator must pass the current human-approved FINAL_FREEZE_SHA; this file must never be treated as authorization.",
-  "last_coordinator_declared_freeze_sha": "30b4e7fe9ef6db4091d0b791d2e62bf9f9e83f50",
-  "live_head_at_macrobloque_16_watch": "0bf9db12c9c5b999dfd4c69774be4541e0024056",
-  "live_head_ci": {
-    "run_number": 916,
-    "run_id": "37035800767",
+  "status": "BOUND_CANDIDATE",
+  "purpose": "Macrobloque 17 freeze binding evidence only. This file does not authorize production apply.",
+  "freeze_sha": "ad8021821db8b45840153710f8f02ffef1ffe2fe",
+  "freeze_ci": {
+    "run_number": 917,
+    "run_id": "37036306336",
     "conclusion": "success"
+  },
+  "project_ref": "hezjxcxxcjlpmyalftam",
+  "remote_snapshot": {
+    "migration_count": 99,
+    "latest_version": "20261001153516",
+    "target_present": false,
+    "duplicate_versions": 0,
+    "sha256": "b61fc2cafc9844c7712a39b3666e2460e6225340671e4aee18cf1ba7d518deb8"
   },
   "target_migration": {
     "version": "20261001205000",
     "filename": "20261001205000_shipping_carrier_persistence_v11_43_1.sql",
     "git_blob": "62ae25ffb04e5c210cd917dabd8e6cdf54a562f6",
-    "sha256": "fe5ef6e94dd766ad0edc497e22dcab2912c5fc38a2c4086d68031f412035f6c9"
+    "sha256": "fe5ef6e94dd766ad0edc497e22dcab2912c5fc38a2c4086d68031f412035f6c9",
+    "canonical_path": "supabase/migrations/20261001205000_shipping_carrier_persistence_v11_43_1.sql"
   },
-  "watch_result": "Target migration is unchanged in both last declared freeze and current live HEAD. Live HEAD advanced after the declaration, so runtime binding remains parameterized until a new final freeze is explicitly adopted."
+  "expected_pending_set": [
+    "20261001205000"
+  ],
+  "simulated_comparator": {
+    "status": "PASS",
+    "missing_local": 0,
+    "missing_remote": 0,
+    "out_of_order": 0,
+    "duplicate_local": 0,
+    "duplicate_remote": 0
+  },
+  "real_cli_dry_run": "BLOCKED_BY_ENVIRONMENT",
+  "authorization": "NOT_GRANTED",
+  "watch_result": "V11.43.1 is byte-identical at the security-hardened freeze candidate and remains absent from production history. Real linked CLI dry-run remains mandatory immediately before any authorized apply."
 }
