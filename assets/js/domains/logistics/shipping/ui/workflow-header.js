@@ -7,7 +7,10 @@ export function workflowHeader(data,stage,delivery=null){
   const place=destination(delivery,data.order);
   const title=stage==="TAKE"?`Preparar ${profile.label.toLowerCase()}`:stage==="GUIDE"?profile.guideTitle:profile.closureTitle;
   const copy=stage==="TAKE"?"Empieza con lo esencial. La información detallada y las novedades quedan abajo, fuera del área principal.":stage==="GUIDE"?profile.guideCopy:"Adjunta la evidencia final requerida para completar el proceso.";
-  const facts=stage==="GUIDE"&&delivery?[
+  const local=delivery?.metadata?.localDispatch;
+  const facts=stage==="GUIDE"&&local?[
+    ["Vehículo",local.vehiclePlate||"Pendiente"],["Conductor",local.driverName||"Pendiente"],["Factura",local.invoiceNumber||"Pendiente"],["Total viaje",formatCurrency(local.totalTrip)]
+  ]:stage==="GUIDE"&&delivery?[
     ["Guía",delivery.tracking_number||"Pendiente"],["Transportadora",delivery.carrier||"Pendiente"],["Factura transporte",carrierInvoice(delivery)||"Pendiente"],["Flete",formatCurrency(carrierCost(delivery))]
   ]:[
     ["Pedido",data.order.order_number],["Cliente",data.order.client_name],["Modalidad",profile.label],[profile.destination,place.municipality||place.address||"Registrado por Ventas"]
@@ -18,8 +21,8 @@ export function workflowHeader(data,stage,delivery=null){
   </section>`;
 }
 
-export function progress(stage){
+export function progress(stage,routeCode=""){
   const active=stage==="TAKE"?1:stage==="GUIDE"?2:3;
-  const rows=[[1,"Tomar"],[2,"Guía / soporte"],[3,"Cierre"]];
+  const rows=[[1,"Tomar"],[2,routeCode==="LOCAL_DISPATCH"?"Cargue / liquidación":"Guía / soporte"],[3,"Cierre"]];
   return `<div class="shipping-core-progress-v11107">${rows.map(([n,label])=>`<div class="${n<active?"done":n===active?"active":""}"><span>${n<active?"✓":n}</span><strong>${label}</strong></div>`).join("")}</div>`;
 }
