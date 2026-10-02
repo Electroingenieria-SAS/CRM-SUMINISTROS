@@ -24,6 +24,14 @@ function runtimeSources(directory){
   return output;
 }
 
+function resolvedRelativeImports(file,source){
+  const directory=path.dirname(path.join(root,file));
+  return [...source.matchAll(/(?:from\s+|import\s*)["']([^"']+)["']/g)]
+    .map(match=>match[1])
+    .filter(spec=>spec.startsWith("."))
+    .map(spec=>path.relative(root,path.resolve(directory,spec)).split(path.sep).join("/"));
+}
+
 test("Picking and Billing legacy runtime modules are retired",()=>{
   for(const relative of legacy){
     assert.equal(fs.existsSync(path.join(runtimeRoot,relative)),false,relative);
@@ -62,20 +70,26 @@ test("canonical invoice reader remains explicitly reachable from invoice upload"
   assert.match(upload,/saveInvoiceExplicit\(data\.order\.id,payload\)/);
 });
 
-test("Picking and Billing remain isolated from Shipping Receiving AuditoriaERP Orders bootstrap and DB owners",()=>{
+test("Picking and Billing relative imports remain isolated from other closing lanes and DB",()=>{
   const domainFiles=[
     ...runtimeSources(path.join(runtimeRoot,"domains/picking")),
     ...runtimeSources(path.join(runtimeRoot,"domains/billing"))
   ];
-  const forbidden=[
-    /from\s+["'][^"']*domains\/shipping\//,
-    /from\s+["'][^"']*domains\/receiving\//,
-    /from\s+["'][^"']*integrations\/auditoria-erp\//,
-    /from\s+["'][^"']*domains\/orders\//,
-    /from\s+["'][^"']*core\/bootstrap\//,
-    /supabase\/migrations\//
+  const forbiddenPrefixes=[
+    "assets/js/domains/shipping/",
+    "assets/js/domains/receiving/",
+    "assets/js/integrations/auditoria-erp/",
+    "assets/js/domains/orders/",
+    "assets/js/core/bootstrap/",
+    "supabase/"
   ];
   const offenders=[];
-  for(const [file,source] of domainFiles)for(const pattern of forbidden)if(pattern.test(source))offenders.push({file,pattern:String(pattern)});
+  for(const [file,source] of domainFiles){
+    for(const target of resolvedRelativeImports(file,source)){
+      const prefix=forbiddenPrefixes.find(value=>target.startsWith(value));
+      if(prefix)offenders.push({file,target,prefix});
+    }
+    if(/supabase\/migrations\//.test(source))offenders.push({file,target:"literal supabase/migrations/"});
+  }
   assert.deepEqual(offenders,[]);
 });
