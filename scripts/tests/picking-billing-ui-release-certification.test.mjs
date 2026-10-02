@@ -177,6 +177,14 @@ test("Picking origin checkbox has a dynamic escaped accessible name",()=>{
   assert.match(source,/<strong>\$\{fmt\.escape\(originLabel\)\}<\/strong>/);
 });
 
+function billingModal(map={},classes=[]){
+  return {
+    classList:{contains:name=>classes.includes(name)},
+    querySelector:selector=>map[selector]||null,
+    querySelectorAll:()=>[]
+  };
+}
+
 test("Billing canonical stage matrix preserves ROUTE_CHOICE TAKE DOCUMENT invoice/PVP SEND WAIT and blocked state",()=>{
   const accept=action(),cash=action(),invoice=action(),annex=action(),send=action();
   assert.equal(billingStage(billingModal({'[data-cash-action="accept"], [data-billing-action="accept"]':accept,'[data-billing-action="cash"]':cash})),"ROUTE_CHOICE");
