@@ -9,8 +9,8 @@ function matchesDriveDeployment(config){
 }
 
 export function validateReleaseIdentity({ check, pkg, pkgLock, config, version, build, index }){
-  check(version==="11.44.0","CONFIG.version debe ser 11.44.0.");
-  check(build==="2026-10-02.38","CONFIG.build debe ser 2026-10-02.38.");
+  check(version==="11.45.0","CONFIG.version debe ser 11.45.0.");
+  check(build==="2026-10-02.39","CONFIG.build debe ser 2026-10-02.39.");
   check(pkg.version===version,"package.json y CONFIG.version deben coincidir.");
   check(pkgLock.version===version&&pkgLock.packages?.[""]?.version===version,"package-lock.json debe coincidir con la versión vigente.");
   check(index.includes(`app-entry.js?v=${version}`),"index.html debe cargar el entrypoint de la versión vigente.");
