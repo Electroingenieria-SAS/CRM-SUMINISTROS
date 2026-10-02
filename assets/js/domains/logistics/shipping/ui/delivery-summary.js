@@ -3,6 +3,8 @@ import { latestDelivery } from "../shared/shipping-status.js";
 import { destination } from "../routes/shipping-routes.js";
 
 export function guideSummary(delivery,file){
+  const local=delivery?.metadata?.localDispatch;
+  if(local)return `<div class="local-dispatch-saved-summary-v1145"><div><small>Vehículo</small><strong>${fmt.escape(local.vehiclePlate||"—")}</strong><span>${fmt.escape(local.driverName||"Conductor no registrado")}</span></div><div><small>Factura / destino</small><strong>${fmt.escape(local.invoiceNumber||"—")}</strong><span>${fmt.escape(local.cityDestination||"—")}</span></div><div><small>Peso</small><strong>${fmt.number(Number(local.weightKg||0),3)} kg</strong><span>Extra: ${fmt.number(Number(local.extraKg||0),3)} kg</span></div><div><small>Extras</small><strong>${formatCurrency(Number(local.unloadingCost||0)+Number(local.diversionCost||0))}</strong><span>Descargue + desvío</span></div><div class="total"><small>Total viaje</small><strong>${formatCurrency(local.totalTrip||delivery?.carrier_cost)}</strong><span>${fmt.escape(local.deliveryStatus||"PENDIENTE")}</span></div></div>`;
   return `<div class="shipping-core-guide-summary-v11107"><div><small>Número de guía</small><strong>${fmt.escape(delivery?.tracking_number||"—")}</strong></div><div><small>Transportadora</small><strong>${fmt.escape(delivery?.carrier||"—")}</strong></div><div><small>Factura transportadora</small><strong>${fmt.escape(carrierInvoice(delivery)||"—")}</strong></div><div><small>Costo del flete</small><strong>${fmt.escape(formatCurrency(carrierCost(delivery)))}</strong></div></div>${file?`<a class="btn btn-ghost btn-compact" href="${fmt.escape(file.web_view_link||"#")}" target="_blank" rel="noopener">Ver soporte cargado</a>`:""}`;
 }
 
