@@ -1,0 +1,91 @@
+name: E2 Deploy Exact Main to Vercel Production
+
+on:
+  push:
+    branches:
+      - e2/vercel-production-main-20261002
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2-vercel-production-main-20261002
+  cancel-in-progress: false
+
+env:
+  TARGET_SHA: 74f49393f876c0a49cad4281025e4bf3dcb2de23
+  VERCEL_ORG_ID: team_dTCSyeamWRfHJhPpUFN7Xl71
+  VERCEL_PROJECT_ID: prj_tYbpNOgsWLQIDRODsgC9pFhCdIoP
+  VERCEL_SCOPE: jeptacs-projects
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Vercel token preflight
+        shell: bash
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${VERCEL_TOKEN:-}" ]; then
+            echo "::error::VERCEL_TOKEN repository secret is not configured"
+            exit 1
+          fi
+          echo "VERCEL_TOKEN available"
+
+      - name: Checkout exact main SHA
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 0
+
+      - name: Bind checkout to main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git checkout -B main "$TARGET_SHA"
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -z "$(git status --porcelain)"
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Link exact Vercel project
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .vercel
+          printf '{"orgId":"%s","projectId":"%s"}\n' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" > .vercel/project.json
+
+      - name: Pull production settings
+        shell: bash
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN" --scope="$VERCEL_SCOPE"
+
+      - name: Deploy exact main SHA to production
+        id: deploy
+        shell: bash
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          URL="$(vercel deploy --prod --yes --token="$VERCEL_TOKEN" --scope="$VERCEL_SCOPE")"
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "### Vercel production deployment" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Main SHA: `$TARGET_SHA`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- URL: $URL" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Inspect production deployment
+        shell: bash
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.url }}
+        run: vercel inspect "$DEPLOYMENT_URL" --token="$VERCEL_TOKEN" --scope="$VERCEL_SCOPE"
