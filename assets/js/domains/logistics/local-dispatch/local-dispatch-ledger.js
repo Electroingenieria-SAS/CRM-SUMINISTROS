@@ -1,6 +1,6 @@
-import { api } from "../../../../services/api.js";
-import { fmt } from "../../../../core/format.js";
-import { loading,empty,modal,toast } from "../../../../core/ui.js";
+import { api } from "../../../services/api.js";
+import { fmt } from "../../../core/format.js";
+import { loading,empty,modal,toast } from "../../../core/ui.js";
 import { LOCAL_DISPATCH_TARIFFS,currencyCOP } from "./tariffs.js";
 
 const state={date:"",destination:"",page:1,data:null};
