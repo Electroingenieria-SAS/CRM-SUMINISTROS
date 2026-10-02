@@ -3,14 +3,15 @@
   "package": "POST_MERGE_RELEASE_AND_ROLLBACK_OPERATIONS",
   "status": "READY_WITH_FINAL_HEAD_REBIND_IF_PR_MOVES",
   "source_watch": {
-    "current_pr_head": "fcb2c526cb89567a0b26d0febc7ed1b13a9d454c",
-    "current_preview_deployment_id": "dpl_EWnbbWZRKsDD1XhgdVXstjhPxFwq",
-    "current_preview_url": "https://crm-suministros-6fdr28g8e-jeptacs-projects.vercel.app",
+    "current_pr_head": "ad8021821db8b45840153710f8f02ffef1ffe2fe",
+    "current_preview_deployment_id": "dpl_GrDvv1eiwYCsY4omqnn5dmwWSNjb",
+    "current_preview_url": "https://crm-suministros-b1qssugxj-jeptacs-projects.vercel.app",
     "current_preview_state": "READY",
     "current_preview_target": null,
-    "current_preview_pwa_revision": "7bb5e6aecadc091a",
+    "current_preview_pwa_revision": "b4ee5702be3ba45e",
     "current_version": "11.43.0",
-    "current_build": "2026-09-25.37"
+    "current_build": "2026-09-25.37",
+    "note": "Diagnostic E3 commits b6d332dd/fcb2c526 were removed from PR ancestry; baseline ad802182 restored."
   },
   "release_path": {
     "classification": "MIXED",
@@ -182,22 +183,55 @@
     }
   },
   "post_merge_smoke_matrix": [
-    {"area":"root/login shell","check":"HTTP 200, app shell renders, no fatal JS error"},
-    {"area":"auth bootstrap","check":"only with authorized QA credentials; session initializes without false success"},
-    {"area":"Orders","check":"route opens, list/detail bootstrap, no missing owner assets"},
-    {"area":"Receiving","check":"canonical Receiving owner loads; no legacy owner/404"},
-    {"area":"Shipping","check":"canonical Shipping owner loads; save-guide UI available; no legacy owner/404"},
-    {"area":"Picking","check":"canonical Picking owner loads; no legacy owner/404"},
-    {"area":"Billing","check":"canonical Billing owner loads; no legacy owner/404"},
-    {"area":"Workforce","check":"calendar/today shell loads without fatal regression"},
-    {"area":"PWA/service worker","check":"service-worker STATIC_REVISION equals precache manifest revision; no stale version skew"},
-    {"area":"Vercel/runtime","check":"stable domain points to expected deployment; no new P0/P1 runtime error cluster"},
-    {"area":"release marker","check":"CONFIG version=11.43.0 build=2026-09-25.37 and expected PWA revision for final tree"}
+    {
+      "area": "root/login shell",
+      "check": "HTTP 200, app shell renders, no fatal JS error"
+    },
+    {
+      "area": "auth bootstrap",
+      "check": "only with authorized QA credentials; session initializes without false success"
+    },
+    {
+      "area": "Orders",
+      "check": "route opens, list/detail bootstrap, no missing owner assets"
+    },
+    {
+      "area": "Receiving",
+      "check": "canonical Receiving owner loads; no legacy owner/404"
+    },
+    {
+      "area": "Shipping",
+      "check": "canonical Shipping owner loads; save-guide UI available; no legacy owner/404"
+    },
+    {
+      "area": "Picking",
+      "check": "canonical Picking owner loads; no legacy owner/404"
+    },
+    {
+      "area": "Billing",
+      "check": "canonical Billing owner loads; no legacy owner/404"
+    },
+    {
+      "area": "Workforce",
+      "check": "calendar/today shell loads without fatal regression"
+    },
+    {
+      "area": "PWA/service worker",
+      "check": "service-worker STATIC_REVISION equals precache manifest revision; no stale version skew"
+    },
+    {
+      "area": "Vercel/runtime",
+      "check": "stable domain points to expected deployment; no new P0/P1 runtime error cluster"
+    },
+    {
+      "area": "release marker",
+      "check": "CONFIG version=11.43.0 build=2026-09-25.37 and expected PWA revision for final tree"
+    }
   ],
   "current_read_only_evidence": {
     "preview_root_http": 200,
     "preview_service_worker_http": 200,
-    "preview_pwa_revision": "7bb5e6aecadc091a",
+    "preview_pwa_revision": "b4ee5702be3ba45e",
     "production_root_http": 200,
     "production_version": "11.36.7",
     "production_deployment_sha": "2a90be1567c080937cfbf266444c90bf076ba8fc",
