@@ -6,14 +6,16 @@ test("acepta los orígenes legítimos de Apps Script aunque rote el sandbox",()=
   assert.equal(isAllowedBridgeOrigin("https://script.google.com"),true);
   assert.equal(isAllowedBridgeOrigin("https://script.googleusercontent.com"),true);
   assert.equal(isAllowedBridgeOrigin("https://n-example-0lu-script.googleusercontent.com"),true);
-  assert.equal(isAllowedBridgeOrigin("https://another-sandbox.script.googleusercontent.com"),true);
+  assert.equal(isAllowedBridgeOrigin("https://abc123-script.googleusercontent.com"),true);
 });
 
-test("rechaza orígenes que solo imitan el dominio de Google",()=>{
+test("rechaza orígenes que solo imitan el dominio de Google o usan puertos inesperados",()=>{
   assert.equal(isAllowedBridgeOrigin("http://script.google.com"),false);
+  assert.equal(isAllowedBridgeOrigin("https://script.google.com:8443"),false);
   assert.equal(isAllowedBridgeOrigin("https://script.google.com.evil.example"),false);
   assert.equal(isAllowedBridgeOrigin("https://script.googleusercontent.com.evil.example"),false);
-  assert.equal(isAllowedBridgeOrigin("https://googleusercontent.com"),false);
+  assert.equal(isAllowedBridgeOrigin("https://attacker.googleusercontent.com"),false);
+  assert.equal(isAllowedBridgeOrigin("https://another-sandbox.script.googleusercontent.com"),false);
   assert.equal(isAllowedBridgeOrigin("not-a-url"),false);
 });
 
