@@ -1,0 +1,37 @@
+name: E2 CodeQL SARIF Capture
+
+on:
+  push:
+    branches:
+      - e2/codeql-sarif-capture-20261002
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  codeql-sarif:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+          queries: security-extended
+
+      - name: Analyze to SARIF without upload
+        uses: github/codeql-action/analyze@v4
+        with:
+          output: sarif-results
+          upload: never
+
+      - name: Upload SARIF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2-codeql-sarif
+          path: sarif-results
+          if-no-files-found: error
+          retention-days: 1
