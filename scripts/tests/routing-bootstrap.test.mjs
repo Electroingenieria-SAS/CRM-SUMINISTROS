@@ -23,8 +23,9 @@ const rendererNames=[
   'renderAudit','renderAdmin','renderCredit','renderReports','renderCutting','renderWorkforce',
   'renderReceivingHub','enhanceOperationalDashboard','enhanceFreightIntelligenceDashboard'
 ];
+const rendererCalls=[];
 const renderers=Object.fromEntries(rendererNames.map(name=>{
-  const fn=async()=>{};
+  const fn=async(...args)=>{rendererCalls.push([name,...args])};
   Object.defineProperty(fn,'name',{value:name});
   return [name,fn];
 }));
@@ -64,6 +65,26 @@ test('module registry resolves every current module and preserves shared rendere
   }
   assert.equal(registry.rendererFor('sales'),registry.rendererFor('orders'));
   assert.equal(registry.rendererFor('receiving')?.name,'renderReceivingHub');
+});
+
+test('module registry dispatches only own properties and preserves dashboard fallback',async()=>{
+  const root={};
+  const context={source:'routing-hardening'};
+  for(const moduleId of ['constructor','__proto__','prototype','toString','valueOf','missing']){
+    assert.equal(registry.rendererFor(moduleId),null,`prototype-sensitive route resolved: ${moduleId}`);
+    assert.equal(registry.queueStepsFor(moduleId),null,`prototype-sensitive queue resolved: ${moduleId}`);
+    rendererCalls.length=0;
+    await registry.renderModule(moduleId,root,context);
+    assert.deepEqual(
+      rendererCalls.map(([name])=>name),
+      ['renderDashboard','enhanceOperationalDashboard','enhanceFreightIntelligenceDashboard'],
+      `fallback changed for: ${moduleId}`
+    );
+  }
+
+  rendererCalls.length=0;
+  await registry.renderModule('orders',root,context);
+  assert.deepEqual(rendererCalls.map(([name])=>name),['renderOrders']);
 });
 
 test('module registry preserves exact queue steps and permission fallback',()=>{

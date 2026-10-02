@@ -40,16 +40,20 @@ const QUEUE_MODULES={
   shipping:["CLIENT_POINT","CLIENT_PICKUP","LOCAL_DISPATCH","NATIONAL_DISPATCH","CLOSURE"]
 };
 
+function ownRegistryValue(registry,key){
+  return Object.prototype.hasOwnProperty.call(registry,key)?registry[key]:null;
+}
+
 export function registeredModuleIds(){
   return [...Object.keys(ROUTES),...Object.keys(QUEUE_MODULES)];
 }
 
 export function rendererFor(moduleId){
-  return ROUTES[moduleId]||null;
+  return ownRegistryValue(ROUTES,moduleId);
 }
 
 export function queueStepsFor(moduleId){
-  const steps=QUEUE_MODULES[moduleId];
+  const steps=ownRegistryValue(QUEUE_MODULES,moduleId);
   return steps?[...steps]:null;
 }
 
@@ -62,5 +66,21 @@ export function firstReadableModule(modules){
 }
 
 export async function renderModule(moduleId,root,context){
-  return (ROUTES[moduleId]||ROUTES.dashboard)(root,context);
+  switch(moduleId){
+    case "orders":
+    case "sales": return ROUTES.orders(root,context);
+    case "credit": return ROUTES.credit(root,context);
+    case "receiving": return ROUTES.receiving(root,context);
+    case "inventory": return ROUTES.inventory(root,context);
+    case "approvals": return ROUTES.approvals(root,context);
+    case "vsm": return ROUTES.vsm(root,context);
+    case "imports": return ROUTES.imports(root,context);
+    case "audit": return ROUTES.audit(root,context);
+    case "admin": return ROUTES.admin(root,context);
+    case "reports": return ROUTES.reports(root,context);
+    case "cutting": return ROUTES.cutting(root,context);
+    case "workforce": return ROUTES.workforce(root,context);
+    case "dashboard":
+    default: return ROUTES.dashboard(root,context);
+  }
 }
