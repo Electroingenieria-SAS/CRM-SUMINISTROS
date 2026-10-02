@@ -1,11 +1,11 @@
-import { api } from "../../../../services/api.js";
-import { fmt } from "../../../../core/format.js";
-import { toast } from "../../../../core/ui.js";
-import { shell, bindFooter } from "../ui/shipping-shell.js";
-import { workflowHeader } from "../ui/workflow-header.js";
-import { workspace, destinationCard } from "../ui/workspace.js";
-import { latestDelivery } from "../shared/shipping-status.js";
-import { destination } from "../routes/shipping-routes.js";
+import { api } from "../../../services/api.js";
+import { fmt } from "../../../core/format.js";
+import { toast } from "../../../core/ui.js";
+import { shell, bindFooter } from "../shipping/ui/shipping-shell.js";
+import { workflowHeader } from "../shipping/ui/workflow-header.js";
+import { workspace, destinationCard } from "../shipping/ui/workspace.js";
+import { latestDelivery } from "../shipping/shared/shipping-status.js";
+import { destination } from "../shipping/routes/shipping-routes.js";
 import { LOCAL_DISPATCH_TARIFFS,LOCAL_DISPATCH_BRANCHES,calculateLocalDispatch,currencyCOP,latestInvoiceDefaults,suggestedDestination } from "./tariffs.js";
 
 function bogotaDate(){
