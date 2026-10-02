@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "package": "POST_MERGE_RELEASE_AND_ROLLBACK_OPERATIONS",
+  "status": "READY_WITH_FINAL_HEAD_REBIND_IF_PR_MOVES",
+  "source_watch": {
+    "current_pr_head": "fcb2c526cb89567a0b26d0febc7ed1b13a9d454c",
+    "current_preview_deployment_id": "dpl_EWnbbWZRKsDD1XhgdVXstjhPxFwq",
+    "current_preview_url": "https://crm-suministros-6fdr28g8e-jeptacs-projects.vercel.app",
+    "current_preview_state": "READY",
+    "current_preview_target": null,
+    "current_preview_pwa_revision": "7bb5e6aecadc091a",
+    "current_version": "11.43.0",
+    "current_build": "2026-09-25.37"
+  },
+  "release_path": {
+    "classification": "MIXED",
+    "github_pages": {
+      "mode": "AUTOMATIC",
+      "trigger": "push to main",
+      "workflow": ".github/workflows/validate-crm.yml",
+      "job": "deploy-pages",
+      "preconditions": [
+        "validate success",
+        "authenticated-e2e job success at workflow level",
+        "secret-scan success",
+        "supply-chain success",
+        "codeql success"
+      ],
+      "source": "dist-deployable generated from the post-merge main SHA",
+      "expected_url": "https://electroingenieria-sas.github.io/CRM-SUMINISTROS/"
+    },
+    "vercel": {
+      "mode": "MANUAL_EXPLICIT_PRODUCTION",
+      "project_id": "prj_tYbpNOgsWLQIDRODsgC9pFhCdIoP",
+      "project_name": "crm-suministros",
+      "team_id": "team_dTCSyeamWRfHJhPpUFN7Xl71",
+      "stable_domain": "https://crm-suministros-amber.vercel.app",
+      "production_branch_contract": "main",
+      "repo_config": {
+        "git.deploymentEnabled.main": false,
+        "git.deploymentEnabled.*": false
+      },
+      "current_production_deployment": {
+        "id": "dpl_An5VdZuU2y7UU92QJ4UPGGoJXpbm",
+        "sha": "2a90be1567c080937cfbf266444c90bf076ba8fc",
+        "state": "READY",
+        "version_observed": "11.36.7"
+      },
+      "production_rule": "Do not treat a PR preview as production. Deploy from the actual post-merge main SHA so Vercel commit metadata binds to main.",
+      "authorized_command_after_merge": "vercel deploy --prod"
+    }
+  },
+  "critical_sha_rule": {
+    "pr_head_is_not_main_post_merge_sha": true,
+    "reason": "Squash/merge/rebase can change commit identity even when the tree is equivalent.",
+    "requirement": "After merge, read MAIN_POST_MERGE_SHA and deploy that exact checkout to Vercel production. Do not promote the pre-merge preview solely because its tree matches."
+  },
+  "release_execution": [
+    {
+      "step": 1,
+      "action": "Receive E1 MERGE AUTHORIZATION READY",
+      "precondition": "security/merge gate closed",
+      "expected": "final PR freeze accepted",
+      "abort": "authorization not ready",
+      "evidence": "E1 closure comment and accepted freeze SHA"
+    },
+    {
+      "step": 2,
+      "action": "Merge PR #94 using approved repository method",
+      "precondition": "human merge authorization",
+      "expected": "main advances",
+      "abort": "checks/security/governance changed",
+      "evidence": "merge method and resulting MAIN_POST_MERGE_SHA"
+    },
+    {
+      "step": 3,
+      "action": "Read main and bind MAIN_POST_MERGE_SHA",
+      "precondition": "merge visible",
+      "expected": "main points to new release tree",
+      "abort": "unexpected concurrent main change",
+      "evidence": "GitHub main SHA/tree"
+    },
+    {
+      "step": 4,
+      "action": "Wait for post-merge Validate CRM Suministros workflow",
+      "precondition": "push to main",
+      "expected": "required jobs green",
+      "abort": "validate/security/package job fails",
+      "evidence": "workflow run ID/jobs/artifacts"
+    },
+    {
+      "step": 5,
+      "action": "Verify GitHub Pages deployment",
+      "precondition": "deploy-pages success",
+      "expected": "Pages serves MAIN_POST_MERGE_SHA tree",
+      "abort": "deploy-pages fails or serves stale release",
+      "evidence": "Pages deployment URL/run and build/PWA markers"
+    },
+    {
+      "step": 6,
+      "action": "Prepare clean checkout at MAIN_POST_MERGE_SHA for Vercel",
+      "precondition": "post-merge CI green",
+      "expected": "working tree exactly main SHA",
+      "abort": "dirty tree or project mismatch",
+      "evidence": "git rev-parse HEAD and project identity"
+    },
+    {
+      "step": 7,
+      "action": "Create Vercel production deployment",
+      "precondition": "authorized operator; exact main checkout",
+      "expected": "READY production deployment for MAIN_POST_MERGE_SHA",
+      "abort": "deployment error or metadata SHA mismatch",
+      "evidence": "deployment ID, URL, state, githubCommitSha, aliases"
+    },
+    {
+      "step": 8,
+      "action": "Verify stable Vercel aliases",
+      "precondition": "deployment READY",
+      "expected": "crm-suministros-amber.vercel.app resolves to new production deployment",
+      "abort": "alias points to different deployment",
+      "evidence": "get deployment by stable domain"
+    },
+    {
+      "step": 9,
+      "action": "Run post-merge public/PWA smoke",
+      "precondition": "Pages and Vercel live",
+      "expected": "shell/modules/assets/PWA markers healthy",
+      "abort": "P0/P1 runtime or stale-cache skew",
+      "evidence": "smoke matrix results"
+    },
+    {
+      "step": 10,
+      "action": "Run authenticated smoke only if approved QA credentials exist",
+      "precondition": "authorized credentials",
+      "expected": "critical modules bootstrap",
+      "abort": "credential absence is exception, functional failure is blocker",
+      "evidence": "authenticated test output"
+    },
+    {
+      "step": 11,
+      "action": "Retain final release evidence",
+      "precondition": "smoke pass",
+      "expected": "GitHub/Vercel/PWA/runtime evidence archived",
+      "abort": "missing binding evidence",
+      "evidence": "SHA, workflow, artifacts, deployment IDs, revision, logs"
+    },
+    {
+      "step": 12,
+      "action": "Schedule DB V11.43.1 cutover separately",
+      "precondition": "authorized DB window",
+      "expected": "MB18 package used independently",
+      "abort": "no real Supabase CLI dry-run PASS",
+      "evidence": "DB cutover evidence bundle"
+    }
+  ],
+  "rollback": {
+    "application_source": {
+      "preferred": "AUDITED_REVERT_OF_POST_MERGE_MAIN_CHANGE",
+      "sequence": [
+        "Identify exact post-merge main commit/change.",
+        "Create audited revert commit/PR against main.",
+        "Run full CI on revert.",
+        "Merge revert only after green checks.",
+        "Let GitHub Pages rebuild automatically from reverted main.",
+        "Deploy Vercel production again from the reverted main SHA.",
+        "Repeat PWA/service-worker and module smoke."
+      ],
+      "emergency_vercel_traffic_mitigation": "Vercel rollback can repoint production to a known-good prior production deployment, but it does not repair GitHub main or GitHub Pages and must not replace the audited source revert.",
+      "known_current_production_fallback_id": "dpl_An5VdZuU2y7UU92QJ4UPGGoJXpbm",
+      "do_not_default_to_old_artifact": "Current Vercel production is materially older (11.36.7). Before any emergency rollback, confirm compatibility with current database/runtime state. Prefer a freshly built reverted-main release when possible.",
+      "pwa_rule": "Rollback smoke must verify service-worker STATIC_REVISION equals precache manifest revision and stale caches are replaced/claimed."
+    },
+    "database": {
+      "source": "Reuse MB18 cutover/recovery package.",
+      "rules": [
+        "Do not delete migration history.",
+        "Do not use migration repair as rollback.",
+        "Prefer a new versioned forward-fix.",
+        "Restore PRE function definition only under explicit recovery authorization.",
+        "Application rollback and DB recovery are separate decisions."
+      ]
+    }
+  },
+  "post_merge_smoke_matrix": [
+    {"area":"root/login shell","check":"HTTP 200, app shell renders, no fatal JS error"},
+    {"area":"auth bootstrap","check":"only with authorized QA credentials; session initializes without false success"},
+    {"area":"Orders","check":"route opens, list/detail bootstrap, no missing owner assets"},
+    {"area":"Receiving","check":"canonical Receiving owner loads; no legacy owner/404"},
+    {"area":"Shipping","check":"canonical Shipping owner loads; save-guide UI available; no legacy owner/404"},
+    {"area":"Picking","check":"canonical Picking owner loads; no legacy owner/404"},
+    {"area":"Billing","check":"canonical Billing owner loads; no legacy owner/404"},
+    {"area":"Workforce","check":"calendar/today shell loads without fatal regression"},
+    {"area":"PWA/service worker","check":"service-worker STATIC_REVISION equals precache manifest revision; no stale version skew"},
+    {"area":"Vercel/runtime","check":"stable domain points to expected deployment; no new P0/P1 runtime error cluster"},
+    {"area":"release marker","check":"CONFIG version=11.43.0 build=2026-09-25.37 and expected PWA revision for final tree"}
+  ],
+  "current_read_only_evidence": {
+    "preview_root_http": 200,
+    "preview_service_worker_http": 200,
+    "preview_pwa_revision": "7bb5e6aecadc091a",
+    "production_root_http": 200,
+    "production_version": "11.36.7",
+    "production_deployment_sha": "2a90be1567c080937cfbf266444c90bf076ba8fc",
+    "vercel_runtime_errors_last_24h": 0
+  },
+  "db_cutover": {
+    "classification": "DECOUPLED_READY_FOR_AUTHORIZED_WINDOW",
+    "apply_is_part_of_merge": false,
+    "real_cli_dry_run_still_required": true
+  },
+  "mutations_performed_by_e2_mb19": {
+    "merge": false,
+    "draft_toggle": false,
+    "deployment_promotion": false,
+    "db_write": false,
+    "source_edit_pr94": false
+  }
+}
