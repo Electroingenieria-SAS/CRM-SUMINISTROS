@@ -216,5 +216,5 @@ export function writeBridgeArtifacts({workspaceDir,plan,manifest}){
   fs.writeFileSync(path.join(runtimeDir,'bridge-manifest.json'),JSON.stringify(manifest,null,2)+'\n','utf8');
   fs.writeFileSync(path.join(runtimeDir,'comparator-report.json'),JSON.stringify(plan.comparator,null,2)+'\n','utf8');
   fs.writeFileSync(path.join(runtimeDir,'reconciliation-report.json'),JSON.stringify(reconciliation,null,2)+'\n','utf8');
-  fs.writeFileSync(path.join(runtimeDir,expected_PENDING_SET.txt'),`${TARGET_VERSION}\n`,'utf8');
+  fs.writeFileSync(path.join(runtimeDir,'EXPECTED_PENDING_SET.txt'),`${TARGET_VERSION}\n`,'utf8');
 }
