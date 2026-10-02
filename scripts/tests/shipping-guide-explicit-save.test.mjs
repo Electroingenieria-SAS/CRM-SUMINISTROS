@@ -74,3 +74,60 @@ test("canonical guide dialog owns picker, drop, keyboard and document reader wit
   assert.doesNotMatch(source,/MutationObserver/);
   assert.doesNotMatch(source,/modal-head h3/);
 });
+
+test("incomplete payload and non-COP currency reject before persistence",()=>{
+  assert.throws(
+    ()=>buildShippingGuidePayload({trackingNumber:"G1",carrier:"TCC",carrierInvoiceNumber:"INV-1",carrierCost:15000,carrierCostCurrency:"USD"}),
+    /moneda.*COP/i
+  );
+  assert.throws(
+    ()=>buildShippingGuidePayload({trackingNumber:"G1",carrier:"TCC",carrierInvoiceNumber:"",carrierCost:15000,carrierCostCurrency:"COP"}),
+    /factura/i
+  );
+  assert.throws(
+    ()=>buildShippingGuidePayload({trackingNumber:"",carrier:"TCC",carrierInvoiceNumber:"INV-1",carrierCost:15000,carrierCostCurrency:"COP"}),
+    /número de guía/i
+  );
+});
+
+test("omitted carrier preserves the existing carrier while an explicit empty carrier is rejected",()=>{
+  const preserved=buildShippingGuidePayload({
+    existingPayload:{
+      trackingNumber:"G-OLD",
+      carrier:"TCC",
+      carrierInvoiceNumber:"INV-OLD",
+      carrierCost:25000,
+      carrierCostCurrency:"COP"
+    },
+    trackingNumber:"G-NEW",
+    carrierInvoiceNumber:"INV-NEW",
+    carrierCost:30000
+  });
+  assert.equal(preserved.carrier,"TCC");
+  assert.throws(()=>buildShippingGuidePayload({
+    existingPayload:preserved,
+    carrier:"",
+    trackingNumber:"G-NEW",
+    carrierInvoiceNumber:"INV-NEW",
+    carrierCost:30000,
+    carrierCostCurrency:"COP"
+  }),/transportadora/i);
+});
+
+test("backend rejection propagates and never becomes a false success",async()=>{
+  const identity=api.saveShippingGuide;
+  let calls=0;
+  await assert.rejects(
+    ()=>saveShippingGuideExplicit("order-1",{trackingNumber:"G1"},{save:async()=>{calls++;throw new Error("shipping backend rejected")}}),
+    /shipping backend rejected/
+  );
+  assert.equal(calls,1);
+  assert.equal(api.saveShippingGuide,identity);
+});
+
+test("canonical modal disables confirm before awaiting Shipping onConfirm",()=>{
+  const source=fs.readFileSync(new URL("../../assets/js/core/ui/dialog.js",import.meta.url),"utf8");
+  const disabledAt=source.indexOf("confirm.disabled=true");
+  const awaitAt=source.indexOf("await onConfirm?.(dialog)");
+  assert.ok(disabledAt>=0&&awaitAt>disabledAt,"confirm must be disabled before awaiting onConfirm");
+});
