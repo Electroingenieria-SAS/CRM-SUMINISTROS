@@ -6,11 +6,13 @@ import {openCutPickup} from "./picking-flow.js";
 import {openPurchaseArrival} from "./receiving-order.js";
 import {renderSentOrdersPanel} from "./sent-orders.js";
 import {hasRole} from "../core/state.js";
+import {renderLocalDispatchLedger} from "../domains/logistics/local-dispatch/local-dispatch-ledger.js";
 
 export async function renderQueue(root,{moduleId,steps,params={}}){
   let selected=params.step&&steps.includes(params.step)?params.step:steps[0];
   let page=Number(params.page||1),assignment=params.assignment||"ALL";
   const showSentOrders=moduleId==="shipping"&&(hasRole("ventas")||hasRole("super_admin"));
+  const showLocalDispatchControl=moduleId==="shipping"&&["super_admin","coordinador_logistico","lider_logistica","jefe_logistica","gerencia","auditoria"].some(hasRole);
   root.innerHTML=`
     <section class="page-head simple-page-head"><div><h2>${moduleTitle(moduleId)}</h2><p>Selecciona un pedido para continuar su etapa. La pantalla muestra únicamente las acciones válidas y la información requerida.</p></div><div class="page-actions"><button class="btn btn-help" id="queue-help">Guía del proceso</button></div></section>
     ${steps.length>1?`<section class="simple-stage-selector"><span>Etapa:</span>${steps.map(step=>`<button type="button" data-step="${step}" class="${step===selected?"active":""}">${fmt.escape(fmt.step(step))}</button>`).join("")}</section>`:""}
@@ -20,6 +22,7 @@ export async function renderQueue(root,{moduleId,steps,params={}}){
         <div class="queue-scope" aria-label="Alcance de la cola"><button class="btn ${assignment==="ALL"?"btn-primary":"btn-ghost"}" data-assignment="ALL">Toda la cola</button><button class="btn ${assignment==="UNASSIGNED"?"btn-primary":"btn-ghost"}" data-assignment="UNASSIGNED">Sin asignar</button><button class="btn ${assignment==="MINE"?"btn-primary":"btn-ghost"}" data-assignment="MINE">Mis pedidos</button></div>
       </div>
       <div class="simple-queue-message"><strong>Lista de trabajo</strong><span>Busca el pedido y utiliza la acción disponible a la derecha. La ventana operativa concentra la información y decisiones de la etapa actual.</span></div>
+      ${showLocalDispatchControl?`<section class="local-dispatch-control-slot-v1145" id="local-dispatch-control">${loading("Consultando cargues y despachos locales…")}</section>`:""}
       ${showSentOrders?`<section class="sent-orders-panel"><header><div><span>Seguimiento comercial</span><h3>Pedidos enviados</h3><p>Identifica rápidamente qué pedidos siguen en tránsito, cuáles ya terminaron y cuáles requieren una intervención comercial.</p></div></header><div id="sent-orders-result">${loading("Consultando pedidos enviados…")}</div></section>`:""}
       ${moduleId==="picking"?`<section class="cut-pickup-queue"><header><div><span>Entrega desde Corte</span><h3>Cortes por recoger</h3><p>Recoge primero las referencias terminadas y después continúa con la verificación normal del pedido.</p></div><span class="cut-pickup-queue-count" id="cut-pickup-count">0</span></header><div id="cut-pickup-result">${loading("Consultando cortes listos…")}</div></section>`:""}
       <div id="queue-result">${loading()}</div>
@@ -100,6 +103,10 @@ export async function renderQueue(root,{moduleId,steps,params={}}){
   window.__erpQueueRefresh=()=>load(page);
   root.querySelector("#queue-help").onclick=()=>guide({title:"Gestión sencilla de pedidos",description:"Cada pedido se trabaja desde una sola ventana.",items:[{title:"Busca el pedido",detail:"La lista muestra estado, responsable y tiempo sin ocupar espacio innecesario."},{title:"Usa la acción de la derecha",detail:"Iniciar, Continuar o Abrir te lleva al popup correspondiente."},{title:"Marca la situación",detail:"Puedes dejarlo pendiente, iniciar la gestión, ponerlo en espera o finalizarlo."},{title:"Completa solo lo necesario",detail:"Cuando una etapa exige factura, validación, corte o recepción, el ERP mostrará únicamente ese formulario."},{title:"Vuelve cuando quieras",detail:"Si dejas el pedido en gestión o espera, aparecerá en la misma cola para continuar después."}]});
   await load(page);
+  if(showLocalDispatchControl){
+    const localTarget=root.querySelector("#local-dispatch-control");
+    if(localTarget)await renderLocalDispatchLedger(localTarget);
+  }
 }
 
 function cutPickupQueueRow(order){
