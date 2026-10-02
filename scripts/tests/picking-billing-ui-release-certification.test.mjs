@@ -144,41 +144,38 @@ test("Picking FOUND, MISSING and cut-origin DOM expose the expected state",()=>{
   assert.doesNotMatch(cut,/data-origin-wrap/);
 });
 
-test("Picking MISSING novelty label is structurally associated with its textarea",()=>{
-  const html=itemRow({id:"item-1",reference:"REF",description:"Cable",quantity:1,unit:"M",requires_cut:false,metadata:{}},0,{result:"MISSING"});
-  const label=html.match(/<label([^>]*)>¿Por qué no se encontró\? \*<\/label>/);
-  const textarea=html.match(/<textarea([^>]*)>/);
-  assert.ok(label&&textarea,"MISSING novelty label and textarea must render");
-  const forId=label[1].match(/\bfor="([^"]+)"/)?.[1]||"";
-  const textId=textarea[1].match(/\bid="([^"]+)"/)?.[1]||"";
-  const nested=/<label[^>]*>[\s\S]*<textarea[\s\S]*<\/label>/.test(html);
-  assert.ok(nested||(forId&&forId===textId),"MISSING novelty label must wrap textarea or use matching for/id");
+test("Picking MISSING novelty label is structurally associated and row ids stay unique",()=>{
+  const rows=[0,1].map(index=>itemRow({id:"item-"+(index+1),reference:"REF",description:"Cable",quantity:1,unit:"M",requires_cut:false,metadata:{}},index,{result:"MISSING"}));
+  const ids=[];
+  for(const html of rows){
+    const label=html.match(/<label([^>]*)>¿Por qué no se encontró\? \*<\/label>/);
+    const textarea=html.match(/<textarea([^>]*)>/);
+    assert.ok(label&&textarea,"MISSING novelty label and textarea must render");
+    const forId=label[1].match(/\bfor="([^"]+)"/)?.[1]||"";
+    const textId=textarea[1].match(/\bid="([^"]+)"/)?.[1]||"";
+    assert.ok(forId&&forId===textId,"MISSING novelty label must use matching for/id");
+    ids.push(textId);
+  }
+  assert.equal(new Set(ids).size,ids.length,"novelty textarea ids must be unique inside one rendered item list");
 });
 
 test("Picking origin option markup is balanced",()=>{
   const source=read("assets/js/domains/picking/origins/origin-plan.js");
-  assert.doesNotMatch(source,/<div class="picking-origin-option[^>]*>[\s\S]*?<\/label>/,
-    "picking-origin-option opens as div and must not close as label");
+  const start=source.indexOf('<div class="picking-origin-options">');
+  const end=source.indexOf('<div class="picking-origin-total"');
+  assert.ok(start>=0&&end>start,"origin options template must exist");
+  const template=source.slice(start,end);
+  assert.match(template,/<label class="picking-origin-qty">[\s\S]*?<\/label>/,"quantity label must remain balanced");
+  assert.match(template,/candidate\.recommended\?\'<em>Recomendado<\/em>\':""\}[\s\S]*?<\/div>/,"origin option must close as div");
+  assert.doesNotMatch(template,/candidate\.recommended\?\'<em>Recomendado<\/em>\':""\}[\s\S]*?<\/label>\s*`\}\)\.join/,"origin option must not close as label");
 });
 
-test("Picking origin checkbox has an accessible name",()=>{
+test("Picking origin checkbox has a dynamic escaped accessible name",()=>{
   const source=read("assets/js/domains/picking/origins/origin-plan.js");
-  const checkbox=source.match(/<input type="checkbox"([^>]*)data-origin-check([^>]*)>/);
-  assert.ok(checkbox,"origin checkbox must exist");
-  const attrs=(checkbox[1]||"")+(checkbox[2]||"");
-  const hasAria=/aria-label=|aria-labelledby=/.test(attrs);
-  const hasForId=/\bid=/.test(attrs)&&/<label[^>]*for=/.test(source);
-  const wrapped=/<label[^>]*>[\s\S]*?<input type="checkbox"[^>]*data-origin-check[\s\S]*?<\/label>/.test(source);
-  assert.ok(hasAria||hasForId||wrapped,"origin checkbox must have label/aria accessible name");
+  assert.match(source,/const originLabel=\[candidate\.warehouseCode,candidate\.location\]\.filter\(Boolean\)\.join\(" · "\)\|\|"Ubicación"/);
+  assert.match(source,/aria-label="\$\{fmt\.escape\(`Seleccionar origen \$\{originLabel\}`\)\}"/);
+  assert.match(source,/<strong>\$\{fmt\.escape\(originLabel\)\}<\/strong>/);
 });
-
-function billingModal(map={},classes=[]){
-  return {
-    classList:{contains:name=>classes.includes(name)},
-    querySelector:selector=>map[selector]||null,
-    querySelectorAll:()=>[]
-  };
-}
 
 test("Billing canonical stage matrix preserves ROUTE_CHOICE TAKE DOCUMENT invoice/PVP SEND WAIT and blocked state",()=>{
   const accept=action(),cash=action(),invoice=action(),annex=action(),send=action();
