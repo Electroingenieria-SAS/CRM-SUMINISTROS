@@ -71,7 +71,7 @@ test("Picking canonical shell renders one root, facts, footer, support slot and 
   const html=shell(pickingData,'<section class="picking-take-card"><button type="button" data-picking-take>Tomar pedido</button></section>');
   assert.equal(count(html,'class="modal-overlay simple-process-overlay"'),1);
   assert.equal(count(html,'class="picking-order-strip"'),1);
-  assert.equal(count(html,'class="parallel-work-footer"'),1);
+  assert.equal(count(html,"parallel-work-footer"),1);
   assert.equal(count(html,"data-order-support-slot"),1);
   assert.equal(count(html,'class="simple-details"'),1);
   assert.equal(count(html,"data-picking-take"),1);

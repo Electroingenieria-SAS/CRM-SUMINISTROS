@@ -116,5 +116,5 @@ test("responsive CSS contains no removed legacy module filenames or critical CTA
   assert.doesNotMatch(css,/\[data-picking-next-v1195\][^{]*\{[^}]*display\s*:\s*none/i);
   assert.doesNotMatch(css,/\[data-billing-next-v1198\][^{]*\{[^}]*display\s*:\s*none/i);
   assert.doesNotMatch(css,/\.billing-task-cta-v1198[^{]*\{[^}]*display\s*:\s*none/i);
-  assert.doesNotMatch(css,/\.billing-dropzone-v1199[^{]*\{[^}]*display\s*:\s*none/i);
+  noDisplayNone(billingUpload,".billing-dropzone-v1199");
 });

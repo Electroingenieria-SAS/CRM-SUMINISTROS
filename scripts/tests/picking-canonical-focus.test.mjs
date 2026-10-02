@@ -11,6 +11,8 @@ import {
 import { originSelectionValid, readRow } from "../../assets/js/domains/picking/origins/origin-selection.js";
 import { beginPicking } from "../../assets/js/domains/picking/actions/start-picking.js";
 
+if(typeof globalThis.requestAnimationFrame!=="function")globalThis.requestAnimationFrame=callback=>{callback();return 0};
+
 function classes(){return {add(){},remove(){}}}
 function action({visible=true,disabled=false}={}){
   return {disabled,dataset:{testVisible:visible?"1":"0"},clicked:0,click(){this.clicked++},classList:classes(),setAttribute(name,value){this[name]=value},removeAttribute(){},focus(){},scrollIntoView(){}};
