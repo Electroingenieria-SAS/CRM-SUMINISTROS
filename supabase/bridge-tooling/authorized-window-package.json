@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "package": "PRODUCTION_CUTOVER_AUTHORIZED_WINDOW",
+  "status": "READY_WITH_REAL_DRY_RUN_REQUIRED",
+  "generated_for": {
+    "pr": 94,
+    "freeze_sha": "ad8021821db8b45840153710f8f02ffef1ffe2fe",
+    "project_ref": "hezjxcxxcjlpmyalftam"
+  },
+  "remote_snapshot": {
+    "migration_count": 99,
+    "latest_version": "20261001153516",
+    "target_present": false,
+    "duplicate_versions": 0,
+    "history_hash": {
+      "algorithm": "sha256(string_agg(version || '|' || name, E'\\n' order by version))",
+      "value": "ff8d1a1556b4a7f7bd32f56388513ab0727a6c0f6c32af0d4e01ec173fbcb56d"
+    }
+  },
+  "target_migration": {
+    "version": "20261001205000",
+    "filename": "20261001205000_shipping_carrier_persistence_v11_43_1.sql",
+    "path": "supabase/migrations/20261001205000_shipping_carrier_persistence_v11_43_1.sql",
+    "git_blob": "62ae25ffb04e5c210cd917dabd8e6cdf54a562f6",
+    "sha256": "fe5ef6e94dd766ad0edc497e22dcab2912c5fc38a2c4086d68031f412035f6c9"
+  },
+  "expected_pending_set": [
+    "20261001205000_shipping_carrier_persistence_v11_43_1.sql"
+  ],
+  "real_dry_run": {
+    "status": "BLOCKED_BY_ENVIRONMENT",
+    "reason": "Current E2 runtime has no Supabase CLI, no local linked-project context, and no Supabase access-token/DB-password environment variables. No credentials were installed or fabricated.",
+    "required_command": "supabase db push --linked --dry-run"
+  },
+  "commands": {
+    "preflight": [
+      "supabase --version",
+      "supabase migration list --linked",
+      "supabase db push --linked --dry-run"
+    ],
+    "apply_only_after_human_authorization": "supabase db push --linked",
+    "postflight": [
+      "supabase migration list --linked",
+      "run supabase/bridge-tooling/postflight.sql read-only checks",
+      "run authorized business smoke"
+    ]
+  },
+  "abort_conditions": [
+    "freeze SHA changes without rebind",
+    "target blob or SHA-256 mismatch",
+    "project ref mismatch",
+    "remote history count/latest/hash drift unexpectedly",
+    "target already present remotely before planned apply",
+    "duplicate remote version",
+    "placeholder appears pending",
+    "pending set contains anything other than V11.43.1",
+    "ErrMissingLocal or ErrMissingRemote",
+    "out-of-order migration",
+    "migration repair suggestion",
+    "--include-all suggestion",
+    "real dry-run is not exactly one pending migration",
+    "human authorization/change-id absent"
+  ],
+  "postflight_expectations": [
+    "V11.43.1 appears exactly once in migration history",
+    "shipping save-guide function checksum and source contract match",
+    "function owner/security-definer/search-path/ACL match expected hardening",
+    "canonical delivery columns remain unchanged except intended function behavior",
+    "SHIPPING_GUIDE event and GUIDE_ADDED milestone health remains valid",
+    "PostgREST schema visibility/reload is healthy"
+  ],
+  "recovery": {
+    "before_history_registration": "ABORT; inspect history/function/ACL; do not retry blindly.",
+    "after_history_registration": "Do not delete history. Prefer versioned forward-fix; use controlled PRE-definition restore only under approved operational recovery."
+  },
+  "merge_decoupling": {
+    "db_apply_is_part_of_pr94_merge": false,
+    "db_apply_required_before_merge": false,
+    "production_history_mutation_in_this_package": false
+  },
+  "evidence_to_retain": [
+    "final freeze SHA",
+    "CI run binding",
+    "Supabase CLI version",
+    "linked project ref",
+    "remote history snapshot and hash",
+    "bridge manifest/comparator report",
+    "migration list output",
+    "db push dry-run output",
+    "target blob/SHA-256 proof",
+    "human approval/change-id",
+    "apply output",
+    "postflight output",
+    "authorized smoke evidence"
+  ],
+  "authorization": "NOT_GRANTED",
+  "mutable_action_executed": false
+}
