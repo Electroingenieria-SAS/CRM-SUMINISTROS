@@ -8,6 +8,7 @@ import {
   buildInvoiceReaderPayload,
   saveInvoiceExplicit
 } from "../../assets/js/domains/billing/invoice-reader/save/invoice-save-adapter.js";
+import { setAuto } from "../../assets/js/domains/billing/invoice-reader/ui/manual-fields.js";
 import { validateBillingUploadFile } from "../../assets/js/domains/billing/uploads/upload-experience.js";
 
 const invoiceText="Factura No. FE12345\nProveedor: Suministros SAS\nFecha: 25/09/2026\nTotal a pagar: $ 1.234.567,89\nPeso total: 12,5 kg\nCantidad total: 3\nSKU A\nSKU B";
@@ -22,7 +23,7 @@ test("invoice parser keeps money, quantity and weight separated",()=>{
   assert.equal(parsed.issuer,"Suministros SAS");
 });
 
-test("invoice document reader supports PDF image and CSV through the shared reader",async()=>{
+test("invoice document reader supports PDF image CSV and rejects unknown upload kind",async()=>{
   for(const kind of ["pdf","image","csv"]){
     const file={name:`factura.${kind==="image"?"png":kind}`,type:kind==="pdf"?"application/pdf":kind==="image"?"image/png":"text/csv"};
     const parsed=await readInvoiceDocument(file,{reader:async()=>({kind,text:invoiceText})});
@@ -34,7 +35,20 @@ test("invoice document reader supports PDF image and CSV through the shared read
   assert.equal(validateBillingUploadFile({name:"factura.exe",type:"application/octet-stream",size:1000}).valid,false);
 });
 
-test("invoice reader payload preserves complete metadata and manual review flags",()=>{
+test("manual override wins over later automatic reader value",()=>{
+  const input={value:"450000",dataset:{manual:"1"}};
+  const hint={textContent:"Editado manualmente",classList:{toggle(){}}};
+  const modal={querySelector(selector){
+    if(selector==='[name="invoiceAmountV1199"]')return input;
+    if(selector==='[data-field-source="invoiceAmountV1199"]')return hint;
+    return null;
+  }};
+  setAuto(modal,"invoiceAmountV1199","999999");
+  assert.equal(input.value,"450000");
+  assert.equal(hint.textContent,"Editado manualmente");
+});
+
+test("invoice reader payload preserves complete metadata, currency COP and manual review flags",()=>{
   const fields={
     invoiceNumberV1199:{value:"FE-77",dataset:{}},
     invoiceDateV1199:{value:"2026-10-01",dataset:{}},
@@ -81,6 +95,15 @@ test("invoice explicit save calls api contract exactly once without changing ide
   await assert.rejects(()=>saveInvoiceExplicit("order-1",{}, {save:async()=>{throw new Error("backend down")}}),/backend down/);
 });
 
+test("institutional upload occurs before explicit invoice save",()=>{
+  const upload=fs.readFileSync(new URL("../../assets/js/domains/billing/uploads/invoice-upload.js",import.meta.url),"utf8");
+  const storeAt=upload.indexOf("await storeBillingFile(data,file,\"INVOICE\"");
+  const payloadAt=upload.indexOf("const payload=buildInvoiceReaderPayload(dialog,basePayload)");
+  const saveAt=upload.indexOf("await saveInvoiceExplicit(data.order.id,payload)");
+  assert.ok(storeAt>=0&&payloadAt>storeAt&&saveAt>payloadAt);
+  assert.equal((upload.match(/saveInvoiceExplicit\(data\.order\.id,payload\)/g)||[]).length,1);
+});
+
 test("invoice reader installation is explicit and has no global observer or patch",()=>{
   const installation=fs.readFileSync(new URL("../../assets/js/domains/billing/invoice-reader/installation.js",import.meta.url),"utf8");
   const adapter=fs.readFileSync(new URL("../../assets/js/domains/billing/invoice-reader/save/invoice-save-adapter.js",import.meta.url),"utf8");
@@ -89,5 +112,6 @@ test("invoice reader installation is explicit and has no global observer or patc
   assert.doesNotMatch(index,/DOMContentLoaded/);
   assert.doesNotMatch(adapter,/api\.saveInvoice\s*=/);
   assert.match(adapter,/buildInvoiceReaderPayload/);
+  assert.match(adapter,/currency:"COP"/);
   assert.match(adapter,/saveInvoiceExplicit/);
 });
