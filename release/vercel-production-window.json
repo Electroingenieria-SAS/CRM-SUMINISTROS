@@ -1,8 +1,0 @@
-{
-  "mode": "CONTROLLED_PRODUCTION_WINDOW",
-  "reason": "Promover a Vercel Production el fix del callback rotativo de Google Apps Script/Drive ya validado en main.",
-  "sourceMainSha": "28748b27464c92ab1d70a04c41c7ded33a2b7d55",
-  "expectedPwaRevision": "e7deab73843fc89c",
-  "openedOn": "2026-10-02",
-  "closeAfter": "Vercel Production READY + alias estable sirviendo la revisión esperada"
-}
