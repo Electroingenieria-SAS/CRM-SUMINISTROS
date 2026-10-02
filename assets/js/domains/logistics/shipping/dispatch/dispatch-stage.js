@@ -9,6 +9,7 @@ import { workflowHeader } from "../ui/workflow-header.js";
 import { workspace, destinationCard } from "../ui/workspace.js";
 import { openGuideDialog } from "../guide/guide-dialog.js";
 import { guideSummary } from "../ui/delivery-summary.js";
+import { renderLocalDispatchStage } from "../../local-dispatch/local-dispatch-stage.js";
 
 export function renderDispatch(host,data,{reload,refreshLists}){
   const task=activeTask(data),delivery=latestDelivery(data),place=destination(delivery,data.order),profile=profileFor(data.order);
@@ -38,6 +39,10 @@ export function renderDispatch(host,data,{reload,refreshLists}){
     return;
   }
 
+  if(data.order.current_step_code==="LOCAL_DISPATCH"){
+    return renderLocalDispatchStage(host,data,{reload,refreshLists});
+  }
+
   const taskHtml=`<div class="shipping-core-task-head-v11107"><div><span class="shipping-core-task-kicker-v11107">PASO 2</span><h4>${fmt.escape(profile.guideTitle)}</h4><p>${fmt.escape(guideReady?"Los datos del transporte ya están registrados. Revísalos o continúa al cierre.":profile.guideCopy)}</p></div><span class="shipping-core-step-badge-v11107">Paso 2 de 3</span></div>
     ${guideReady?guideSummary(delivery,guideFile(data)):`<div class="shipping-core-destination-v11107"><small>Documento de transporte</small><strong>Pendiente de registrar</strong><p>El lector acepta PDF, imagen o CSV. Todo dato detectado puede corregirse manualmente.</p></div>`}
     <button type="button" class="btn ${guideReady?"btn-ghost":"btn-primary"} shipping-core-primary-v11107" data-add-guide>${guideReady?"Revisar o editar guía":"Cargar archivo o registrar manualmente"}</button>`;
@@ -57,4 +62,4 @@ export function renderDispatch(host,data,{reload,refreshLists}){
   bindFooter(host,data,{refreshLists,onNext:continueGuide});
 }
 
-export function disableCoreActions(host,disabled){host.querySelectorAll("[data-take-shipping],[data-add-guide],[data-attach-closure-photo],[data-shipping-next-core]").forEach(button=>button.disabled=disabled)}
+export function disableCoreActions(host,disabled){host.querySelectorAll("[data-take-shipping],[data-add-guide],[data-save-local-dispatch],[data-attach-closure-photo],[data-shipping-next-core]").forEach(button=>button.disabled=disabled)}
