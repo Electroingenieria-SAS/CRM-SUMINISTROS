@@ -30,6 +30,6 @@
     "validate:paco-language": "node scripts/paco-language-v11373-test.mjs",
     "validate:domains": "node --test scripts/tests/*.test.mjs tests/security/*.test.mjs",
     "pwa:generate": "node scripts/ci/generate-precache-manifest.mjs",
-    "pwa:check": "node scripts/ci/generate-precache-manifest.mjs --check && node scripts/architecture/check-asset-budget.mjs"
+    "pwa:check": "node scripts/ci/generate-precache-manifest.mjs && node scripts/ci/generate-precache-manifest.mjs --check && node scripts/architecture/check-asset-budget.mjs"
   }
 }
