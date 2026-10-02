@@ -7,9 +7,10 @@
 3. GitHub Actions ejecuta **Validate CRM Suministros**.
 4. El PR solo debe fusionarse con la validación en verde.
 5. El método recomendado es **squash merge**.
-6. Vercel despliega automáticamente únicamente desde `main`.
-7. Tras el merge, la misma CI vuelve a ejecutar validaciones y smoke desktop/móvil sobre el SHA productivo.
-8. Se confirma que Vercel publica exactamente el SHA fusionado y queda `READY`.
+6. Vercel mantiene el auto-deploy de Git deshabilitado en operación normal.
+7. Para una promoción controlada sin `VERCEL_TOKEN`, se abre una ventana versionada (`release/vercel-production-window.json`) que habilita temporalmente únicamente `main`.
+8. Tras el merge, la misma CI vuelve a ejecutar validaciones y smoke desktop/móvil sobre el SHA productivo.
+9. Se confirma que Vercel publica el SHA de `main`, queda `READY` y sirve la revisión PWA esperada; inmediatamente después se cierra la ventana y `main` vuelve a `false`.
 
 ## Protección requerida de main
 
@@ -30,8 +31,12 @@ Contrato actual:
 
 - proyecto: `crm-suministros`;
 - rama Production: `main`;
-- ramas diferentes de `main`: deployment automático deshabilitado por `vercel.json`;
+- operación normal: `deploymentEnabled.main = false` y `deploymentEnabled.* = false`;
+- ventana controlada: solo `main` puede pasar temporalmente a `true`, acompañada por `release/vercel-production-window.json` y PR verde;
+- el deploy directo por GitHub Actions requiere `VERCEL_TOKEN`; si el secreto no está configurado, la ventana controlada es el mecanismo de promoción auditado;
 - dominio estable: `crm-suministros-amber.vercel.app`.
+
+Una ventana de producción debe cerrarse inmediatamente después de verificar el deployment. El estado final aceptado del repositorio vuelve a ser `main: false` y `*: false`.
 
 El deployment se considera válido únicamente si:
 
