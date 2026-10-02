@@ -11,6 +11,7 @@ import { billingDocumentSummary } from "./invoice-summary.js";
 import { openInvoiceUpload, openPvpAnnexUpload } from "../uploads/invoice-upload.js";
 import { completeBillingAndDispatch } from "../actions/complete-billing.js";
 import { orderDetails } from "../../finance/ui/order-financial-details.js";
+import { enhanceBillingExperience } from "./billing-focus.js";
 
 export function renderLogisticsBilling(host,data,{reload,refreshLists}){
   const order=data.order;
@@ -74,4 +75,5 @@ export function renderLogisticsBilling(host,data,{reload,refreshLists}){
   host.querySelector('[data-cash-action="invoice"]')?.addEventListener("click",()=>openInvoiceUpload(data,{reload,refreshLists,source:"LOGISTICA_FACTURACION"}));
   host.querySelector('[data-cash-action="annex"]')?.addEventListener("click",()=>openPvpAnnexUpload(data,{reload,refreshLists}));
   host.querySelector('[data-cash-action="send"]')?.addEventListener("click",()=>guarded(()=>completeBillingAndDispatch(data,{refreshLists,host,pvp})));
+  enhanceBillingExperience(host);
 }
