@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import test from 'node:test';
 import {
   TARGET_VERSION,TARGET_FILENAME,EXPECTED_PROJECT_REF,
   sha256,normalizeHistory,validateSnapshot,assertCommentOnlySql,
-  findPendingMigrations,buildWorkspacePlan,validateCliEvidence,parseMigrationListOutput
+  findPendingMigrations,buildWorkspacePlan,validateCliEvidence,parseMigrationListOutput,writeBridgeArtifacts
 } from './core.mjs';
 
 function history99(){
@@ -120,4 +123,26 @@ test('dry-run suggesting include-all fails closed',()=>{
 test('migration-list parser captures exact remote versions',()=>{
   const rows=history99();
   assert.deepEqual(parseMigrationListOutput(listOutput(rows)),rows.map(r=>r.version));
+});
+
+
+// 14. artifact writer emits deterministic runtime evidence and expected pending file
+test('artifact writer emits bridge workspace and expected pending-set artifact',()=>{
+  const rows=history99();
+  const t=target();
+  const plan=buildWorkspacePlan({snapshot:snapshot(rows),targetContent:t.content,targetBlob:t.blob,expectedBlob:t.blob,expectedSha256:t.sha});
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bridge-tooling-'));
+  try{
+    fs.mkdirSync(path.join(dir,'supabase'),{recursive:true});
+    fs.writeFileSync(path.join(dir,'supabase','config.toml'),'project_id = "fixture"\n','utf8');
+    writeBridgeArtifacts({workspaceDir:dir,plan,manifest:{fixture:true}});
+    const migrationFiles=fs.readdirSync(path.join(dir,'supabase','migrations')).filter(name=>name.endsWith('.sql'));
+    assert.equal(migrationFiles.length,100);
+    assert.equal(fs.readFileSync(path.join(dir,'supabase','bridge-runtime','EXPECTED_PENDING_SET.txt'),'utf8'),`${TARGET_VERSION}\n`);
+    assert.ok(fs.existsSync(path.join(dir,'supabase','bridge-runtime','bridge-manifest.json')));
+    assert.ok(fs.existsSync(path.join(dir,'supabase','bridge-runtime','comparator-report.json')));
+    assert.ok(fs.existsSync(path.join(dir,'supabase','bridge-runtime','reconciliation-report.json')));
+  } finally {
+    fs.rmSync(dir,{recursive:true,force:true});
+  }
 });
