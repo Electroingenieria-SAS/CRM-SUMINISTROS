@@ -6,6 +6,7 @@ import { renderPartialResume } from "./partial/partial-resume.js";
 import { shell, bindClose } from "./ui/picking-shell.js";
 import { beginPicking } from "./actions/start-picking.js";
 import { pendingCutPickups, activeTask, actionCodes, rounds, hasPartialPending, assigneeName } from "./shared/picking-status.js";
+import { enhancePickingExperience } from "./ui/picking-focus.js";
 
 export function isPickingFlow(data){
   return data?.order?.current_step_code==="ALISTAMIENTO"||hasPartialPending(data);
@@ -14,6 +15,7 @@ export function isPickingFlow(data){
 export function renderPickingFlow(host,data,{reload,refreshLists}={}){
   if(data.order.current_step_code!=="ALISTAMIENTO"){
     renderPartialResume(host,data,{reload,refreshLists});
+    enhancePickingExperience(host);
     return;
   }
 
@@ -21,6 +23,7 @@ export function renderPickingFlow(host,data,{reload,refreshLists}={}){
   if(!task){
     host.innerHTML=shell(data,`<section class="picking-empty"><strong>No existe una tarea activa de Alistamiento.</strong><p>Solicita revisión del flujo antes de continuar.</p></section>`);
     bindClose(host);
+    enhancePickingExperience(host);
     return;
   }
 
@@ -51,19 +54,24 @@ export function renderPickingFlow(host,data,{reload,refreshLists}={}){
         button.disabled=false;
       }
     });
+    enhancePickingExperience(host);
     return;
   }
 
   if(!actions.has("COMPLETE")){
     host.innerHTML=shell(data,`<section class="picking-empty"><strong>Pedido en gestión</strong><p>Este pedido está bloqueado para evitar verificaciones simultáneas.</p><div class="picking-warning">Responsable: <strong>${fmt.escape(assigneeName(data))}</strong></div></section>`);
     bindClose(host);
+    enhancePickingExperience(host);
     return;
   }
 
   if(pendingCutPickups(data).length){
     renderCutPickup(host,data,{reload,refreshLists});
+    enhancePickingExperience(host);
     return;
   }
 
-  renderVerification(host,data,{reload,refreshLists}).catch(error=>{toast(error.message,"error",7500);host.replaceChildren();});
+  renderVerification(host,data,{reload,refreshLists})
+    .then(()=>enhancePickingExperience(host))
+    .catch(error=>{toast(error.message,"error",7500);host.replaceChildren();});
 }
