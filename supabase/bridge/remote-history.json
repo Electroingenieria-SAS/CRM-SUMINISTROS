@@ -1,0 +1,409 @@
+{
+  "generatedAt": "2026-10-02",
+  "projectId": "hezjxcxxcjlpmyalftam",
+  "baseSha": "dad1147c5178a840efd3f1d553992c96ecb41b61",
+  "branch": "e2/migration-bridge-prototype-20261002",
+  "purpose": "Read-only/dry-run prototype: represent exact remote migration versions locally so only V11.43.1 is pending.",
+  "targetMigration": {
+    "filename": "20261001205000_shipping_carrier_persistence_v11_43_1.sql",
+    "blob": "62ae25ffb04e5c210cd917dabd8e6cdf54a562f6"
+  },
+  "remoteHistory": [
+    {
+      "version": "20260813220710",
+      "name": "reset_qa_flow_statement_timeout_v10_25_11_retry"
+    },
+    {
+      "version": "20260813220811",
+      "name": "qa_flow_pool_protection_v10_25_11"
+    },
+    {
+      "version": "20260813223749",
+      "name": "restore_can_view_order_productive"
+    },
+    {
+      "version": "20260813223757",
+      "name": "restore_reception_shadow_productive"
+    },
+    {
+      "version": "20260814125752",
+      "name": "remove_sandbox_cut_branches_and_legacy_rpc_v10_26_1"
+    },
+    {
+      "version": "20260814130514",
+      "name": "purge_qa_generated_audit_outbox_v10_26_1"
+    },
+    {
+      "version": "20260814140715",
+      "name": "super_admin_user_management_v10_27_0"
+    },
+    {
+      "version": "20260814201114",
+      "name": "core_integrity_v10_33_0"
+    },
+    {
+      "version": "20260814201430",
+      "name": "contracts_and_production_only_v10_33_0"
+    },
+    {
+      "version": "20260814201530",
+      "name": "cleanup_and_indexes_v10_33_0"
+    },
+    {
+      "version": "20260814201745",
+      "name": "order_creation_reservation_v10_33_0"
+    },
+    {
+      "version": "20260814202429",
+      "name": "permissions_closure_v10_33_0"
+    },
+    {
+      "version": "20260814202536",
+      "name": "approval_target_matrix_v10_33_0"
+    },
+    {
+      "version": "20260814210025",
+      "name": "cutting_evidence_file_authorization_v10_33_1"
+    },
+    {
+      "version": "20260814210836",
+      "name": "action_idempotency_retry_order_v10_33_1"
+    },
+    {
+      "version": "20260814211522",
+      "name": "regression_health_canaries_v10_33_1"
+    },
+    {
+      "version": "20260901133719",
+      "name": "security_boundary_v11_0"
+    },
+    {
+      "version": "20260901134216",
+      "name": "security_performance_hardening_v10_33_1"
+    },
+    {
+      "version": "20260901151809",
+      "name": "crm_operational_flows_v11_1"
+    },
+    {
+      "version": "20260901151844",
+      "name": "crm_operational_private_tables_v11_1"
+    },
+    {
+      "version": "20260901155212",
+      "name": "crm_operational_hardening_v11_2"
+    },
+    {
+      "version": "20260901191619",
+      "name": "workforce_catalog_permissions_v11_3"
+    },
+    {
+      "version": "20260901191732",
+      "name": "workforce_catalog_corte_v11_3"
+    },
+    {
+      "version": "20260901191828",
+      "name": "workforce_catalog_recepcion_v11_3"
+    },
+    {
+      "version": "20260901192504",
+      "name": "workforce_catalog_administrativas_v11_3"
+    },
+    {
+      "version": "20260901192603",
+      "name": "workforce_catalog_alistamiento_v11_3"
+    },
+    {
+      "version": "20260901192902",
+      "name": "workforce_catalog_despacho_nacional_v11_3"
+    },
+    {
+      "version": "20260901192925",
+      "name": "workforce_catalog_despacho_local_v11_3"
+    },
+    {
+      "version": "20260901193009",
+      "name": "workforce_catalog_general_v11_3"
+    },
+    {
+      "version": "20260901193045",
+      "name": "workforce_catalog_area_lead_scope_v11_3"
+    },
+    {
+      "version": "20260901193833",
+      "name": "workforce_coordinator_planner_v11_3"
+    },
+    {
+      "version": "20260901193855",
+      "name": "workforce_coordinator_my_day_permission_v11_3"
+    },
+    {
+      "version": "20260901195250",
+      "name": "receiving_explicit_creation_v11_4"
+    },
+    {
+      "version": "20260901195435",
+      "name": "receiving_physical_entry_v11_4"
+    },
+    {
+      "version": "20260901201057",
+      "name": "warehouse_receiving_domain_v11_5"
+    },
+    {
+      "version": "20260901202426",
+      "name": "retire_merchandise_receipt_from_order_flow_v11_5"
+    },
+    {
+      "version": "20260901202924",
+      "name": "warehouse_receiving_hardening_v11_5"
+    },
+    {
+      "version": "20260901205939",
+      "name": "inventory_scan_codes_v11_6"
+    },
+    {
+      "version": "20260901210053",
+      "name": "goods_receipt_scan_labels_v11_6"
+    },
+    {
+      "version": "20260901214653",
+      "name": "exception_authority_priority_v11_7_core"
+    },
+    {
+      "version": "20260901214732",
+      "name": "exception_authority_v11_7_rpcs"
+    },
+    {
+      "version": "20260904141922",
+      "name": "audit_contract_hardening_v11_8_1"
+    },
+    {
+      "version": "20260904141956",
+      "name": "production_cleanup_hardening_v11_8_1"
+    },
+    {
+      "version": "20260904142112",
+      "name": "runtime_grants_hardening_v11_8_1"
+    },
+    {
+      "version": "20260904145012",
+      "name": "role_scope_governance_v1181"
+    },
+    {
+      "version": "20260904150023",
+      "name": "079_jefatura_revision_aprobacion_sin_operacion"
+    },
+    {
+      "version": "20260904150917",
+      "name": "gerencia_aprobacion_global_cartera_financiera_v11_8_1"
+    },
+    {
+      "version": "20260904152448",
+      "name": "audit_dashboard_v11_8_2"
+    },
+    {
+      "version": "20260904152511",
+      "name": "audit_dashboard_step_sort_fix_v11_8_2"
+    },
+    {
+      "version": "20260907145055",
+      "name": "inventory_traceability_v11_10_9"
+    },
+    {
+      "version": "20260907163501",
+      "name": "flow_times_analytics_v11_12_0"
+    },
+    {
+      "version": "20260907165630",
+      "name": "people_performance_analytics_v11_13_0"
+    },
+    {
+      "version": "20260907170510",
+      "name": "people_analytics_profile_selector_v11_13_0"
+    },
+    {
+      "version": "20260907185519",
+      "name": "reports_analytics_core_v11_14_0"
+    },
+    {
+      "version": "20260907185648",
+      "name": "reports_explorer_export_views_v11_14_0"
+    },
+    {
+      "version": "20260907190554",
+      "name": "reports_analytics_indexes_v11_14_0"
+    },
+    {
+      "version": "20260907193308",
+      "name": "history_center_v11_15_0"
+    },
+    {
+      "version": "20260907201530",
+      "name": "admin_control_center_v11_16_0"
+    },
+    {
+      "version": "20260907203002",
+      "name": "admin_impersonation_audit_v11_16_0"
+    },
+    {
+      "version": "20260908192242",
+      "name": "architecture_core_cleanup_v11_21_0"
+    },
+    {
+      "version": "20260908225034",
+      "name": "inventory_cyclic_intelligence_v11_22_0"
+    },
+    {
+      "version": "20260909193357",
+      "name": "inventory_accounting_blind_count_v11_23_0"
+    },
+    {
+      "version": "20260909195228",
+      "name": "inventory_express_super_admin_review_v11_23_1"
+    },
+    {
+      "version": "20260909200218",
+      "name": "restore_inventory_control_plan_v11_23_2"
+    },
+    {
+      "version": "20260911132237",
+      "name": "profiles_rls_scope_v11_27_0"
+    },
+    {
+      "version": "20260911132642",
+      "name": "work_my_day_role_cache_v11_27_0"
+    },
+    {
+      "version": "20260911133730",
+      "name": "inventory_filtered_hotpath_v11_27_0"
+    },
+    {
+      "version": "20260911133908",
+      "name": "inventory_count_plan_hotpath_v11_27_0"
+    },
+    {
+      "version": "20260911145844",
+      "name": "auditoria_erp_bridge_v11_28_0"
+    },
+    {
+      "version": "20260911150955",
+      "name": "auditoria_erp_bridge_hardening_v11_28_0"
+    },
+    {
+      "version": "20260911153827",
+      "name": "auditoria_erp_server_dispatch_v11_28_1"
+    },
+    {
+      "version": "20260911154149",
+      "name": "auditoria_erp_vault_config_v11_28_1"
+    },
+    {
+      "version": "20260911154752",
+      "name": "auditoria_erp_claim_json_v11_28_1"
+    },
+    {
+      "version": "20260911160712",
+      "name": "auditoria_erp_route_recepcion_v11_28_2"
+    },
+    {
+      "version": "20260914131630",
+      "name": "integral_health_audit_v11_30_0"
+    },
+    {
+      "version": "20260914134619",
+      "name": "auditoria_erp_contract_health_v11_30_0"
+    },
+    {
+      "version": "20260918130752",
+      "name": "security_definer_contract_v11_30_1"
+    },
+    {
+      "version": "20260918130857",
+      "name": "security_definer_contract_regex_fix_v11_30_1"
+    },
+    {
+      "version": "20260918161942",
+      "name": "delivery_satisfaction_distance_v11_31_0"
+    },
+    {
+      "version": "20260918162108",
+      "name": "delivery_satisfaction_fk_indexes_v11_31_0"
+    },
+    {
+      "version": "20260923155558",
+      "name": "workforce_planner_calendar_v11_33_0"
+    },
+    {
+      "version": "20260923155608",
+      "name": "workforce_my_day_automation_v11_34_0"
+    },
+    {
+      "version": "20260923155618",
+      "name": "workforce_manager_review_v11_34_1"
+    },
+    {
+      "version": "20260923160946",
+      "name": "workforce_catalog_taxonomy_v11_34_3"
+    },
+    {
+      "version": "20260923200307",
+      "name": "workforce_timeline_evidence_v11_35_0"
+    },
+    {
+      "version": "20260923214201",
+      "name": "workforce_calendar_feed_v11_36_0"
+    },
+    {
+      "version": "20260924155859",
+      "name": "paco_operational_snapshot_v11_37_0"
+    },
+    {
+      "version": "20260924171309",
+      "name": "automatic_order_workforce_v11_38_0"
+    },
+    {
+      "version": "20260924184116",
+      "name": "workforce_special_treatment_metrics_v11_38_0"
+    },
+    {
+      "version": "20260924193228",
+      "name": "order_responsible_seller_v11_38_2"
+    },
+    {
+      "version": "20260924202134",
+      "name": "customer_freight_intelligence_v11_39_0"
+    },
+    {
+      "version": "20260924202912",
+      "name": "customer_freight_intelligence_permissions_v11_39_0"
+    },
+    {
+      "version": "20260924205807",
+      "name": "customer_payment_truth_v11_39_1"
+    },
+    {
+      "version": "20260924210135",
+      "name": "customer_intelligence_security_v11_39_1"
+    },
+    {
+      "version": "20260924214248",
+      "name": "freight_predictive_model_v11_40_0"
+    },
+    {
+      "version": "20260924215240",
+      "name": "freight_predictive_model_v11_40_0"
+    },
+    {
+      "version": "20260924221940",
+      "name": "logistics_intelligence_control_v11_41_0"
+    },
+    {
+      "version": "20260925130508",
+      "name": "freight_historical_base_v11_42_0"
+    },
+    {
+      "version": "20261001153516",
+      "name": "impersonation_metrics_security_v11_32_0"
+    }
+  ]
+}

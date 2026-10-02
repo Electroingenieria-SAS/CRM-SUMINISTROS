@@ -1,0 +1,6 @@
+-- E2 EPHEMERAL MIGRATION BRIDGE PLACEHOLDER
+-- HISTORY REPRESENTATION ONLY.
+-- This file exists only on branch e2/migration-bridge-prototype-20261002.
+-- Its version is already present in the linked production migration history.
+-- ABORT if this file ever appears in db push --dry-run output.
+-- No historical SQL is intentionally reproduced here.
