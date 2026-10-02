@@ -1,11 +1,41 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
-import { api } from "../../assets/js/services/api.js";
-import { parseGuideText, localizedNumber } from "../../assets/js/domains/logistics/shipping/guide/reader.js";
-import { buildShippingGuidePayload } from "../../assets/js/domains/logistics/shipping/guide/payload.js";
-import { saveShippingGuideExplicit } from "../../assets/js/domains/logistics/shipping/guide/save-guide.js";
-import { applyAutoreadValues } from "../../assets/js/domains/logistics/shipping/guide/guide-dialog.js";
+function installBrowserShim(){
+  if(typeof globalThis.window==="undefined")globalThis.window={};
+  window.dispatchEvent??=()=>true;
+  window.addEventListener??=()=>{};
+  window.removeEventListener??=()=>{};
+  if(typeof globalThis.document==="undefined"){
+    globalThis.document={
+      querySelector(){return null},
+      createElement(){return {dataset:{},addEventListener(){},removeEventListener(){}}},
+      head:{append(){}}
+    };
+  }
+  if(typeof globalThis.CustomEvent==="undefined"){
+    globalThis.CustomEvent=class CustomEvent{
+      constructor(type,{detail}={}){this.type=type;this.detail=detail}
+    };
+  }
+  globalThis.requestAnimationFrame??=(callback=>callback());
+}
+
+installBrowserShim();
+
+const [
+  {api},
+  {parseGuideText,localizedNumber},
+  {buildShippingGuidePayload},
+  {saveShippingGuideExplicit},
+  {applyAutoreadValues}
+]=await Promise.all([
+  import("../../assets/js/services/api.js"),
+  import("../../assets/js/domains/logistics/shipping/guide/reader.js"),
+  import("../../assets/js/domains/logistics/shipping/guide/payload.js"),
+  import("../../assets/js/domains/logistics/shipping/guide/save-guide.js"),
+  import("../../assets/js/domains/logistics/shipping/guide/guide-dialog.js")
+]);
 
 test("shipping guide parser detects carrier, tracking, carrier invoice and localized freight cost",()=>{
   const parsed=parseGuideText("Transportadora: TCC\nGuía: ABC123456\nFactura transportadora: FT-9988\nCosto flete: COP 1.234.567,89");

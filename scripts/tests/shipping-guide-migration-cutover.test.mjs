@@ -215,17 +215,28 @@ test("corrected carrier billing fields persist in columns, not delivery metadata
   const deliveryInsert=migration.match(/insert into erp_supply\.deliveries\(([\s\S]*?)\) values\(([\s\S]*?)\) returning/i);
   const deliveryUpdate=migration.match(/update erp_supply\.deliveries([\s\S]*?)where id=v_delivery\.id/i);
   assert.ok(deliveryInsert&&deliveryUpdate);
+
+  for(const column of ["carrier_invoice_number","carrier_cost","carrier_cost_currency"]){
+    assert.match(deliveryInsert[1],new RegExp(`\\b${column}\\b`),column);
+  }
+  for(const value of ["v_carrier_invoice","v_carrier_cost","v_carrier_cost_currency"]){
+    assert.match(deliveryInsert[2],new RegExp(`\\b${value}\\b`),value);
+  }
   for(const assignment of [
     "carrier_invoice_number=v_carrier_invoice",
     "carrier_cost=v_carrier_cost",
     "carrier_cost_currency=v_carrier_cost_currency"
   ])assert.ok(deliveryUpdate[1].includes(assignment),assignment);
-  const metadataWrites=[...migration.matchAll(/(?:metadata\s*=|jsonb_build_object\()([\s\S]{0,500})/gi)]
-    .map(match=>match[1])
-    .filter(block=>/shippingVersion|guideFileId|destination/.test(block));
-  for(const block of metadataWrites){
-    assert.doesNotMatch(block,/'carrierInvoiceNumber'|'carrierCost'|'carrierCostCurrency'/);
-  }
+
+  const insertMetadata=deliveryInsert[2].match(/jsonb_build_object\(([\s\S]*?)\)\s*$/i);
+  assert.ok(insertMetadata,"deliveries INSERT metadata block missing");
+  assert.doesNotMatch(insertMetadata[1],/'carrierInvoiceNumber'|'carrierCost'|'carrierCostCurrency'/);
+
+  const updateMetadata=deliveryUpdate[1].match(
+    /metadata=coalesce\(metadata,'\{\}'::jsonb\)\|\|jsonb_build_object\(([\s\S]*?)\),\s*updated_at=now\(\)/i
+  );
+  assert.ok(updateMetadata,"deliveries UPDATE metadata block missing");
+  assert.doesNotMatch(updateMetadata[1],/'carrierInvoiceNumber'|'carrierCost'|'carrierCostCurrency'/);
 });
 
 test("runbook contains preflight, postflight, rollback, smoke and no destructive down migration",()=>{

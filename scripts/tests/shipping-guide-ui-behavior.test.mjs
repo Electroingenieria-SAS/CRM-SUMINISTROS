@@ -1,13 +1,39 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
-import { api } from "../../assets/js/services/api.js";
-import {
-  bindGuideReader,
-  readGuideIntoDialog
-} from "../../assets/js/domains/logistics/shipping/guide/guide-dialog.js";
-import { buildShippingGuidePayload } from "../../assets/js/domains/logistics/shipping/guide/payload.js";
-import { saveShippingGuideExplicit } from "../../assets/js/domains/logistics/shipping/guide/save-guide.js";
+function installBrowserShim(){
+  if(typeof globalThis.window==="undefined")globalThis.window={};
+  window.dispatchEvent??=()=>true;
+  window.addEventListener??=()=>{};
+  window.removeEventListener??=()=>{};
+  if(typeof globalThis.document==="undefined"){
+    globalThis.document={
+      querySelector(){return null},
+      createElement(){return {dataset:{},addEventListener(){},removeEventListener(){}}},
+      head:{append(){}}
+    };
+  }
+  if(typeof globalThis.CustomEvent==="undefined"){
+    globalThis.CustomEvent=class CustomEvent{
+      constructor(type,{detail}={}){this.type=type;this.detail=detail}
+    };
+  }
+  globalThis.requestAnimationFrame??=(callback=>callback());
+}
+
+installBrowserShim();
+
+const [
+  {api},
+  {bindGuideReader,readGuideIntoDialog},
+  {buildShippingGuidePayload},
+  {saveShippingGuideExplicit}
+]=await Promise.all([
+  import("../../assets/js/services/api.js"),
+  import("../../assets/js/domains/logistics/shipping/guide/guide-dialog.js"),
+  import("../../assets/js/domains/logistics/shipping/guide/payload.js"),
+  import("../../assets/js/domains/logistics/shipping/guide/save-guide.js")
+]);
 
 function eventNode(initial={}){
   const listeners=new Map();
