@@ -20,10 +20,13 @@ const indexHtml=fs.readFileSync(path.join(root,"index.html"),"utf8");
 const vercelConfig=fs.readFileSync(path.join(root,"vercel.json"),"utf8");
 const externalScripts=[...indexHtml.matchAll(/<script[^>]+src=["'](https:\/\/[^"']+)["'][^>]*>/gi)].map(match=>match[1]);
 for(const src of externalScripts){
-  if(/cdn\.jsdelivr\.net|unpkg\.com|cdn\.sheetjs\.com/.test(src)){
-    if(/\/(latest|next)(?:\/|$)|@latest(?:\/|$)/i.test(src))failures.push(`index.html: dependencia CDN no fijada: ${src}`);
-    if(/cdn\.jsdelivr\.net\/npm\//.test(src)&&!/@\d+\.\d+\.\d+/.test(src))failures.push(`index.html: paquete jsDelivr sin versión exacta: ${src}`);
-    if(/unpkg\.com\//.test(src)&&!/@\d+\.\d+\.\d+/.test(src))failures.push(`index.html: paquete unpkg sin versión exacta: ${src}`);
+  const parsed=new URL(src);
+  const hostname=parsed.hostname.toLowerCase();
+  if(["cdn.jsdelivr.net","unpkg.com","cdn.sheetjs.com"].includes(hostname)){
+    const resource=`${parsed.pathname}${parsed.search}`;
+    if(/\/(latest|next)(?:\/|$)|@latest(?:\/|$)/i.test(resource))failures.push(`index.html: dependencia CDN no fijada: ${src}`);
+    if(hostname==="cdn.jsdelivr.net"&&parsed.pathname.startsWith("/npm/")&&!/@\d+\.\d+\.\d+(?:\/|$)/.test(parsed.pathname))failures.push(`index.html: paquete jsDelivr sin versión exacta: ${src}`);
+    if(hostname==="unpkg.com"&&!/@\d+\.\d+\.\d+(?:\/|$)/.test(parsed.pathname))failures.push(`index.html: paquete unpkg sin versión exacta: ${src}`);
   }
 }
 if(/unsafe-eval/i.test(vercelConfig))failures.push("vercel.json: CSP no puede habilitar unsafe-eval.");

@@ -36,7 +36,8 @@ const dialog=timeReviewDialogHtml(row);
 for(const token of ["Ana Gómez","Organización de inventario","Foto final","1 h 18 min","Revisado","Observado"]){
   assert.equal(dialog.includes(token),true,`El diálogo debe mostrar: ${token}`);
 }
-assert.equal(dialog.includes("https://drive.google.com/file/d/abc/view"),true,"La revisión debe enlazar la evidencia de Drive");
+const evidenceHrefs=[...dialog.matchAll(/href="([^"]+)"/g)].map(match=>match[1]);
+assert.equal(evidenceHrefs.some(href=>href===row.evidence[0].webViewLink),true,"La revisión debe enlazar exactamente la evidencia de Drive");
 const recent=recentTimeReviewHtml({
   profileName:"Ana Gómez",
   title:"Organización de inventario",
