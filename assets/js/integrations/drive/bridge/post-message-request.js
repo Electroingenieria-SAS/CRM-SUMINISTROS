@@ -2,6 +2,19 @@ import { bridgeUrl } from "./bridge-url.js";
 
 export const BRIDGE_TIMEOUT_MS = 180000;
 
+export function isAllowedBridgeOrigin(origin) {
+  try {
+    const url = new URL(String(origin || ""));
+    if (url.protocol !== "https:") return false;
+    const host = url.hostname.toLowerCase();
+    return host === "script.google.com"
+      || host === "script.googleusercontent.com"
+      || host.endsWith(".script.googleusercontent.com");
+  } catch {
+    return false;
+  }
+}
+
 function belongsToBridgeFrame(source, bridgeWindow) {
   if (!bridgeWindow) return false;
   for (let depth = 0; source && depth < 8; depth++) {
@@ -56,10 +69,9 @@ export function postToBridge(payload, options = {}) {
     };
 
     const onMessage = event => {
-      // Exact sandbox origin observed on the configured deployment, 2026-10-01.
-      if (event.origin !== "https://script.google.com"
-        && event.origin !== "https://n-bxf2muk7rmihub4iuwdqznurqcm6ax6w26p5jdy-0lu-script.googleusercontent.com") return;
-      // HtmlService posts from a nested frame, not the outer form target.
+      // Apps Script HtmlService may rotate the sandbox subdomain between requests.
+      // Origin remains constrained to Google Apps Script hosts and the exact iframe tree.
+      if (!isAllowedBridgeOrigin(event.origin)) return;
       if (!belongsToBridgeFrame(event.source, iframe.contentWindow)) return;
       const data = event.data;
       if (
