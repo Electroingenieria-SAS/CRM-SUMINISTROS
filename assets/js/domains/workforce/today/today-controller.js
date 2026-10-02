@@ -10,20 +10,21 @@ import { pauseDialog } from "./pause-activity.js";
 import { finishDialog } from "./finish-activity.js";
 import { photoPicker, evidenceDialog } from "../evidence/evidence-dialogs.js";
 import { startLiveClock } from "./live-clock.js";
+import { activityRequestsHtml } from "./activity-requests.js";
 
 export async function renderToday(root,content,prefetchedData=null){
   const data=prefetchedData||await api.workMyDay();
   const plannerTab=root.querySelector('[data-work-view="planner"]');
   if(plannerTab)plannerTab.hidden=false;
   const active=Boolean(data.active);
-  const pending=(data.summary?.pendingEvidence||0)+(data.summary?.pendingReview||0);
+  const pending=(data.summary?.pendingApproval||0)+(data.summary?.pendingEvidence||0)+(data.summary?.pendingReview||0);
   const scheduled=[...(data.overdue||[]),...(data.today||[])];
   content.innerHTML=`
     <section class="workday-guide ${active?"is-running":"is-ready"}">
       <div class="workday-guide-copy">
         <span class="workday-eyebrow">MI JORNADA</span>
         <h2>${active?"Actividad en curso":"Elige con calma. Inicia cuando estés seguro."}</h2>
-        <p>${active?"El CRM registra el tiempo automáticamente y te avisará con el semáforo.":"Navega por categoría, subcategoría y actividad. Nada empieza hasta que confirmes “Iniciar actividad”."}</p>
+        <p>${active?"El CRM registra el tiempo automáticamente y te avisará con el semáforo.":"Navega por categoría, subcategoría y actividad. Primero programas; después inicias manualmente desde tu agenda."}</p>
       </div>
       <div class="workday-traffic-legend" aria-label="Semáforo de tiempo de actividad">
         <span class="green"><i></i><b>Verde</b><small>Menos de 45 min</small></span>
@@ -48,7 +49,7 @@ export async function renderToday(root,content,prefetchedData=null){
 
     <section class="card workday-launch-card">
       <header class="card-head">
-        <div><h3>${active?"Selecciona tu próxima actividad":"¿Qué vas a hacer ahora?"}</h3><p>${active?"Puedes revisar el catálogo, pero no podrás iniciar otra hasta cerrar la actual.":"Solo seleccionarás opciones. El cronómetro inicia después de una confirmación explícita."}</p></div>
+        <div><h3>${active?"Programa tu próxima actividad":"¿Qué vas a hacer ahora?"}</h3><p>${active?"Puedes revisar y programar, pero no podrás iniciar otra hasta cerrar la actual.":"Elige y programa la actividad. El cronómetro solo inicia después, desde la agenda."}</p></div>
         <span class="workday-safe-chip">Selección segura</span>
       </header>
       <div class="card-body">${catalogHtml(data.catalog||[],active)}</div>
@@ -57,7 +58,9 @@ export async function renderToday(root,content,prefetchedData=null){
     ${scheduled.length?`<section class="card workforce-agenda-card workday-agenda-card">
       <header class="card-head"><div><h3>Programado para ti</h3><p>Actividades planificadas para hoy. También requieren confirmación antes de iniciar.</p></div><span class="workforce-count">${scheduled.length}</span></header>
       <div class="card-body workforce-agenda-list">${agendaHtml(data)}</div>
-    </section>`:`<section class="workday-no-schedule"><span>✓</span><div><strong>Sin actividades programadas para hoy</strong><small>Puedes trabajar normalmente desde el catálogo superior.</small></div></section>`}
+    </section>`:`<section class="workday-no-schedule"><span>✓</span><div><strong>Sin actividades programadas para hoy</strong><small>Elige una actividad del catálogo y agrégala a tu agenda.</small></div></section>`}
+
+    ${activityRequestsHtml(data.pendingRequests||[],data.requestHistory||[])}
 
     <section class="card workforce-history-card workday-history-card">
       <header class="card-head"><div><h3>Actividad de hoy</h3><p>Tiempo real, semáforo, evidencia fotográfica y revisiones.</p></div></header>
@@ -69,7 +72,7 @@ export async function renderToday(root,content,prefetchedData=null){
 }
 
 export function bindTodayActions(content,data){
-  bindCatalogBrowser(content,data);
+  bindCatalogBrowser(content,data,()=>rerenderWorkforceContent(content));
 
   content.querySelectorAll("[data-select-assignment]").forEach(button=>button.onclick=()=>{
     const all=[...(data.overdue||[]),...(data.today||[]),...(data.upcoming||[])];

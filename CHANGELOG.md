@@ -1,5 +1,20 @@
 # Changelog
 
+## 11.44.0 — 2026-10-02
+
+### Jornada y actividades
+- Elegir una actividad abre una programación explícita con fecha/hora de inicio, hora final estimada o cierre manual.
+- Guardar una actividad nunca inicia el cronómetro; el inicio continúa siendo una acción separada desde la agenda.
+- `aux_logistica` y `auxiliar_corte` crean solicitudes que deben aprobar jefe, líder o coordinador logístico.
+- El backend bloquea el inicio directo auxiliar incluso si se intenta omitir la interfaz.
+- Mi Jornada muestra solicitudes pendientes e historial reciente; el Centro de excepciones permite aprobar o rechazar con trazabilidad.
+- Los botones de programación, decisión y agenda conservan tamaños uniformes y respuesta móvil.
+
+### Integración y seguridad
+- Se conserva el flujo existente de Facturación, Despachos/Entregas y Recepción; no se crean módulos paralelos.
+- Las migraciones 132–133 redefinen únicamente los contratos RPC de Jornada, conservan actividades abiertas vencidas, revocan `anon` y mantienen ejecución autenticada.
+- PWA y versión de assets rotadas a V11.44.0.
+
 ## 11.32.0 — 2026-09-23
 
 ### Seguridad y autorización

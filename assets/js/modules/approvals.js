@@ -234,10 +234,15 @@ async function loadApprovals(root){
   let status="PENDING";
   const load=async()=>{
     target.innerHTML=loading("Consultando aprobaciones…");
-    const data=await api.approvals(status||null,1,150);
-    target.innerHTML=data.items.length?approvalCards(data.items):empty("Sin solicitudes","No hay decisiones para este grupo.");
+    const [data,workRows]=await Promise.all([
+      api.approvals(status||null,1,150),
+      status==="PENDING"?loadWorkActivityApprovals():Promise.resolve([])
+    ]);
+    const orderRows=data.items||[];
+    target.innerHTML=(orderRows.length||workRows.length)?`${workRows.length?workActivityApprovalCards(workRows):""}${orderRows.length?approvalCards(orderRows):""}`:empty("Sin solicitudes","No hay decisiones para este grupo.");
     target.querySelectorAll("[data-order]").forEach(button=>button.onclick=()=>openOrder(button.dataset.order));
     target.querySelectorAll("[data-decide]").forEach(button=>button.onclick=()=>decisionWizard(JSON.parse(button.dataset.request),button.dataset.decision,async()=>{await Promise.all([load(),loadSummary(root)])}));
+    target.querySelectorAll("[data-work-approval]").forEach(button=>button.onclick=()=>decideWorkActivity(button.dataset.workApproval,button.dataset.decision,load));
   };
   toolbar.querySelectorAll("[data-approval-status]").forEach(button=>button.addEventListener("click",()=>{
     status=button.dataset.approvalStatus;
@@ -245,6 +250,38 @@ async function loadApprovals(root){
     load();
   }));
   await load();
+}
+
+async function loadWorkActivityApprovals(){
+  try{return await api.workPendingApprovals()||[]}
+  catch(error){console.info("[Workforce approvals] sin acceso",error?.message||error);return []}
+}
+
+function workActivityApprovalCards(rows){
+  return `<section class="work-activity-approvals"><header><div><span>JORNADA DEL EQUIPO</span><h3>Actividades por autorizar</h3><p>La aprobación habilita la agenda del auxiliar; nunca inicia el cronómetro automáticamente.</p></div><b>${rows.length}</b></header><div class="work-activity-approval-list">${rows.map(row=>`<article class="work-activity-approval ${row.hasOverlap||row.outsideWorkingTime?"warning":""}"><div class="work-activity-person"><span class="avatar">${fmt.initials(row.profileName||"A")}</span><div><strong>${fmt.escape(row.profileName||"Auxiliar")}</strong><small>${fmt.escape((row.roles||[]).map(role=>fmt.role(role)).join(" · "))}</small></div></div><div class="work-activity-request"><span>${fmt.escape(row.categoryLabel||fmt.label(row.activityGroup||"Actividad"))}</span><strong>${fmt.escape(row.title)}</strong><p>${fmt.escape(row.reason||"")}</p><small>${fmt.date(row.plannedStart)}${row.plannedEnd?` → ${fmt.date(row.plannedEnd)}`:" · sin hora final estimada"}</small>${row.hasOverlap||row.outsideWorkingTime?`<em>${row.hasOverlap?"Cruce de horario. ":""}${row.outsideWorkingTime?"Fuera de jornada.":""}</em>`:""}</div><div class="work-activity-approval-actions"><button type="button" class="btn btn-danger" data-work-approval="${fmt.escape(row.id)}" data-decision="REJECTED">Rechazar</button><button type="button" class="btn btn-success" data-work-approval="${fmt.escape(row.id)}" data-decision="APPROVED">Aprobar</button></div></article>`).join("")}</div></section>`;
+}
+
+function decideWorkActivity(assignmentId,decision,reload){
+  const approve=decision==="APPROVED";
+  const view=modal({
+    title:approve?"Aprobar actividad":"Rechazar actividad",
+    confirmLabel:approve?"Aprobar y habilitar":"Confirmar rechazo",
+    body:`<div class="work-approval-dialog-note"><strong>${approve?"La actividad quedará disponible en la agenda del auxiliar.":"La actividad no podrá iniciarse."}</strong><p>Esta decisión no inicia ningún cronómetro.</p></div><div class="field"><label>${approve?"Nota para el auxiliar":"Motivo del rechazo *"}</label><textarea class="control" name="note" rows="4" ${approve?"":'required minlength="5"'}></textarea></div>`,
+    onConfirm:async dialog=>{
+      const note=dialog.querySelector('[name="note"]').value.trim();
+      if(!approve&&note.length<5)throw new Error("Explica brevemente el motivo del rechazo.");
+      let result=await api.workDecideAssignment(assignmentId,decision,note||null,false);
+      if(result?.requiresConfirmation){
+        const force=globalThis.confirm?.(`${result.message} ¿Deseas aprobarla de todas formas?`);
+        if(!force)throw new Error("Aprobación cancelada para revisar el horario.");
+        result=await api.workDecideAssignment(assignmentId,decision,note||null,true);
+      }
+      if(result?.success===false)throw new Error(result.message||"No fue posible registrar la decisión.");
+      toast(approve?"Actividad aprobada. El auxiliar ya puede iniciarla desde su agenda.":"Actividad rechazada.","success",6500);
+      view.close();
+      await reload();
+    }
+  });
 }
 
 function approvalCards(rows){return `<div class="decision-grid">${rows.map(request=>`<article class="decision-card sla-${Number(request.slaLevel||0)}"><div class="decision-card-head"><div><strong>${fmt.escape(request.orderNumber)}</strong><span>${fmt.escape(request.clientName)}</span></div>${statusBadge(request.status)}</div><div class="decision-card-body"><div class="exception-identifiers">${slaBadge(Number(request.slaLevel||0),request.ageBusinessSeconds)}${priorityBadge(request.priority)}</div><label>Solicitud</label><h3>${fmt.escape(fmt.request(request.requestType))}</h3>${request.requestPayload?.exceptionCode?`<span class="decision-exception-code">${fmt.escape(request.requestPayload.exceptionCode.replaceAll("_"," "))}</span>`:""}<p>${fmt.escape(request.reason)}</p><div class="decision-meta"><span>Solicita: <strong>${fmt.escape(request.requestedBy)}</strong></span><span>Destino: <strong>${fmt.escape(fmt.role(request.assignedRole||"jefe_logistica"))}</strong></span><span>${businessAge(request.ageBusinessSeconds)}</span></div></div><footer class="decision-card-foot"><button class="btn btn-ghost" data-order="${request.orderId}">Ver pedido</button>${request.status==="PENDING"&&request.canDecide?`<button class="btn btn-success" data-decide data-decision="APPROVED" data-request='${fmt.escape(JSON.stringify(request))}'>Aprobar</button><button class="btn btn-danger" data-decide data-decision="REJECTED" data-request='${fmt.escape(JSON.stringify(request))}'>Rechazar</button>`:request.status==="PENDING"?`<span class="muted">Solo consulta</span>`:""}</footer></article>`).join("")}</div>`}

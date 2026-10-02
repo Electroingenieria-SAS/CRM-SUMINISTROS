@@ -10,8 +10,8 @@ grep -q '"version": "11.43.0"' package.json
 grep -q '"version": "11.43.0"' package-lock.json
 grep -q 'app-entry.js?v=11.43.0' index.html
 grep -Fq 'https://script.google.com/macros/s/AKfycbwjl1JCfE0eV92P6DCn6h8jIVIBlSwLOQj8U7Mz1_7YW2Xan8DPI5tpWJuiG7znSCSs/exec' assets/js/config.js
-grep -Fxq '// previous-cache: crm-suministros-v11-42-0-20260925-36' service-worker.js
-grep -Fxq 'const CACHE="crm-suministros-v11-43-0-20260925-37";' service-worker.js
+grep -Fxq '// previous-cache: crm-suministros-v11-43-0-20260925-37' service-worker.js
+grep -Fxq 'const CACHE="crm-suministros-v11-44-0-20261002-38";' service-worker.js
 grep -q 'manifest.webmanifest' vercel.json
 test "$(grep -c '<link rel="stylesheet" href="./assets/css/' index.html)" -eq 4
 test "$(find assets/css -maxdepth 1 -type f -name '*.css' | wc -l)" -eq 4

@@ -58,6 +58,7 @@
 @import "modules/workforce/journey-layout.css";
 @import "modules/workforce/planner-layout.css";
 @import "modules/workforce/operational-controls-btn-primary.css";
+@import "modules/workforce/scheduled-approval.css";
 @import "modules/workforce/operational-controls-control-chip.css";
 @import "components/process-guides-guide-button.css";
 @import "components/process-guides-category-grid.css";

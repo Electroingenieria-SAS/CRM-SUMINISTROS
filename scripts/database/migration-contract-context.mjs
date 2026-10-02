@@ -17,8 +17,9 @@ export function readMigrationContractContext({ read }){
   const workforceTodayMigration=read("supabase/migrations/116_workforce_my_day_automation_v11_34_0.sql");
   const workforceManagerMigration=read("supabase/migrations/117_workforce_manager_review_v11_34_1.sql");
   const workforceCatalogMigration=read("supabase/migrations/118_workforce_catalog_taxonomy_v11_34_3.sql");
+  const workforceApprovalMigration=read("supabase/migrations/132_workforce_scheduled_approval_v11_44_0.sql");
   const workforceTimelineMigration=read("supabase/migrations/119_workforce_timeline_evidence_v11_35_0.sql");
   const workforceCalendarMigration=read("supabase/migrations/120_workforce_calendar_feed_v11_36_0.sql");
   const pacoMigration=read("supabase/migrations/121_paco_operational_snapshot_v11_37_0.sql");
-    return { inventoryMigration, expressMigration, scheduleMigration, rlsAuditMigration, workPerfMigration, inventoryFilterMigration, inventoryPlanMigration, securityDefinerMigration, securityDefinerFixMigration, deliverySatisfactionMigration, deliverySatisfactionIndexMigration, hardeningMigration, workforcePlannerMigration, workforceTodayMigration, workforceManagerMigration, workforceCatalogMigration, workforceTimelineMigration, workforceCalendarMigration, pacoMigration };
+    return { inventoryMigration, expressMigration, scheduleMigration, rlsAuditMigration, workPerfMigration, inventoryFilterMigration, inventoryPlanMigration, securityDefinerMigration, securityDefinerFixMigration, deliverySatisfactionMigration, deliverySatisfactionIndexMigration, hardeningMigration, workforcePlannerMigration, workforceTodayMigration, workforceManagerMigration, workforceCatalogMigration, workforceApprovalMigration, workforceTimelineMigration, workforceCalendarMigration, pacoMigration };
 }

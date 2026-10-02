@@ -6,8 +6,8 @@ export function catalogHtml(catalog,disabled){
   return catalogBrowserHtml(catalog,disabled);
 }
 
-export function bindCatalogBrowser(content,data){
-const browser={content,data};
+export function bindCatalogBrowser(content,data,onScheduled=null){
+const browser={content,data,onScheduled};
 prepareCatalogBrowser(browser);
 if(!browser.browser)return;
 prepareCatalogNavigation(browser);

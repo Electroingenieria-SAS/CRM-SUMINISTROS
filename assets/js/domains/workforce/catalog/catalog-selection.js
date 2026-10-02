@@ -1,7 +1,5 @@
-import { api } from "../../../services/api.js";
-import { toast } from "../../../core/ui.js";
 import { selectedActivityHtml } from "./index.js";
-import { rerenderWorkforceContent } from "../today/today-controller.js";
+import { openActivitySchedule } from "./activity-schedule-dialog.js";
 
 export function bindCatalogSelection(browser){
 browser.browser.addEventListener("click",async event=>{
@@ -42,17 +40,10 @@ browser.browser.addEventListener("click",async event=>{
       return;
     }
 
-    const confirmButton=event.target.closest("[data-work-start-confirmed]");
+    const confirmButton=event.target.closest("[data-work-schedule-confirmed]");
     if(confirmButton){
-      confirmButton.disabled=true;
-      try{
-        await api.workStart(confirmButton.dataset.workStartConfirmed,null,{});
-        toast("Actividad iniciada. El cronómetro ya está registrando tu tiempo.");
-        await rerenderWorkforceContent(browser.content);
-      }catch(error){
-        toast(error.message,"error",7000);
-        confirmButton.disabled=false;
-      }
+      const item=(browser.data.catalog||[]).find(row=>row.id===confirmButton.dataset.workScheduleConfirmed);
+      if(item)openActivitySchedule(browser,item);
     }
   });
 }

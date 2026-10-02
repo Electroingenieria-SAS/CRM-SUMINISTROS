@@ -1,13 +1,13 @@
 
 
-export function validateWorkforceRuntime({ check, exists, read, workforcePlannerMigration, workforceTodayMigration, workforceManagerMigration, workforceCatalogMigration, workforce, workforcePlanner, workforceToday, workforceManager, workforceCatalog, workforceExperience, workforceExperienceCss, approvalsModule, operational, workflow, api, operationsCss, coreCss }){
+export function validateWorkforceRuntime({ check, exists, read, workforcePlannerMigration, workforceTodayMigration, workforceManagerMigration, workforceCatalogMigration, workforceApprovalMigration, workforce, workforcePlanner, workforceToday, workforceManager, workforceCatalog, workforceExperience, workforceExperienceCss, approvalsModule, operational, workflow, api, operationsCss, coreCss }){
   check(workforcePlanner.includes('plannerRangeForMode')&&workforcePlanner.includes('businessDaysForRange'),"Cronograma debe separar lógica laboral del módulo principal.");
   check(workforcePlannerMigration.includes("'calendar'")&&workforcePlannerMigration.includes("activeStatus"),"RPC planner debe devolver calendario y estado activo en una sola respuesta.");
   check(workforcePlannerMigration.includes("validate_work_assignment_business_window")&&workforcePlannerMigration.includes("OUTSIDE_WORKING_TIME"),"Base debe bloquear asignaciones fuera de jornada.");
   check(coreCss.includes(".work-day-timeline-head")&&coreCss.includes(".work-week-grid-v11330")&&coreCss.includes(".work-month-grid-v11330"),"Falta capa visual Día/Semana/Mes del cronograma.");
   check(workforceToday.includes("timeTrafficLight")&&workforceToday.includes("finalEvidenceType"),"Mi jornada debe separar semáforo y evidencia final en un módulo dedicado.");
   check(workforce.includes("workday-guide")&&workforce.includes("catalogBrowserHtml")&&workforce.includes("work-active-console"),"Mi jornada V11.34.5 debe componer jerarquía segura y cronómetro legible.");
-  check(workforceCatalog.includes("catalogTaxonomy")&&workforceCatalog.includes("data-work-start-confirmed"),"Falta contrato de selección categoría → subcategoría → actividad.");
+  check(workforceCatalog.includes("catalogTaxonomy")&&workforceCatalog.includes("data-work-schedule-confirmed")&&workforceCatalog.includes("openActivitySchedule"),"Falta contrato de selección → programación explícita.");
   check(workforceCatalogMigration.includes('"uiCategoryLabel"')&&workforceCatalogMigration.includes('"uiSubcategory"'),"Migración 118 debe exponer taxonomía UI ligera.");
   check(!workforce.includes("data-start-catalog"),"Mi jornada no debe reintroducir inicio directo por clic/touch.");
   check(workforce.includes("workday-traffic-legend")&&workforce.includes("Más de 60 min · genera alerta"),"Mi jornada debe explicar el semáforo antes y durante la ejecución.");
@@ -28,9 +28,9 @@ export function validateWorkforceRuntime({ check, exists, read, workforcePlanner
   check(coreCss.includes(".work-time-traffic")&&coreCss.includes(".work-photo-required"),"Falta capa visual de semáforo y cierre fotográfico.");
   check(workforceManager.includes("timeReviewCardHtml")&&workforceManager.includes("recentTimeReviewHtml"),"Falta módulo de revisión gerencial de tiempos.");
   check(workforceManagerMigration.includes("erp_x_work_manager_queue")&&workforceManagerMigration.includes("erp_x_work_review_time"),"Migración 117 debe exponer cola y cierre de revisión.");
-  check(workforceManagerMigration.includes("approvalRequired',false")&&workforceManagerMigration.includes("'MANUAL'"),"Mi jornada debe iniciar directamente sin aprobación previa.");
-  check(!workforceManagerMigration.includes("erp_x_work_quick_request")&&!workforceManagerMigration.includes("assignmentApprovals"),"No debe persistir el flujo de aprobación previa para Mi jornada.");
-  check(!operational.includes("data-v112-approval")&&!operational.includes("workPendingApprovals")&&!operational.includes("workQuickRequest"),"Frontend operativo no debe reintroducir aprobaciones previas.");
-  check(api.includes("workManagerQueue")&&api.includes("erp_x_work_manager_queue")&&api.includes("workReviewTime"),"API debe exponer únicamente la revisión posterior necesaria.");
+  check(workforceApprovalMigration.includes("Auxiliares deben programar y obtener aprobación antes de iniciar")&&workforceApprovalMigration.includes("approval_status<>'APPROVED'"),"Migración 132 debe impedir inicio auxiliar sin aprobación.");
+  check(workforceApprovalMigration.includes("startsAutomatically',false")&&workforceApprovalMigration.includes("erp_x_work_schedule"),"Programar una actividad no debe iniciar el cronómetro.");
+  check(approvalsModule.includes("workPendingApprovals")&&approvalsModule.includes("workDecideAssignment"),"Centro de excepciones debe resolver aprobaciones de Jornada.");
+  check(api.includes("workManagerQueue")&&api.includes("workSchedule")&&api.includes("workProposeAssignment")&&api.includes("workDecideAssignment"),"API debe exponer programación, aprobación y revisión posterior.");
   check(coreCss.includes(".work-time-review-card")&&coreCss.includes(".work-time-review-recent"),"Falta capa visual de revisión gerencial.");
 }
