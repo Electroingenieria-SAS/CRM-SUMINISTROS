@@ -1,16 +1,16 @@
 # Estado de implementación
 
-## Release candidata — V11.34.5 · 2026-09-23
+## Release candidata — V11.44.0 · 2026-10-02
 
-CRM Suministros mantiene la línea productiva V11.31.2. La candidata V11.33.0 acumula el hardening V11.32.0 y añade el nuevo cronograma laboral. **No se ha promovido esta candidata a Vercel ni se ha aplicado la migración 115 en Supabase productivo.**
+CRM Suministros mantiene la arquitectura modular integrada en `main` y prepara V11.44.0 para promoción controlada a Vercel.
 
-## Backend sincronizado V11.34.4
+## Backend sincronizado V11.44.0
 
-Las migraciones 115, 116 y 117 fueron aplicadas al proyecto Supabase productivo el 23/09/2026 para evitar divergencia entre la candidata Pages y PostgREST. Se verificó exposición autenticada de `erp_x_work_manager_queue`, `erp_x_work_review_time` y `erp_x_work_start`. El frontend sigue sin promoción a Vercel.
+Las migraciones 132 y 133 fueron aplicadas al proyecto Supabase productivo el 02/10/2026. Se verificó exposición autenticada y ausencia de acceso `anon` para `erp_x_work_schedule`, `erp_x_work_propose_assignment` y `erp_x_work_start`.
 
-## Mi jornada V11.34.5
+## Mi jornada V11.44.0
 
-- Flujo simplificado: elegir → iniciar → trabajar → finalizar con foto, sin aprobación previa para auxiliares ni otros roles autorizados por catálogo.
+- Flujo gobernado: elegir → programar → aprobar cuando el rol es auxiliar → iniciar manualmente → trabajar → finalizar con foto.
 - Rediseño visual V11.34.3: encabezado guiado de tres pasos, taxonomía **Categoría → Subcategoría → Actividad**, selección sin inicio automático y confirmación explícita antes del cronómetro.
 - Cronómetro reconstruido como consola compacta: actividad, tiempo activo, semáforo y acciones en un único bloque equilibrado.
 - Se retiró la grilla plana V11.34.2 y sus estilos obsoletos; no queda como implementación paralela.
@@ -21,16 +21,16 @@ Las migraciones 115, 116 y 117 fueron aplicadas al proyecto Supabase productivo 
 - La cola gerencial fue retirada de Mi jornada; `operational-v112.js` ya no consulta `erp_x_work_manager_queue`.
 - V11.34.5 elimina `activity-browser-v113.js`, su instalación desde `bootstrap-v113.js` y el CSS horizontal V11.8 de Jornada.
 - El workflow aplica `cancel-in-progress` por rama/evento y concurrencia exclusiva en Pages para impedir despliegues fuera de orden.
-- Sin captura manual de duración ni causa de desviación en el cierre normal.
+- Programación con inicio, final estimado o cierre manual y duración de referencia; el cierre conserva el tiempo real.
 - Semáforo por tiempo activo: verde <45 min, amarillo 45–60 min, rojo >60 min.
-- Las actividades rojas se envían a revisión posterior mediante `erp_x_work_review_time`; el jefe no aprueba antes de iniciar.
+- Las actividades rojas se envían a revisión posterior mediante `erp_x_work_review_time`; la aprobación previa adicional aplica a auxiliares.
 - Foto final obligatoria para actividades; BEFORE_AFTER mantiene foto antes y después.
 - La evidencia continúa en Google Drive mediante el Apps Script institucional (`uploadWorkEvidence` / `submitToBridge`).
 - El catálogo operativo elimina el cálculo de percentiles en cada apertura de Mi jornada para reducir consumo de Supabase Free.
 - Migraciones 116, 117 y 118 versionadas y aplicadas a Supabase productivo el 23/09/2026.
 - Migración 118 restaura `uiCategory`, `uiCategoryLabel` y `uiSubcategory` en el catálogo operativo sin reintroducir medianas/P80.
-- La migración 117 redefine `erp_x_work_start` para permitir inicio directo, elimina el flujo de aprobación previa de Mi jornada y crea una única cola gerencial de excepciones > 60 min.
-- Las solicitudes `SELF_PROPOSED` antiguas que permanezcan DRAFT/PENDING se cancelarán como flujo legado al promover la migración 117.
+- La migración 132 reemplaza el inicio directo auxiliar por programación y aprobación trazable; 133 conserva como vencidas las actividades abiertas que no se iniciaron en la fecha prevista.
+- La revisión posterior de tiempos >60 min continúa en el mismo Centro de excepciones, junto a la cola de aprobación previa.
 
 ## Cronograma laboral V11.33.0
 

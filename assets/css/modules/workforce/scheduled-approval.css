@@ -1,0 +1,41 @@
+.work-schedule-dialog-intro{display:grid;gap:5px;margin-bottom:18px;padding:18px;border:1px solid #bed8ee;border-radius:18px;background:linear-gradient(135deg,#edf7ff,#fff)}
+.work-schedule-dialog-intro span,.work-activity-approvals>header span{font-size:11px;font-weight:900;letter-spacing:.1em;color:#0b65a7}
+.work-schedule-dialog-intro strong{font-size:21px;line-height:1.2;color:#0a315a}
+.work-schedule-dialog-intro p,.work-activity-approvals>header p{margin:0;color:#526b82;line-height:1.5}
+.work-schedule-dialog-grid{align-items:start}
+.work-schedule-dialog-grid .field.disabled{opacity:.5}
+.work-open-ended{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border:1px solid #bfd4e7;border-radius:15px;background:#f7fbff}
+.work-open-ended input{width:20px;height:20px;margin-top:2px;accent-color:#0b65c7}
+.work-open-ended span{display:grid;gap:3px}
+.work-open-ended strong{font-size:15px;color:#123d65}
+.work-open-ended small{font-size:12px;line-height:1.4;color:#60778d}
+.work-approval-notice,.work-approval-dialog-note{margin-top:16px;padding:14px 16px;border-left:5px solid #f1b91c;border-radius:12px;background:#fff9df}
+.work-approval-notice strong,.work-approval-dialog-note strong{display:block;color:#604900}
+.work-approval-notice p,.work-approval-dialog-note p{margin:4px 0 0;line-height:1.45;color:#6f6134}
+.work-requests-card{margin-top:18px}
+.work-requests-list{display:grid;gap:10px}
+.work-request-row{display:grid;grid-template-columns:110px minmax(0,1fr);gap:14px;align-items:start;padding:14px;border:1px solid #d5e1ec;border-radius:14px;background:#fff}
+.work-request-row>div{min-width:0;display:grid;gap:4px}
+.work-request-row strong{font-size:14px;color:#11395f;overflow-wrap:anywhere}
+.work-request-row small,.work-request-row p{margin:0;color:#60758a;font-size:12px;line-height:1.45;overflow-wrap:anywhere}
+.work-request-state{display:inline-flex;justify-content:center;padding:6px 9px;border-radius:999px;font-size:10px;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+.work-request-state.pending{background:#fff4cf;color:#765800}
+.work-request-state.approved{background:#e5f7ed;color:#176d43}
+.work-request-state.rejected{background:#ffeded;color:#a12f35}
+.work-activity-approvals{display:grid;gap:14px;margin-bottom:22px;padding:18px;border:1px solid #b9d5ea;border-radius:18px;background:linear-gradient(145deg,#f1f9ff,#fff)}
+.work-activity-approvals>header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.work-activity-approvals>header h3{margin:4px 0;font-size:21px;color:#0b345d}
+.work-activity-approvals>header b{display:grid;place-items:center;min-width:42px;height:42px;border-radius:13px;background:#0b65c7;color:#fff;font-size:18px}
+.work-activity-approval-list{display:grid;gap:10px}
+.work-activity-approval{display:grid;grid-template-columns:minmax(190px,.7fr) minmax(260px,1.35fr) auto;gap:16px;align-items:center;padding:15px;border:1px solid #d6e3ee;border-radius:15px;background:#fff}
+.work-activity-approval.warning{border-color:#e5c66d;background:#fffdf4}
+.work-activity-person{display:grid;grid-template-columns:42px minmax(0,1fr);gap:10px;align-items:center;min-width:0}
+.work-activity-person>div,.work-activity-request{display:grid;gap:4px;min-width:0}
+.work-activity-person strong,.work-activity-request strong{color:#11395f;overflow-wrap:anywhere}
+.work-activity-person small,.work-activity-request small,.work-activity-request p{margin:0;color:#60758a;font-size:12px;line-height:1.4;overflow-wrap:anywhere}
+.work-activity-request>span{font-size:10px;font-weight:900;letter-spacing:.07em;color:#0b65a7;text-transform:uppercase}
+.work-activity-request em{font-style:normal;font-size:11px;font-weight:800;color:#8a6100}
+.work-activity-approval-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.work-activity-approval-actions .btn{min-width:110px;min-height:48px;justify-content:center}
+@media(max-width:920px){.work-activity-approval{grid-template-columns:1fr}.work-activity-approval-actions{justify-content:stretch}.work-activity-approval-actions .btn{flex:1}.work-schedule-dialog-grid{grid-template-columns:1fr}}
+@media(max-width:560px){.work-request-row{grid-template-columns:1fr}.work-request-state{width:max-content}.work-activity-approvals{padding:14px}.work-activity-approvals>header{align-items:center}.work-activity-approval-actions{display:grid;grid-template-columns:1fr}.work-activity-approval-actions .btn{width:100%}}

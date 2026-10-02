@@ -57,7 +57,7 @@ export function activityStageHtml(category,subcategory){
   return `<section class="work-catalog-stage-panel" data-stage="activity">
     <header class="work-catalog-stage-head with-back">
       <button type="button" class="work-catalog-back" data-work-level-back="subcategory" aria-label="Volver a subcategorías">‹</button>
-      <div><span>PASO 3 · ${fmt.escape(category.label)}</span><h4>${fmt.escape(subcategory.label)}</h4><p>Selecciona la actividad específica. Después tendrás que confirmar el inicio.</p></div>
+      <div><span>PASO 3 · ${fmt.escape(category.label)}</span><h4>${fmt.escape(subcategory.label)}</h4><p>Selecciona la actividad específica. Después definirás su horario sin iniciar el cronómetro.</p></div>
     </header>
     <div class="work-catalog-activity-list">${activityListHtml(subcategory)}</div>
   </section>`;
@@ -67,7 +67,7 @@ export function activityListHtml(subcategory){
   return subcategory.activities.map(item=>`
     <button type="button" class="work-catalog-activity" data-work-activity-select="${fmt.escape(item.id)}">
       <span class="work-catalog-activity-dot"></span>
-      <span class="work-catalog-activity-copy"><strong>${fmt.escape(item.name)}</strong><small>Seleccionar para revisar antes de iniciar</small></span>
+      <span class="work-catalog-activity-copy"><strong>${fmt.escape(item.name)}</strong><small>Seleccionar para programar fecha y hora</small></span>
       <b aria-hidden="true">›</b>
     </button>`).join("");
 }
@@ -80,11 +80,11 @@ export function selectedActivityHtml(item){
       <span>ACTIVIDAD SELECCIONADA</span>
       <strong>${fmt.escape(item.name)}</strong>
       <small>${fmt.escape(item.uiCategoryLabel||fmt.label(item.uiCategory||item.activityGroup||""))} · ${fmt.escape(item.uiSubcategory||"Actividad")}</small>
-      <p>Revisa que sea la actividad correcta. El cronómetro comenzará únicamente al pulsar <b>Iniciar actividad</b>.</p>
+      <p>Revisa que sea la actividad correcta. El siguiente paso permite definir fecha, hora y si tendrá cierre estimado. El cronómetro no iniciará.</p>
     </div>
     <div class="work-start-confirm-actions">
       <button type="button" class="btn btn-ghost" data-work-selection-cancel>Cambiar actividad</button>
-      <button type="button" class="btn btn-primary" data-work-start-confirmed="${fmt.escape(item.id)}">Iniciar actividad</button>
+      <button type="button" class="btn btn-primary" data-work-schedule-confirmed="${fmt.escape(item.id)}">Programar actividad</button>
     </div>
   </section>`;
 }

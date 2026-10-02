@@ -39,12 +39,12 @@ const activityStage=activityStageHtml(tree[0],tree[0].subcategories[0]);
 assert.equal(activityStage.includes("data-work-activity-select"),true,"Actividades deben aparecer solo después de elegir subcategoría");
 
 const selected=selectedActivityHtml(catalog[0]);
-for(const token of ["Organización de mercancía","Alistamiento","Organización de zona de trabajo","Iniciar actividad","data-work-start-confirmed","Cambiar actividad"]){
+for(const token of ["Organización de mercancía","Alistamiento","Organización de zona de trabajo","Programar actividad","data-work-schedule-confirmed","Cambiar actividad"]){
   assert.equal(selected.includes(token),true,`La confirmación debe contener: ${token}`);
 }
 
 const workforce=readDomainSource("workforce","assets/js/modules/workforce.js");
-assert.equal(workforce.includes("data-work-start-confirmed"),true,"workforce debe iniciar solo desde confirmación explícita");
+assert.equal(workforce.includes("data-work-schedule-confirmed"),true,"workforce debe programar antes del inicio explícito desde agenda");
 assert.equal(workforce.includes("data-start-catalog"),false,"workforce no debe conservar inicio directo por click/touch");
 for(const token of ["work-active-console","work-timer-face","work-timer-traffic","workday-traffic-legend","renderSubcategories","renderActivities"]){
   assert.equal(workforce.includes(token),true,`Cronómetro/flujo debe contener: ${token}`);

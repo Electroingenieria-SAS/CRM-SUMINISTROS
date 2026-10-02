@@ -1,6 +1,6 @@
 # CRM Suministros — Electroingeniería S.A.S.
 
-> Versión candidata: **V11.34.5** · build **2026-09-23.09**  
+> Versión candidata: **V11.44.0** · build **2026-10-02.38**
 > Producción: Vercel + Supabase `hezjxcxxcjlpmyalftam`  
 > Auditoría integral vigente: `docs/AUDITORIA_INTEGRAL_2026-09-14.md`
 
@@ -27,23 +27,25 @@ SPA HTML/CSS/ES Modules
 
 El browser no accede directamente a tablas operativas. El esquema `erp_supply` permanece detrás de RLS y contratos RPC. `scripts/validate.mjs` y `scripts/link-check.mjs` hacen cumplir esta frontera.
 
-## 3. Estado V11.33.0
+## 3. Estado V11.44.0
 
 La línea base productiva V11.31.2 fue auditada nuevamente el 23 de septiembre de 2026. V11.32.0 introdujo el saneamiento y hardening de la candidata; V11.33.0 añade el rediseño de **Jornada y actividades → Cronograma** sin promover todavía cambios a Vercel ni a la base productiva.
 
-### Sincronización backend V11.34.4
+### Sincronización backend V11.44.0
 
-- migraciones 115, 116 y 117 aplicadas correctamente en Supabase `hezjxcxxcjlpmyalftam`;
+- migraciones de Jornada 115–120 y contratos de aprobación/continuidad 132–133 aplicados en Supabase `hezjxcxxcjlpmyalftam`;
 - `erp_x_work_manager_queue(integer)`, `erp_x_work_review_time(uuid,text,text)` y `erp_x_work_start(uuid,uuid,jsonb)` verificados en esquema;
 - schema cache de PostgREST recargado para eliminar el error `PGRST202`;
 - **Vercel no fue desplegado**; el frontend continúa únicamente en GitHub Pages.
 
-### Mi jornada V11.34.5
+### Mi jornada V11.44.0
 
-- iniciar una actividad requiere un solo toque desde agenda o inicio rápido, **sin aprobación previa del jefe**;
+- elegir una actividad abre primero la programación de inicio y cierre; guardar **no inicia el cronómetro**;
+- auxiliares logísticos y de corte requieren aprobación previa de jefe, líder o coordinador logístico;
+- los demás perfiles autorizados agregan la actividad a su agenda sin iniciarla automáticamente;
 - flujo visual guiado de tres pasos: **Elige → Trabaja → Finaliza con foto**;
 - selector jerárquico real: **Categoría → Subcategoría → Actividad específica**;
-- tocar una actividad solo la selecciona; el cronómetro inicia únicamente con confirmación explícita **Iniciar actividad**;
+- tocar una actividad solo la selecciona; luego se define inicio, final estimado o cierre manual;
 - las actividades programadas también requieren confirmación antes de iniciar;
 - cronómetro compacto con actividad, tiempo, semáforo y acciones sin espacio vacío excesivo;
 - V11.34.4 reemplaza los tres paneles simultáneos por un único flujo progresivo; no se renderizan cajas vacías;
@@ -54,16 +56,16 @@ La línea base productiva V11.31.2 fue auditada nuevamente el 23 de septiembre d
 - la presentación vive en `assets/runtime-css/workforce-experience-v11344.css`; las capas V11.34.2/V11.34.3 se retiraron de `core-shell.css`;
 - **V11.34.5 elimina el navegador legado `activity-browser-v113.js` y el bloque horizontal V11.8 de `operations.css`**, evitando que otra visual reemplace el catálogo progresivo después del render;
 - GitHub Actions usa concurrencia **latest-wins** y un grupo exclusivo para Pages, evitando que un push antiguo publique después del más reciente;
-- actividades disponibles se muestran como botones grandes de inicio inmediato; métricas pasan a segundo plano;
-- el usuario **no informa duración estimada**: el cronómetro mide el tiempo real;
+- las actividades disponibles se muestran como botones grandes y uniformes de programación; métricas pasan a segundo plano;
+- la programación admite fechas de otras semanas y una duración de referencia; el cronómetro conserva el tiempo real;
 - semáforo automático: verde < 45 min, amarillo 45–60 min, rojo > 60 min;
-- > 60 min queda marcado como **Pendiente de revisión** por la base candidata; el control del jefe ocurre únicamente después de la ejecución;
+- > 60 min permanece como **Pendiente de revisión** posterior, además de la aprobación previa requerida para auxiliares;
 - finalizar exige seleccionar primero **Tomar foto** o **Subir foto**;
 - la foto se carga exclusivamente mediante el puente institucional **Google Apps Script → Google Drive** y luego se registra en el ERP;
 - las actividades operativas requieren foto final; `BEFORE_AFTER` conserva foto inicial + foto final;
 - el catálogo diario se vuelve liviano y deja de recalcular percentiles históricos al abrir Mi jornada;
 - migraciones `116_workforce_my_day_automation_v11_34_0.sql`, `117_workforce_manager_review_v11_34_1.sql` y `118_workforce_catalog_taxonomy_v11_34_3.sql` aplicadas a Supabase productivo el 23/09/2026 para sincronizar el backend de la candidata.
-- la bandeja gerencial muestra solo tiempos > 1 h, foto final y revisiones recientes; no existe cola de aprobación previa.
+- el Centro de excepciones reúne la cola de aprobación previa y las revisiones posteriores de tiempos > 1 h.
 
 ### Cronograma laboral V11.33.0
 
