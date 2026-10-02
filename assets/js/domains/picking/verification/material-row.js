@@ -3,6 +3,7 @@ import { fmt } from "../../../core/format.js";
 export function itemRow(item,index,saved={}){
   const result=saved?.result||"";
   const novelty=saved?.novelty||item.metadata?.lastNovelty||"";
+  const noveltyId=`picking-novelty-${index+1}`;
   return `<article class="picking-item-row" data-picking-item data-item-id="${fmt.escape(item.id)}" data-result="${fmt.escape(result)}" data-requires-cut="${item.requires_cut?"true":"false"}">
     <div class="picking-item-number">${index+1}</div>
     <div class="picking-item-data">
@@ -17,8 +18,8 @@ export function itemRow(item,index,saved={}){
     </div>
     ${item.requires_cut?`<div class="picking-cut-origin-note" ${result==="FOUND"?"":"hidden"}><strong>Origen trazado por Corte</strong><span>El carreto y el consumo físico ya quedaron registrados en el subflujo de Corte.</span></div>`:`<div class="picking-origin" data-origin-wrap ${result==="FOUND"?"":"hidden"}><div class="picking-origin-loading">Marca Encontrado para consultar lotes y ubicaciones oficiales.</div></div>`}
     <div class="picking-novelty" data-novelty-wrap ${result==="MISSING"?"":"hidden"}>
-      <label>¿Por qué no se encontró? *</label>
-      <textarea class="control" rows="2" placeholder="Ejemplo: referencia agotada, ubicación vacía o cantidad incompleta" ${result==="MISSING"?"required":""}>${fmt.escape(novelty)}</textarea>
+      <label for="${noveltyId}">¿Por qué no se encontró? *</label>
+      <textarea id="${noveltyId}" class="control" rows="2" placeholder="Ejemplo: referencia agotada, ubicación vacía o cantidad incompleta" ${result==="MISSING"?"required":""}>${fmt.escape(novelty)}</textarea>
       <small>El faltante quedará trazado en esta ronda y podrá generar una salida parcial.</small>
     </div>
   </article>`;
