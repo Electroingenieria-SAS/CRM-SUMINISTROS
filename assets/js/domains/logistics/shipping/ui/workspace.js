@@ -4,7 +4,7 @@ import { locationSummary, shippingSummary } from "./delivery-summary.js";
 
 export function workspace(data,stage,taskHtml,place){
   return `<section class="shipping-core-workspace-v11107">
-    <aside class="shipping-core-context-v11107">${progress(stage)}<div class="shipping-core-context-note-v11107"><strong>Solo lo necesario</strong>Completa la tarea visible a la derecha. Los datos de consulta y las novedades están debajo.</div></aside>
+    <aside class="shipping-core-context-v11107">${progress(stage,data.order?.delivery_route_code)}<div class="shipping-core-context-note-v11107"><strong>Solo lo necesario</strong>Completa la tarea visible a la derecha. Los datos de consulta y las novedades están debajo.</div></aside>
     <section class="shipping-core-task-v11107">${taskHtml}</section>
   </section>${secondaryPanel(data,place)}`;
 }
