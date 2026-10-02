@@ -29,10 +29,7 @@ jobs:
           node-version: '24'
 
       - name: JavaScript syntax
-        shell: bash
-        run: |
-          set -euo pipefail
-          find assets/js scripts -type f \( -name '*.js' -o -name '*.mjs' \) -print0 | xargs -0 -n1 node --check
+        run: bash scripts/ci/check-javascript-syntax.sh
 
       - name: ES module dependency graph
         run: node --experimental-vm-modules scripts/link-check.mjs
@@ -114,7 +111,7 @@ jobs:
         run: npm run security:history
 
       - name: Canonical architecture contract
-        run: node scripts/validate.mjs
+        run: node scripts/validate.mjs && node scripts/architecture/check-domain-boundaries.mjs
 
       - name: Integration contract · CRM → AuditoriaERP Recepción
         run: node scripts/integration-contract-check.mjs
@@ -123,152 +120,25 @@ jobs:
         run: npm run db:ledger
 
       - name: Release invariants
-        shell: bash
-        run: |
-          set -euo pipefail
-          grep -q 'version: "11.43.0"' assets/js/config.js
-          grep -q 'build: "2026-09-25.37"' assets/js/config.js
-          grep -q '"version": "11.43.0"' package.json
-          grep -q '"version": "11.43.0"' package-lock.json
-          grep -q 'app-entry.js?v=11.43.0' index.html
-          grep -Fq 'https://script.google.com/macros/s/AKfycbwjl1JCfE0eV92P6DCn6h8jIVIBlSwLOQj8U7Mz1_7YW2Xan8DPI5tpWJuiG7znSCSs/exec' assets/js/config.js
-          grep -Fxq '// previous-cache: crm-suministros-v11-42-0-20260925-36' service-worker.js
-          grep -Fxq 'const CACHE="crm-suministros-v11-43-0-20260925-37";' service-worker.js
-          grep -q 'manifest.webmanifest' vercel.json
-          test "$(grep -c '<link rel="stylesheet" href="./assets/css/' index.html)" -eq 4
-          test "$(find assets/css -maxdepth 1 -type f -name '*.css' | wc -l)" -eq 4
+        run: bash scripts/ci/release-invariants.sh
 
-          for css in core-shell operations analytics experience; do
-            test -s "assets/css/${css}.css"
-            grep -q "./assets/css/${css}.css" service-worker.js
-          done
+      - name: Domain regressions and modular CSS
+        run: npm run validate:domains
 
-          test -s "assets/js/modules/workforce-experience-v11344.js"
-          grep -q "./assets/js/modules/workforce-experience-v11344.js" service-worker.js
-          test -s "assets/js/modules/workforce-timeline-v11350.js"
-          grep -q "./assets/js/modules/workforce-timeline-v11350.js" service-worker.js
-          test -s "assets/js/modules/workforce-calendar-v11360.js"
-          test -s "assets/js/modules/workforce-evidence-manager-v11360.js"
-          grep -q "./assets/js/modules/workforce-calendar-v11360.js" service-worker.js
-          grep -q "./assets/js/modules/workforce-evidence-manager-v11360.js" service-worker.js
-
-          test -s "assets/js/modules/paco-operational-v11370.js"
-          test -s "assets/js/modules/paco-language-v11373.js"
-          test -s "assets/runtime-css/paco-operational-v11370.css"
-          test -s "scripts/paco-operational-v11370-test.mjs"
-          test -s "scripts/paco-language-v11373-test.mjs"
-          grep -q "./assets/js/modules/paco-operational-v11370.js" service-worker.js
-          grep -q "./assets/js/modules/paco-language-v11373.js" service-worker.js
-          grep -q "./assets/runtime-css/paco-operational-v11370.css" service-worker.js
-          grep -q 'pacoSnapshot:()=>rpc("erp_x_paco_snapshot")' assets/js/services/api.js
-
-          for css in guides-layout-v11291 receiving-workspace-v11290 inventory-dialogs-v11260 inventory-visual-v11270 inventory-ui-v11240 inventory-workspace-v11251 workforce-experience-v11344 workforce-timeline-v11350 workforce-calendar-v11360; do
-            test -s "assets/runtime-css/${css}.css"
-            grep -q "./assets/runtime-css/${css}.css" service-worker.js
-          done
-
-          ! grep -R -E 'createElement[[:space:]]*\\([[:space:]]*["'"'"']style["'"'"'][[:space:]]*\\)' assets/js
-          ! grep -q "style-src 'self' 'unsafe-inline'" vercel.json
-          grep -q "style-src-attr 'unsafe-inline'" vercel.json
-
-          grep -q 'erp_x_shipping_confirm_satisfaction' supabase/migrations/112_delivery_satisfaction_distance_v11_31_0.sql
-          grep -q 'DELIVERED_SATISFIED' supabase/migrations/112_delivery_satisfaction_distance_v11_31_0.sql
-          grep -q 'postDeliveryConfirmationSeconds' supabase/migrations/112_delivery_satisfaction_distance_v11_31_0.sql
-          grep -q 'distance_recorded_by' supabase/migrations/113_delivery_satisfaction_fk_indexes_v11_31_0.sql
-          grep -q 'satisfaction_confirmed_by' supabase/migrations/113_delivery_satisfaction_fk_indexes_v11_31_0.sql
-          grep -q 'confirmShippingSatisfaction' assets/js/services/api.js
-          grep -q 'Entregado con satisfacción' assets/js/modules/shipping-flow.js
-          grep -q 'data-satisfaction' assets/js/modules/sent-orders.js
-          ! grep -Fq '.btn-danger,.btn.danger{' assets/css/analytics.css
-          grep -Fq '.admin-shell-v11160 .btn-danger,.admin-shell-v11160 .btn.danger{' assets/css/analytics.css
-
-          grep -Fq '.modal.popup-ux-v1190:not(.full):not(.split):not(.wizard-modal){width:min(680px,100%)}' assets/css/operations.css
-          grep -Fq '#modal-root .modal.popup-ux-v1190.simple-process-modal.wide{' assets/css/operations.css
-          grep -Fq 'width:min(1120px,calc(100vw - 80px))!important' assets/css/operations.css
-          grep -Fq 'color:#0b65c7!important' assets/css/operations.css
-          grep -Fq 'color:#0a4f91!important' assets/css/operations.css
-          grep -Fq 'color:#416e99!important' assets/css/operations.css
-
-          test "$(grep -c '<script type="module" src="./assets/js/' index.html)" -eq 1
-          grep -q 'import "./main.js";' assets/js/app-entry.js
-          grep -q 'import "./modules/inventory-dialogs-v11260.js";' assets/js/app-entry.js
-          grep -q 'import "./modules/inventory-visual-v11270.js";' assets/js/app-entry.js
-          grep -q 'import "./modules/auditoria-erp-bridge-v11280.js";' assets/js/app-entry.js
-          ! grep -q 'inventory-modal-v11253.js' assets/js/app-entry.js
-          ! grep -q 'inventory-modal-workspace-v11254.js' assets/js/app-entry.js
-          test ! -e assets/js/modules/inventory-modal-v11253.js
-          test ! -e assets/js/modules/inventory-modal-workspace-v11254.js
-          test "$(find .github/workflows -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \) | wc -l)" -eq 1
-          grep -q '"main"[[:space:]]*:[[:space:]]*false' vercel.json
-          grep -q '"\*"[[:space:]]*:[[:space:]]*false' vercel.json
-
-          for migration in 098_profiles_rls_scope_v11_27_0 099_work_my_day_role_cache_v11_27_0 100_inventory_filtered_hotpath_v11_27_0 101_inventory_count_plan_hotpath_v11_27_0 108_integral_health_audit_v11_30_0 109_auditoria_erp_contract_health_v11_30_0 110_security_definer_contract_v11_30_1 111_security_definer_contract_regex_fix_v11_30_1 112_delivery_satisfaction_distance_v11_31_0 113_delivery_satisfaction_fk_indexes_v11_31_0 114_impersonation_metrics_security_v11_32_0 115_workforce_planner_calendar_v11_33_0 116_workforce_my_day_automation_v11_34_0 117_workforce_manager_review_v11_34_1 118_workforce_catalog_taxonomy_v11_34_3 119_workforce_timeline_evidence_v11_35_0 120_workforce_calendar_feed_v11_36_0 121_paco_operational_snapshot_v11_37_0; do
-            test -s "supabase/migrations/${migration}.sql"
-          done
-
-          for file in \
-            assets/js/modules/inventory.js \
-            assets/js/modules/inventory-ui-v11240.js \
-            assets/js/modules/inventory-dialogs-v11260.js \
-            assets/js/modules/inventory-home-v11250.js \
-            assets/js/modules/inventory-operator-v11250.js \
-            assets/js/modules/inventory-plan-v11250.js \
-            assets/js/modules/inventory-review-v11250.js \
-            assets/js/modules/inventory-stock-v11250.js \
-            assets/js/modules/inventory-ledger-v11250.js \
-            assets/js/modules/inventory-control-v11250.js \
-            assets/js/modules/inventory-export-v11250.js; do
-            test -s "$file"
-          done
-
-          grep -q 'pendingScopes' assets/js/modules/responsive-foundation-v11190.js
-          grep -q 'inventory-nav-v11251' assets/js/modules/inventory.js
-          grep -q 'inventory-audit-card-v11251' assets/js/modules/inventory-review-v11250.js
-          grep -q 'inventory-comparison-row-v11251' assets/js/modules/inventory-review-v11250.js
-          grep -q 'Aprobar y aplicar' assets/js/modules/inventory-review-v11250.js
-          grep -q 'REGISTRAR CONTEO' assets/js/modules/inventory-operator-v11250.js
-          grep -q 'PARETO ADAPTATIVO' assets/js/modules/inventory-plan-v11250.js
-          grep -q 'Actualizar Siesa' assets/js/modules/inventory-stock-v11250.js
-          grep -q 'KARDEX' assets/js/modules/inventory-ledger-v11250.js
-          grep -q 'inventory-enterprise-row-v11252' assets/js/modules/inventory-ui-v11240.js
-
-          # Contrato UX: un solo sistema, ancho contenido y accesibilidad táctil/visual.
-          grep -q 'inventory-dialog-v11260' assets/js/modules/inventory-dialogs-v11260.js
-          grep -q 'inventory-dialog-guide-v11260' assets/js/modules/inventory-dialogs-v11260.js
-          grep -q -- '--inventory-dialog-width:1120px' assets/runtime-css/inventory-dialogs-v11260.css
-          grep -q -- '--inventory-dialog-width:720px' assets/runtime-css/inventory-dialogs-v11260.css
-          grep -q -- '--inventory-dialog-width:1040px' assets/runtime-css/inventory-dialogs-v11260.css
-          grep -q 'min-height:48px' assets/runtime-css/inventory-dialogs-v11260.css
-          grep -q 'font-size:16px' assets/runtime-css/inventory-dialogs-v11260.css
-          grep -q 'grid-template-columns:repeat(3,minmax(0,1fr))' assets/runtime-css/inventory-dialogs-v11260.css
-          grep -q 'MutationObserver' assets/js/modules/inventory-dialogs-v11260.js
-          ! grep -q 'width:min(86vw' assets/runtime-css/inventory-dialogs-v11260.css
-          ! grep -q 'width:min(88vw' assets/runtime-css/inventory-dialogs-v11260.css
-          ! grep -q 'width:min(94vw' assets/runtime-css/inventory-dialogs-v11260.css
+      - name: PWA asset provenance and source budget
+        run: npm run pwa:check
 
       - name: Install browser smoke runner
         run: npm install --no-save --no-package-lock @playwright/test@1.63.0
 
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium webkit
 
       - name: Browser smoke · public shell + XSS trust boundary
-        run: npx playwright test tests/smoke.spec.js --project=chromium --project=mobile --grep "login shell renders|shared HTML boundary sanitizes executable markup"
+        run: npx playwright test tests/smoke.spec.js tests/domain-refactor.spec.js tests/responsive-refactor.spec.js --project=chromium --project=mobile --project=iphone --project=tablet --grep-invert "authenticated shell, critical modules and native API"
 
       - name: Package deployable frontend
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p dist-deployable
-          cp index.html 404.html manifest.webmanifest service-worker.js vercel.json dist-deployable/
-          cp -R assets templates dist-deployable/
-          touch dist-deployable/.nojekyll
-          printf '%s\n' \
-            "commit=${GITHUB_SHA}" \
-            "version=11.43.0" \
-            "build=2026-09-25.37" \
-            "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-            > dist-deployable/BUILD_INFO.txt
+        run: bash scripts/ci/package-frontend.sh
 
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v7

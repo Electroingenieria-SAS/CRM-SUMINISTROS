@@ -1,0 +1,237 @@
+.receiving-order-focus .reception-summary-disclosure .reception-order-strip {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:0;
+  margin:0;
+  padding:11px 12px;
+  border:0;
+  border-top:1px solid #e8edf2;
+  background:#fff;
+}
+
+.receiving-order-focus .reception-summary-disclosure .reception-order-strip>div {
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  background:transparent;
+  padding:4px 12px;
+}
+
+.receiving-order-focus .reception-summary-disclosure .reception-order-strip>div:not(:last-child) { border-right:1px solid #e8edf2; }
+
+.receiving-order-focus .reception-summary-disclosure .reception-order-strip small { font-size:10px; }
+
+.receiving-order-focus .reception-summary-disclosure .reception-order-strip strong { font-size:12.5px; }
+
+/* Etapas internas: menos paneles, mejor lectura */
+
+.receiving-order-focus .reception-stage-card {
+  padding:20px 22px 22px;
+  border:1px solid #dce5ed;
+  border-radius:17px;
+  background:#fff;
+  box-shadow:0 6px 18px rgba(10,50,86,.04);
+}
+
+.receiving-order-focus .reception-stage-heading { margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid #e9eef3; }
+
+.receiving-order-focus .reception-stage-heading h4 { font-size:21px; color:#173e63; line-height:1.25; }
+
+.receiving-order-focus .reception-stage-heading p { max-width:720px; font-size:13px; color:#6b7f91; line-height:1.45; }
+
+.receiving-order-focus .reception-step-tag { font-size:9.5px; min-height:25px; padding:5px 9px; }
+
+.receiving-order-focus .reception-advisor-summary { grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:12px; }
+
+.receiving-order-focus .reception-advisor-summary article { padding:11px 12px; border-radius:11px; background:#fafcfe; }
+
+.receiving-order-focus .reception-advisor-summary small { font-size:10px; }
+
+.receiving-order-focus .reception-advisor-summary strong { font-size:13px; line-height:1.35; }
+
+.receiving-order-focus .reception-disclosure { margin:9px 0; border-radius:12px; }
+
+.receiving-order-focus .reception-disclosure>summary {
+  min-height:54px;
+  padding:10px 12px;
+  grid-template-columns:34px minmax(0,1fr) 24px;
+}
+
+.receiving-order-focus .reception-disclosure>summary>span { width:32px; height:32px; }
+
+.receiving-order-focus .reception-disclosure>summary strong { font-size:12.5px; }
+
+.receiving-order-focus .reception-disclosure>summary small { font-size:10.5px; }
+
+.receiving-order-focus .reception-decision-grid { gap:12px; margin-top:15px; }
+
+.receiving-order-focus .reception-choice {
+  min-height:92px;
+  padding:15px 16px;
+  grid-template-columns:46px minmax(0,1fr);
+  column-gap:13px;
+  border-radius:14px;
+}
+
+.receiving-order-focus .reception-choice>span { width:44px; height:44px; border-radius:13px; }
+
+.receiving-order-focus .reception-choice>span .ui-icon { width:20px; height:20px; }
+
+.receiving-order-focus .reception-choice>strong { font-size:15px; }
+
+.receiving-order-focus .reception-choice>small { font-size:12px; line-height:1.4; }
+
+/* Campos y acciones */
+
+.receiving-order-focus .control,
+.receiving-order-focus input,
+.receiving-order-focus select,
+.receiving-order-focus textarea {
+  font-size:14px;
+}
+
+.receiving-order-focus .reception-assignment-grid>.field { padding:15px; border-radius:13px; }
+
+.receiving-order-focus .reception-assignment-grid>.field label { font-size:13px; }
+
+.receiving-order-focus .reception-assignment-grid>.field small { font-size:11px; line-height:1.4; }
+
+.receiving-order-focus .reception-assignment-grid .control { min-height:50px; font-size:14px; }
+
+.receiving-order-focus .reception-reader-status { font-size:12px; line-height:1.45; padding:11px 12px; }
+
+.receiving-order-focus .reception-reader-summary strong { font-size:13px; }
+
+.receiving-order-focus .reception-reader-summary span { font-size:11px; }
+
+.receiving-order-focus .reception-final-summary small { font-size:9.5px; }
+
+.receiving-order-focus .reception-final-summary strong { font-size:13px; }
+
+.receiving-order-focus .reception-primary {
+  min-height:50px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  padding:11px 18px;
+  border-radius:12px;
+  font-size:13px;
+  font-weight:850;
+  line-height:1.2;
+}
+
+.receiving-order-focus .reception-button-icon { display:inline-grid; place-items:center; }
+
+.receiving-order-focus .reception-button-icon .ui-icon { width:17px; height:17px; }
+
+.receiving-order-focus .reception-confirm-button.reception-primary { width:100%; min-height:54px; font-size:14px; }
+
+.receiving-order-focus .reception-back { font-size:11.5px; min-height:42px; }
+
+.receiving-order-focus .reception-editor-actions .btn { min-height:48px; font-size:12.5px; }
+
+/* iPad / pantallas medianas */
+
+@media (max-width:1024px) {
+  .reception-process-modal.receiving-order-focus { width:calc(100vw - 28px); max-height:calc(100dvh - 28px); }
+  .receiving-order-focus .reception-take-focus { grid-template-columns:1fr; }
+  .receiving-order-focus .reception-take-route ol { grid-template-columns:repeat(3,1fr); gap:10px; }
+  .receiving-order-focus .reception-take-route li { grid-template-columns:30px minmax(0,1fr); }
+  .receiving-order-focus .reception-advisor-summary { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+
+/* iOS / móvil: pantalla casi completa, safe-area y cero zoom accidental */
+
+@media (max-width:720px) {
+  #modal-root .modal-overlay:has(.receiving-order-focus) {
+    padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));
+    align-items:flex-end;
+  }
+  .reception-process-modal.receiving-order-focus {
+    width:100%;
+    max-width:none;
+    height:calc(100dvh - max(12px,env(safe-area-inset-top)) - max(12px,env(safe-area-inset-bottom)));
+    max-height:none;
+    border-radius:20px;
+    display:flex;
+    flex-direction:column;
+  }
+  .receiving-order-focus .reception-process-head { flex:0 0 auto; min-height:72px; padding:14px 50px 13px 18px; }
+  .receiving-order-focus .reception-process-head h3 { font-size:21px; }
+  .receiving-order-focus .reception-process-head p { font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .receiving-order-focus .reception-process-body {
+    flex:1 1 auto;
+    min-height:0;
+    padding:12px 12px calc(18px + env(safe-area-inset-bottom));
+  }
+  .receiving-order-focus .reception-stepper {
+    display:flex;
+    gap:0;
+    overflow-x:auto;
+    scrollbar-width:none;
+    padding:8px;
+    scroll-snap-type:x proximity;
+  }
+  .receiving-order-focus .reception-stepper::-webkit-scrollbar { display:none; }
+  .receiving-order-focus .reception-stepper>div { min-width:112px; padding:0 8px; scroll-snap-align:start; }
+  .receiving-order-focus .reception-stepper>div small { font-size:11.5px; }
+  .receiving-order-focus .reception-stepper>div span { width:28px; height:28px; flex-basis:28px; }
+  .receiving-order-focus .reception-take-main { grid-template-columns:46px minmax(0,1fr); padding:15px; gap:11px; }
+  .receiving-order-focus .reception-take-icon { width:44px; height:44px; border-radius:13px; }
+  .receiving-order-focus .reception-take-icon .ui-icon { width:21px; height:21px; }
+  .receiving-order-focus .reception-take-copy h4 { font-size:20px; }
+  .receiving-order-focus .reception-take-copy p { font-size:12px; }
+  .receiving-order-focus .reception-take-facts { grid-template-columns:1fr 1fr; row-gap:12px; }
+  .receiving-order-focus .reception-take-facts>span { padding:0 10px; border-right:0!important; }
+  .receiving-order-focus .reception-take-facts>span:nth-child(odd) { padding-left:0; border-right:1px solid #e7edf2!important; }
+  .receiving-order-focus .reception-take-route { padding:15px; }
+  .receiving-order-focus .reception-take-route ol { grid-template-columns:1fr; gap:9px; }
+  .receiving-order-focus .reception-take { grid-template-columns:1fr; grid-template-areas:"title" "text" "action"; padding:15px; }
+  .receiving-order-focus .reception-take [data-take-order] { width:100%; min-width:0; margin-top:10px; }
+  .receiving-order-focus .reception-summary-disclosure .reception-order-strip { grid-template-columns:1fr 1fr; row-gap:8px; }
+  .receiving-order-focus .reception-summary-disclosure .reception-order-strip>div { padding:5px 9px; }
+  .receiving-order-focus .reception-summary-disclosure .reception-order-strip>div:nth-child(2n) { border-right:0; }
+  .receiving-order-focus .reception-stage-card { padding:16px 14px 18px; border-radius:15px; }
+  .receiving-order-focus .reception-stage-heading { display:block; margin-bottom:13px; padding-bottom:12px; }
+  .receiving-order-focus .reception-stage-heading .btn-ghost { margin-top:10px; width:100%; }
+  .receiving-order-focus .reception-stage-heading h4 { font-size:19px; }
+  .receiving-order-focus .reception-stage-heading p { font-size:12.5px; }
+  .receiving-order-focus .reception-advisor-summary { grid-template-columns:1fr; }
+  .receiving-order-focus .reception-decision-grid { grid-template-columns:1fr; }
+  .receiving-order-focus .reception-choice { min-height:86px; }
+  .receiving-order-focus .reception-assignment-grid { grid-template-columns:1fr; }
+  .receiving-order-focus .reception-final-summary { grid-template-columns:1fr; }
+  .receiving-order-focus .control,
+  .receiving-order-focus input,
+  .receiving-order-focus select,
+  .receiving-order-focus textarea {
+    font-size:16px!important;
+    min-height:48px;
+  }
+  .receiving-order-focus button,
+  .receiving-order-focus .btn { touch-action:manipulation; }
+  .receiving-order-focus .reception-primary { width:100%; min-height:52px; font-size:14px; }
+}
+
+@media (max-width:430px) {
+  .receiving-order-focus .reception-take-facts { grid-template-columns:1fr; }
+  .receiving-order-focus .reception-take-facts>span { padding:0!important; border-right:0!important; }
+  .receiving-order-focus .reception-summary-disclosure .reception-order-strip { grid-template-columns:1fr; }
+  .receiving-order-focus .reception-summary-disclosure .reception-order-strip>div {
+    border-right:0!important;
+    border-bottom:1px solid #edf1f4;
+    padding:7px 4px;
+  }
+  .receiving-order-focus .reception-summary-disclosure .reception-order-strip>div:last-child { border-bottom:0; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .receiving-order-focus *,
+  .receiving-order-focus *::before,
+  .receiving-order-focus *::after {
+    scroll-behavior:auto!important;
+    transition:none!important;
+    animation:none!important;
+  }
+}

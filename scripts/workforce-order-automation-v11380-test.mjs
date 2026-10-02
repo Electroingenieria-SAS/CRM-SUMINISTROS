@@ -1,14 +1,15 @@
+import {readDomainSource} from "./tests/read-domain-source.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const migration=fs.readFileSync(new URL("../supabase/migrations/122_automatic_order_workforce_v11_38_0.sql",import.meta.url),"utf8");
 const specialMigration=fs.readFileSync(new URL("../supabase/migrations/123_workforce_special_treatment_metrics_v11_38_0.sql",import.meta.url),"utf8");
-const timeline=fs.readFileSync(new URL("../assets/js/modules/workforce-timeline-v11350.js",import.meta.url),"utf8");
-const calendar=fs.readFileSync(new URL("../assets/js/modules/workforce-calendar-v11360.js",import.meta.url),"utf8");
-const workforce=fs.readFileSync(new URL("../assets/js/modules/workforce.js",import.meta.url),"utf8");
+const timeline=readDomainSource("workforce/timeline","assets/js/domains/workforce/timeline/index.js");
+const calendar=readDomainSource("workforce/calendar","assets/js/domains/workforce/calendar/index.js");
+const workforce=readDomainSource("workforce","assets/js/modules/workforce.js");
 const api=fs.readFileSync(new URL("../assets/js/services/api.js",import.meta.url),"utf8");
-const paco=fs.readFileSync(new URL("../assets/js/modules/paco-operational-v11370.js",import.meta.url),"utf8");
-const orders=fs.readFileSync(new URL("../assets/js/modules/orders.js",import.meta.url),"utf8");
+const paco=readDomainSource("paco","assets/js/domains/paco/index.js");
+const orders=readDomainSource("orders","assets/js/modules/orders.js");
 
 for(const sql of [migration,specialMigration]){
   assert.equal(/create\s+table/i.test(sql),false,"V11.38.0 no debe crear tablas nuevas.");
@@ -78,7 +79,7 @@ assert.equal(
 );
 
 assert.equal(
-  workforce.includes("const assignments=timeline.filter"),
+  workforce.includes("const assignments=planner.timeline.filter"),
   true,
   "Capacidad visible debe calcularse desde timeline unificado."
 );

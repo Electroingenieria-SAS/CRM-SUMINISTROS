@@ -1,0 +1,278 @@
+.billing-focus-v1198 .billing-task-focus-v1198 .invoice-confirmed strong,
+.billing-focus-v1198 .billing-task-focus-v1198 .billing-approved-exception strong {
+  font-size:12px!important;
+}
+
+.billing-focus-v1198 .billing-task-focus-v1198 .invoice-confirmed small,
+.billing-focus-v1198 .billing-task-focus-v1198 .billing-approved-exception small {
+  font-size:10px!important;
+}
+
+/* Información que no hace falta para facturar queda deliberadamente secundaria. */
+
+.billing-focus-v1198 .billing-secondary-v1198 { overflow:hidden; border:1px solid #d8e4ee; border-radius:11px; background:#fff; }
+
+.billing-focus-v1198 .billing-secondary-v1198>summary {
+  min-height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 13px;
+  list-style:none;
+  color:#245078;
+  cursor:pointer;
+  font-size:10.5px;
+  font-weight:900;
+}
+
+.billing-focus-v1198 .billing-secondary-v1198>summary::-webkit-details-marker { display:none; }
+
+.billing-focus-v1198 .billing-secondary-v1198>summary:after {
+  content:"+";
+  width:23px;
+  height:23px;
+  display:grid;
+  place-items:center;
+  flex:0 0 23px;
+  border-radius:8px;
+  background:#edf5fc;
+  color:#1f5e96;
+  font-size:14px;
+}
+
+.billing-focus-v1198 .billing-secondary-v1198[open]>summary:after { content:"−"; }
+
+.billing-focus-v1198 .billing-secondary-v1198.attention { border-color:#e5b8bc; box-shadow:0 0 0 2px rgba(181,38,59,.06); }
+
+.billing-focus-v1198 .billing-secondary-v1198.attention>summary { color:#9b2a39; background:#fff8f8; }
+
+.billing-focus-v1198 .billing-secondary-content-v1198 { display:grid; gap:10px; padding:0 12px 12px; border-top:1px solid #e8eef3; }
+
+.billing-focus-v1198 .billing-secondary-content-v1198 .order-support-zone {
+  margin:11px 0 0!important;
+  padding:11px 12px!important;
+  border-radius:10px!important;
+  box-shadow:none!important;
+}
+
+.billing-focus-v1198 .billing-secondary-content-v1198 .order-support-toolbar { gap:10px; }
+
+.billing-focus-v1198 .billing-secondary-content-v1198 .order-support-title span { font-size:8.5px; }
+
+.billing-focus-v1198 .billing-secondary-content-v1198 .order-support-title strong { font-size:10.5px; }
+
+.billing-focus-v1198 .billing-secondary-content-v1198 .order-support-actions { gap:6px; }
+
+.billing-focus-v1198 .billing-secondary-content-v1198 .support-btn { min-height:36px; padding:7px 9px; font-size:9.5px; }
+
+.billing-focus-v1198 .billing-secondary-content-v1198>.simple-details {
+  margin:0!important;
+  border-color:#e0e8ef!important;
+  box-shadow:none!important;
+}
+
+.billing-focus-v1198 .billing-secondary-content-v1198>.simple-details>summary { padding:11px 12px!important; font-size:10px!important; }
+
+/* Footer coherente con Recepción y Alistamiento. */
+
+.billing-focus-v1198 .parallel-work-footer { min-height:66px!important; gap:18px; padding:10px 16px!important; background:#fff; }
+
+.billing-focus-v1198 .parallel-work-note { flex:1 1 auto; max-width:560px; }
+
+.billing-focus-v1198 .parallel-work-note strong { font-size:11.5px!important; }
+
+.billing-focus-v1198 .parallel-work-note small { font-size:10px!important; line-height:1.35!important; }
+
+.billing-focus-v1198 .parallel-work-actions {
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.billing-focus-v1198 .parallel-work-actions .btn {
+  min-height:44px!important;
+  padding:9px 14px!important;
+  border-radius:10px!important;
+  font-size:11px!important;
+}
+
+.billing-focus-v1198 .parallel-work-actions [data-take-another] { min-width:148px; }
+
+.billing-focus-v1198 .parallel-work-actions [data-billing-next-v1198] {
+  min-width:126px;
+  box-shadow:0 7px 17px rgba(8,93,181,.24),inset 0 1px 0 rgba(255,255,255,.28);
+}
+
+/* Sub-popup de carga: una tarea, un archivo. */
+
+#modal-root .modal.billing-upload-dialog-v1198 {
+  width:min(620px,calc(100vw - 38px))!important;
+  max-width:620px!important;
+  height:auto!important;
+  max-height:calc(100dvh - 36px)!important;
+  border-radius:17px!important;
+}
+
+#modal-root .billing-upload-dialog-v1198 .modal-head { min-height:75px; padding:15px 17px 15px 19px; }
+
+#modal-root .billing-upload-dialog-v1198 .modal-body { padding:18px!important; }
+
+#modal-root .billing-upload-dialog-v1198 .billing-upload-note {
+  position:relative;
+  display:grid;
+  gap:4px;
+  margin:0 0 14px!important;
+  padding:14px 14px 14px 58px!important;
+  border:1px solid #cde0f2!important;
+  border-left:1px solid #cde0f2!important;
+  border-radius:12px!important;
+  background:#f3f8fd!important;
+}
+
+#modal-root .billing-upload-dialog-v1198 .billing-upload-note:before {
+  content:"";
+  position:absolute;
+  left:14px;
+  top:14px;
+  width:32px;
+  height:32px;
+  border-radius:10px;
+  background:#1479df;
+  box-shadow:0 6px 14px rgba(20,121,223,.18);
+}
+
+#modal-root .billing-upload-dialog-v1198 .billing-upload-note:after {
+  content:"↑";
+  position:absolute;
+  left:14px;
+  top:14px;
+  width:32px;
+  height:32px;
+  display:grid;
+  place-items:center;
+  color:#fff;
+  font-size:16px;
+  font-weight:900;
+}
+
+#modal-root .billing-upload-dialog-v1198 .billing-upload-note strong { color:#173e67!important; font-size:13px!important; }
+
+#modal-root .billing-upload-dialog-v1198 .billing-upload-note p {
+  margin:0!important;
+  color:#64788c!important;
+  font-size:10.5px!important;
+  line-height:1.45!important;
+}
+
+#modal-root .billing-upload-dialog-v1198 .field { gap:7px; margin:0; }
+
+#modal-root .billing-upload-dialog-v1198 .field label { color:#294966; font-size:11.5px!important; }
+
+#modal-root .billing-upload-dialog-v1198 input[type="file"].control {
+  min-height:64px;
+  padding:14px;
+  border:1px dashed #91b5d6;
+  border-radius:12px;
+  background:#fff;
+  color:#36536f;
+  font-size:11px;
+}
+
+#modal-root .billing-upload-dialog-v1198 .modal-foot .btn { min-height:46px; padding:10px 16px; border-radius:10px; font-size:11.5px; }
+
+.billing-focus-v1198 .billing-next-highlight-v1198 { animation:billingNextPulseV1198 .75s ease both; }
+
+@keyframes billingNextPulseV1198 {
+  0%,100% { box-shadow:0 0 0 0 rgba(20,121,223,0); }
+  35% { box-shadow:0 0 0 5px rgba(20,121,223,.14); }
+}
+
+@media (max-width:900px) {
+  #modal-root .modal.popup-ux-v1190.billing-process-modal.billing-focus-v1198,
+  #modal-root .modal.billing-process-modal.billing-focus-v1198 {
+    width:calc(100vw - 22px)!important;
+    max-width:none!important;
+    max-height:calc(100dvh - 22px)!important;
+  }
+  .billing-focus-v1198 .billing-start-facts-v1198 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .billing-focus-v1198 .billing-task-focus-v1198 { grid-template-columns:50px minmax(0,1fr); }
+  .billing-focus-v1198 .billing-task-cta-v1198 { grid-column:2; width:100%; min-width:0; }
+  .billing-focus-v1198 .billing-task-focus-v1198 .invoice-confirmed,
+  .billing-focus-v1198 .billing-task-focus-v1198 .billing-approved-exception {
+    grid-column:2;
+  }
+}
+
+/* iPhone/iOS: vista estable, campos a 16px y safe-area respetada. */
+
+@media (max-width:720px) {
+  #modal-root .modal.popup-ux-v1190.billing-process-modal.billing-focus-v1198,
+  #modal-root .modal.billing-process-modal.billing-focus-v1198 {
+    width:100%!important;
+    max-width:none!important;
+    height:calc(100dvh - max(10px,env(safe-area-inset-top)) - max(10px,env(safe-area-inset-bottom)))!important;
+    max-height:none!important;
+    border-radius:14px!important;
+  }
+  #modal-root .billing-process-modal.billing-focus-v1198 .simple-process-head {
+    padding:calc(14px + env(safe-area-inset-top)) 14px 13px 16px!important;
+  }
+  #modal-root .billing-process-modal.billing-focus-v1198 .simple-process-head h3 { font-size:20px!important; }
+  #modal-root .billing-process-modal.billing-focus-v1198 .simple-process-body {
+    flex:1 1 auto!important;
+    max-height:none;
+    padding:11px!important;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+  }
+  .billing-focus-v1198 .billing-take-v1198 h4 { font-size:19px; }
+  .billing-focus-v1198 .billing-start-facts-v1198 { grid-template-columns:1fr 1fr; gap:7px; }
+  .billing-focus-v1198 .billing-start-facts-v1198>div { min-height:60px; padding:9px 10px; }
+  .billing-focus-v1198 .billing-entry-actions.two-options { grid-template-columns:1fr!important; }
+  .billing-focus-v1198 .cash-invoice-steps.billing-stepper-v1198 {
+    overflow-x:auto;
+    grid-template-columns:repeat(3,minmax(145px,1fr));
+    -webkit-overflow-scrolling:touch;
+  }
+  .billing-focus-v1198 .billing-task-focus-v1198 { grid-template-columns:42px minmax(0,1fr); gap:10px 11px; padding:15px 13px; }
+  .billing-focus-v1198 .billing-task-icon-v1198 { width:40px; height:40px; border-radius:11px; }
+  .billing-focus-v1198 .billing-task-icon-v1198 svg { width:20px; height:20px; }
+  .billing-focus-v1198 .billing-task-copy-v1198 h4 { font-size:18px; }
+  .billing-focus-v1198 .billing-task-cta-v1198 { grid-column:1/-1; min-height:50px!important; font-size:13px!important; }
+  .billing-focus-v1198 .billing-task-focus-v1198 .invoice-confirmed,
+  .billing-focus-v1198 .billing-task-focus-v1198 .billing-approved-exception {
+    grid-column:1/-1;
+  }
+  .billing-focus-v1198 .parallel-work-footer {
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:7px;
+    padding:8px 10px calc(8px + env(safe-area-inset-bottom))!important;
+  }
+  .billing-focus-v1198 .parallel-work-note small { display:none; }
+  .billing-focus-v1198 .parallel-work-actions { width:100%; margin:0; display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+  .billing-focus-v1198 .parallel-work-actions [data-billing-next-v1198] {
+    grid-column:1/-1;
+    grid-row:1;
+    width:100%;
+    min-height:50px!important;
+    font-size:13.5px!important;
+  }
+  .billing-focus-v1198 .parallel-work-actions [data-take-another],
+  .billing-focus-v1198 .parallel-work-actions .btn-danger {
+    width:100%;
+    min-width:0;
+  }
+  .billing-focus-v1198 .billing-secondary-content-v1198 .order-support-toolbar { align-items:stretch; flex-direction:column; }
+  .billing-focus-v1198 .billing-secondary-content-v1198 .order-support-actions { display:grid; grid-template-columns:1fr 1fr; width:100%; }
+  .billing-focus-v1198 .billing-secondary-content-v1198 .support-btn { width:100%; justify-content:center; }
+  #modal-root .modal.billing-upload-dialog-v1198 {
+    width:calc(100vw - 12px)!important;
+    max-width:none!important;
+    max-height:calc(100dvh - 12px)!important;
+  }
+}

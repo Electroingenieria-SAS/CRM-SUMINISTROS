@@ -1,0 +1,80 @@
+@media (max-width:720px) {
+  #paco-bot.paco2-root {
+    --paco2-launcher:62px;
+    --paco2-width:calc(100vw - 16px);
+    --paco2-height:calc(100dvh - max(16px,env(safe-area-inset-top,0px)) - max(82px,calc(var(--rf-dock-height,0px) + 10px)));
+    right:max(8px,env(safe-area-inset-right,0px))!important;
+    bottom:max(76px,calc(var(--rf-dock-height,0px) + 8px))!important;
+  }
+  #paco-bot.paco2-root.is-open .paco2-launcher {
+    transform:translateX(calc(-1 * (var(--paco2-width) - 54px))) rotate(-720deg)!important;
+    width:48px!important;
+    height:48px!important;
+    min-width:48px!important;
+    min-height:48px!important;
+  }
+  #paco-bot.paco2-root .paco2-panel {
+    max-width:var(--paco2-width)!important;
+    max-height:var(--paco2-height)!important;
+    min-height:0!important;
+    border-radius:20px!important;
+  }
+  #paco-bot.paco2-root .paco2-head {
+    min-height:88px!important;
+    grid-template-columns:52px minmax(0,1fr) 40px!important;
+    gap:10px!important;
+    padding:12px 13px!important;
+  }
+  #paco-bot.paco2-root .paco2-head-face { width:50px!important; height:50px!important; }
+  #paco-bot.paco2-root .paco2-head-copy>strong { font-size:23px!important; }
+  #paco-bot.paco2-root .paco2-head-copy>small { font-size:11px!important; }
+  #paco-bot.paco2-root .paco2-context { min-height:49px!important; padding:8px 10px!important; font-size:11px!important; }
+  #paco-bot.paco2-root .paco2-context-btn { display:none!important; }
+  #paco-bot.paco2-root .paco2-tools-btn { font-size:10px!important; padding-inline:9px!important; }
+  #paco-bot.paco2-root .paco2-messages { padding:14px 12px 16px!important; gap:12px!important; }
+  #paco-bot.paco2-root .paco2-message { max-width:96%!important; }
+  #paco-bot.paco2-root .paco2-message.user { max-width:91%!important; }
+  #paco-bot.paco2-root .paco2-mini { width:34px!important; height:34px!important; flex-basis:34px!important; }
+  #paco-bot.paco2-root .paco2-bubble { padding:12px 13px!important; font-size:14px!important; line-height:1.55!important; }
+  #paco-bot.paco2-root .paco2-actions,#paco-bot.paco2-root .paco2-cap-grid,#paco-bot.paco2-root .paco2-data-card {
+    grid-template-columns:1fr!important;
+  }
+  #paco-bot.paco2-root .paco2-action { min-height:60px!important; }
+  #paco-bot.paco2-root .paco2-tools { padding:12px!important; }
+  #paco-bot.paco2-root .paco2-tools-grid { grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:8px!important; }
+  #paco-bot.paco2-root .paco2-tool { min-height:86px!important; padding:10px!important; }
+  #paco-bot.paco2-root .paco2-composer { grid-template-columns:minmax(0,1fr) 52px!important; padding:10px 10px 7px!important; }
+  #paco-bot.paco2-root .paco2-composer textarea {
+    height:52px!important;
+    min-height:52px!important;
+    padding:14px 12px!important;
+    font-size:16px!important;
+  }
+  #paco-bot.paco2-root .paco2-send { width:52px!important; height:52px!important; }
+  #paco-bot.paco2-root .paco2-safe-note { padding:0 10px 8px!important; font-size:8.8px!important; }
+}
+
+@media (max-width:480px) {
+  #paco-bot.paco2-root .paco2-tools-grid { grid-template-columns:1fr!important; }
+  #paco-bot.paco2-root .paco2-tool { min-height:72px!important; grid-template-columns:34px minmax(0,1fr)!important; }
+  #paco-bot.paco2-root .paco2-quick { padding:8px 9px!important; }
+  #paco-bot.paco2-root .paco2-step { grid-template-columns:25px minmax(0,1fr)!important; padding:8px!important; }
+  #paco-bot.paco2-root .paco2-password { grid-template-columns:1fr!important; }
+  #paco-bot.paco2-root .paco2-password>small,#paco-bot.paco2-root .paco2-password>button { grid-column:auto!important; }
+}
+
+@media (max-height:720px) and (min-width:721px) {
+  #paco-bot.paco2-root { --paco2-height:calc(100dvh - 24px); bottom:12px!important; }
+  #paco-bot.paco2-root .paco2-head { min-height:88px!important; padding-block:11px!important; }
+  #paco-bot.paco2-root .paco2-head-face { width:56px!important; height:56px!important; }
+  #paco-bot.paco2-root .paco2-context { min-height:46px!important; padding-block:7px!important; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  #paco-bot.paco2-root *,#paco-bot.paco2-root *:before,#paco-bot.paco2-root *:after {
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+    scroll-behavior:auto!important;
+  }
+}

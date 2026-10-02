@@ -1,0 +1,276 @@
+/* Workforce Calendar V11.36.7 * Filtros integrados en la barra del Cronograma, sin fila vacía y con panel flotante. */
+
+.work-calendar-v11360 {
+  --wc-ink:#173b59;
+  --wc-muted:#698196;
+  --wc-blue:#1e6f9f;
+  --wc-blue-strong:#14577f;
+  --wc-line:#d9e6ee;
+  --wc-soft:#f6fafc;
+  --wc-green:#2a946f;
+  --wc-amber:#b27a24;
+  --wc-red:#b55a61;
+  border:1px solid var(--wc-line);
+  border-radius:18px;
+  background:#fff;
+  box-shadow:0 10px 28px rgba(28,75,108,.07);
+  overflow:visible;
+}
+
+.work-calendar-scroll-v11360 {
+  width:100%;
+  overflow-x:auto;
+  overflow-y:visible;
+  overscroll-behavior-x:contain;
+  overscroll-behavior-y:auto;
+  touch-action:pan-x pan-y;
+  scrollbar-width:thin;
+  scrollbar-color:#b8cbd8 transparent;
+}
+
+.work-calendar-scroll-v11360::-webkit-scrollbar { height:9px; }
+
+.work-calendar-scroll-v11360::-webkit-scrollbar-thumb { background:#bfd0dc; border-radius:999px; }
+
+.work-calendar-scroll-v11360::-webkit-scrollbar-track { background:transparent; }
+
+.work-calendar-icon-v11360 { width:14px; height:14px; display:block; fill:currentColor; flex:0 0 auto; }
+
+/* Selector Día / Semana / Mes */
+
+.work-planner-mode {
+  display:inline-flex!important;
+  align-items:center;
+  gap:4px;
+  padding:4px!important;
+  border:1px solid #d6e3ec!important;
+  border-radius:13px!important;
+  background:#f5f9fc!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85);
+}
+
+.work-planner-mode button {
+  position:relative;
+  min-width:74px;
+  min-height:38px;
+  padding:7px 12px 7px 34px!important;
+  border:0!important;
+  border-radius:10px!important;
+  background:transparent!important;
+  color:#60798d!important;
+  font-size:12px!important;
+  font-weight:900!important;
+  cursor:pointer;
+  transition:background .15s ease,color .15s ease,box-shadow .15s ease,transform .15s ease;
+}
+
+.work-planner-mode button::before {
+  content:"";
+  position:absolute;
+  left:11px;
+  top:50%;
+  width:15px;
+  height:15px;
+  transform:translateY(-50%);
+  border:2px solid currentColor;
+  border-radius:4px;
+  opacity:.72;
+}
+
+.work-planner-mode button::after {
+  position:absolute;
+  left:11px;
+  top:50%;
+  width:15px;
+  transform:translateY(-44%);
+  text-align:center;
+  font-size:8px;
+  font-weight:950;
+  line-height:15px;
+}
+
+.work-planner-mode button[data-plan-mode="day"]::after { content:"1"; }
+
+.work-planner-mode button[data-plan-mode="week"]::after { content:"5"; }
+
+.work-planner-mode button[data-plan-mode="month"]::after { content:"31"; }
+
+.work-planner-mode button.active {
+  background:#fff!important;
+  color:#17638f!important;
+  box-shadow:0 4px 12px rgba(29,91,130,.11)!important;
+}
+
+.work-planner-mode button.active::before { opacity:1; }
+
+/* Filtros compactos y contenidos */
+
+.work-planner-toolbar { overflow:visible!important; }
+
+.work-planner-actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; flex-wrap:wrap; min-width:0; }
+
+.work-calendar-filterbox-v11362 {
+  margin:0;
+  width:auto;
+  flex:0 0 auto;
+  position:relative;
+  box-sizing:border-box;
+  border:0;
+  background:transparent;
+}
+
+.work-calendar-filterbox-v11362,
+.work-calendar-filterbox-v11362 * { box-sizing:border-box; }
+
+.work-calendar-filterbox-v11362>summary { list-style:none; width:176px; max-width:100%; }
+
+.work-calendar-filterbox-v11362>summary::-webkit-details-marker { display:none; }
+
+.work-calendar-filter-trigger-v11362 {
+  width:100%;
+  min-height:42px;
+  display:grid;
+  grid-template-columns:30px minmax(0,1fr) auto;
+  align-items:center;
+  gap:9px;
+  padding:6px 9px;
+  border:1px solid #cbdde8;
+  border-radius:12px;
+  background:#fff;
+  color:#315f7d;
+  cursor:pointer;
+  box-shadow:0 4px 12px rgba(29,80,115,.06);
+  user-select:none;
+}
+
+.work-calendar-filter-trigger-v11362:hover { border-color:#8eb9d2; box-shadow:0 6px 16px rgba(29,80,115,.09); }
+
+.work-calendar-filter-trigger-icon-v11362 {
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border-radius:9px;
+  background:#eaf5fb;
+  color:#176c9c;
+  font-size:16px;
+  font-weight:950;
+}
+
+.work-calendar-filter-trigger-v11362>span:nth-child(2) { min-width:0; display:grid; gap:1px; }
+
+.work-calendar-filter-trigger-v11362 strong {
+  min-width:0;
+  color:#214f6d;
+  font-size:11.5px;
+  line-height:1.1;
+  font-weight:950;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.work-calendar-filter-trigger-v11362 small {
+  min-width:0;
+  color:#7a91a1;
+  font-size:9.5px;
+  line-height:1.15;
+  font-weight:800;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.work-calendar-filter-trigger-v11362>b[hidden] { display:none!important; }
+
+.work-calendar-filter-trigger-v11362>b {
+  min-width:22px;
+  height:22px;
+  padding:0 6px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:#176c9c;
+  color:#fff;
+  font-size:9px;
+  font-weight:950;
+}
+
+.work-calendar-filter-panel-v11362 {
+  position:absolute;
+  z-index:80;
+  top:calc(100% + 8px);
+  right:0;
+  width:min(520px,calc(100vw - 32px));
+  max-width:calc(100vw - 32px);
+  margin-top:0;
+  padding:12px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:10px;
+  border:1px solid #cfdee8;
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 16px 34px rgba(28,74,104,.13);
+  overflow:hidden;
+  animation:workFilterDrop .16s ease both;
+}
+
+.work-calendar-filter-worker-v11362 { grid-column:1/-1; }
+
+.work-calendar-filter-scope-v11363 { grid-column:1/-1; }
+
+.work-calendar-filter-field-v11361 { min-width:0; display:grid; gap:5px; }
+
+.work-calendar-filter-field-v11361 label { min-width:0; color:#587287; font-size:9.5px; line-height:1; font-weight:900; }
+
+.work-calendar-filter-field-v11361 input,
+.work-calendar-filter-field-v11361 select {
+  display:block;
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  min-height:38px;
+  padding:7px 9px;
+  border:1px solid #cbdbe5;
+  border-radius:9px;
+  background:#fdfefe;
+  color:#244e69;
+  font:inherit;
+  font-size:10.5px;
+  line-height:1.2;
+  font-weight:800;
+  outline:none;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.work-calendar-filter-field-v11361 select { white-space:nowrap; }
+
+.work-calendar-filter-field-v11361 input:focus,
+.work-calendar-filter-field-v11361 select:focus {
+  border-color:#5f9fc4;
+  box-shadow:0 0 0 3px rgba(58,139,187,.11);
+}
+
+.work-calendar-filter-actions-v11362 { grid-column:1/-1; display:grid; grid-template-columns:1fr 1fr; gap:8px; padding-top:2px; }
+
+.work-calendar-filter-reset-v11361,
+.work-calendar-filter-close-v11362 {
+  width:100%;
+  min-width:0;
+  min-height:35px;
+  padding:7px 10px;
+  border:1px solid #cfdde6;
+  border-radius:9px;
+  font:inherit;
+  font-size:10px;
+  line-height:1;
+  font-weight:900;
+  cursor:pointer;
+  white-space:nowrap;
+}
+
+.work-calendar-filter-reset-v11361 { background:#fff; color:#547187; }
+
+.work-calendar-filter-close-v11362 { border-color:#8dbbd5; background:#eaf6fc; color:#175f89; }

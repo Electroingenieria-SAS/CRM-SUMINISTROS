@@ -1,0 +1,16 @@
+.timeline-item:before {
+  content:"";
+  position:absolute;
+  left:-4px;
+  top:4px;
+  width:7px;
+  height:7px;
+  border:2px solid #fff;
+  border-radius:50%;
+  background:#0f5fc4;
+  box-shadow:0 0 0 1px #b6cce6;
+}
+
+.timeline-item h4 { margin:0; color:#23384f; font-size:10.5px; }
+
+.timeline-item p { margin:4px 0 0; color:#74808e; font-size:9.5px; line-height:1.5; }

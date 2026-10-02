@@ -1,0 +1,18 @@
+@media (max-width:720px) {
+  #modal-root .billing-upload-dialog-v1198 input,
+  #modal-root .billing-upload-dialog-v1198 select,
+  #modal-root .billing-upload-dialog-v1198 textarea {
+    font-size:16px!important;
+  }
+}
+
+@media (max-width:430px) {
+  .billing-focus-v1198 .billing-start-facts-v1198 { grid-template-columns:1fr; }
+  .billing-focus-v1198 .parallel-work-actions { grid-template-columns:1fr; }
+  .billing-focus-v1198 .parallel-work-actions [data-billing-next-v1198] { grid-column:1; }
+  .billing-focus-v1198 .billing-secondary-content-v1198 .order-support-actions { grid-template-columns:1fr; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .billing-focus-v1198 .billing-next-highlight-v1198 { animation:none!important; }
+}

@@ -1,0 +1,204 @@
+.work-calendar-cloud-foot-v11361 { margin-top:10px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+
+.work-calendar-cloud-foot-v11361>span { display:flex; align-items:center; gap:4px; color:#5f7d91; font-size:9.5px; font-weight:800; }
+
+.work-calendar-cloud-foot-v11361 button {
+  min-height:32px;
+  padding:6px 10px;
+  border:1px solid #9cc5dc;
+  border-radius:9px;
+  background:#eef8fd;
+  color:#1f6792;
+  font:inherit;
+  font-size:10px;
+  font-weight:950;
+  cursor:pointer;
+}
+
+/* No laborable / vacío */
+
+.work-calendar-empty-v11360,
+.work-calendar-nonworking-v11360 {
+  min-height:120px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:20px;
+  color:#71899a;
+  text-align:center;
+}
+
+.work-calendar-nonworking-v11360 strong,
+.work-calendar-empty-v11360 strong { display:block; color:var(--wc-ink); font-size:13px; }
+
+/* Capacidad por trabajador */
+
+.work-team-capacity-v11362 {
+  margin-top:12px;
+  overflow:hidden;
+  border:1px solid #c7ddea;
+  border-radius:17px;
+  background:linear-gradient(145deg,#f8fcff,#edf7fc);
+  box-shadow:0 8px 20px rgba(31,91,128,.07);
+}
+
+.work-team-capacity-v11362>summary { list-style:none; }
+
+.work-team-capacity-v11362>summary::-webkit-details-marker { display:none; }
+
+.work-team-capacity-summary-v11362 { min-height:58px; padding:10px 13px; display:flex; align-items:center; gap:10px; cursor:pointer; }
+
+.work-team-capacity-icon-v11362 {
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  flex:0 0 34px;
+  border-radius:11px;
+  background:#1f75a5;
+  color:#fff;
+  font-size:18px;
+  box-shadow:0 6px 13px rgba(31,117,165,.18);
+}
+
+.work-team-capacity-summary-v11362>div { display:grid; gap:2px; min-width:0; flex:1; }
+
+.work-team-capacity-summary-v11362 strong { font-size:12.5px; color:#184f70; font-weight:950; }
+
+.work-team-capacity-summary-v11362 small {
+  font-size:9.5px;
+  color:#6e8798;
+  font-weight:800;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.work-team-capacity-chevron-v11362 { color:#2b739d; font-size:16px; transition:transform .16s ease; }
+
+.work-team-capacity-v11362[open] .work-team-capacity-chevron-v11362 { transform:rotate(180deg); }
+
+.work-team-capacity-body-v11362 { padding:0 12px 12px; animation:capacityReveal .16s ease both; }
+
+.work-capacity-empty-v11362 {
+  min-height:76px;
+  padding:11px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border:1px dashed #bdd8e8;
+  border-radius:13px;
+  background:rgba(255,255,255,.72);
+}
+
+.work-capacity-empty-icon-v11362 {
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border-radius:10px;
+  background:#e3f1f8;
+  color:#236f9a;
+  font-size:18px;
+}
+
+.work-capacity-empty-v11362 strong { display:block; color:#184f70; font-size:11px; font-weight:950; }
+
+.work-capacity-empty-v11362 p { margin:3px 0 0; color:#6e8798; font-size:9.5px; line-height:1.35; }
+
+.work-capacity-focus-v11362 .work-capacity-list { display:block; }
+
+.work-capacity-focus-v11362 .work-capacity-row {
+  min-height:76px;
+  padding:11px;
+  border:1px solid #cbdfe9;
+  border-radius:13px;
+  background:#fff;
+  box-shadow:0 5px 14px rgba(31,88,123,.07);
+}
+
+.work-capacity-focus-v11362 .capacity-meter { height:9px; border-radius:999px; background:#e5eff5; overflow:hidden; }
+
+.work-capacity-focus-v11362 .capacity-meter>span {
+  display:block;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#1f75a5,#49a6d3);
+  animation:capacityFill .55s cubic-bezier(.2,.8,.2,1) both;
+}
+
+@keyframes capacityReveal {
+  from { opacity:0; transform:translateY(-4px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+@keyframes capacityFill {
+  from { transform:scaleX(0); transform-origin:left; }
+  to { transform:scaleX(1); transform-origin:left; }
+}
+
+/* Responsive */
+
+@media (max-width:760px) {
+  .work-planner-actions { width:100%; justify-content:flex-start; }
+  .work-calendar-filterbox-v11362 { width:auto; }
+  .work-calendar-filterbox-v11362>summary { width:172px; }
+  .work-calendar-filter-panel-v11362 { width:min(420px,calc(100vw - 24px)); max-width:calc(100vw - 24px); }
+  .work-calendar-day-head-v11360,
+  .work-calendar-person-row-v11360 { grid-template-columns:168px minmax(760px,1fr); }
+  .work-calendar-week-grid-v11360 { grid-template-columns:165px repeat(5,minmax(164px,1fr)); }
+  .work-calendar-month-weekdays-v11360,
+  .work-calendar-month-grid-v11360 {
+    min-width:860px;
+    grid-template-columns:repeat(5,minmax(164px,1fr));
+  }
+}
+
+@media (max-width:480px) {
+  .work-calendar-filterbox-v11362 { width:100%; }
+  .work-calendar-filterbox-v11362>summary { width:100%; }
+  .work-calendar-filter-panel-v11362 { left:0; right:auto; width:100%; max-width:100%; grid-template-columns:1fr; }
+  .work-calendar-filter-worker-v11362,
+  .work-calendar-filter-actions-v11362 { grid-column:1; }
+  .work-calendar-filter-actions-v11362 { grid-template-columns:1fr; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .work-calendar-cloud-v11361,
+  .work-calendar-event-day-v11360,
+  .work-planner-mode button { transition:none!important; }
+}
+
+/* V11.38.0 · ocupación automática y tratamiento especial */
+
+.work-calendar-person-state-v11360.tone-special { color:#6c7680; }
+
+.work-calendar-person-state-v11360.tone-special>i { background:#7f8b96; box-shadow:0 0 0 3px rgba(127,139,150,.12); }
+
+.work-calendar-person-row-v11360.is-special-treatment,
+.work-calendar-week-person-v11360.is-special-treatment {
+  background:linear-gradient(180deg,#f8fafb,#f3f6f8);
+}
+
+.work-calendar-special-slot-v11380 {
+  width:100%;
+  min-height:70px;
+  display:grid;
+  place-items:center;
+  padding:8px;
+  color:#788690;
+  font-size:9px;
+  font-weight:900;
+  text-align:center;
+  letter-spacing:.01em;
+  background:repeating-linear-gradient(135deg,rgba(111,128,142,.035) 0 8px,rgba(111,128,142,.075) 8px 9px);
+  border-radius:10px;
+}
+
+.work-calendar-week-cell-v11360 .work-calendar-special-slot-v11380 { min-height:58px; }
+
+.work-calendar-event-v11360.is-executed .work-calendar-event-title-v11360::before,
+.work-calendar-month-event-v11360.is-executed strong::before {
+  content:"";
+}

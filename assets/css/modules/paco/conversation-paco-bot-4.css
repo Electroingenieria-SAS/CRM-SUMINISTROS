@@ -1,0 +1,126 @@
+#paco-bot.paco-op-root .paco-op-quick-menu {
+  position:absolute!important;
+  right:12px!important;
+  bottom:58px!important;
+  width:min(330px,calc(100vw - 44px))!important;
+  max-height:min(440px,55dvh)!important;
+  overflow:auto!important;
+  padding:9px!important;
+  border:1px solid #d2e1eb!important;
+  border-radius:18px!important;
+  background:rgba(255,255,255,.985)!important;
+  box-shadow:0 22px 46px rgba(10,55,88,.22)!important;
+  backdrop-filter:blur(18px)!important;
+  animation:pacoQuickMenuIn .17s cubic-bezier(.2,.8,.2,1) both!important;
+}
+
+#paco-bot.paco-op-root .paco-op-quick-menu[hidden] { display:none!important; }
+
+#paco-bot.paco-op-root .paco-op-quick-menu-head {
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+  padding:3px 3px 8px!important;
+  border-bottom:1px solid #e5edf3!important;
+}
+
+#paco-bot.paco-op-root .paco-op-quick-menu-head>div { display:grid!important; gap:1px!important; }
+
+#paco-bot.paco-op-root .paco-op-quick-menu-head small {
+  color:#7c91a2!important;
+  font-size:7.7px!important;
+  font-weight:900!important;
+  letter-spacing:.09em!important;
+}
+
+#paco-bot.paco-op-root .paco-op-quick-menu-head strong { color:#244f6c!important; font-size:11.5px!important; }
+
+#paco-bot.paco-op-root .paco-op-quick-menu-head button {
+  width:30px!important;
+  height:30px!important;
+  display:grid!important;
+  place-items:center!important;
+  border:1px solid #d7e3eb!important;
+  border-radius:50%!important;
+  background:#f7fafc!important;
+  color:#55738a!important;
+  font-size:17px!important;
+  cursor:pointer!important;
+}
+
+#paco-bot.paco-op-root .paco-op-quick-menu .paco-op-quick {
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:6px!important;
+  padding:8px 0 0!important;
+  border:0!important;
+  background:transparent!important;
+  overflow:visible!important;
+}
+
+#paco-bot.paco-op-root .paco-op-quick-menu .paco-op-quick button {
+  min-height:48px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  padding:8px 10px!important;
+  border:1px solid #dbe6ed!important;
+  border-radius:12px!important;
+  background:#f9fbfd!important;
+  color:#2c5a78!important;
+  font-size:9px!important;
+  font-weight:800!important;
+  line-height:1.25!important;
+  text-align:left!important;
+  white-space:normal!important;
+  cursor:pointer!important;
+}
+
+#paco-bot.paco-op-root .paco-op-quick-menu .paco-op-quick button:hover { border-color:#a9cce3!important; background:#edf7fd!important; }
+
+@keyframes pacoQuickMenuIn {
+  from { opacity:0; transform:translateY(7px) scale(.98); }
+  to { opacity:1; transform:none; }
+}
+
+@media (max-width:720px) {
+  #paco-bot.paco-op-root .paco-op-control-card { margin:8px 8px 6px!important; padding:9px!important; border-radius:15px!important; }
+  #paco-bot.paco-op-root .paco-op-control-grid { grid-template-columns:1fr 1fr!important; gap:6px!important; }
+  #paco-bot.paco-op-root .paco-op-voice-picker { grid-column:1/-1!important; min-height:50px!important; }
+  #paco-bot.paco-op-root .paco-op-control-button {
+    min-height:48px!important;
+    justify-content:flex-start!important;
+    padding:7px 8px!important;
+  }
+  #paco-bot.paco-op-root .paco-op-control-button:last-child { grid-column:1/-1!important; }
+  #paco-bot.paco-op-root .paco-op-status-copy [data-paco-monitor-status] { max-width:210px!important; }
+  #paco-bot.paco-op-root .paco-op-quick-fab {
+    right:9px!important;
+    bottom:7px!important;
+    min-height:36px!important;
+    padding:7px 11px!important;
+  }
+  #paco-bot.paco-op-root .paco-op-quick-menu {
+    position:fixed!important;
+    left:8px!important;
+    right:8px!important;
+    bottom:max(82px,calc(var(--rf-dock-height,0px) + 72px))!important;
+    width:auto!important;
+    max-height:min(58dvh,480px)!important;
+    border-radius:20px!important;
+    padding:10px!important;
+  }
+  #paco-bot.paco-op-root .paco-op-quick-menu .paco-op-quick { grid-template-columns:1fr 1fr!important; }
+}
+
+@media (max-width:420px) {
+  #paco-bot.paco-op-root .paco-op-control-head { align-items:flex-start!important; }
+  #paco-bot.paco-op-root .paco-op-status-copy [data-paco-monitor-status] { max-width:190px!important; }
+  #paco-bot.paco-op-root .paco-op-control-button b { font-size:8.7px!important; }
+  #paco-bot.paco-op-root .paco-op-quick-menu .paco-op-quick { grid-template-columns:1fr!important; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  #paco-bot.paco-op-root .paco-op-quick-menu { animation:none!important; }
+}

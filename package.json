@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "serve": "node scripts/serve.mjs",
-    "validate": "node scripts/validate.mjs && node --experimental-vm-modules scripts/link-check.mjs && node scripts/workforce-planner-test.mjs && node scripts/workforce-today-test.mjs && node scripts/workforce-manager-review-test.mjs && node scripts/workforce-catalog-hierarchy-test.mjs && node scripts/workforce-accessibility-test.mjs && node scripts/workforce-timeline-test.mjs && node scripts/workforce-calendar-v11360-test.mjs && node scripts/workforce-indicators-v11363-test.mjs && node scripts/workforce-order-automation-v11380-test.mjs && node scripts/order-stage-status-v11381-test.mjs && node scripts/order-responsible-seller-v11382-test.mjs && node scripts/customer-freight-intelligence-v11390-test.mjs && node scripts/freight-prediction-v11400-test.mjs && node scripts/logistics-intelligence-v11410-test.mjs && node scripts/freight-historical-base-v11420-test.mjs && node scripts/freight-cards-layout-v11430-test.mjs && node scripts/paco-operational-v11370-test.mjs && node scripts/paco-language-v11373-test.mjs && node scripts/security-check.mjs && node scripts/integration-contract-check.mjs && node scripts/migration-ledger-check.mjs",
+    "validate": "node scripts/validate.mjs && node scripts/architecture/check-domain-boundaries.mjs && node --experimental-vm-modules scripts/link-check.mjs && node scripts/workforce-planner-test.mjs && node scripts/workforce-today-test.mjs && node scripts/workforce-manager-review-test.mjs && node scripts/workforce-catalog-hierarchy-test.mjs && node scripts/workforce-accessibility-test.mjs && node scripts/workforce-timeline-test.mjs && node scripts/workforce-calendar-v11360-test.mjs && node scripts/workforce-indicators-v11363-test.mjs && node scripts/workforce-order-automation-v11380-test.mjs && node scripts/order-stage-status-v11381-test.mjs && node scripts/order-responsible-seller-v11382-test.mjs && node scripts/customer-freight-intelligence-v11390-test.mjs && node scripts/freight-prediction-v11400-test.mjs && node scripts/logistics-intelligence-v11410-test.mjs && node scripts/freight-historical-base-v11420-test.mjs && node scripts/freight-cards-layout-v11430-test.mjs && node scripts/paco-operational-v11370-test.mjs && node scripts/paco-language-v11373-test.mjs && node scripts/security-check.mjs && node scripts/integration-contract-check.mjs && node scripts/migration-ledger-check.mjs && npm run validate:domains && npm run pwa:check",
     "validate:integration": "node scripts/integration-contract-check.mjs",
     "security": "node scripts/security-check.mjs",
     "security:history": "node scripts/git-history-security-check.mjs",
@@ -27,6 +27,9 @@
     "validate:freight-historical-base": "node scripts/freight-historical-base-v11420-test.mjs",
     "validate:freight-cards-layout": "node scripts/freight-cards-layout-v11430-test.mjs",
     "validate:paco": "node scripts/paco-operational-v11370-test.mjs && node scripts/paco-language-v11373-test.mjs",
-    "validate:paco-language": "node scripts/paco-language-v11373-test.mjs"
+    "validate:paco-language": "node scripts/paco-language-v11373-test.mjs",
+    "validate:domains": "node --test scripts/tests/*.test.mjs tests/security/*.test.mjs",
+    "pwa:generate": "node scripts/ci/generate-precache-manifest.mjs",
+    "pwa:check": "node scripts/ci/generate-precache-manifest.mjs --check && node scripts/architecture/check-asset-budget.mjs"
   }
 }

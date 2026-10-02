@@ -1,0 +1,280 @@
+/* CRM Suministros · Responsive Foundation V11.19.0 Global adaptive architecture for phones, tablets, laptops, legacy desktop resolutions and large screens. This file is the canonical responsive layer; module styles keep their visual identity while inheriting this contract. */
+
+:root {
+  --rf-safe-top:env(safe-area-inset-top,0px);
+  --rf-safe-right:env(safe-area-inset-right,0px);
+  --rf-safe-bottom:env(safe-area-inset-bottom,0px);
+  --rf-safe-left:env(safe-area-inset-left,0px);
+  --rf-content-max:1920px;
+  --rf-gutter:clamp(18px,2.35vw,46px);
+  --rf-section-gap:clamp(12px,1.25vw,20px);
+  --rf-touch:44px;
+  --rf-dock-height:0px;
+  --rf-visual-height:100vh;
+  --rf-keyboard-offset:0px;
+  --rf-card-radius:clamp(12px,1vw,18px);
+}
+
+html { min-width:320px; max-width:100%; overflow-x:hidden; -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+
+body { max-width:100%; overflow-x:hidden; overscroll-behavior-x:none; }
+
+img,svg,canvas,video { max-width:100%; }
+
+img { height:auto; }
+
+.shell,.main,.content,#page-content,.card,.guided-workspace,.drawer,.modal,.modal-body,.wizard-body { min-width:0; }
+
+.content { max-width:var(--rf-content-max); padding-inline:var(--rf-gutter); }
+
+.mobile-shell-title,.mobile-dock { display:none; }
+
+/* Global readable rhythm */
+
+.page-head>div:first-child,.guided-workspace-head>div:first-child,.card-head>div:first-child,.modal-title-group { min-width:0; }
+
+.page-head h1,.page-head h2,.page-head h3,.card h1,.card h2,.card h3,.modal h3,.drawer h2 { overflow-wrap:anywhere; }
+
+.page-head p,.card p,.modal p,.drawer p,.cell-sub,.muted { overflow-wrap:anywhere; }
+
+pre,code,.code { max-width:100%; overflow:auto; }
+
+/* Controls are sized for mouse and touch without changing their semantic hierarchy. */
+
+button,.btn,.icon-btn,.control,input,select,textarea,[role="button"] { max-width:100%; }
+
+.btn,.icon-btn,.nav-item,.filter-chip,.detail-tab,.segment-control button,.view-switch button { touch-action:manipulation; }
+
+textarea { max-width:100%; }
+
+/* Canonical horizontal strips */
+
+.rf-scroll-strip,.detail-tabs,.wizard-progress,.workforce-tabs,.simple-stage-selector {
+  scrollbar-width:thin;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;
+}
+
+.rf-scroll-strip { max-width:100%; overflow-x:auto; }
+
+/* Canonical data-table contract. JS supplies labels and the safe card/scroll mode. */
+
+.rf-table-shell {
+  position:relative;
+  width:100%;
+  max-width:100%;
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+}
+
+.rf-table-shell:focus-visible { outline:3px solid rgba(20,121,223,.24); outline-offset:2px; }
+
+.rf-responsive-table { min-width:100%; width:100%; }
+
+.rf-responsive-table th,.rf-responsive-table td { overflow-wrap:anywhere; }
+
+.rf-responsive-table[data-rf-mode="scroll"] { min-width:max(760px,100%); }
+
+/* Desktop / large display */
+
+@media (min-width:1600px) {
+  :root { --rf-gutter:clamp(34px,2.5vw,58px); }
+  .content { max-width:1920px; }
+  .grid-kpi { gap:16px; }
+  .page-head { margin-bottom:24px; }
+}
+
+/* Standard laptop and 1366-class displays: preserve information, reduce ornamental volume. */
+
+@media (max-width:1440px) {
+  :root { --rf-gutter:clamp(20px,2vw,30px); }
+  .content { padding-top:24px; }
+  .page-head { min-height:94px; padding:20px 22px 19px 25px; }
+  .page-head h2 { font-size:clamp(24px,2vw,30px); }
+  .page-head p { font-size:12px; }
+  .card { border-radius:14px; }
+}
+
+@media (max-height:800px) and (min-width:1181px) {
+  :root { --shell-height:60px; }
+  .global-shell { height:60px; }
+  .sidebar { top:60px; }
+  .content { padding-top:20px; padding-bottom:42px; }
+  .page-head { min-height:84px; margin-bottom:15px; padding-block:16px; }
+  .nav-scroll { padding-top:10px; padding-bottom:12px; }
+  .nav-group { margin-bottom:11px; }
+  .nav-item { min-height:39px; }
+  .sidebar-foot { padding:8px; }
+}
+
+/* Compact desktop / old PC screens (1024/1152) and small laptops. Navigation becomes a real drawer so the workspace keeps usable width. */
+
+@media (max-width:1180px) {
+  :root { --rf-gutter:clamp(16px,2.2vw,26px); }
+  .global-shell { grid-template-columns:minmax(0,1fr) auto!important; }
+  .shell-brand { border-right:0!important; padding-left:max(12px,var(--rf-safe-left))!important; }
+  .shell-context { display:none!important; }
+  .global-search-shell { display:none!important; }
+  .mobile-menu,.mobile-search-toggle { display:grid!important; }
+  .sidebar {
+    z-index:120!important;
+    top:0!important;
+    left:0!important;
+    bottom:0!important;
+    width:min(86vw,290px)!important;
+    max-width:calc(100vw - 42px)!important;
+    padding-top:var(--rf-safe-top);
+    transform:translateX(-105%)!important;
+    transition:transform .22s cubic-bezier(.2,.8,.2,1)!important;
+    box-shadow:20px 0 55px rgba(4,23,43,.28)!important;
+  }
+  .sidebar.open { transform:translateX(0)!important; }
+  .sidebar-head { height:62px!important; }
+  .sidebar-close { display:block!important; }
+  .sidebar-foot { padding-bottom:max(12px,var(--rf-safe-bottom))!important; }
+  .sidebar-backdrop {
+    position:fixed!important;
+    z-index:110!important;
+    inset:0!important;
+    display:block!important;
+    border:0!important;
+    background:rgba(4,18,34,.48)!important;
+    backdrop-filter:blur(3px);
+    opacity:0!important;
+    pointer-events:none!important;
+    transition:opacity .2s ease!important;
+  }
+  .nav-drawer-open .sidebar-backdrop { opacity:1!important; pointer-events:auto!important; }
+  .main { margin-left:0!important; }
+  .content { padding-top:22px; padding-bottom:48px; }
+  .mobile-search-panel {
+    top:var(--shell-height)!important;
+    padding-inline:max(14px,var(--rf-safe-left)) max(14px,var(--rf-safe-right))!important;
+  }
+  .page-head { align-items:flex-start; }
+  .page-actions { flex-wrap:wrap; }
+  .grid-kpi,.guided-action-grid,.queue-grid,.grid-3 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .modal-overlay { padding:14px; }
+  .modal,.modal.wide,.modal.full,.modal.split,.modal.wizard-modal.wide {
+    width:100%;
+    max-width:calc(100vw - 28px);
+    max-height:calc(100vh - 28px);
+    max-height:calc(100dvh - 28px);
+  }
+  .drawer { width:min(92vw,980px); }
+  .erp-work-row,.orders-master-row { grid-template-columns:1fr 1fr!important; }
+  .erp-work-main,.erp-work-meta,.orders-master-row .erp-work-meta { grid-column:1/3!important; grid-row:auto!important; }
+  .erp-work-status { grid-column:1!important; grid-row:auto!important; justify-items:start!important; text-align:left!important; }
+  .erp-work-action,.erp-work-actions {
+    grid-column:2!important;
+    grid-row:auto!important;
+    align-self:stretch!important;
+    justify-self:stretch!important;
+  }
+}
+
+/* Tablet / large phone landscape */
+
+@media (max-width:900px) {
+  :root { --rf-gutter:clamp(14px,2.4vw,20px); }
+  .shell-brand-copy small { display:none; }
+  .top-actions { padding-right:max(10px,var(--rf-safe-right)); }
+  .active-work-trigger-copy small { display:none; }
+  .login-page { grid-template-columns:1fr!important; min-height:100vh; min-height:100dvh; }
+  .login-hero { min-height:300px; padding:34px clamp(24px,6vw,56px)!important; }
+  .login-message { margin:34px 0!important; }
+  .login-message h1 { font-size:clamp(34px,7vw,48px)!important; }
+  .login-panel { padding:34px clamp(20px,6vw,48px)!important; }
+  .login-card { max-width:520px!important; }
+  .grid-kpi,.grid-3,.guided-action-grid,.queue-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .page-head { gap:16px; }
+  .page-actions { max-width:100%; }
+  .toolbar { gap:8px; }
+  .drawer { width:100vw; max-width:100vw; }
+  .drawer-head { padding-top:max(16px,var(--rf-safe-top)); padding-inline:max(18px,var(--rf-safe-left)) max(18px,var(--rf-safe-right)); }
+  .drawer-content {
+    padding-inline:max(16px,var(--rf-safe-left)) max(16px,var(--rf-safe-right));
+    padding-bottom:max(18px,var(--rf-safe-bottom));
+  }
+}
+
+/* Phone architecture: iOS and Android. */
+
+@media (max-width:720px) {
+  :root {
+    --rf-gutter:max(12px,var(--rf-safe-left));
+    --rf-dock-height:calc(64px + var(--rf-safe-bottom));
+    --shell-height:calc(60px + var(--rf-safe-top));
+    --rf-touch:44px;
+  }
+  html,body { background:#f4f8fc; }
+  body { font-size:14px; }
+  .global-shell {
+    height:var(--shell-height)!important;
+    padding-top:var(--rf-safe-top);
+    grid-template-columns:minmax(0,1fr) auto!important;
+  }
+  .shell-brand { gap:9px!important; padding-inline:max(10px,var(--rf-safe-left)) 8px!important; }
+  .shell-brand-mark { width:36px!important; height:36px!important; flex-basis:36px!important; }
+  .shell-brand-mark img { width:27px!important; height:27px!important; }
+  .shell-brand-copy { display:none!important; }
+  .mobile-shell-title {
+    display:block;
+    min-width:0;
+    overflow:hidden;
+    color:#fff;
+    font-size:13px;
+    font-weight:850;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+  }
+  .top-actions { gap:6px!important; padding:0 max(8px,var(--rf-safe-right)) 0 6px!important; }
+  .top-actions>.active-work-slot,.top-actions>.shell-new-order,.refresh-btn { display:none!important; }
+  .mobile-menu,.mobile-search-toggle { width:42px!important; height:42px!important; min-height:42px!important; }
+  .main { min-height:100vh; min-height:100dvh; padding-top:var(--shell-height)!important; padding-bottom:var(--rf-dock-height)!important; }
+  .content { padding:14px max(12px,var(--rf-safe-right)) calc(28px + var(--rf-dock-height)) max(12px,var(--rf-safe-left))!important; }
+  /* Bottom command dock: stable primary navigation for touch users. */
+  .mobile-dock {
+    position:fixed;
+    z-index:95;
+    left:0;
+    right:0;
+    bottom:0;
+    height:var(--rf-dock-height);
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    align-items:start;
+    gap:2px;
+    padding:7px max(8px,var(--rf-safe-right)) max(7px,var(--rf-safe-bottom)) max(8px,var(--rf-safe-left));
+    border-top:1px solid rgba(126,158,190,.28);
+    background:rgba(252,254,255,.97);
+    box-shadow:0 -10px 28px rgba(5,35,68,.12);
+    backdrop-filter:blur(16px) saturate(1.1);
+  }
+  .mobile-dock button {
+    min-width:0;
+    min-height:49px;
+    display:grid;
+    justify-items:center;
+    align-content:center;
+    gap:3px;
+    padding:4px 5px;
+    border:0;
+    border-radius:12px;
+    background:transparent;
+    color:#60758b;
+    font:inherit;
+    font-size:9px;
+    font-weight:850;
+  }
+  .mobile-dock button .ui-icon { width:20px; height:20px; }
+  .mobile-dock button.active,.mobile-dock button[aria-current="page"] { color:#0b5db8; background:#edf5ff; }
+  .mobile-dock button:active { background:#e4effb; }
+  /* Comfortable mobile typography and native zoom prevention on iOS form controls. */
+  input.control,select.control,textarea.control,.mobile-search-panel input { font-size:16px!important; }
+  .field label,.field-help { font-size:11px!important; }
+  .btn { min-height:var(--rf-touch); font-size:12px; white-space:normal; text-align:center; }
+  .icon-btn { min-width:var(--rf-touch); min-height:var(--rf-touch); }
+}

@@ -1,7 +1,9 @@
+import {readCssSource} from "./tests/read-css-source.mjs";
+import {readDomainSource} from "./tests/read-domain-source.mjs";
 import fs from "node:fs";
 import assert from "node:assert/strict";
 
-const css=fs.readFileSync(new URL("../assets/runtime-css/workforce-experience-v11344.css",import.meta.url),"utf8");
+const css=readCssSource(new URL("../assets/runtime-css/workforce-experience-v11344.css",import.meta.url));
 for(const token of [
   "#workforce-content .btn{min-height:52px",
   ".work-catalog-choice",
@@ -21,18 +23,18 @@ assert.equal(css.includes("font-size:7px"),false,"La nueva capa Workforce no deb
 assert.equal(css.includes("font-size:8px"),false,"La nueva capa Workforce no debe usar texto de 8px");
 assert.equal(css.includes("font-size:9px"),false,"La nueva capa Workforce no debe usar texto de 9px");
 
-const workforce=fs.readFileSync(new URL("../assets/js/modules/workforce.js",import.meta.url),"utf8");
+const workforce=readDomainSource("workforce","assets/js/modules/workforce.js");
 assert.equal(workforce.includes("ensureWorkforceExperienceStyles"),true,"Mi jornada debe cargar su capa visual aislada");
 assert.equal(workforce.includes("workday-no-schedule"),true,"Estado sin programación debe ser compacto, no una tarjeta vacía grande");
 
 const approvals=fs.readFileSync(new URL("../assets/js/modules/approvals.js",import.meta.url),"utf8");
 assert.equal(approvals.includes("ensureWorkforceExperienceStyles"),true,"Excepciones debe compartir la semántica visual del semáforo");
 
-const core=fs.readFileSync(new URL("../assets/css/core-shell.css",import.meta.url),"utf8");
+const core=readCssSource(new URL("../assets/css/core-shell.css",import.meta.url));
 assert.equal(core.includes("V11.34.2 · Mi jornada visual"),false,"core-shell no debe conservar la implementación visual V11.34.2");
 assert.equal(core.includes("V11.34.3 · Mi jornada jerárquica"),false,"core-shell no debe conservar la implementación visual V11.34.3");
 
-const operations=fs.readFileSync(new URL("../assets/css/operations.css",import.meta.url),"utf8");
+const operations=readCssSource(new URL("../assets/css/operations.css",import.meta.url));
 for(const token of ["workforce-quick-card","workforce-main-grid","work-catalog-group","work-catalog-list","work-catalog-item","Desliza para explorar"]){
   assert.equal(operations.includes(token),false,`operations.css no debe reintroducir visual legado de Jornada: ${token}`);
 }

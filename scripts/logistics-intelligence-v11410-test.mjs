@@ -1,12 +1,14 @@
+import {readOperationalSource} from "./tests/read-operational-source.mjs";
+import {readDomainSource} from "./tests/read-domain-source.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const migration=fs.readFileSync(new URL("../supabase/migrations/130_logistics_intelligence_control_v11_41_0.sql",import.meta.url),"utf8");
 const dashboard=fs.readFileSync(new URL("../assets/js/modules/freight-intelligence-v11410.js",import.meta.url),"utf8");
 const api=fs.readFileSync(new URL("../assets/js/services/api.js",import.meta.url),"utf8");
-const paco=fs.readFileSync(new URL("../assets/js/modules/paco-operational-v11370.js",import.meta.url),"utf8");
-const operational=fs.readFileSync(new URL("../assets/js/modules/operational-v112.js",import.meta.url),"utf8");
-const main=fs.readFileSync(new URL("../assets/js/main.js",import.meta.url),"utf8");
+const paco=readDomainSource("paco","assets/js/domains/paco/index.js");
+const operational=readOperationalSource();
+const registry=fs.readFileSync(new URL("../assets/js/core/routing/module-registry.js",import.meta.url),"utf8");
 
 for(const token of [
   "erp_x_freight_intelligence_dashboard",
@@ -34,7 +36,7 @@ for(const token of [
 
 assert.equal(api.includes("freightIntelligence:"),true);
 assert.equal(api.includes("freightAlerts:"),true);
-assert.equal(main.includes("enhanceFreightIntelligenceDashboard"),true);
+assert.equal(registry.includes("enhanceFreightIntelligenceDashboard"),true);
 
 for(const token of ["freightAlerts","Flete crítico","Entrega en riesgo","freightIntelligenceMessage"]) assert.equal(paco.includes(token),true,`PACO debe integrar ${token}`);
 for(const token of ["data-v1141-carrier-guard","carrierPredictionV1141","Control predictivo"]) assert.equal(operational.includes(token),true,`Guía debe integrar ${token}`);

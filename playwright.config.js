@@ -15,7 +15,9 @@ export default defineConfig({
   },
   projects:[
     {name:"chromium",use:{...devices["Desktop Chrome"]}},
-    {name:"mobile",use:{...devices["Pixel 7"]}}
+    {name:"mobile",use:{...devices["Pixel 7"]}},
+    {name:"iphone",use:{...devices["iPhone 13"],browserName:"webkit"}},
+    {name:"tablet",use:{...devices["Desktop Chrome"],viewport:{width:1024,height:768}}}
   ],
   webServer:process.env.ERP_BASE_URL?undefined:{command:"npm run serve",url:"http://127.0.0.1:4173",reuseExistingServer:true,timeout:120000}
 });

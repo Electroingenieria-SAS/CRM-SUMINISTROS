@@ -1,0 +1,272 @@
+.commercial-search-input:after {
+  content:"";
+  position:absolute;
+  z-index:1;
+  left:28px;
+  top:57%;
+  width:7px;
+  height:2px;
+  border-radius:2px;
+  background:#5d7f9e;
+  transform:rotate(45deg);
+  pointer-events:none;
+}
+
+.commercial-v1187 .commercial-main-search {
+  height:52px;
+  min-height:52px;
+  padding:11px 16px 11px 45px;
+  border-radius:12px;
+  border-color:#aac4da;
+  background:#fff;
+  font-size:13px;
+  box-shadow:inset 0 1px 2px rgba(8,49,87,.035);
+}
+
+.commercial-v1187 .commercial-main-search::placeholder { color:#8a9bad; }
+
+.commercial-v1187 .commercial-search-cta { min-width:160px; min-height:52px; border-radius:12px; font-size:11.5px; }
+
+.commercial-v1187 .commercial-search-cta .ui-icon { width:18px; height:18px; }
+
+.commercial-presets,.commercial-credit-status { display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-top:12px; }
+
+.commercial-presets button,.commercial-credit-status button {
+  min-height:34px;
+  padding:7px 11px;
+  border:1px solid #d5e1ec;
+  border-radius:999px;
+  background:#fff;
+  color:#49647d;
+  font-size:9.5px;
+  font-weight:900;
+  transition:.14s ease;
+}
+
+.commercial-presets button:hover,.commercial-credit-status button:hover,.commercial-presets button.active,.commercial-credit-status button.active {
+  border-color:#83afd4;
+  background:#edf6fe;
+  color:#0b5f9f;
+}
+
+.commercial-credit-status>span { margin-right:2px; color:#758699; font-size:9.5px; font-weight:800; }
+
+.commercial-advanced-filters { margin-top:13px; border:1px solid #dce5ed; border-radius:12px; background:#fff; overflow:hidden; }
+
+.commercial-advanced-filters>summary {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:11px 13px;
+  cursor:pointer;
+  list-style:none;
+  color:#365775;
+}
+
+.commercial-advanced-filters>summary::-webkit-details-marker { display:none; }
+
+.commercial-advanced-filters>summary span { display:flex; align-items:center; gap:7px; font-size:10px; font-weight:900; }
+
+.commercial-advanced-filters>summary .ui-icon { width:15px; height:15px; }
+
+.commercial-advanced-filters>summary small { color:#8190a0; font-size:9px; }
+
+.commercial-advanced-grid {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;
+  padding:13px;
+  border-top:1px solid #e5ebf1;
+  background:#fafcfe;
+}
+
+.commercial-v1187 .commercial-advanced-grid .control { min-height:44px; font-size:10.5px; }
+
+.commercial-advanced-grid .filter-pill {
+  min-height:44px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 12px;
+  border:1px solid #d1deea;
+  border-radius:9px;
+  background:#fff;
+  font-size:10px;
+}
+
+.commercial-advanced-filters>footer {
+  display:flex;
+  justify-content:flex-end;
+  padding:10px 13px;
+  border-top:1px solid #e5ebf1;
+  background:#fff;
+}
+
+/* Encabezado de resultados */
+
+.commercial-v1187 .commercial-result-heading {
+  min-height:72px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding:15px 20px!important;
+  border-bottom:1px solid #e1e8ef;
+  background:#fff;
+}
+
+.commercial-result-heading>div:first-child { display:grid; gap:3px; }
+
+.commercial-result-heading>div:first-child span { color:#0b65c7; font-size:8px; font-weight:900; letter-spacing:.12em; }
+
+.commercial-result-heading>div:first-child strong { color:#193b5c; font-size:14px; }
+
+.commercial-result-summary {
+  display:flex;
+  align-items:baseline;
+  gap:7px;
+  padding:7px 10px;
+  border-radius:10px;
+  background:#f2f7fc;
+  color:#677b8f;
+}
+
+.commercial-result-summary b { color:#0b5f9f; font-size:17px; }
+
+.commercial-result-summary small { font-size:9px; }
+
+/* Lista de pedidos */
+
+.commercial-v1187 #orders-result { padding:0 18px 18px; background:#fff; }
+
+.commercial-v1187 .orders-master-list { display:grid; gap:11px; padding-top:15px; }
+
+.commercial-v1187 .orders-master-row.commercial-order-row {
+  display:grid;
+  grid-template-columns:minmax(210px,1.15fr) minmax(430px,2.2fr) minmax(110px,.55fr) 132px;
+  align-items:center;
+  gap:18px;
+  min-height:142px;
+  padding:18px 18px 18px 20px;
+  border:1px solid #d9e3ec;
+  border-radius:15px;
+  background:#fff;
+  box-shadow:0 4px 14px rgba(12,49,84,.04);
+  transition:.15s ease;
+}
+
+.commercial-v1187 .orders-master-row.commercial-order-row:hover {
+  border-color:#b7cee1;
+  box-shadow:0 11px 24px rgba(12,49,84,.075);
+  transform:translateY(-1px);
+}
+
+.commercial-v1187 .orders-master-row .erp-work-main { display:grid; gap:5px; min-width:0; }
+
+.commercial-v1187 .orders-master-row .erp-work-eyebrow {
+  width:max-content;
+  max-width:100%;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#eef6fd;
+  color:#0b65a5;
+  font-size:8.5px;
+  font-weight:900;
+  letter-spacing:.045em;
+  text-transform:uppercase;
+  white-space:normal;
+}
+
+.commercial-v1187 .orders-master-row .erp-work-main>strong { color:#11385f; font-size:17px; line-height:1.2; letter-spacing:-.018em; }
+
+.commercial-v1187 .orders-master-row .erp-work-main>small { color:#677b8f; font-size:10px; line-height:1.5; }
+
+.commercial-v1187 .orders-master-row .erp-work-meta {
+  display:grid;
+  grid-template-columns:repeat(5,minmax(82px,1fr));
+  gap:10px;
+  min-width:0;
+}
+
+.commercial-v1187 .orders-master-row .erp-work-meta>span {
+  min-width:0;
+  display:grid;
+  gap:5px;
+  padding:9px 10px;
+  border-left:1px solid #e5ebf1;
+}
+
+.commercial-v1187 .orders-master-row .erp-work-meta small {
+  color:#8290a0;
+  font-size:8px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.045em;
+}
+
+.commercial-v1187 .orders-master-row .erp-work-meta b {
+  min-width:0;
+  color:#36516d;
+  font-size:10.5px;
+  line-height:1.4;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+
+.commercial-v1187 .orders-master-row .erp-work-status { display:grid; justify-items:start; gap:7px; }
+
+.commercial-v1187 .orders-master-row .erp-work-action { min-height:46px; border-radius:11px; font-size:10.5px; }
+
+.commercial-v1187 .orders-master-row .order-partial-tag { width:max-content; max-width:100%; font-size:8.5px; }
+
+.commercial-v1187 #orders-result .pagination { margin-top:18px; }
+
+/* Crédito */
+
+.commercial-credit-v1187 .credit-search-shell { padding-bottom:18px; }
+
+.commercial-credit-v1187 #credit-result { padding:16px 18px 20px; background:#fff; }
+
+.commercial-credit-v1187 .credit-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+
+.commercial-credit-v1187 .commercial-credit-card {
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  min-height:300px;
+  border:1px solid #d9e3ec;
+  border-radius:16px;
+  background:#fff;
+  box-shadow:0 5px 17px rgba(9,47,84,.045);
+  transition:.15s ease;
+}
+
+.commercial-credit-v1187 .commercial-credit-card:hover {
+  transform:translateY(-2px);
+  border-color:#b6cce0;
+  box-shadow:0 13px 27px rgba(9,47,84,.085);
+}
+
+.commercial-credit-v1187 .commercial-credit-card>header {
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:13px 15px;
+  border-bottom:1px solid #e3eaf1;
+  background:linear-gradient(180deg,#fff,#f9fbfd);
+}
+
+.commercial-credit-v1187 .commercial-credit-card>header>div { display:grid; gap:3px; }
+
+.commercial-credit-v1187 .commercial-credit-card>header strong { color:#183c60; font-size:12.5px; }
+
+.commercial-credit-v1187 .commercial-credit-card>header span { color:#8391a0; font-size:8.5px; }
+
+.commercial-credit-v1187 .credit-card-body { flex:1; padding:17px 16px; }
+
+.commercial-credit-v1187 .credit-card-body h3 { margin:0 0 4px; color:#163a5f; font-size:16px; line-height:1.3; }
+
+.commercial-credit-v1187 .credit-card-body>p { margin:0; color:#7b8998; font-size:9.5px; }

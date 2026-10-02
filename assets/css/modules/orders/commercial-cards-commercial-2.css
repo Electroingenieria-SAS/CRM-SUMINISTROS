@@ -1,0 +1,22 @@
+@media (max-width:720px) {
+  .commercial-v1187 .ops-action-card-v1188 { min-height:104px; grid-template-columns:48px minmax(0,1fr) 28px; padding:13px; }
+  .commercial-v1187 .ops-action-card-v1188 .guided-action-icon { width:46px; height:46px; }
+  .commercial-v1187 #orders-result { padding:0 10px 13px; }
+  .commercial-v1187 .orders-master-list { gap:8px; }
+  .commercial-v1187 .orders-master-row.compact-order-record-v1188 {
+    grid-template-columns:38px minmax(0,1fr);
+    min-height:0;
+    padding:12px;
+    gap:9px;
+  }
+  .record-figure-v1188 { width:38px; height:38px; flex-basis:38px; border-radius:11px; }
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-main { grid-column:2; }
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-meta {
+    grid-column:1/-1;
+    grid-row:auto;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-status { grid-column:1/-1; grid-row:auto; }
+  .commercial-v1187 .compact-order-record-v1188 .erp-work-action { grid-column:1/-1; grid-row:auto; width:100%; min-height:44px; }
+  .commercial-credit-v1187 .credit-grid { grid-template-columns:1fr; }
+}

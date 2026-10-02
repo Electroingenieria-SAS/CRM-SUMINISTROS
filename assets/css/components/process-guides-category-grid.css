@@ -1,0 +1,16 @@
+@media (max-width:900px) {
+  .v113-category-grid,.v113-subcategory-list { grid-template-columns:1fr; }
+  .v113-process-guide span:last-child { display:none; }
+}
+
+@media (max-width:560px) {
+  .v113-guide-hero { align-items:flex-start; }
+  .v113-guide-badge { min-width:64px; }
+  .v113-guide-step summary { grid-template-columns:32px 1fr 14px; }
+  .v113-guide-step-body { padding-left:14px; }
+  .v113-activity-entry>header { display:grid; }
+  .v113-activity-entry>header>b { width:max-content; }
+  .v113-activity-card { grid-template-columns:1fr; }
+  .v113-activity-card .btn { width:100%; }
+  .v113-guide-button>span:last-child { display:none; }
+}

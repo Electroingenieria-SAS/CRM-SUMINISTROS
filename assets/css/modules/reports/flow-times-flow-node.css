@@ -1,0 +1,4 @@
+@media (prefers-reduced-motion:reduce) {
+  .flow-node-v11120,.flow-time-bar-v11120 span { transition:none; }
+  .flow-node-v11120:hover { transform:none; }
+}

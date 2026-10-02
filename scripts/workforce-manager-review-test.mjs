@@ -1,3 +1,4 @@
+import {readOperationalSource} from "./tests/read-operational-source.mjs";
 import fs from "node:fs";
 import assert from "node:assert/strict";
 import {
@@ -5,7 +6,7 @@ import {
   timeReviewCardHtml,
   timeReviewDialogHtml,
   recentTimeReviewHtml
-} from "../assets/js/modules/workforce-time-review-v11340.js";
+} from "../assets/js/domains/workforce/analytics/time-review.js";
 
 const row={
   executionId:"exec-1",
@@ -35,7 +36,8 @@ const dialog=timeReviewDialogHtml(row);
 for(const token of ["Ana Gómez","Organización de inventario","Foto final","1 h 18 min","Revisado","Observado"]){
   assert.equal(dialog.includes(token),true,`El diálogo debe mostrar: ${token}`);
 }
-assert.equal(dialog.includes("https://drive.google.com/file/d/abc/view"),true,"La revisión debe enlazar la evidencia de Drive");
+const evidenceHrefs=[...dialog.matchAll(/href="([^"]+)"/g)].map(match=>match[1]);
+assert.equal(evidenceHrefs.some(href=>href===row.evidence[0].webViewLink),true,"La revisión debe enlazar exactamente la evidencia de Drive");
 const recent=recentTimeReviewHtml({
   profileName:"Ana Gómez",
   title:"Organización de inventario",
@@ -49,7 +51,7 @@ for(const token of ["Observado","Ana Gómez","1 h 18 min","Jefe Logística","Val
   assert.equal(recent.includes(token),true,`El historial debe mostrar: ${token}`);
 }
 
-const operational=fs.readFileSync(new URL("../assets/js/modules/operational-v112.js",import.meta.url),"utf8");
+const operational=readOperationalSource();
 assert.equal(operational.includes("workManagerQueue"),false,"Mi jornada no debe duplicar la cola de revisión del jefe");
 assert.equal(operational.includes("openTimeReviewDialog"),false,"La revisión de tiempos debe centralizarse en Excepciones y aprobaciones");
 assert.equal(operational.includes("workQuickRequest"),false,"No debe existir solicitud rápida ni aprobación previa para auxiliares");

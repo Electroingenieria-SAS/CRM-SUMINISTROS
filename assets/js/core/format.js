@@ -1,4 +1,5 @@
 const LABELS={
+  PVC:"PVC",PVN:"PVN",PVE:"PVE",PVP:"PVP",
   QUEUED:"En cola",ASSIGNED:"Asignado",IN_PROGRESS:"En proceso",WAITING:"En espera",BLOCKED:"Bloqueado",CLOSED:"Cerrado",CANCELLED:"Cancelado",CANCELED:"Cancelado",PENDING:"Pendiente",APPROVED:"Aprobado",REJECTED:"Rechazado",EXECUTED:"Ejecutado",RUNNING:"En ejecución",PASSED:"Aprobado",FAILED:"Fallido",OPEN:"Abierto",ACTIVE:"Activo",INACTIVE:"Inactivo",COMPLETED:"Completado",WAITING_EVIDENCE:"Pendiente de evidencia",RETURNED:"Devuelto",READY:"Listo",PAUSED:"Pausado",CREATED:"Creado",SUBMITTED:"Radicada",UNDER_REVIEW:"En estudio",
   LOW:"Baja",MEDIUM:"Media",HIGH:"Alta",URGENT:"Urgente",CRITICAL:"Crítica",
   ALL:"Todos",MINE:"Asignados a mí",UNASSIGNED:"Sin asignar",

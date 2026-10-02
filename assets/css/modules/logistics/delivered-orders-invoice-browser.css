@@ -1,0 +1,273 @@
+@media (max-width:720px) {
+  .v1139-invoice-browser .control { width:100%; }
+}
+
+/* V11.40.0 · predicción comparativa de fletes */
+
+.sales-freight-carriers-v1140 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; width:100%; margin-top:12px; }
+
+.sales-freight-carrier-v1140 {
+  display:grid;
+  gap:7px;
+  padding:12px;
+  border:1px solid rgba(28,82,145,.15);
+  border-radius:14px;
+  background:rgba(255,255,255,.72);
+  box-shadow:0 8px 24px rgba(14,55,104,.06);
+}
+
+.sales-freight-carrier-v1140>div { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+
+.sales-freight-carrier-v1140 strong { font-size:12px; letter-spacing:.03em; color:#0a3769; }
+
+.sales-freight-carrier-v1140>div span { font-size:12px; font-weight:800; color:#17324f; text-align:right; }
+
+.sales-freight-carrier-v1140 small { font-size:10px; line-height:1.45; color:#5a6f86; }
+
+.sales-freight-carrier-v1140 em { display:flex; flex-wrap:wrap; gap:5px; font-style:normal; }
+
+.sales-freight-carrier-v1140 em b { padding:4px 7px; border-radius:999px; background:rgba(23,101,184,.09); font-size:9px; color:#0f579c; }
+
+.sales-material-freight-v1140 {
+  display:flex;
+  align-items:flex-start;
+  gap:14px;
+  margin-top:14px;
+  padding:14px 16px;
+  border-radius:16px;
+  border:1px solid rgba(20,95,169,.16);
+  background:linear-gradient(135deg,rgba(238,247,255,.95),rgba(255,255,255,.98));
+}
+
+.sales-material-freight-v1140>span {
+  flex:0 0 auto;
+  padding:5px 8px;
+  border-radius:999px;
+  background:#0d5ea8;
+  color:#fff;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+
+.sales-material-freight-v1140 strong { display:block; color:#123b65; font-size:13px; margin-bottom:3px; }
+
+.sales-material-freight-v1140 p { margin:0; color:#60738a; font-size:11px; line-height:1.45; }
+
+@media (max-width:900px) {
+  .sales-freight-carriers-v1140 { grid-template-columns:1fr; }
+  .sales-freight-carrier-v1140>div { align-items:center; }
+  .sales-material-freight-v1140 { flex-direction:column; gap:9px; }
+}
+
+/* V11.41.0 · inteligencia logística */
+
+.freight-intel-v1141 { margin-top:20px; overflow:hidden; }
+
+.freight-intel-head-v1141 { display:flex; justify-content:space-between; gap:20px; align-items:flex-end; }
+
+.freight-intel-kicker-v1141 { display:block; font-size:10px; font-weight:900; letter-spacing:.11em; color:#1365ad; margin-bottom:5px; }
+
+.freight-intel-filters-v1141 { display:flex; gap:8px; align-items:end; flex-wrap:wrap; }
+
+.freight-intel-filters-v1141 label { font-size:10px; color:#60748a; }
+
+.freight-intel-filters-v1141 input { display:block; margin-top:3px; }
+
+.freight-intel-kpis-v1141 { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+
+.freight-kpi-v1141 {
+  padding:14px;
+  border:1px solid rgba(27,84,143,.12);
+  border-radius:15px;
+  background:linear-gradient(145deg,#fff,#f7fbff);
+  display:grid;
+  gap:4px;
+}
+
+.freight-kpi-v1141 span { font-size:10px; font-weight:800; color:#64788c; }
+
+.freight-kpi-v1141 strong { font-size:20px; color:#173b61; }
+
+.freight-kpi-v1141 small { font-size:10px; color:#73859a; }
+
+.freight-kpi-v1141.good { border-color:rgba(24,143,91,.22); }
+
+.freight-kpi-v1141.warn { border-color:rgba(217,140,28,.3); }
+
+.freight-kpi-v1141.danger { border-color:rgba(197,56,56,.3); }
+
+.freight-intel-budget-v1141 {
+  margin-top:12px;
+  padding:16px 18px;
+  border-radius:16px;
+  background:linear-gradient(120deg,#0d4d85,#1472bc);
+  color:#fff;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+}
+
+.freight-intel-budget-v1141 span { font-size:9px; letter-spacing:.1em; font-weight:900; opacity:.8; }
+
+.freight-intel-budget-v1141 strong { display:block; font-size:26px; margin:3px 0; }
+
+.freight-intel-budget-v1141 p { margin:0; font-size:11px; opacity:.82; }
+
+.freight-budget-range-v1141 { text-align:right; }
+
+.freight-budget-range-v1141 small { display:block; opacity:.75; }
+
+.freight-budget-range-v1141 b { font-size:14px; }
+
+.freight-intel-grid-v1141 { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:12px; }
+
+.freight-intel-panel-v1141 { border:1px solid rgba(27,84,143,.12); border-radius:16px; padding:14px; background:#fff; min-width:0; }
+
+.freight-intel-panel-v1141.wide { grid-column:1/-1; }
+
+.freight-intel-panel-v1141>header { display:flex; justify-content:space-between; gap:12px; margin-bottom:10px; }
+
+.freight-intel-panel-v1141>header span { font-size:9px; font-weight:900; letter-spacing:.09em; color:#2271b7; }
+
+.freight-intel-panel-v1141>header h4 { margin:2px 0 0; font-size:14px; color:#183b60; }
+
+.freight-intel-panel-v1141>header>b { font-size:20px; color:#b33; }
+
+.freight-alert-list-v1141,.freight-rank-list-v1141,.freight-simple-list-v1141,.freight-monthly-v1141 { display:grid; gap:7px; }
+
+.freight-alert-v1141,.freight-rank-list-v1141 article,.freight-simple-list-v1141 article,.freight-monthly-v1141 article {
+  border:0;
+  width:100%;
+  text-align:left;
+  padding:10px;
+  border-radius:12px;
+  background:#f8fbfe;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+}
+
+.freight-alert-v1141 { cursor:pointer; }
+
+.freight-alert-v1141.tone-critical,.freight-alert-v1141.tone-high { background:#fff6f6; }
+
+.freight-alert-v1141 strong,.freight-rank-list-v1141 strong,.freight-simple-list-v1141 strong { display:block; color:#183d63; }
+
+.freight-alert-v1141 span,.freight-rank-list-v1141 small,.freight-simple-list-v1141 small,.freight-alert-v1141 small {
+  font-size:10px;
+  color:#6d8094;
+  display:block;
+}
+
+.freight-alert-v1141 aside,.freight-rank-list-v1141 aside,.freight-simple-list-v1141 aside { text-align:right; }
+
+.freight-alert-v1141 aside b,.freight-rank-list-v1141 aside b,.freight-simple-list-v1141 aside b { display:block; color:#173d62; }
+
+.freight-alert-v1141 aside em,.freight-rank-list-v1141 aside em,.freight-simple-list-v1141 aside em {
+  font-size:9px;
+  color:#75879a;
+  font-style:normal;
+}
+
+.freight-rank-list-v1141 article>span { font-size:11px; font-weight:900; color:#8ba0b6; }
+
+.freight-rank-list-v1141 article>div { flex:1; }
+
+.freight-monthly-v1141 article>div:first-child { min-width:170px; }
+
+.freight-monthly-v1141 article strong { display:block; }
+
+.freight-monthly-v1141 article small { font-size:10px; color:#6e8194; }
+
+.freight-bar-v1141 { flex:1; height:8px; border-radius:99px; background:#edf3f8; overflow:hidden; }
+
+.freight-bar-v1141 span { display:block; width:var(--fi-size); height:100%; background:linear-gradient(90deg,#1f6eb1,#55a0dc); }
+
+.freight-table-wrap-v1141 { overflow:auto; }
+
+.freight-table-v1141 td small { display:block; color:#74869a; font-size:9px; }
+
+.fi-badge-v1141 { display:inline-block; padding:4px 7px; border-radius:999px; background:#eef4f8; font-size:9px; font-weight:800; }
+
+.fi-badge-v1141.tone-critical,.fi-badge-v1141.tone-high,.fi-badge-v1141.tone-late,.fi-badge-v1141.tone-at_risk {
+  background:#ffeaea;
+  color:#a72f2f;
+}
+
+.fi-badge-v1141.tone-favorable,.fi-badge-v1141.tone-on_time { background:#e8f8ef; color:#257a50; }
+
+.freight-empty-v1141 { padding:20px; display:flex; gap:10px; align-items:center; color:#718399; }
+
+.freight-empty-v1141 strong { display:block; color:#3c5772; }
+
+.freight-empty-v1141 p { margin:2px 0 0; font-size:10px; }
+
+@media (max-width:980px) {
+  .freight-intel-kpis-v1141 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .freight-intel-grid-v1141 { grid-template-columns:1fr; }
+  .freight-intel-panel-v1141.wide { grid-column:auto; }
+  .freight-intel-head-v1141,.freight-intel-budget-v1141 { align-items:stretch; flex-direction:column; }
+  .freight-budget-range-v1141 { text-align:left; }
+}
+
+@media (max-width:560px) {
+  .freight-intel-kpis-v1141 { grid-template-columns:1fr; }
+  .freight-intel-filters-v1141 { display:grid; grid-template-columns:1fr 1fr; }
+  .freight-intel-filters-v1141 .btn { grid-column:1/-1; }
+  .freight-alert-v1141,.freight-rank-list-v1141 article,.freight-simple-list-v1141 article {
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .freight-alert-v1141 aside,.freight-rank-list-v1141 aside,.freight-simple-list-v1141 aside { text-align:left; }
+}
+
+.v1141-carrier-guard {
+  margin-top:12px;
+  padding:12px 14px;
+  border-radius:13px;
+  border:1px solid rgba(31,105,166,.18);
+  background:#f5faff;
+  display:grid;
+  gap:3px;
+}
+
+.v1141-carrier-guard strong { color:#174f7f; font-size:12px; }
+
+.v1141-carrier-guard span { font-size:10px; color:#677d92; }
+
+.v1141-carrier-guard.is-good { background:#f1fbf6; border-color:rgba(36,145,92,.25); }
+
+.v1141-carrier-guard.is-good strong { color:#26744e; }
+
+.v1141-carrier-guard.is-warning { background:#fff5f3; border-color:rgba(190,69,55,.3); }
+
+.v1141-carrier-guard.is-warning strong { color:#a64135; }
+
+/* V11.43.0 · corrección estructural del comparativo de fletes */
+
+.sales-freight-estimate {
+  grid-template-columns:42px minmax(0,1fr) minmax(150px,180px)!important;
+  align-items:start!important;
+  column-gap:14px!important;
+  row-gap:14px!important;
+  padding:16px!important;
+  overflow:hidden!important;
+}
+
+.sales-freight-estimate>.sales-freight-icon { grid-column:1; grid-row:1; }
+
+.sales-freight-estimate>div:nth-child(2) { grid-column:2; grid-row:1; align-self:center; }
+
+.sales-freight-estimate>small[data-freight-confidence] {
+  grid-column:3;
+  grid-row:1;
+  align-self:center;
+  width:100%;
+  max-width:none!important;
+  box-sizing:border-box;
+  padding:9px 10px!important;
+  line-height:1.45!important;
+}

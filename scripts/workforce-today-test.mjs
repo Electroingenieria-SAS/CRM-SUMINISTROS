@@ -1,6 +1,7 @@
+import {readDomainSource,readModuleSource} from "./tests/read-domain-source.mjs";
 import fs from "node:fs";
 import assert from "node:assert/strict";
-import {timeTrafficLight,finalEvidenceType} from "../assets/js/modules/workforce-today-v11340.js";
+import {timeTrafficLight,finalEvidenceType} from "../assets/js/domains/workforce/today/time-traffic.js";
 
 assert.deepEqual(timeTrafficLight(0),{tone:"green",label:"Tiempo normal",review:false});
 assert.deepEqual(timeTrafficLight(44*60+59),{tone:"green",label:"Tiempo normal",review:false});
@@ -11,7 +12,7 @@ assert.equal(finalEvidenceType("BEFORE_AFTER"),"AFTER_PHOTO");
 assert.equal(finalEvidenceType("NONE"),"FINAL_PHOTO");
 assert.equal(finalEvidenceType("FINAL_PHOTO"),"FINAL_PHOTO");
 
-const workforce=fs.readFileSync(new URL("../assets/js/modules/workforce.js",import.meta.url),"utf8");
+const workforce=readDomainSource("workforce","assets/js/modules/workforce.js");
 for(const token of [
   "workday-guide",
   "workday-step",
@@ -25,7 +26,7 @@ for(const token of [
   "Foto final obligatoria",
   "data-time-traffic",
   "Pendiente de revisión",
-  "workforce-today-v11340.js"
+  "time-traffic.js"
 ]){
   assert.equal(workforce.includes(token),true,`Mi jornada debe contener: ${token}`);
 }
@@ -34,7 +35,7 @@ assert.equal(workforce.includes("Resultado / observación"),false,"El cierre nor
 assert.equal(/agenda-main[^\n]*estimatedMinutes/.test(workforce),false,"La agenda del trabajador no debe mostrar una estimación manual de minutos");
 assert.equal(workforce.includes("workday-layout"),false,"Mi jornada no debe volver al layout estrecho de dos columnas que desperdiciaba ancho");
 
-const drive=fs.readFileSync(new URL("../assets/js/services/drive.js",import.meta.url),"utf8");
+const drive=readModuleSource("assets/js/integrations/drive","assets/js/services/drive.js");
 for(const token of ["uploadWorkEvidence","submitToBridge","WORK_EVIDENCE_","api.workRegisterEvidence","uploadMode: \"INSTITUTIONAL_APPS_SCRIPT\""]){
   assert.equal(drive.includes(token),true,`La foto de Mi jornada debe conservar el puente Apps Script/Drive: ${token}`);
 }

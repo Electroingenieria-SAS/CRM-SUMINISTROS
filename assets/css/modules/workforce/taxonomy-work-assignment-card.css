@@ -1,0 +1,279 @@
+.work-assignment-card-v11330>strong { display:block; font-size:9.5px; line-height:1.25; color:inherit; overflow-wrap:anywhere; }
+
+.work-assignment-card-v11330>small { display:block; margin-top:3px; font-size:7.5px; line-height:1.25; color:inherit; opacity:.7; }
+
+.work-assignment-card-v11330>button {
+  position:absolute;
+  right:4px;
+  top:4px;
+  width:18px;
+  height:18px;
+  border:0;
+  border-radius:5px;
+  background:transparent;
+  color:inherit;
+  cursor:pointer;
+}
+
+.work-assignment-card-v11330>button:hover { background:rgba(0,0,0,.055); }
+
+.work-assignment-card-v11330.deliverable { border-color:#ddd3ee; border-left-color:#7659ad; background:#f6f2fb; color:#664d98; }
+
+/* Mes laboral */
+
+.work-month-weekdays-v11330,.work-month-grid-v11330 { min-width:900px; display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); }
+
+.work-month-weekdays-v11330 { position:sticky; top:0; z-index:3; background:#f8fafc; }
+
+.work-month-weekdays-v11330>span {
+  padding:9px 10px;
+  border-right:1px solid #e4eaf0;
+  border-bottom:1px solid #dfe7ef;
+  color:#657b91;
+  font-size:8.5px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.07em;
+}
+
+.work-month-day-v11330 {
+  appearance:none;
+  min-height:142px;
+  padding:9px;
+  border:0;
+  border-right:1px solid #e7edf3;
+  border-bottom:1px solid #e7edf3;
+  background:#fff;
+  text-align:left;
+  overflow:hidden;
+  transition:background .15s ease,box-shadow .15s ease;
+}
+
+button.work-month-day-v11330 { cursor:pointer; }
+
+button.work-month-day-v11330:hover,.work-month-day-v11330[role="button"]:hover { background:#f7fbff; box-shadow:inset 0 0 0 1px #bcd4e8; }
+
+.work-month-day-v11330.today { background:#f5faff; box-shadow:inset 0 0 0 2px #8db9dc; }
+
+.work-month-day-v11330.spacer { background:#fafbfc; }
+
+.work-month-day-v11330.holiday { background:repeating-linear-gradient(135deg,#fbfbfc,#fbfbfc 8px,#f5f6f8 8px,#f5f6f8 16px); }
+
+.work-month-day-v11330.holiday p { margin:13px 0 0; color:#987329; font-size:8px; line-height:1.35; }
+
+.work-month-date { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:7px; }
+
+.work-month-date strong {
+  width:27px;
+  height:27px;
+  display:grid;
+  place-items:center;
+  border-radius:9px;
+  background:#f0f5fa;
+  color:#315a7e;
+  font-size:10px;
+}
+
+.work-month-date span { color:#94a0ad; font-size:7.5px; font-weight:800; text-transform:uppercase; }
+
+.work-month-items-v11330 { display:grid; gap:5px; }
+
+.work-month-item-v11330 {
+  min-width:0;
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:5px;
+  padding:5px 6px;
+  border:1px solid #dce8f2;
+  border-left:3px solid #4482b8;
+  border-radius:7px;
+  background:#f2f7fc;
+  color:#285579;
+}
+
+.work-month-item-v11330>b { font-size:7px; color:#6e91af; font-variant-numeric:tabular-nums; }
+
+.work-month-item-v11330>span { min-width:0; font-size:8px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+.work-month-item-v11330>small { max-width:56px; font-size:7px; color:#7890a4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+.work-month-item-v11330.deliverable { border-color:#e1d8ef; border-left-color:#795bac; background:#f6f2fb; color:#674d99; }
+
+.work-more-count { display:block; padding:4px 6px; color:#7d8e9f; font-size:7.5px; }
+
+/* Semántica de estados */
+
+.status-running { border-left-color:#17966d!important; background:#edf9f5!important; color:#196e55!important; }
+
+.status-paused { border-left-color:#d59a21!important; background:#fff8e9!important; color:#855e12!important; }
+
+.status-completed { border-left-color:#57936f!important; background:#f0f8f3!important; color:#356e4a!important; }
+
+.status-evidence { border-left-color:#d47a25!important; background:#fff5ea!important; color:#8f571e!important; }
+
+.status-review { border-left-color:#795ab1!important; background:#f6f1fd!important; color:#624795!important; }
+
+.status-returned { border-left-color:#c65f62!important; background:#fff1f1!important; color:#934348!important; }
+
+.status-cancelled { opacity:.58; filter:saturate(.55); }
+
+.status-ready { border-left-color:#4d8bad!important; background:#f0f8fb!important; color:#35677f!important; }
+
+/* Capacidad */
+
+.work-capacity-person {
+  min-width:0;
+  display:grid!important;
+  grid-template-columns:38px minmax(0,1fr)!important;
+  gap:9px!important;
+  align-items:center!important;
+}
+
+.work-capacity-person .avatar { width:38px!important; height:38px!important; }
+
+.work-capacity-value { display:grid; justify-items:end; gap:1px; }
+
+.work-capacity-value>b { font-size:10px; color:#3d5873; }
+
+.work-capacity-value>small { font-size:7.5px; color:#8b99a8; font-variant-numeric:tabular-nums; }
+
+.work-planner-empty { min-height:120px; display:grid; place-content:center; gap:3px; text-align:center; color:#8291a1; }
+
+.work-planner-empty strong { color:#365a78; font-size:11px; }
+
+.work-planner-empty span { font-size:9px; }
+
+/* Fluidez */
+
+.work-day-task,.work-assignment-card-v11330,.work-month-day-v11330,.work-week-day,.work-person-state>span {
+  transition-duration:.16s;
+  transition-timing-function:cubic-bezier(.2,.8,.2,1);
+}
+
+@media (max-width:900px) {
+  .work-planner-context-strip { overflow-x:auto; flex-wrap:nowrap; padding-bottom:2px; scrollbar-width:none; }
+  .work-planner-context-strip::-webkit-scrollbar { display:none; }
+  .work-planner-context-strip>span { flex:0 0 auto; }
+  .work-day-timeline-head,.work-day-rows { min-width:900px; }
+  .work-day-timeline-head,.work-day-person-row { grid-template-columns:190px minmax(0,1fr); }
+  .work-week-grid-v11330 { grid-template-columns:190px repeat(5,minmax(145px,1fr)); min-width:980px; }
+  .work-month-weekdays-v11330,.work-month-grid-v11330 { min-width:780px; }
+}
+
+@media (max-width:760px) {
+  .work-planner-actions .segment-control.work-planner-mode { grid-column:1/-1; grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .work-planner-mode { min-width:0; }
+  .work-day-board,.work-week-board,.work-month-board { margin-inline:-2px; border-radius:11px; }
+  .work-day-timeline-head,.work-day-rows { min-width:820px; }
+  .work-day-timeline-head,.work-day-person-row { grid-template-columns:174px minmax(0,1fr); }
+  .work-day-person { padding:9px; }
+  .work-day-person .avatar,.work-week-person-v11330 .avatar { width:34px; height:34px; }
+  .work-day-task { min-width:74px; }
+  .work-week-grid-v11330 { grid-template-columns:174px repeat(5,minmax(138px,1fr)); min-width:900px; }
+  .work-week-person-v11330 { padding:9px; grid-template-columns:34px minmax(0,1fr); }
+  .work-month-weekdays-v11330,.work-month-grid-v11330 { min-width:710px; }
+  .work-month-day-v11330 { min-height:128px; padding:7px; }
+}
+
+@media (max-width:520px) {
+  .work-planner-toolbar { gap:9px; }
+  .work-planner-nav { display:grid; grid-template-columns:38px auto 38px minmax(0,1fr); }
+  .work-planner-nav>.btn { padding-inline:8px; }
+  .work-planner-nav>div:last-child { margin-left:0; }
+  .work-planner-actions { grid-template-columns:1fr 1fr; }
+  .work-planner-context-strip>span { font-size:8px; }
+  .work-capacity-row { grid-template-columns:minmax(0,1fr) 56px; }
+  .work-capacity-row .capacity-meter { grid-column:1/-1; grid-row:2; }
+  .work-capacity-value { grid-column:2; grid-row:1; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .work-day-task,.work-assignment-card-v11330,.work-month-day-v11330,.work-week-day,.work-person-state>span { transition:none!important; }
+}
+
+/* V11.33.1 · Detalle inspeccionable de actividades */
+
+[data-assignment-open] { cursor:pointer; }
+
+[data-assignment-open]:focus-visible { outline:3px solid rgba(37,122,194,.24); outline-offset:2px; }
+
+.work-day-task[data-assignment-open]:after,.work-assignment-card-v11330[data-assignment-open]:after {
+  content:"Ver";
+  position:absolute;
+  right:25px;
+  top:4px;
+  padding:2px 5px;
+  border-radius:999px;
+  background:rgba(255,255,255,.78);
+  color:inherit;
+  font-size:6.5px;
+  font-weight:900;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  opacity:0;
+  transform:translateY(2px);
+  transition:.14s ease;
+  pointer-events:none;
+}
+
+.work-day-task[data-assignment-open]:hover:after,.work-day-task[data-assignment-open]:focus-visible:after,.work-assignment-card-v11330[data-assignment-open]:hover:after,.work-assignment-card-v11330[data-assignment-open]:focus-visible:after {
+  opacity:1;
+  transform:none;
+}
+
+.work-floating-assignment { border:1px solid #d6e4f0; cursor:pointer; font-family:inherit; }
+
+.work-floating-assignment:hover { border-color:#a9c7df; box-shadow:0 4px 10px rgba(25,72,112,.08); }
+
+.work-month-item-v11330 { width:100%; font-family:inherit; text-align:left; cursor:pointer; }
+
+.work-month-item-v11330:hover { filter:saturate(1.07); box-shadow:0 4px 9px rgba(30,70,108,.08); }
+
+.work-current-activity {
+  appearance:none;
+  display:block;
+  max-width:180px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:#667d94;
+  font:inherit;
+  font-size:9px;
+  line-height:1.3;
+  text-align:left;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  text-decoration:underline;
+  text-decoration-color:#bfd0de;
+  text-underline-offset:2px;
+  cursor:pointer;
+}
+
+.work-current-activity:hover { color:#1e659c; text-decoration-color:#5d9bc9; }
+
+.work-detail-v11330 { display:grid; gap:14px; }
+
+.work-detail-hero {
+  display:grid;
+  grid-template-columns:48px minmax(0,1fr);
+  gap:13px;
+  padding:15px;
+  border:1px solid #d7e4ef;
+  border-radius:14px;
+  background:linear-gradient(145deg,#f9fcff,#eef6fd);
+}
+
+.work-detail-icon {
+  width:48px;
+  height:48px;
+  display:grid;
+  place-items:center;
+  border-radius:13px;
+  background:linear-gradient(145deg,#0d64b1,#164978);
+  color:#fff;
+  font-size:20px;
+  font-weight:900;
+  box-shadow:0 8px 18px rgba(12,83,143,.18);
+}

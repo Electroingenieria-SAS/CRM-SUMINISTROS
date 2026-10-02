@@ -1,1 +1,2 @@
-export {renderReports} from "./reports-enterprise-v11140.js";
+// Compatibility entry point.
+export {renderReports} from "../domains/analytics/reports/index.js";

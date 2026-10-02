@@ -1,0 +1,58 @@
+[
+  {
+    "entry": "assets/css/core-shell.css",
+    "files": 67,
+    "rules": 3549,
+    "hash": "5ce584118bd2193c8a572824f5500b0de36fd0dc03828dbe443161a14c40f6bc",
+    "largest": 281
+  },
+  {
+    "entry": "assets/css/operations.css",
+    "files": 50,
+    "rules": 2691,
+    "hash": "9dcf50ebee82464771f7760500d3c3faab8cad0678c5278cc6a13853fb583bbf",
+    "largest": 281
+  },
+  {
+    "entry": "assets/css/analytics.css",
+    "files": 22,
+    "rules": 1387,
+    "hash": "a6978b02d159f2e42fe25210628788edc280a61b2647b752ef350f4cef2b4579",
+    "largest": 281
+  },
+  {
+    "entry": "assets/css/experience.css",
+    "files": 7,
+    "rules": 357,
+    "hash": "92d665786cc3a56d0206433d47b3e215e0644457f0adb5ecca006305f594d4c8",
+    "largest": 281
+  },
+  {
+    "entry": "assets/runtime-css/workforce-calendar-v11360.css",
+    "files": 6,
+    "rules": 273,
+    "hash": "f6a8fbb0c4b207d3ca40fde5824bd8d432d5d67eef4aca3a1b416de3ec6f08dd",
+    "largest": 281
+  },
+  {
+    "entry": "assets/runtime-css/workforce-timeline-v11350.css",
+    "files": 3,
+    "rules": 115,
+    "hash": "e09e669fad75b6f26bbbe16fd07a4bae146a6a44f18b298ffca98f55a7d38862",
+    "largest": 280
+  },
+  {
+    "entry": "assets/runtime-css/workforce-experience-v11344.css",
+    "files": 3,
+    "rules": 240,
+    "hash": "d03c6af34a5da420148b93534b731d82c39f33931520c09fe278a9d1d295e308",
+    "largest": 281
+  },
+  {
+    "entry": "assets/runtime-css/paco-operational-v11370.css",
+    "files": 4,
+    "rules": 166,
+    "hash": "4d5e9008ef79b5973c86cab34e995bcadd2533ceeeff9d729adc33937d54e606",
+    "largest": 281
+  }
+]

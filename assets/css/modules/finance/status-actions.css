@@ -1,0 +1,53 @@
+.financial-simple-modal { max-width:760px; }
+
+.financial-current-state div { display:grid; gap:4px; }
+
+.financial-state-dot {
+  width:17px;
+  height:17px;
+  border-radius:50%;
+  box-shadow:0 0 0 7px rgba(21,94,239,.09);
+  background:#0f5fc4;
+  flex:0 0 auto;
+}
+
+.financial-current-state.waiting .financial-state-dot { background:#d79213; box-shadow:0 0 0 7px rgba(215,146,19,.11); }
+
+.financial-current-state.blocked .financial-state-dot { background:#c93838; box-shadow:0 0 0 7px rgba(201,56,56,.1); }
+
+.financial-current-state.done .financial-state-dot { background:#18864b; box-shadow:0 0 0 7px rgba(24,134,75,.1); }
+
+.financial-action-stack { display:grid; gap:11px; }
+
+.financial-main-button.btn-ghost>span { background:#edf2f7; color:#52657a; }
+
+.financial-main-button>div { display:grid; gap:3px; }
+
+.financial-main-button:disabled { opacity:.48; cursor:not-allowed; filter:saturate(.6); }
+
+.financial-last-update,.invoice-confirmed {
+  display:grid;
+  gap:4px;
+  padding:14px 16px;
+  border-left:4px solid #17834a;
+  background:#f4fbf7;
+  border-radius:10px;
+}
+
+.financial-status-choices { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:16px; }
+
+.financial-state-choice { position:relative; cursor:pointer; }
+
+.financial-state-choice input { position:absolute; opacity:0; pointer-events:none; }
+
+.financial-state-choice input:checked+span { border-color:#0f5fc4; box-shadow:0 0 0 3px rgba(21,94,239,.1); background:#f6f9ff; }
+
+.cash-invoice-steps { display:grid; gap:12px; }
+
+.cash-invoice-step>div { display:grid; gap:3px; }
+
+.cash-invoice-step.active>span { background:#0f5fc4; color:#fff; }
+
+.cash-invoice-step.done>span { background:#17834a; color:#fff; }
+
+.cash-invoice-step.locked { opacity:.5; cursor:not-allowed; }

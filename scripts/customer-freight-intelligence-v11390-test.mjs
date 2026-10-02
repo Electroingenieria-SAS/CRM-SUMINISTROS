@@ -1,18 +1,23 @@
+import {readOperationalSource} from "./tests/read-operational-source.mjs";
+import {readDomainSource} from "./tests/read-domain-source.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-const orders=fs.readFileSync(new URL("../assets/js/modules/orders.js",import.meta.url),"utf8");
-const workforce=fs.readFileSync(new URL("../assets/js/modules/workforce.js",import.meta.url),"utf8");
-const operational=fs.readFileSync(new URL("../assets/js/modules/operational-v112.js",import.meta.url),"utf8");
+const orders=readDomainSource("orders","assets/js/modules/orders.js");
+const workforce=readDomainSource("workforce","assets/js/modules/workforce.js");
+const operational=readOperationalSource();
 const api=fs.readFileSync(new URL("../assets/js/services/api.js",import.meta.url),"utf8");
+const appEntry=fs.readFileSync(new URL("../assets/js/app-entry.js",import.meta.url),"utf8");
 const migration=fs.readFileSync(new URL("../supabase/migrations/125_customer_freight_intelligence_v11_39_0.sql",import.meta.url),"utf8");
 const permissions=fs.readFileSync(new URL("../supabase/migrations/126_customer_freight_intelligence_permissions_v11_39_0.sql",import.meta.url),"utf8");
 const paymentTruth=fs.readFileSync(new URL("../supabase/migrations/127_customer_payment_truth_v11_39_1.sql",import.meta.url),"utf8");
 const customerSecurity=fs.readFileSync(new URL("../supabase/migrations/128_customer_intelligence_security_v11_39_1.sql",import.meta.url),"utf8");
-const financialFlow=fs.readFileSync(new URL("../assets/js/modules/financial-flow.js",import.meta.url),"utf8");
+const financialFlow=readDomainSource("finance","assets/js/modules/financial-flow.js")+readDomainSource("billing","assets/js/modules/financial-flow.js");
 
 assert.equal(orders.includes('formSelect("priority"'),false,"Creación de pedidos no debe exponer prioridad manual.");
 assert.equal(orders.includes('name="priority"'),false,"No debe existir campo manual priority en el wizard.");
+assert.equal(appEntry.includes("order-priority-v117.js"),false,"App entry no debe reinstalar el enhancer legacy de prioridad manual.");
+assert.equal(fs.existsSync(new URL("../assets/js/modules/order-priority-v117.js",import.meta.url)),false,"El enhancer legacy de prioridad manual debe estar retirado.");
 
 for(const token of [
   "data-customer-intelligence",

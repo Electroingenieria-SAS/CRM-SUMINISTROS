@@ -1,0 +1,232 @@
+.workforce-agenda-list .agenda-row { min-height:82px; }
+
+.workforce-agenda-list .agenda-main>strong { font-size:15px; }
+
+.workforce-agenda-list .agenda-main>small { font-size:12px; }
+
+.workforce-agenda-list .agenda-actions .btn { min-width:130px; }
+
+.work-history-row { min-height:78px; }
+
+.work-history-main>strong { font-size:15px; }
+
+.work-history-main>small { font-size:12px; }
+
+.work-mini-traffic { font-size:11px; }
+
+.workforce-alert-banner {
+  appearance:none;
+  width:100%;
+  display:grid;
+  grid-template-columns:52px minmax(0,1fr) auto;
+  gap:13px;
+  align-items:center;
+  min-height:82px;
+  margin:0;
+  padding:13px 16px;
+  border:1px solid #e6bfc2;
+  border-left:5px solid #c5454b;
+  border-radius:16px;
+  background:linear-gradient(135deg,#fff8f8,#fff);
+  font:inherit;
+  text-align:left;
+  cursor:pointer;
+  box-shadow:0 8px 20px rgba(110,44,49,.07);
+  transition:transform .17s ease,border-color .17s ease,box-shadow .17s ease;
+}
+
+.workforce-alert-banner:hover { transform:translateY(-1px); border-color:#d9969b; box-shadow:0 12px 25px rgba(110,44,49,.11); }
+
+.workforce-alert-banner:focus-visible { outline:3px solid rgba(197,69,75,.22); outline-offset:2px; }
+
+.workforce-alert-banner-light { width:52px; height:52px; display:grid; place-items:center; border-radius:15px; background:#fff0f1; }
+
+.workforce-alert-banner-light i {
+  width:15px;
+  height:15px;
+  border-radius:50%;
+  background:#d64c52;
+  box-shadow:0 0 0 6px rgba(214,76,82,.12);
+}
+
+.workforce-alert-banner-copy { display:grid; gap:3px; }
+
+.workforce-alert-banner-copy strong { font-size:16px; color:#82383c; }
+
+.workforce-alert-banner-copy small { font-size:13px; line-height:1.4; color:#7a686a; }
+
+.workforce-alert-banner>b { color:#9e4045; font-size:14px; white-space:nowrap; }
+
+.workforce-alert-workspace {
+  display:grid;
+  gap:12px;
+  padding:14px;
+  border:1px solid #ebc8ca;
+  border-radius:16px;
+  background:linear-gradient(180deg,#fffafa,#fff);
+}
+
+.workforce-alert-workspace>header { display:flex; align-items:center; justify-content:space-between; gap:14px; }
+
+.workforce-alert-workspace h3 { margin:0; color:#81363a; font-size:19px; }
+
+.workforce-alert-workspace p { margin:4px 0 0; color:#7d6669; font-size:13px; }
+
+.workforce-alert-count {
+  min-width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border-radius:12px;
+  background:#b44348;
+  color:#fff;
+  font-size:16px;
+  font-weight:900;
+}
+
+.workforce-alert-list { display:grid; gap:10px; }
+
+.workforce-alert-card {
+  display:grid;
+  grid-template-columns:48px minmax(180px,.8fr) minmax(260px,1.3fr) 120px auto;
+  gap:12px;
+  align-items:center;
+  padding:13px 14px;
+  border:1px solid #ead3d4;
+  border-radius:15px;
+  background:#fff;
+  box-shadow:0 4px 12px rgba(92,42,45,.035);
+}
+
+.workforce-alert-light { width:48px; height:48px; display:grid; place-items:center; border-radius:14px; background:#fff0f1; }
+
+.workforce-alert-light i { width:14px; height:14px; border-radius:50%; background:#d64c52; box-shadow:0 0 0 6px rgba(214,76,82,.12); }
+
+.workforce-alert-person,.workforce-alert-main,.workforce-alert-time { display:grid; gap:3px; min-width:0; }
+
+.workforce-alert-person strong,.workforce-alert-main strong { font-size:14px; color:#294b66; }
+
+.workforce-alert-person small,.workforce-alert-main small,.workforce-alert-time small { font-size:12px; color:#76889a; }
+
+.workforce-alert-main>span {
+  width:max-content;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#fff0f0;
+  color:#a64045;
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.workforce-alert-time strong { font-size:18px; color:#a13f44; font-variant-numeric:tabular-nums; }
+
+.workforce-alert-actions { display:flex; gap:7px; justify-content:flex-end; flex-wrap:wrap; }
+
+.workforce-alert-actions .btn { min-height:48px; font-size:14px; }
+
+.exception-mode-bar { gap:8px; }
+
+.exception-mode-bar .exception-mode { min-height:64px; padding:11px 13px; border-radius:13px; }
+
+.exception-mode-bar .exception-mode strong { font-size:14px; line-height:1.25; }
+
+.exception-mode-bar .exception-mode span { font-size:11.5px; line-height:1.35; }
+
+.exception-mode[data-mode="WORKFORCE"] { position:relative; }
+
+.exception-mode[data-mode="WORKFORCE"] .workforce-mode-count {
+  display:none;
+  position:absolute;
+  right:8px;
+  top:8px;
+  min-width:22px;
+  height:22px;
+  padding:0 6px;
+  border-radius:999px;
+  background:#c63f46;
+  color:#fff;
+  font-size:11px;
+  font-weight:900;
+  place-items:center;
+}
+
+.exception-mode[data-mode="WORKFORCE"].has-alerts .workforce-mode-count { display:grid; }
+
+@keyframes workStageIn {
+  from { opacity:0; transform:translateY(8px); }
+  to { opacity:1; transform:none; }
+}
+
+@keyframes workConfirmIn {
+  from { opacity:0; transform:scale(.985); }
+  to { opacity:1; transform:scale(1); }
+}
+
+@media (max-width:1180px) {
+  .workday-guide { grid-template-columns:1fr; }
+  .work-active-console { grid-template-columns:1fr 1fr; }
+  .work-active-controls { grid-column:1/-1; justify-content:flex-start; }
+  .workforce-alert-card { grid-template-columns:48px minmax(180px,.8fr) minmax(240px,1.2fr) 110px; }
+  .workforce-alert-actions { grid-column:1/-1; }
+}
+
+@media (max-width:820px) {
+  .exception-mode-bar { display:flex; overflow-x:auto; overscroll-behavior-x:contain; scrollbar-width:thin; }
+  .exception-mode-bar .exception-mode { flex:0 0 min(78vw,240px); }
+  #workforce-content .card-head { padding:15px 16px; }
+  .workday-traffic-legend { grid-template-columns:1fr; }
+  .workday-traffic-legend>span { min-height:58px; }
+  .workday-steps,.workday-status-strip { grid-template-columns:1fr; }
+  .work-catalog-progress { grid-template-columns:1fr; gap:6px; }
+  .work-catalog-progress>i { display:none; }
+  .work-catalog-progress>span { min-height:42px; padding:4px 6px; border-radius:10px; }
+  .work-catalog-progress>span:not(.active):not(.done) { display:none; }
+  .work-catalog-breadcrumb { display:grid; }
+  .work-catalog-breadcrumb span { text-align:left; }
+  .work-catalog-category-grid,.work-catalog-subcategory-grid,.work-catalog-activity-list { grid-template-columns:1fr; }
+  .work-active-console { grid-template-columns:1fr; }
+  .work-timer-panel { grid-template-columns:1fr; }
+  .work-timer-face { padding:0 0 10px; border-right:0; border-bottom:1px solid #e1e9ef; }
+  .work-active-controls { grid-column:auto; display:grid; grid-template-columns:1fr 1fr; }
+  .work-active-controls .btn-success { grid-column:1/-1; }
+  .work-start-confirm { grid-template-columns:54px minmax(0,1fr); }
+  .work-start-confirm-actions { grid-column:1/-1; display:grid; grid-template-columns:1fr 1fr; }
+  .workforce-alert-card { grid-template-columns:48px minmax(0,1fr); }
+  .workforce-alert-main,.workforce-alert-time,.workforce-alert-actions { grid-column:1/-1; }
+  .workforce-alert-actions { justify-content:stretch; }
+  .workforce-alert-actions .btn { flex:1 1 140px; }
+}
+
+@media (max-width:560px) {
+  #workforce-content { gap:12px; }
+  #workforce-content .card-head { min-height:0; align-items:flex-start; }
+  #workforce-content .card-head h3 { font-size:18px; }
+  #workforce-content .card-head p { font-size:13px; }
+  #workforce-content .card-body { padding:14px; }
+  .workforce-page-head h2 { font-size:27px; }
+  .workforce-page-head p { font-size:13px; }
+  .workforce-tabs { overflow:auto; }
+  .workforce-tab { flex:0 0 min(82vw,250px); }
+  .workday-guide { padding:17px; border-radius:17px; }
+  .workday-guide-copy h2 { font-size:23px; }
+  .workday-guide-copy p { font-size:14px; }
+  .work-catalog-choice { min-height:78px; padding:12px; }
+  .work-catalog-choice-icon { width:50px; height:50px; }
+  .work-catalog-choice-copy strong { font-size:15px; }
+  .work-catalog-activity { min-height:72px; }
+  .work-catalog-stage-head.with-back { grid-template-columns:48px minmax(0,1fr); }
+  .work-catalog-back { width:48px; height:48px; }
+  .work-start-confirm { grid-template-columns:1fr; padding:14px; }
+  .work-start-confirm-icon { width:50px; height:50px; }
+  .work-start-confirm-actions { grid-column:auto; grid-template-columns:1fr; }
+  .work-active-controls { grid-template-columns:1fr; }
+  .work-active-controls .btn-success { grid-column:auto; }
+  .work-timer-face strong { font-size:36px; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .work-catalog-stage-panel,.work-start-confirm { animation:none!important; }
+  .work-catalog-choice,.work-catalog-activity,.work-catalog-back,.workday-step { transition:none!important; }
+  .work-catalog-choice:hover,.work-catalog-activity:hover,.work-catalog-back:hover { transform:none!important; }
+}

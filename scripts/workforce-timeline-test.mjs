@@ -1,9 +1,12 @@
+import {readAppsScriptSource} from "./tests/read-apps-script-source.mjs";
+import {readCssSource} from "./tests/read-css-source.mjs";
+import {readDomainSource,readModuleSource} from "./tests/read-domain-source.mjs";
 import fs from "node:fs";
 import assert from "node:assert/strict";
 import {
   composePlannerTimeline,
   timelineDetailRequest
-} from "../assets/js/modules/workforce-timeline-v11350.js";
+} from "../assets/js/domains/workforce/timeline/index.js";
 
 const assignment={
   id:"a1",
@@ -100,7 +103,7 @@ assert.equal(/create\s+table/i.test(migration),false,"V11.35.0 no debe crear tab
 assert.equal(/create\s+(unique\s+)?index/i.test(migration),false,"V11.35.0 no debe crear índices redundantes.");
 assert.equal(migration.includes("'preview'"),false,"La base no debe almacenar ni devolver miniaturas embebidas.");
 
-const drive=fs.readFileSync(new URL("../assets/js/services/drive.js",import.meta.url),"utf8");
+const drive=readModuleSource("assets/js/integrations/drive","assets/js/services/drive.js");
 for(const token of ["loadWorkEvidencePreview","PREVIEW_WORK_EVIDENCE"]){
   assert.equal(drive.includes(token),true,`Drive transport debe conservar: ${token}`);
 }
@@ -110,18 +113,18 @@ assert.equal(drive.includes("buildWorkEvidencePreview"),false,"El navegador no d
 assert.equal(drive.includes("metadata: preview"),false,"No se deben persistir previews Base64 en metadata.");
 
 
-const timelineUi=fs.readFileSync(new URL("../assets/js/modules/workforce-timeline-v11350.js",import.meta.url),"utf8");
+const timelineUi=readDomainSource("workforce/timeline","assets/js/domains/workforce/timeline/index.js");
 assert.equal(timelineUi.includes("bindEvidenceGallery(layer,resolvedDetail,loadPreview,firstPreviewPromise)"),true,"La tarjeta debe reutilizar un preview ya iniciado cuando exista.");
 assert.equal(timelineUi.includes("work-timeline-preview-btn-v11351"),true,"La evidencia debe usar el botón visual V11.35.1.");
-const timelineCss=fs.readFileSync(new URL("../assets/runtime-css/workforce-timeline-v11350.css",import.meta.url),"utf8");
+const timelineCss=readCssSource(new URL("../assets/runtime-css/workforce-timeline-v11350.css",import.meta.url));
 assert.equal(timelineCss.includes("\\n"),false,"El CSS timeline no debe contener saltos de línea escapados literales.");
 assert.equal(timelineCss.includes("work-timeline-preview-btn-v11351"),true,"Falta estilo del botón de vista previa.");
 assert.equal(timelineCss.includes(".work-timeline-photo-v11350.is-ready img"),true,"La foto debe quedar visible explícitamente sin depender de hover.");
-assert.equal(timelineCss.includes(".work-timeline-photo-loader-v11350[hidden]{display:none!important}"),true,"El loader debe desaparecer por completo cuando la foto esté lista.");
+assert.match(timelineCss,/\.work-timeline-photo-loader-v11350\[hidden\]\{\s*display:none\s*!important;?\s*\}/,"El loader debe desaparecer por completo cuando la foto esté lista.");
 assert.equal(timelineCss.includes("@media(hover:hover) and (pointer:fine)"),true,"El hover debe ser solo una mejora opcional para puntero fino.");
 assert.equal(drive.includes("PREVIEW_TIMEOUT_MS = 30000"),true,"La vista previa debe fallar rápido si el bridge no responde.");
 
-const workforce=fs.readFileSync(new URL("../assets/js/modules/workforce.js",import.meta.url),"utf8");
+const workforce=readDomainSource("workforce","assets/js/modules/workforce.js");
 for(const token of [
   "composePlannerTimeline",
   "createWorkEvidenceManager",
@@ -132,11 +135,11 @@ for(const token of [
 ]){
   assert.equal(workforce.includes(token),true,`Integración cronograma debe conservar: ${token}`);
 }
-assert.equal(workforce.includes("detailCache=new Map()"),false,"El caché de detalle no debe volver a dispersarse dentro de workforce.js.");
+assert.equal(readDomainSource("workforce/planner","assets/js/modules/workforce.js").includes("detailCache=new Map()"),false,"El planificador debe delegar el caché de detalle al calendario y timeline.");
 assert.equal(workforce.includes("prefetchWorkEvidencePreview"),false,"Workforce no debe administrar el transporte de precarga directamente.");
 
-const appsScript=fs.readFileSync(new URL("../google-apps-script/Code.gs",import.meta.url),"utf8");
-assert.doesNotThrow(()=>new Function(appsScript),"Code.gs 3.5.1 debe conservar sintaxis JavaScript válida.");
+const appsScript=readAppsScriptSource();
+assert.doesNotThrow(()=>new Function(appsScript),"Apps Script 3.5.1 debe conservar sintaxis JavaScript válida.");
 for(const token of ["VERSION: '3.5.1'","PREVIEW_WORK_EVIDENCE","erp_x_work_evidence_preview_allowed","MAX_PREVIEW_BYTES"]){
   assert.equal(appsScript.includes(token),true,`Apps Script debe conservar: ${token}`);
 }

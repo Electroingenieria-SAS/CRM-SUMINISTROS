@@ -1,15 +1,17 @@
+import {readCssSource} from "./tests/read-css-source.mjs";
+import {readDomainSource} from "./tests/read-domain-source.mjs";
 import fs from "node:fs";
 import assert from "node:assert/strict";
 
-const workforce=fs.readFileSync(new URL("../assets/js/modules/workforce.js",import.meta.url),"utf8");
-const css=fs.readFileSync(new URL("../assets/css/analytics.css",import.meta.url),"utf8");
+const workforce=readDomainSource("workforce","assets/js/modules/workforce.js");
+const css=readCssSource(new URL("../assets/css/analytics.css",import.meta.url));
 
 for(const token of [
   "work-indicator-hero-v11363",
   "work-indicator-ring-v11363",
   "work-indicator-filter-v11363",
   "work-indicator-metrics-v11363",
-  "analyticsBalance(summary)",
+  "analyticsBalance(analytics.summary)",
   "work-indicator-layout-v11363",
   "work-indicator-method-v11363",
   "work-indicator-section-v11383",
@@ -47,7 +49,7 @@ for(const token of [
 assert.equal(workforce.includes("erp_x_work_analytics"),false,"Workforce UI no debe invocar RPC directo.");
 assert.equal(/create\s+table/i.test(workforce),false,"Indicadores frontend no debe contener DDL.");
 assert.equal(css.includes("Workforce Indicators V11.38.3"),true);
-assert.equal(css.includes(".work-indicator-metric-v11363.tone-violet{--metric-accent:#527795}"),true,"Indicadores no debe reintroducir el acento morado anterior.");
+assert.match(css,/\.work-indicator-metric-v11363\.tone-violet\{\s*--metric-accent:#527795;?\s*\}/,"Indicadores no debe reintroducir el acento morado anterior.");
 
 const metrics=(workforce.match(/indicatorMetric\(/g)||[]).length;
 assert.ok(metrics>=7,"El dashboard debe conservar seis KPIs además del helper.");

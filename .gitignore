@@ -2,7 +2,7 @@
 node_modules/
 playwright-report/
 test-results/
-coverage/
+/coverage/
 dist-deployable/
 .vercel/
 

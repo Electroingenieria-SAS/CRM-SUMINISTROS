@@ -1,7 +1,8 @@
+import {readDomainSource} from "./tests/read-domain-source.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-const orders=fs.readFileSync(new URL("../assets/js/modules/orders.js",import.meta.url),"utf8");
+const orders=readDomainSource("orders","assets/js/modules/orders.js");
 const migration=fs.readFileSync(new URL("../supabase/migrations/124_order_responsible_seller_v11_38_2.sql",import.meta.url),"utf8");
 
 for(const sqlToken of [

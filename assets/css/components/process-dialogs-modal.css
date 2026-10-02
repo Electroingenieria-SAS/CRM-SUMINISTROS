@@ -1,0 +1,112 @@
+.modal.popup-ux-v1190 .modal-foot .btn,.modal.popup-ux-v1190 .modal-task-panel>footer .btn {
+  min-height:45px;
+  padding:10px 15px;
+  border-radius:10px;
+  font-size:11px;
+}
+
+.modal.popup-ux-v1190 .wizard-foot-actions { gap:8px; }
+
+.modal.popup-ux-v1190 [data-next],.modal.popup-ux-v1190 [data-confirm],.modal.popup-ux-v1190 [data-task-panel-confirm] { min-width:142px; }
+
+.modal.popup-ux-v1190 [data-prev] { min-width:105px; }
+
+.modal.popup-ux-v1190 .financial-main-button,.modal.popup-ux-v1190 .billing-entry-card,.modal.popup-ux-v1190 .reception-decision-card {
+  min-height:74px;
+}
+
+.modal.popup-ux-v1190 .financial-main-button strong,.modal.popup-ux-v1190 .billing-entry-card strong,.modal.popup-ux-v1190 .reception-decision-card strong {
+  font-size:12px;
+}
+
+.modal.popup-ux-v1190 .financial-main-button small,.modal.popup-ux-v1190 .billing-entry-card small,.modal.popup-ux-v1190 .reception-decision-card small {
+  font-size:10px;
+  line-height:1.4;
+}
+
+/* Panel lateral de una acción dentro del popup */
+
+.modal.popup-ux-v1190 .modal-task-panel {
+  width:min(470px,94%);
+  border-left:1px solid #cbd9e5;
+  box-shadow:-18px 0 44px rgba(4,32,60,.20);
+  animation:popupTaskInV1190 .2s ease both;
+}
+
+.modal.popup-ux-v1190 .modal-task-panel>header {
+  min-height:68px;
+  padding:14px 16px;
+  background:linear-gradient(180deg,#fff,#f8fbfd);
+  color:#173b5e;
+  border-bottom:1px solid #dfe8f0;
+  box-shadow:inset 4px 0 0 #1479df;
+}
+
+.modal.popup-ux-v1190 .modal-task-panel>header span { color:#0b65c7; font-size:8.3px; }
+
+.modal.popup-ux-v1190 .modal-task-panel>header h4 { color:#153b61; font-size:14px; }
+
+.modal.popup-ux-v1190 .modal-task-panel-body { padding:16px; background:#f7fafc; }
+
+.modal.popup-ux-v1190 .modal-task-panel>footer { padding:10px 12px; background:#fff; }
+
+/* Evitar que ayudas antiguas compitan con la guía unificada */
+
+.modal.popup-ux-v1190 .commercial-wizard-assist+ .wizard-progress { border-top:0; }
+
+@keyframes popupEnterV1190 {
+  from { opacity:0; transform:translateY(9px) scale(.992); }
+  to { opacity:1; transform:none; }
+}
+
+@keyframes popupStepInV1190 {
+  from { opacity:.35; transform:translateY(5px); }
+  to { opacity:1; transform:none; }
+}
+
+@keyframes popupTaskInV1190 {
+  from { opacity:.45; transform:translateX(18px); }
+  to { opacity:1; transform:none; }
+}
+
+@keyframes popupValidationInV1190 {
+  from { opacity:0; transform:translateY(-4px); }
+  to { opacity:1; transform:none; }
+}
+
+@media (max-width:760px) {
+  .modal-overlay { padding:8px; }
+  .modal.popup-ux-v1190,.modal.popup-ux-v1190.wide,.modal.popup-ux-v1190.wizard-modal.wide,.modal.popup-ux-v1190.full,.modal.popup-ux-v1190.split {
+    width:100%;
+    max-height:calc(100dvh - 16px);
+    border-radius:15px;
+  }
+  .modal.popup-ux-v1190 .modal-head,.modal.popup-ux-v1190 [class*="process-head"] { min-height:70px; padding:14px 13px 14px 17px; }
+  .modal.popup-ux-v1190 .modal-head h3,.modal.popup-ux-v1190 [class*="process-head"] h3 { font-size:17px; }
+  .popup-process-guide-v1190 { grid-template-columns:32px minmax(0,1fr); gap:9px; padding:9px 13px; }
+  .popup-guide-icon-v1190 { width:31px; height:31px; }
+  .popup-guide-meta-v1190 { grid-column:2; justify-self:start; min-height:24px; }
+  .modal.popup-ux-v1190 .modal-body,.modal.popup-ux-v1190 .wizard-body { padding:14px; }
+  .modal.popup-ux-v1190 .control { min-height:50px; font-size:13px; }
+  .modal.popup-ux-v1190 .field label { font-size:11.5px; }
+  .modal.popup-ux-v1190 .field-help { font-size:10.5px; }
+  .modal.popup-ux-v1190 .wizard-progress { padding:0 8px; }
+  .modal.popup-ux-v1190 .wizard-progress-item { min-width:120px; }
+  .modal.popup-ux-v1190 .wizard-summary,.modal.popup-ux-v1190 .wizard-choice-grid { grid-template-columns:1fr; }
+  .modal.popup-ux-v1190 .modal-foot { display:grid; grid-template-columns:1fr; gap:8px; padding:9px 10px; }
+  .modal.popup-ux-v1190 .wizard-foot-actions { display:grid; grid-template-columns:1fr 1.15fr; width:100%; }
+  .modal.popup-ux-v1190 .modal-foot .btn,.modal.popup-ux-v1190 .wizard-foot-actions .btn { width:100%; min-width:0; min-height:48px; }
+  .modal.popup-ux-v1190 .modal-task-panel { width:100%; }
+}
+
+@media (max-width:480px) {
+  .modal.popup-ux-v1190 .wizard-foot-actions { grid-template-columns:1fr 1fr; }
+  .popup-guide-copy-v1190 p { font-size:9.6px; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .modal.popup-ux-v1190,.modal.popup-ux-v1190 .wizard-panel.active,.modal.popup-ux-v1190 .modal-task-panel,.popup-validation-v1190 {
+    animation:none!important;
+  }
+  .modal.popup-ux-v1190 * { scroll-behavior:auto!important; transition-duration:.01ms!important; }
+}

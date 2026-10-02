@@ -1,0 +1,11 @@
+export { normalizePacoText } from "./normalize.js";
+export { editDistance } from "./fuzzy-match.js";
+export { fuzzyWord } from "./fuzzy-match.js";
+export { fuzzyPhrase } from "./fuzzy-match.js";
+export { matchesAny } from "./fuzzy-match.js";
+export { INTENT_ALIASES } from "./aliases.js";
+export { CRM_MODULE_KNOWLEDGE } from "./module-knowledge.js";
+export { matchCrmModule } from "./module-knowledge.js";
+export { detectPacoIntent } from "./intents.js";
+export { isCancelText } from "./intents.js";
+export { isRestartText } from "./intents.js";

@@ -1,0 +1,274 @@
+.history-modal-backdrop-v11150 {
+  position:fixed;
+  inset:0;
+  z-index:95;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  background:rgba(7,27,44,.58);
+  backdrop-filter:blur(5px);
+}
+
+.history-modal-v11150 {
+  position:relative;
+  width:min(1180px,96vw);
+  max-height:92vh;
+  overflow:auto;
+  border:1px solid #dbe5ed;
+  border-radius:22px;
+  background:#f7fafc;
+  box-shadow:0 36px 100px rgba(0,0,0,.28);
+}
+
+.history-modal-close-v11150 {
+  position:sticky;
+  float:right;
+  top:12px;
+  right:12px;
+  z-index:3;
+  display:grid;
+  place-items:center;
+  width:34px;
+  height:34px;
+  border:1px solid #d5e0e9;
+  border-radius:10px;
+  background:#fff;
+  color:#496377;
+  font-size:1.2rem;
+  cursor:pointer;
+}
+
+.history-detail-head-v11150 {
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:flex-start;
+  padding:25px 26px 18px;
+  background:linear-gradient(135deg,#fff,#f2f7fb);
+  border-bottom:1px solid #dfe8ef;
+}
+
+.history-detail-head-v11150 h2 { margin:7px 0 4px; color:#102f48; font-size:1.65rem; letter-spacing:-.04em; }
+
+.history-detail-head-v11150 p { margin:0; color:#718493; }
+
+.history-detail-head-v11150>div:last-child { text-align:right; }
+
+.history-detail-head-v11150>div:last-child>strong { display:block; margin-top:8px; color:#294a63; font-size:.76rem; }
+
+.history-detail-summary-v11150 {
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:8px;
+  padding:12px 16px;
+  background:#fff;
+  border-bottom:1px solid #e1e8ee;
+}
+
+.history-detail-summary-v11150>div { padding:9px 10px; border-radius:10px; background:#f5f8fa; }
+
+.history-detail-summary-v11150 small {
+  display:block;
+  font-size:.59rem;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  color:#80909c;
+}
+
+.history-detail-summary-v11150 strong {
+  display:block;
+  margin-top:4px;
+  color:#284861;
+  font-size:.73rem;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.history-detail-tabs-v11150 { display:flex; gap:5px; overflow:auto; padding:7px 12px; border-bottom:1px solid #dde6ed; background:#fff; }
+
+.history-detail-tabs-v11150 button {
+  flex:0 0 auto;
+  border:0;
+  border-radius:9px;
+  background:transparent;
+  padding:8px 10px;
+  color:#617689;
+  font:inherit;
+  font-size:.7rem;
+  font-weight:780;
+  cursor:pointer;
+}
+
+.history-detail-tabs-v11150 button b {
+  display:inline-grid;
+  place-items:center;
+  margin-left:4px;
+  min-width:19px;
+  height:19px;
+  border-radius:999px;
+  background:#eaf1f6;
+  font-size:.59rem;
+}
+
+.history-detail-tabs-v11150 button.active { background:#0d659f; color:#fff; }
+
+.history-detail-tabs-v11150 button.active b { background:rgba(255,255,255,.2); color:#fff; }
+
+.history-detail-panels-v11150 { padding:15px; }
+
+.history-detail-grid-v11150 { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+
+.history-detail-grid-v11150>article { padding:14px; border:1px solid #dfe7ed; border-radius:13px; background:#fff; }
+
+.history-detail-grid-v11150 h3 { margin:0 0 9px; color:#1d3b53; font-size:.81rem; }
+
+.history-detail-grid-v11150 p { color:#748695; font-size:.7rem; line-height:1.5; }
+
+.history-kv-v11150 {
+  display:grid;
+  grid-template-columns:120px 1fr;
+  gap:9px;
+  padding:6px 0;
+  border-bottom:1px solid #edf2f5;
+  font-size:.68rem;
+}
+
+.history-kv-v11150:last-child { border-bottom:0; }
+
+.history-kv-v11150 span { color:#80909c; }
+
+.history-kv-v11150 strong { color:#35536a; }
+
+.history-issue-v11150 { padding:8px 9px; margin:6px 0; border-radius:9px; background:#fff5f2; }
+
+.history-issue-v11150 strong,.history-issue-v11150 span { display:block; }
+
+.history-issue-v11150 strong { font-size:.69rem; color:#694b3e; }
+
+.history-issue-v11150 span { font-size:.61rem; color:#9b7564; }
+
+.history-issue-v11150 p { margin:3px 0 0; }
+
+.history-raw-v11150 { margin-top:10px; border:1px solid #dfe7ed; border-radius:12px; background:#fff; padding:10px; }
+
+.history-raw-v11150 summary { cursor:pointer; font-size:.68rem; font-weight:800; color:#49657b; }
+
+.history-raw-v11150 pre,.history-audit-list-v11150 pre {
+  max-height:220px;
+  overflow:auto;
+  padding:9px;
+  border-radius:8px;
+  background:#102638;
+  color:#d7e9f5;
+  font-size:.61rem;
+  white-space:pre-wrap;
+}
+
+.history-timeline-v11150 { display:grid; gap:0; }
+
+.history-timeline-v11150>div { display:grid; grid-template-columns:20px 1fr; gap:8px; }
+
+.history-timeline-v11150>div>i { position:relative; }
+
+.history-timeline-v11150>div>i:before { content:""; position:absolute; left:8px; top:0; bottom:0; width:2px; background:#dce6ed; }
+
+.history-timeline-v11150>div>i:after {
+  content:"";
+  position:absolute;
+  left:4px;
+  top:15px;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:#2588c3;
+  border:2px solid #fff;
+  box-shadow:0 0 0 2px #b9d7e8;
+}
+
+.history-timeline-v11150>div>section {
+  margin-bottom:8px;
+  padding:10px 12px;
+  border:1px solid #dfe7ed;
+  border-radius:11px;
+  background:#fff;
+}
+
+.history-timeline-v11150 header { display:flex; justify-content:space-between; gap:10px; }
+
+.history-timeline-v11150 p,.history-timeline-v11150 small { margin:4px 0 0; color:#788997; font-size:.65rem; }
+
+.history-audit-list-v11150 { display:grid; gap:8px; }
+
+.history-audit-list-v11150 article {
+  display:grid;
+  grid-template-columns:150px 1fr;
+  gap:10px;
+  padding:10px 12px;
+  border:1px solid #dde6ed;
+  border-radius:11px;
+  background:#fff;
+}
+
+.history-audit-list-v11150 time { font-size:.64rem; color:#82919d; }
+
+.history-audit-list-v11150 strong,.history-audit-list-v11150 span { display:block; }
+
+.history-audit-list-v11150 strong { font-size:.7rem; color:#294960; }
+
+.history-audit-list-v11150 span { font-size:.63rem; color:#82909c; }
+
+.history-wizard-warning-v11150 {
+  margin-top:10px;
+  padding:10px 11px;
+  border:1px solid #efd7ad;
+  border-radius:10px;
+  background:#fff9ef;
+  color:#806231;
+  font-size:.7rem;
+  line-height:1.45;
+}
+
+@media (max-width:1180px) {
+  .history-kpis-v11150 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .history-detail-summary-v11150 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .history-coverage-grid-v11150 { grid-template-columns:1fr; }
+}
+
+@media (max-width:780px) {
+  .history-hero-v11150 { flex-direction:column; padding:20px 18px; border-radius:18px; }
+  .history-hero-actions-v11150 { justify-content:flex-start; max-width:none; }
+  .history-hero-actions-v11150 .btn { flex:1 1 42%; }
+  .history-command-v11150 { position:relative; top:auto; }
+  .history-command-v11150 label { flex:1 1 130px; }
+  .history-search-v11150 { flex-basis:100%; min-width:0; }
+  .history-tabs-v11150 { grid-template-columns:1fr; }
+  .history-tabs-v11150 button small { display:none; }
+  .history-kpis-v11150 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .history-detail-head-v11150 { flex-direction:column; }
+  .history-detail-head-v11150>div:last-child { text-align:left; }
+  .history-detail-summary-v11150 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .history-detail-grid-v11150 { grid-template-columns:1fr; }
+  .history-batch-stats-v11150 { grid-template-columns:1fr; }
+  .history-modal-backdrop-v11150 { padding:0; }
+  .history-modal-v11150 { width:100vw; max-height:100vh; height:100vh; border-radius:0; }
+  .history-audit-list-v11150 article { grid-template-columns:1fr; }
+  .history-facet-group-v11150>span { flex-basis:45px; }
+}
+
+@media (max-width:480px) {
+  .history-kpis-v11150 { grid-template-columns:1fr; }
+  .history-hero-actions-v11150 .btn { flex:1 1 100%; }
+  .history-detail-summary-v11150 { grid-template-columns:1fr; }
+  .history-coverage-row-v11150 { grid-template-columns:1fr 48px; }
+  .history-coverage-track-v11150 { grid-column:1/-1; grid-row:2; }
+  .history-window-v11150 { grid-template-columns:1fr; }
+  .history-window-v11150 span:last-child { text-align:left; }
+  .history-window-v11150 i { width:1px; height:20px; margin-left:4px; }
+  .history-window-v11150 i:before,.history-window-v11150 i:after { left:-3px; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .history-hero-actions-v11150 .btn { transition:none!important; }
+  .history-hero-actions-v11150 .btn:hover { transform:none!important; }
+}

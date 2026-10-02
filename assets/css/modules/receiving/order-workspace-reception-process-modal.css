@@ -1,0 +1,279 @@
+/* CRM Suministros V11.9.2 · Recepción de pedidos guiada */
+
+.reception-process-modal.receiving-order { width:min(980px,100%); border-radius:20px; overflow:hidden; background:#f7fafc; }
+
+.reception-process-modal.receiving-order .reception-process-head {
+  min-height:78px;
+  padding:17px 20px 17px 24px;
+  background:linear-gradient(180deg,#fff,#f9fbfd);
+  border-bottom:1px solid #dce6ef;
+  box-shadow:inset 4px 0 0 #1479df;
+}
+
+.reception-process-modal.receiving-order .reception-process-head .wizard-kicker {
+  color:#0b65c7;
+  font-size:8.5px;
+  letter-spacing:.13em;
+}
+
+.reception-process-modal.receiving-order .reception-process-head h3 {
+  font-size:21px;
+  line-height:1.15;
+  color:#0d355c;
+  letter-spacing:-.02em;
+}
+
+.reception-process-modal.receiving-order .reception-process-head p {
+  margin-top:4px;
+  color:#687c8f;
+  font-size:11px;
+  line-height:1.4;
+}
+
+.reception-process-modal.receiving-order .reception-process-body { padding:16px 18px 20px; background:#f7fafc; }
+
+/* Contexto mínimo del pedido */
+
+.receiving-order .reception-order-summary {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+  margin:0 0 12px;
+  padding:0;
+  background:transparent;
+  border:0;
+}
+
+.receiving-order .reception-order-summary>div {
+  min-width:0;
+  display:grid;
+  gap:3px;
+  padding:9px 11px;
+  border:1px solid #dce6ee;
+  border-radius:11px;
+  background:#fff;
+  box-shadow:0 2px 8px rgba(10,53,91,.035);
+}
+
+.receiving-order .reception-order-summary small {
+  color:#8392a0;
+  font-size:7.8px;
+  font-weight:900;
+  letter-spacing:.045em;
+  text-transform:uppercase;
+}
+
+.receiving-order .reception-order-summary strong {
+  min-width:0;
+  color:#294966;
+  font-size:10.8px;
+  line-height:1.3;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+
+/* Progreso: más parecido a un asistente y menos a una barra técnica */
+
+.receiving-order .reception-progress {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:7px;
+  margin:0 0 11px;
+  padding:0;
+  background:transparent;
+  border:0;
+}
+
+.receiving-order .reception-progress>div {
+  position:relative;
+  display:grid;
+  grid-template-columns:28px minmax(0,1fr);
+  align-items:center;
+  gap:8px;
+  min-height:43px;
+  padding:7px 9px;
+  border:1px solid #dde6ee;
+  border-radius:11px;
+  background:#fff;
+  color:#708296;
+}
+
+.receiving-order .reception-progress>div span {
+  width:27px;
+  height:27px;
+  display:grid;
+  place-items:center;
+  border:1px solid #c9d6e1;
+  border-radius:9px;
+  background:#f5f8fb;
+  color:#667b8f;
+  font-size:9px;
+  font-weight:900;
+}
+
+.receiving-order .reception-progress>div small { font-size:9px; line-height:1.25; font-weight:800; }
+
+.receiving-order .reception-progress>div.current {
+  border-color:#9fc5e8;
+  background:#f3f9ff;
+  color:#0b5da8;
+  box-shadow:0 3px 10px rgba(20,121,223,.07);
+}
+
+.receiving-order .reception-progress>div.current span { border-color:#1479df; background:#1479df; color:#fff; }
+
+.receiving-order .reception-progress>div.done { border-color:#cfe5d8; background:#f5fbf7; color:#3a7654; }
+
+.receiving-order .reception-progress>div.done span { border-color:#7eb894; background:#e6f5ec; color:#2f7b52; }
+
+/* Una sola guía principal por pantalla */
+
+.receiving-order .reception-now-card {
+  display:grid;
+  grid-template-columns:40px minmax(0,1fr);
+  gap:12px;
+  align-items:center;
+  margin:0 0 12px;
+  padding:12px 14px;
+  border:1px solid #cfe0ef;
+  border-left:4px solid #1479df;
+  border-radius:13px;
+  background:linear-gradient(135deg,#f3f9ff,#fff);
+  box-shadow:0 3px 10px rgba(10,61,104,.04);
+}
+
+.receiving-order .reception-now-icon {
+  width:38px;
+  height:38px;
+  display:grid;
+  place-items:center;
+  border-radius:11px;
+  background:#fff;
+  border:1px solid #cfe0ef;
+  color:#1768aa;
+}
+
+.receiving-order .reception-now-icon .ui-icon { width:18px; height:18px; }
+
+.receiving-order .reception-now-card>div { min-width:0; display:grid; gap:2px; }
+
+.receiving-order .reception-now-card small {
+  color:#0c6abb;
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.receiving-order .reception-now-card strong { color:#173f66; font-size:14px; line-height:1.25; }
+
+.receiving-order .reception-now-card p { margin:0; max-width:760px; color:#667a8d; font-size:10.2px; line-height:1.45; }
+
+/* Tarjeta de etapa: eliminar la sensación de modal dentro de modal */
+
+.receiving-order .reception-stage-card {
+  padding:15px 16px 16px;
+  border:1px solid #dce6ee;
+  border-radius:15px;
+  background:#fff;
+  box-shadow:0 6px 18px rgba(12,50,85,.045);
+}
+
+.receiving-order .reception-stage-heading {
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:12px;
+  padding-bottom:11px;
+  border-bottom:1px solid #edf1f5;
+}
+
+.receiving-order .reception-stage-heading h4 {
+  margin-top:3px;
+  color:#173d61;
+  font-size:16px;
+  line-height:1.25;
+  letter-spacing:-.015em;
+}
+
+.receiving-order .reception-stage-heading p { margin-top:4px; max-width:680px; color:#6b7d8e; font-size:10.3px; line-height:1.45; }
+
+.receiving-order .reception-step-tag {
+  display:inline-flex;
+  align-items:center;
+  min-height:23px;
+  padding:4px 7px;
+  border-radius:999px;
+  background:#edf6fd;
+  color:#0b65a5;
+  font-size:7.8px;
+  font-weight:900;
+  letter-spacing:.035em;
+}
+
+/* Revisión: mostrar solo el resumen humano */
+
+.receiving-order .reception-advisor-summary {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin-bottom:10px;
+}
+
+.receiving-order .reception-advisor-summary article {
+  min-width:0;
+  padding:9px 10px;
+  border:1px solid #e0e8ef;
+  border-radius:10px;
+  background:#fafcfe;
+}
+
+.receiving-order .reception-advisor-summary small {
+  font-size:7.8px;
+  color:#8392a0;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.035em;
+}
+
+.receiving-order .reception-advisor-summary strong {
+  margin-top:3px;
+  color:#35506b;
+  font-size:10.6px;
+  line-height:1.3;
+  overflow-wrap:anywhere;
+}
+
+/* Información secundaria en acordeones claros */
+
+.receiving-order .reception-disclosure {
+  margin:8px 0;
+  border:1px solid #dfe7ee;
+  border-radius:11px;
+  background:#fff;
+  overflow:hidden;
+}
+
+.receiving-order .reception-disclosure>summary {
+  list-style:none;
+  cursor:pointer;
+  display:grid;
+  grid-template-columns:32px minmax(0,1fr) 24px;
+  align-items:center;
+  gap:9px;
+  padding:10px 11px;
+  background:#fbfcfe;
+}
+
+.receiving-order .reception-disclosure>summary::-webkit-details-marker { display:none; }
+
+.receiving-order .reception-disclosure>summary>span {
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border-radius:9px;
+  background:#edf5fb;
+  color:#1769aa;
+}
+
+.receiving-order .reception-disclosure>summary .ui-icon { width:15px; height:15px; }

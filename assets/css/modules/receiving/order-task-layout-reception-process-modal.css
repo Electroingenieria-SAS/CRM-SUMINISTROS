@@ -1,0 +1,270 @@
+/* CRM Suministros V11.9.3 · Recepción con foco, amplitud y responsive iOS */
+
+.reception-process-modal.receiving-order-focus {
+  width:min(1180px,calc(100vw - 64px));
+  max-width:1180px;
+  max-height:min(88dvh,900px);
+  border-radius:22px;
+  overflow:hidden;
+  background:#f8fafc;
+}
+
+.receiving-order-focus .reception-process-head {
+  min-height:82px;
+  padding:18px 22px 17px 26px;
+  background:#fff;
+  border-bottom:1px solid #dbe5ee;
+  box-shadow:inset 4px 0 0 #1479df;
+}
+
+.receiving-order-focus .reception-process-head .wizard-kicker { font-size:9.5px; letter-spacing:.12em; }
+
+.receiving-order-focus .reception-process-head h3 { font-size:24px; line-height:1.15; color:#123c64; }
+
+.receiving-order-focus .reception-process-head p { font-size:13px; line-height:1.45; color:#687d91; margin-top:4px; }
+
+.receiving-order-focus .reception-process-body {
+  padding:18px 22px 24px;
+  overflow:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+
+.receiving-order-focus .reception-hidden { display:none!important; }
+
+/* Stepper limpio y estable */
+
+.receiving-order-focus .reception-stepper {
+  position:sticky;
+  top:0;
+  z-index:6;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:0;
+  margin:0 0 16px;
+  padding:10px 12px;
+  border:1px solid #dbe5ed;
+  border-radius:14px;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  box-shadow:0 4px 14px rgba(11,52,88,.045);
+}
+
+.receiving-order-focus .reception-stepper>div {
+  position:relative;
+  min-height:38px;
+  padding:0 12px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  border:0;
+  background:transparent;
+  box-shadow:none;
+  color:#7b8b9a;
+}
+
+.receiving-order-focus .reception-stepper>div:not(:last-child)::after {
+  content:"";
+  position:absolute;
+  right:0;
+  top:50%;
+  width:1px;
+  height:24px;
+  transform:translateY(-50%);
+  background:#e3e9ef;
+}
+
+.receiving-order-focus .reception-stepper>div span {
+  flex:0 0 30px;
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  border:1px solid #ccd8e2;
+  background:#f7f9fb;
+  color:#6f8294;
+  font-size:11px;
+  font-weight:900;
+}
+
+.receiving-order-focus .reception-stepper>div small { font-size:12px; line-height:1.25; font-weight:800; }
+
+.receiving-order-focus .reception-stepper>div.current { color:#0e66ad; }
+
+.receiving-order-focus .reception-stepper>div.current span { border-color:#1479df; background:#1479df; color:#fff; }
+
+.receiving-order-focus .reception-stepper>div.done { color:#3d7655; }
+
+.receiving-order-focus .reception-stepper>div.done span { border-color:#83bc98; background:#e8f5ed; color:#317b52; }
+
+/* Toma del pedido: aquí vive el contexto importante */
+
+.receiving-order-focus .reception-take-focus {
+  display:grid;
+  grid-template-columns:minmax(0,1.65fr) minmax(300px,.75fr);
+  gap:16px;
+  margin:2px 0 16px;
+}
+
+.receiving-order-focus .reception-take-main,
+.receiving-order-focus .reception-take-route {
+  border:1px solid #d8e3ec;
+  border-radius:18px;
+  background:#fff;
+  box-shadow:0 7px 22px rgba(10,52,90,.05);
+}
+
+.receiving-order-focus .reception-take-main { display:grid; grid-template-columns:58px minmax(0,1fr); gap:14px; padding:20px; }
+
+.receiving-order-focus .reception-take-icon {
+  width:56px;
+  height:56px;
+  display:grid;
+  place-items:center;
+  border-radius:17px;
+  background:linear-gradient(145deg,#edf6fd,#e3f0fb);
+  border:1px solid #c7dcec;
+  color:#146aa9;
+}
+
+.receiving-order-focus .reception-take-icon .ui-icon { width:25px; height:25px; }
+
+.receiving-order-focus .reception-take-copy { display:grid; align-content:start; gap:3px; min-width:0; }
+
+.receiving-order-focus .reception-take-copy>small,
+.receiving-order-focus .reception-take-route>small {
+  color:#0e6cb7;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.09em;
+}
+
+.receiving-order-focus .reception-take-copy h4 { margin:2px 0 0; font-size:24px; color:#143e65; letter-spacing:-.025em; }
+
+.receiving-order-focus .reception-take-copy p { margin:0; color:#667b8f; font-size:13px; line-height:1.45; }
+
+.receiving-order-focus .reception-take-facts {
+  grid-column:1/-1;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:0;
+  margin-top:4px;
+  padding-top:14px;
+  border-top:1px solid #e7edf2;
+}
+
+.receiving-order-focus .reception-take-facts>span { min-width:0; padding:3px 14px; display:grid; gap:4px; }
+
+.receiving-order-focus .reception-take-facts>span:first-child { padding-left:0; }
+
+.receiving-order-focus .reception-take-facts>span:not(:last-child) { border-right:1px solid #e7edf2; }
+
+.receiving-order-focus .reception-take-facts small {
+  font-size:10px;
+  font-weight:900;
+  color:#8393a2;
+  text-transform:uppercase;
+  letter-spacing:.045em;
+}
+
+.receiving-order-focus .reception-take-facts strong { font-size:13px; color:#36536e; line-height:1.3; overflow-wrap:anywhere; }
+
+.receiving-order-focus .reception-take-route { padding:18px 18px 16px; }
+
+.receiving-order-focus .reception-take-route ol { list-style:none; margin:12px 0 0; padding:0; display:grid; gap:11px; }
+
+.receiving-order-focus .reception-take-route li {
+  display:grid;
+  grid-template-columns:32px minmax(0,1fr);
+  gap:10px;
+  align-items:start;
+}
+
+.receiving-order-focus .reception-take-route li>span {
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border-radius:10px;
+  background:#eef6fd;
+  color:#1268aa;
+  font-size:11px;
+  font-weight:900;
+}
+
+.receiving-order-focus .reception-take-route li div { display:grid; gap:2px; }
+
+.receiving-order-focus .reception-take-route li strong { font-size:13px; color:#294b68; }
+
+.receiving-order-focus .reception-take-route li p { margin:0; font-size:11.5px; line-height:1.35; color:#738494; }
+
+.receiving-order-focus .reception-take {
+  max-width:none;
+  margin:0;
+  padding:18px 20px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  grid-template-areas:"title action" "text action";
+  gap:3px 18px;
+  align-items:center;
+  text-align:left;
+  border:1px solid #cfe1ef;
+  background:linear-gradient(135deg,#f5faff,#fff);
+  box-shadow:none;
+}
+
+.receiving-order-focus .reception-take .reception-step-tag { display:none; }
+
+.receiving-order-focus .reception-take h4 { grid-area:title; margin:0; font-size:18px; color:#173e63; }
+
+.receiving-order-focus .reception-take p { grid-area:text; margin:0; font-size:12.5px; color:#6d8192; }
+
+.receiving-order-focus .reception-take .reception-assigned-warning { grid-column:1/-1; margin-top:9px; }
+
+.receiving-order-focus .reception-take [data-take-order] { grid-area:action; min-width:210px; }
+
+/* Después de tomar: contexto oculto y recuperable */
+
+.receiving-order-focus .reception-summary-disclosure {
+  margin:0 0 12px;
+  border:1px solid #dfe7ee;
+  border-radius:12px;
+  overflow:hidden;
+  background:#fff;
+}
+
+.receiving-order-focus .reception-summary-disclosure>summary {
+  list-style:none;
+  cursor:pointer;
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr) 24px;
+  gap:10px;
+  align-items:center;
+  min-height:50px;
+  padding:8px 12px;
+  background:#fbfcfe;
+}
+
+.receiving-order-focus .reception-summary-disclosure>summary::-webkit-details-marker { display:none; }
+
+.receiving-order-focus .reception-summary-disclosure>summary>span {
+  width:32px;
+  height:32px;
+  display:grid;
+  place-items:center;
+  border-radius:10px;
+  background:#edf5fb;
+  color:#1769aa;
+}
+
+.receiving-order-focus .reception-summary-disclosure>summary .ui-icon { width:16px; height:16px; }
+
+.receiving-order-focus .reception-summary-disclosure>summary>div { display:grid; gap:1px; }
+
+.receiving-order-focus .reception-summary-disclosure>summary strong { font-size:12.5px; color:#2f4f6b; }
+
+.receiving-order-focus .reception-summary-disclosure>summary small { font-size:10.5px; color:#7b8c9b; }
+
+.receiving-order-focus .reception-summary-disclosure>summary>b { justify-self:end; font-size:18px; color:#58748c; }
