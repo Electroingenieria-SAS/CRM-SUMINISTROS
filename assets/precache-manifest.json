@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": "e7deab73843fc89c",
-  "sourceBytes": 2541725,
+  "revision": "b892bad4c9c2bd75",
+  "sourceBytes": 2577003,
   "assets": [
     "./assets/css/analytics.css",
     "./assets/css/base/accessibility.css",
@@ -87,6 +87,7 @@
     "./assets/css/modules/logistics/dispatch-shipping-core-summary.css",
     "./assets/css/modules/logistics/dispatch-shipping-process-modal.css",
     "./assets/css/modules/logistics/guide-reader.css",
+    "./assets/css/modules/logistics/local-dispatch.css",
     "./assets/css/modules/logistics/process-foundation-shipping-process-overlay.css",
     "./assets/css/modules/logistics/process-foundation-shipping-time-list.css",
     "./assets/css/modules/orders/commercial-cards-commercial-2.css",
@@ -312,6 +313,9 @@
     "./assets/js/domains/inventory/materials/picker/selected-material.js",
     "./assets/js/domains/inventory/materials/resolution/resolve-material-lines.js",
     "./assets/js/domains/inventory/materials/stock/material-stock.js",
+    "./assets/js/domains/logistics/local-dispatch/local-dispatch-ledger.js",
+    "./assets/js/domains/logistics/local-dispatch/local-dispatch-stage.js",
+    "./assets/js/domains/logistics/local-dispatch/tariffs.js",
     "./assets/js/domains/logistics/operational/carrier-guide-dialog.js",
     "./assets/js/domains/logistics/shipping/actions/delivery-confirmation.js",
     "./assets/js/domains/logistics/shipping/closure/closure-stage.js",
