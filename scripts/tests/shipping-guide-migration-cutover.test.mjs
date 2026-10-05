@@ -87,13 +87,17 @@ test("preflight requires canonical columns without schema DDL or destructive ope
   assert.doesNotMatch(migration,/\bdelete\s+from\b/i);
 });
 
-test("target migration is the latest repository migration and required by repository contracts",()=>{
+test("later migrations preserve the Shipping RPC and its required repository contracts",()=>{
   const migrations=fs.readdirSync(path.join(root,"supabase/migrations"))
     .filter(name=>name.endsWith(".sql"))
     .sort();
   const index=migrations.indexOf(migrationName);
   assert.ok(index>=0,"Shipping migration missing");
-  assert.deepEqual(migrations.slice(index+1),[],"a later migration may supersede the cutover patch");
+  for(const name of migrations.slice(index+1)){
+    const later=fs.readFileSync(path.join(root,"supabase/migrations",name),"utf8");
+    assert.doesNotMatch(later, /\b(?:create\s+(?:or\s+replace\s+)?|alter\s+|drop\s+)function\s+(?:public\.)?erp_x_shipping_save_guide\b/i,
+      `later migration ${name} changes the Shipping RPC and requires contract review`);
+  }
   assert.match(required,/20261001205000_shipping_carrier_persistence_v11_43_1\.sql/);
   assert.match(required,/shipping-guide-persistence-contract\.test\.mjs/);
 });
