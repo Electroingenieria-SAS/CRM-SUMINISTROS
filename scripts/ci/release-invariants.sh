@@ -4,14 +4,14 @@ trap 'rm -rf "$validation_dir"' EXIT
 for family in operations analytics; do
   node --input-type=module -e 'import {readCssSource} from "./scripts/tests/read-css-source.mjs"; console.log(readCssSource(process.argv[1]));' "assets/css/$family.css" > "$validation_dir/$family.css"
 done
-grep -q 'version: "11.45.0"' assets/js/config.js
-grep -q 'build: "2026-10-02.39"' assets/js/config.js
-grep -q '"version": "11.45.0"' package.json
-grep -q '"version": "11.45.0"' package-lock.json
-grep -q 'app-entry.js?v=11.45.0' index.html
+grep -q 'version: "11.46.0"' assets/js/config.js
+grep -q 'build: "2026-10-06.40"' assets/js/config.js
+grep -q '"version": "11.46.0"' package.json
+grep -q '"version": "11.46.0"' package-lock.json
+grep -q 'app-entry.js?v=11.46.0' index.html
 grep -Fq 'https://script.google.com/macros/s/AKfycbwjl1JCfE0eV92P6DCn6h8jIVIBlSwLOQj8U7Mz1_7YW2Xan8DPI5tpWJuiG7znSCSs/exec' assets/js/config.js
-grep -Fxq '// previous-cache: crm-suministros-v11-44-0-20261002-38' service-worker.js
-grep -Fxq 'const CACHE="crm-suministros-v11-45-0-20261002-39";' service-worker.js
+grep -Fxq '// previous-cache: crm-suministros-v11-45-0-20261002-39' service-worker.js
+grep -Fxq 'const CACHE="crm-suministros-v11-46-0-20261006-40";' service-worker.js
 grep -q 'manifest.webmanifest' vercel.json
 test "$(grep -c '<link rel="stylesheet" href="./assets/css/' index.html)" -eq 4
 test "$(find assets/css -maxdepth 1 -type f -name '*.css' | wc -l)" -eq 4
@@ -89,7 +89,7 @@ else
 fi
 grep -q '"\*"[[:space:]]*:[[:space:]]*false' vercel.json
 
-for migration in 098_profiles_rls_scope_v11_27_0 099_work_my_day_role_cache_v11_27_0 100_inventory_filtered_hotpath_v11_27_0 101_inventory_count_plan_hotpath_v11_27_0 108_integral_health_audit_v11_30_0 109_auditoria_erp_contract_health_v11_30_0 110_security_definer_contract_v11_30_1 111_security_definer_contract_regex_fix_v11_30_1 112_delivery_satisfaction_distance_v11_31_0 113_delivery_satisfaction_fk_indexes_v11_31_0 114_impersonation_metrics_security_v11_32_0 115_workforce_planner_calendar_v11_33_0 116_workforce_my_day_automation_v11_34_0 117_workforce_manager_review_v11_34_1 118_workforce_catalog_taxonomy_v11_34_3 119_workforce_timeline_evidence_v11_35_0 120_workforce_calendar_feed_v11_36_0 121_paco_operational_snapshot_v11_37_0 132_workforce_scheduled_approval_v11_44_0 133_workforce_open_ended_continuity_v11_44_0 134_local_dispatch_trip_control_v11_45_0; do
+for migration in 098_profiles_rls_scope_v11_27_0 099_work_my_day_role_cache_v11_27_0 100_inventory_filtered_hotpath_v11_27_0 101_inventory_count_plan_hotpath_v11_27_0 108_integral_health_audit_v11_30_0 109_auditoria_erp_contract_health_v11_30_0 110_security_definer_contract_v11_30_1 111_security_definer_contract_regex_fix_v11_30_1 112_delivery_satisfaction_distance_v11_31_0 113_delivery_satisfaction_fk_indexes_v11_31_0 114_impersonation_metrics_security_v11_32_0 115_workforce_planner_calendar_v11_33_0 116_workforce_my_day_automation_v11_34_0 117_workforce_manager_review_v11_34_1 118_workforce_catalog_taxonomy_v11_34_3 119_workforce_timeline_evidence_v11_35_0 120_workforce_calendar_feed_v11_36_0 121_paco_operational_snapshot_v11_37_0 132_workforce_scheduled_approval_v11_44_0 133_workforce_open_ended_continuity_v11_44_0 134_local_dispatch_trip_control_v11_45_0 20261006145000_local_dispatch_cost_adjustments_v11_46_0; do
   test -s "supabase/migrations/${migration}.sql"
 done
 
