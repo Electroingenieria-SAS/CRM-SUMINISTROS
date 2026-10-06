@@ -37,29 +37,38 @@ function initialValues(data){
   };
 }
 function formHtml(data,values,place){
-  return `<div class="shipping-core-task-head-v11107"><div><span class="shipping-core-task-kicker-v11107">PASO 2 · DESPACHO LOCAL</span><h4>Cargue y despacho del vehículo</h4><p>Registra el vehículo, valida el peso facturado y liquida el viaje antes de enviar el pedido a cierre.</p></div><span class="shipping-core-step-badge-v11107">Paso 2 de 3</span></div>
+  return `<div class="shipping-core-task-head-v11107"><div><span class="shipping-core-task-kicker-v11107">PASO 2 · DESPACHO LOCAL</span><h4>Cargue y liquidación del flete</h4><p>Registra los datos operativos y deja definido el costo original del viaje. Los costos conocidos después del despacho se administran de forma auditada desde el historial.</p></div><span class="shipping-core-step-badge-v11107">Paso 2 de 3</span></div>
     ${destinationCard(place,"Destino registrado por Ventas")}
     <section class="local-dispatch-form-v1145" data-local-dispatch-form>
-      <div class="local-dispatch-form-grid-v1145">
-        <label><span>Fecha de salida *</span><input class="control" type="date" name="tripDate" value="${fmt.escape(values.date)}" required></label>
-        <label><span>Factura *</span><input class="control" name="invoiceNumber" value="${fmt.escape(values.invoiceNumber)}" required><small>Precargada desde Facturación cuando está disponible.</small></label>
-        <label><span>Sucursal / asesor *</span><select class="control" name="branch" required>${LOCAL_DISPATCH_BRANCHES.map(code=>option(code,code,values.branch)).join("")}</select></label>
-        <label><span>Destino tarifario *</span><select class="control" name="cityDestination" required><option value="">Selecciona destino</option>${tariffOptions(values.city)}</select></label>
-        <label><span>Peso total (kg) *</span><input class="control" type="number" min="0.001" step="0.001" name="weightKg" value="${values.weightKg||""}" required><small>Se precarga con el peso registrado en Facturación.</small></label>
-        <label><span>Placa del vehículo *</span><input class="control" name="vehiclePlate" maxlength="20" value="${fmt.escape(values.vehiclePlate)}" placeholder="Ej. ABC123" required></label>
-        <label><span>Conductor *</span><input class="control" name="driverName" maxlength="120" value="${fmt.escape(values.driverName)}" placeholder="Nombre del conductor" required></label>
-        <label><span>Ayudante / descargue</span><input class="control" type="number" min="0" step="1" name="unloadingCost" value="${values.unloadingCost}"></label>
-        <label><span>Destino adicional / desvío</span><input class="control" type="number" min="0" step="1" name="diversionCost" value="${values.diversionCost}"></label>
-        <label class="local-dispatch-wide-v1145"><span>Observaciones de salida</span><textarea class="control" name="observations" rows="2" maxlength="1000">${fmt.escape(values.observations)}</textarea></label>
-      </div>
-      <div class="local-dispatch-liquidation-v1145" aria-live="polite">
-        <article><small>Tarifa base</small><strong data-trip-base>$0</strong></article>
-        <article><small>Kilos extra (&gt; 1.000 kg)</small><strong data-trip-extra-kg>0 kg</strong></article>
-        <article><small>Costo kilos extra</small><strong data-trip-extra-cost>$0</strong></article>
-        <article class="total"><small>Total estimado del viaje</small><strong data-trip-total>$0</strong></article>
-      </div>
+      <section class="local-dispatch-block-v1146">
+        <header><div><small>DATOS DEL VIAJE</small><h5>Salida y vehículo</h5></div><span>Información operativa</span></header>
+        <div class="local-dispatch-form-grid-v1145">
+          <label><span>Fecha de salida *</span><input class="control" type="date" name="tripDate" value="${fmt.escape(values.date)}" required></label>
+          <label><span>Factura *</span><input class="control" name="invoiceNumber" value="${fmt.escape(values.invoiceNumber)}" required><small>Precargada desde Facturación cuando está disponible.</small></label>
+          <label><span>Sucursal / asesor *</span><select class="control" name="branch" required>${LOCAL_DISPATCH_BRANCHES.map(code=>option(code,code,values.branch)).join("")}</select></label>
+          <label><span>Destino tarifario *</span><select class="control" name="cityDestination" required><option value="">Selecciona destino</option>${tariffOptions(values.city)}</select></label>
+          <label><span>Peso total (kg) *</span><input class="control" type="number" min="0.001" step="0.001" name="weightKg" value="${values.weightKg||""}" required><small>Se precarga con el peso registrado en Facturación.</small></label>
+          <label><span>Placa del vehículo *</span><input class="control" name="vehiclePlate" maxlength="20" value="${fmt.escape(values.vehiclePlate)}" placeholder="Ej. ABC123" required></label>
+          <label><span>Conductor *</span><input class="control" name="driverName" maxlength="120" value="${fmt.escape(values.driverName)}" placeholder="Nombre del conductor" required></label>
+          <label class="local-dispatch-wide-v1145"><span>Observaciones de salida</span><textarea class="control" name="observations" rows="2" maxlength="1000">${fmt.escape(values.observations)}</textarea></label>
+        </div>
+      </section>
+      <section class="local-dispatch-block-v1146 cost">
+        <header><div><small>COSTOS INICIALES DEL VIAJE</small><h5>Liquidación antes del despacho</h5></div><span>Estos valores forman el costo original</span></header>
+        <div class="local-dispatch-initial-costs-v1146">
+          <label><span>Ayudante / descargue inicial</span><input class="control" type="number" min="0" step="1" name="unloadingCost" value="${values.unloadingCost}"><small>Regístralo aquí solo si ya se conoce antes de despachar.</small></label>
+          <label><span>Destino adicional / desvío inicial</span><input class="control" type="number" min="0" step="1" name="diversionCost" value="${values.diversionCost}"><small>Los costos posteriores se agregan desde Gestión de costos.</small></label>
+        </div>
+        <div class="local-dispatch-liquidation-v1145" aria-live="polite">
+          <article><small>Tarifa base</small><strong data-trip-base>$0</strong></article>
+          <article><small>Kilos extra (&gt; 1.000 kg)</small><strong data-trip-extra-kg>0 kg</strong></article>
+          <article><small>Costo kilos extra</small><strong data-trip-extra-cost>$0</strong></article>
+          <article class="total"><small>Total inicial del flete</small><strong data-trip-total>$0</strong></article>
+        </div>
+        <div class="local-dispatch-post-cost-note-v1146"><strong>¿Apareció un costo después de enviar?</strong><span>Ayudantes, paradas, peajes, descargues, desvíos, parqueadero o esperas posteriores al despacho se registran como ajustes auditados, con justificación y máximo 3 revisiones.</span></div>
+      </section>
       <div class="local-dispatch-form-actions-v1145">
-        <span data-local-save-state>${values.persisted?"Cargue guardado · puedes editar y volver a guardar.":"Aún no se ha registrado el cargue."}</span>
+        <span data-local-save-state>${values.persisted?"Cargue guardado · puedes ajustar los datos mientras el pedido permanezca en esta etapa.":"Aún no se ha registrado el cargue."}</span>
         <button type="button" class="btn btn-primary" data-save-local-dispatch>Guardar cargue y liquidación</button>
       </div>
     </section>`;

@@ -1,7 +1,7 @@
 {
   "mode": "CONTROLLED_PRODUCTION_WINDOW",
-  "reason": "Despliegue productivo controlado de V11.45.0 · cargue, liquidación y cierre de despacho local",
-  "expectedPwaRevision": "b892bad4c9c2bd75",
-  "release": "11.45.0",
-  "sourceSha": "f494ba284e46015815868a3aeb749adf8c23bf50"
+  "reason": "Despliegue productivo controlado de V11.46.0 · ajustes auditables de costos posteriores al despacho local",
+  "expectedPwaRevision": "4569a7d5b8798f58",
+  "release": "11.46.0",
+  "sourceSha": "f622d17a9cd1d403c7ef16bbaf16da3eee3e479b"
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": "b892bad4c9c2bd75",
-  "sourceBytes": 2577003,
+  "revision": "4569a7d5b8798f58",
+  "sourceBytes": 2596105,
   "assets": [
     "./assets/css/analytics.css",
     "./assets/css/base/accessibility.css",
@@ -313,6 +313,7 @@
     "./assets/js/domains/inventory/materials/picker/selected-material.js",
     "./assets/js/domains/inventory/materials/resolution/resolve-material-lines.js",
     "./assets/js/domains/inventory/materials/stock/material-stock.js",
+    "./assets/js/domains/logistics/local-dispatch/cost-adjustments.js",
     "./assets/js/domains/logistics/local-dispatch/local-dispatch-ledger.js",
     "./assets/js/domains/logistics/local-dispatch/local-dispatch-stage.js",
     "./assets/js/domains/logistics/local-dispatch/tariffs.js",
