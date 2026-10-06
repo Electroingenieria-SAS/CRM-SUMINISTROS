@@ -82,7 +82,7 @@ test ! -e assets/js/modules/inventory-modal-workspace-v11254.js
 test "$(find .github/workflows -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \) | wc -l)" -eq 1
 if test -f release/vercel-production-window.json; then
   grep -q '"mode"[[:space:]]*:[[:space:]]*"CONTROLLED_PRODUCTION_WINDOW"' release/vercel-production-window.json
-  grep -q '"expectedPwaRevision"[[:space:]]*:[[:space:]]*"b892bad4c9c2bd75"' release/vercel-production-window.json
+  grep -q '"expectedPwaRevision"[[:space:]]*:[[:space:]]*"4569a7d5b8798f58"' release/vercel-production-window.json
   grep -q '"main"[[:space:]]*:[[:space:]]*true' vercel.json
 else
   grep -q '"main"[[:space:]]*:[[:space:]]*false' vercel.json
