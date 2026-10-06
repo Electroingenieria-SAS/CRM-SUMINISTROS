@@ -1,7 +1,0 @@
-{
-  "mode": "CONTROLLED_PRODUCTION_WINDOW",
-  "reason": "Despliegue productivo controlado de V11.46.0 · ajustes auditables de costos posteriores al despacho local",
-  "expectedPwaRevision": "4569a7d5b8798f58",
-  "release": "11.46.0",
-  "sourceSha": "f622d17a9cd1d403c7ef16bbaf16da3eee3e479b"
-}
