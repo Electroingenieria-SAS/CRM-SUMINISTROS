@@ -1,6 +1,6 @@
 export const CONFIG = Object.freeze({
-  version: "11.45.0",
-  build: "2026-10-02.39",
+  version: "11.46.0",
+  build: "2026-10-06.40",
   appName: "CRM Suministros",
   company: "Electroingeniería S.A.S.",
   supabase: {
