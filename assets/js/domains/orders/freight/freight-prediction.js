@@ -46,7 +46,10 @@ const refreshFreightEstimate=async()=>{
     const carrierHost=assistant.root.querySelector("[data-freight-carriers]");
     const materialPanel=assistant.root.querySelector("[data-material-freight-prediction]");
     if(!card)return;
+    const request=++freightRequest;
+    assistant.root.__freightPrediction=null;
     if(!route||!city){
+      card.classList.remove("is-loading");
       card.querySelector("[data-freight-estimate-value]").textContent="Selecciona modalidad y destino";
       card.querySelector("[data-freight-estimate-copy]").textContent="El CRM mostrará un rango cuando conozca la ruta y la ciudad.";
       card.querySelector("[data-freight-confidence]").textContent="Esperando ubicación";
@@ -56,7 +59,6 @@ const refreshFreightEstimate=async()=>{
       assistant.root.__freightPrediction=null;
       return;
     }
-    const request=++freightRequest;
     card.classList.add("is-loading");
     try{
       const weightInfo=estimatedSalesWeight(assistant.root);
@@ -76,6 +78,7 @@ displayLocalFreight(assistant,{card},data,city);
       if(request!==freightRequest)return;
       assistant.root.__freightPrediction=null;
       if(carrierHost)carrierHost.innerHTML="";
+      if(materialPanel)materialPanel.innerHTML="<span>PREDICCIÓN LOGÍSTICA</span><div><strong>Consulta no disponible</strong><p>Verifica la conexión o cambia el destino para reintentar.</p></div>";
       card.querySelector("[data-freight-estimate-value]").textContent="Estimación temporalmente no disponible";
       card.querySelector("[data-freight-estimate-copy]").textContent="El destino quedó registrado; el pedido puede continuar normalmente.";
       card.querySelector("[data-freight-confidence]").textContent="Se reintentará con nuevos históricos";

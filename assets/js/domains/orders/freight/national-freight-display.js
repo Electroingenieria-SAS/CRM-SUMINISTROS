@@ -3,17 +3,20 @@ import { moneyCop } from "../shared/order-formatters.js";
 import { freightReferenceScopeLabel, freightPredictionsHtml } from "./freight-display.js";
 
 export function displayNationalFreight(assistant,{card,carrierHost,materialPanel},data,weightKg){
-assistant.root.__freightPrediction=data;
+const city=String(data?.city||assistant.root.querySelector('[name="clientCity"]')?.value||"el destino seleccionado");
+assistant.root.__freightPrediction=null;
 const carriers=Array.isArray(data?.carriers)?data.carriers:[];
 const cheapest=carriers.find(row=>row.carrier===data?.cheapestCarrier)||carriers[0]||null;
 if(!data?.available||!cheapest){
           card.querySelector("[data-freight-estimate-value]").textContent="Base histórica temporalmente no disponible";
-          card.querySelector("[data-freight-estimate-copy]").textContent="El archivo histórico sigue cargado, pero no fue posible obtener una lectura para "+city+" en este momento.";
+          card.querySelector("[data-freight-estimate-copy]").textContent=`No se recibió una predicción utilizable para ${city}. Verifica el destino y vuelve a intentar la consulta.`;
           card.querySelector("[data-freight-confidence]").textContent="Base histórica integrada · reintento disponible";
           if(carrierHost)carrierHost.innerHTML="";
+          if(materialPanel)materialPanel.innerHTML="<span>PREDICCIÓN LOGÍSTICA</span><div><strong>Estimación no disponible</strong><p>Verifica el destino y vuelve a intentar la consulta.</p></div>";
           assistant.root.dataset.freightEstimateLabel="Base histórica no consultable";
           return;
         }
+assistant.root.__freightPrediction=data;
 const low=moneyCop(cheapest.estimateLow||0),high=moneyCop(cheapest.estimateHigh||0),mid=moneyCop(cheapest.estimateMid||0);
 const range=low===high?mid:`${low} – ${high}`;
 const refined=String(data.mode||"")==="REFINED_WEIGHT_MODEL";
