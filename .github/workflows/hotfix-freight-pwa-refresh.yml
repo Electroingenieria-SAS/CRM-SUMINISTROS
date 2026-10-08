@@ -1,0 +1,27 @@
+name: Temporary PWA refresh for freight hotfix
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  regenerate:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'hotfix/freight-national-preview-20261008'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: true
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - name: Regenerate PWA assets on hotfix branch
+        run: |
+          npm run pwa:generate
+          git add assets/precache-manifest.json service-worker.js
+          if ! git diff --cached --quiet; then
+            git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "chore(pwa): refresh assets after national freight hotfix"
+            git push origin "HEAD:${{ github.head_ref }}"
+          fi
