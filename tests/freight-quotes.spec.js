@@ -46,6 +46,7 @@ test('material con dos botones: conserva medidas, compara, guarda y duplica sin 
  await page.getByLabel('Origen efectivo').selectOption('CALI');
  await page.getByLabel('Departamento',{exact:true}).selectOption('VALLE DEL CAUCA');
  await page.getByLabel('Municipio / localidad y centro operativo').selectOption('TCC_TEST');
+ await page.locator('.freight-route-extras summary').click();
  await page.getByLabel('Valor declarado (COP)').fill('100000');
  await page.getByLabel('Peso del material (kg)').fill('20');
  await page.getByRole('button',{name:'Volumen',exact:true}).click();
@@ -80,6 +81,7 @@ test('ENVÍA por peso y volumen: faltantes visibles y materiales mixtos no omiti
  await page.getByLabel('Origen efectivo').selectOption('TULUA');
  await page.getByLabel('Departamento',{exact:true}).selectOption('VALLE DEL CAUCA');
  await page.getByLabel('Municipio / localidad y centro operativo').selectOption('TCC_TEST');
+ await page.locator('.freight-route-extras summary').click();
  await page.getByLabel('Transportadora',{exact:true}).selectOption('ENVIA');
  await page.getByLabel('Peso del material (kg)').fill('38.001');
  await page.getByRole('button',{name:'Calcular',exact:true}).click();
