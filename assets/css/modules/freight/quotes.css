@@ -24,3 +24,11 @@
 .freight-scenarios{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.freight-scenario{padding:16px;border:1px solid #dce3ed;border-radius:12px}.freight-scenario strong{display:block;font-size:1.2rem;margin:10px 0}.freight-scenario[data-greater=true]{border-color:#2373c8;background:#f0f6ff}.freight-scenario small{display:block;color:#5c6c85}
 @media(max-width:1050px){.freight-line{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.freight-line,.freight-scenarios{grid-template-columns:minmax(0,1fr)}.freight-line{padding:14px}.freight-material-heading{flex-direction:column}}
+
+/* Highlight the attainable estimate first; reference provenance stays visible. */
+.freight-price-hero{display:flex;flex-direction:column;gap:6px;padding:17px 16px;margin:13px 0;border:1px solid #9bc0ed;border-radius:13px;background:linear-gradient(135deg,#e7f1ff 0%,#f6faff 100%);overflow-wrap:anywhere}
+.freight-price-hero .freight-price-label{font-size:.74rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#285a93}
+.freight-price-hero strong{font-size:clamp(1.3rem,2.1vw,1.85rem);line-height:1.25;letter-spacing:-.035em;color:#103e78;margin:0;overflow-wrap:anywhere}
+.freight-price-hero small{font-size:.78rem;color:#475d78;line-height:1.5}
+.freight-scenario[data-greater=true] .freight-price-hero{border-color:#1d67bd;background:linear-gradient(135deg,#dbeeff,#f0f7ff)}
+@media(max-width:600px){.freight-price-hero{padding:14px 12px}.freight-price-hero strong{font-size:1.35rem}}
