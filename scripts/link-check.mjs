@@ -59,7 +59,11 @@ function visit(file){
   reachable.add(file);
   const module=modules.get(file);
   if(!module)return;
-  for(const specifier of module.dependencySpecifiers||[]){
+  // VM dependencySpecifiers excludes literal dynamic imports. Follow them as
+  // legitimate, lazy browser modules without eagerly importing them at runtime.
+  const source=fs.readFileSync(file,"utf8");
+  const dynamic=[...source.matchAll(/\bimport\s*\(\s*['"]([.][^'"]+)['"]\s*\)/g)].map(m=>m[1]);
+  for(const specifier of new Set([...(module.dependencySpecifiers||[]),...dynamic])){
     visit(targetFor(specifier,module));
   }
 }
