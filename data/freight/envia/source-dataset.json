@@ -1,0 +1,304 @@
+{
+  "dataset_id": "ENVIA_CLAUDE_2026_10_13_V1",
+  "carrier_display": "ENVÍA",
+  "source": {
+    "document": "prompt estimador envia.md",
+    "sha256": "31eabc1726a15bd3a148b9655d1a8a4d90d7447b9bae150fab311295c3c036d5",
+    "kind": "modelo y datos aportados por Claude, no cotización contractual oficialmente certificada",
+    "notes": [
+      "tarifas sin fecha contractual verificable; mostrar como referencia/estimación",
+      "confianza alta/media de la fuente no es una probabilidad estadísticamente calibrada",
+      "divisor de volumen 5000 cm3/kg es supuesto, no confirmado",
+      ">100 kg es extrapolación no verificada"
+    ]
+  },
+  "policy": {
+    "divisor_volumetrico_cm3_por_kg": "5000",
+    "divisor_status": "ASSUMED_NOT_VERIFIED",
+    "weight_rounding": "CEIL",
+    "money_rounding": "HALF_UP_INTEGER_COP",
+    "min_charge_unit": "ONE_PER_SHIPMENT_UNLESS_VERIFIED",
+    "variable_charge_unit": "ONE_PER_SHIPMENT_UNLESS_VERIFIED",
+    "default_margin": "0.05",
+    "caution_margin": "0.10",
+    "caution_threshold_distance_kg": "5",
+    "max_verified_weight_kg": 100
+  },
+  "entries": [
+    {
+      "key": "Bogotá",
+      "rate_per_kg_cop": "788.45",
+      "min_base_cop": 27600,
+      "fixed_variable_cop": 13300,
+      "threshold_kg_derived": 36,
+      "source_threshold_kg_informational": 36,
+      "source_confidence": "media",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Antioquia",
+      "rate_per_kg_cop": "788.45",
+      "min_base_cop": 27600,
+      "fixed_variable_cop": 13300,
+      "threshold_kg_derived": 36,
+      "source_threshold_kg_informational": 36,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Tolima (Ibagué)",
+      "rate_per_kg_cop": "788.45",
+      "min_base_cop": 27600,
+      "fixed_variable_cop": 13300,
+      "threshold_kg_derived": 36,
+      "source_threshold_kg_informational": 36,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Valle del Cauca (Cali)",
+      "rate_per_kg_cop": "396.5",
+      "min_base_cop": 15250,
+      "fixed_variable_cop": 8650,
+      "threshold_kg_derived": 39,
+      "source_threshold_kg_informational": 39,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Caldas",
+      "rate_per_kg_cop": "788.45",
+      "min_base_cop": 21600,
+      "fixed_variable_cop": 10300,
+      "threshold_kg_derived": 28,
+      "source_threshold_kg_informational": 28,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Quindío",
+      "rate_per_kg_cop": "833.30",
+      "min_base_cop": 21600,
+      "fixed_variable_cop": 10300,
+      "threshold_kg_derived": 26,
+      "source_threshold_kg_informational": 26,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Risaralda",
+      "rate_per_kg_cop": "833.30",
+      "min_base_cop": 21600,
+      "fixed_variable_cop": 10300,
+      "threshold_kg_derived": 26,
+      "source_threshold_kg_informational": 26,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Nariño (Pasto)",
+      "rate_per_kg_cop": "672.75",
+      "min_base_cop": 21600,
+      "fixed_variable_cop": 10300,
+      "threshold_kg_derived": 33,
+      "source_threshold_kg_informational": 33,
+      "source_confidence": "media",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Cauca (Popayán)",
+      "rate_per_kg_cop": "599.95",
+      "min_base_cop": 21600,
+      "fixed_variable_cop": 10300,
+      "threshold_kg_derived": 37,
+      "source_threshold_kg_informational": 37,
+      "source_confidence": "media",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Atlántico (Barranquilla)",
+      "rate_per_kg_cop": "1233.05",
+      "min_base_cop": 27600,
+      "fixed_variable_cop": 13300,
+      "threshold_kg_derived": 23,
+      "source_threshold_kg_informational": 23,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Huila",
+      "rate_per_kg_cop": "1361.10",
+      "min_base_cop": 27600,
+      "fixed_variable_cop": 13300,
+      "threshold_kg_derived": 21,
+      "source_threshold_kg_informational": 21,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Santander",
+      "rate_per_kg_cop": "1415.05",
+      "min_base_cop": 28301,
+      "fixed_variable_cop": 13300,
+      "threshold_kg_derived": 21,
+      "source_threshold_kg_informational": 21,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Magdalena",
+      "rate_per_kg_cop": "1493.05",
+      "min_base_cop": 29861,
+      "fixed_variable_cop": 13300,
+      "threshold_kg_derived": 21,
+      "source_threshold_kg_informational": 21,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Meta",
+      "rate_per_kg_cop": "1455.35",
+      "min_base_cop": 29107,
+      "fixed_variable_cop": 13300,
+      "threshold_kg_derived": 21,
+      "source_threshold_kg_informational": 21,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Boyacá (Tunja)",
+      "rate_per_kg_cop": "1616.55",
+      "min_base_cop": 32331,
+      "fixed_variable_cop": 13300,
+      "threshold_kg_derived": 21,
+      "source_threshold_kg_informational": 21,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Norte de Santander",
+      "rate_per_kg_cop": "1641.90",
+      "min_base_cop": 32838,
+      "fixed_variable_cop": 13300,
+      "threshold_kg_derived": 21,
+      "source_threshold_kg_informational": 21,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Sucre",
+      "rate_per_kg_cop": "1647.10",
+      "min_base_cop": 32942,
+      "fixed_variable_cop": 13300,
+      "threshold_kg_derived": 21,
+      "source_threshold_kg_informational": 21,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Casanare (Yopal)",
+      "rate_per_kg_cop": "1591.20",
+      "min_base_cop": 31824,
+      "fixed_variable_cop": 13300,
+      "threshold_kg_derived": 21,
+      "source_threshold_kg_informational": 21,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Caquetá (Florencia)",
+      "rate_per_kg_cop": "1725.75",
+      "min_base_cop": 34515,
+      "fixed_variable_cop": 13300,
+      "threshold_kg_derived": 21,
+      "source_threshold_kg_informational": 21,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Cesar",
+      "rate_per_kg_cop": "1842.10",
+      "min_base_cop": 36842,
+      "fixed_variable_cop": 13300,
+      "threshold_kg_derived": 21,
+      "source_threshold_kg_informational": 21,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Córdoba (Montería)",
+      "rate_per_kg_cop": "1842.10",
+      "min_base_cop": 36842,
+      "fixed_variable_cop": 13300,
+      "threshold_kg_derived": 21,
+      "source_threshold_kg_informational": 21,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Arauca",
+      "rate_per_kg_cop": "3400.00",
+      "min_base_cop": 85000,
+      "fixed_variable_cop": 12700,
+      "threshold_kg_derived": 26,
+      "source_threshold_kg_informational": 26,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Boyacá (general)",
+      "rate_per_kg_cop": "3400.00",
+      "min_base_cop": 85000,
+      "fixed_variable_cop": 12700,
+      "threshold_kg_derived": 26,
+      "source_threshold_kg_informational": 26,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "Chocó",
+      "rate_per_kg_cop": "3400.00",
+      "min_base_cop": 85000,
+      "fixed_variable_cop": 12700,
+      "threshold_kg_derived": 26,
+      "source_threshold_kg_informational": 26,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    },
+    {
+      "key": "La Guajira",
+      "rate_per_kg_cop": "5400.00",
+      "min_base_cop": 135000,
+      "fixed_variable_cop": 22700,
+      "threshold_kg_derived": 26,
+      "source_threshold_kg_informational": 26,
+      "source_confidence": "alta",
+      "status": "ESTIMATED_CLAUDE_REFERENCE",
+      "coverage": "explicit city/department rules in appendix; do not extrapolate unlabeled capitals"
+    }
+  ]
+}

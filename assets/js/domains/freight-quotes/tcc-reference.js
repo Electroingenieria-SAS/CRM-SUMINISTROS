@@ -15,4 +15,3 @@ export function calculateTccReference(rate,packages,declaredValue,policy=TCC_REF
  const baseCop=breakdown.reduce((sum,p)=>sum+p.baseCop,0),handlingCop=declaredValue>=policy.handlingThresholdCop?declaredValue*policy.handlingRate:0;
  return {status:'HISTORICAL_REFERENCE',official:false,policyVersion:policy.version,packages:breakdown,baseCop,handlingCop,subtotalCop:baseCop+handlingCop};
 }
-export const carrierAdapters=Object.freeze({TCC:calculateTccReference});

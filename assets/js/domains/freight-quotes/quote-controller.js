@@ -1,5 +1,5 @@
 import {quoteOrderMaterials,exactDocumentDestination} from "./quote-order-entry.js";
-import {carrierAdapters} from "./tcc-reference.js";
+import {carrierAdapters,quoteCanSaveCalculated} from "./carrier-adapters.js";
 import {api} from '../../services/api.js';
 import {can} from '../../core/state.js';
 import {quoteView,options,quoteResultHtml,quoteHistoryHtml} from './quote-view.js';
@@ -9,16 +9,17 @@ export async function renderFreightQuotes(root,context={}){
  const form=root.querySelector('[data-quote-form]'),message=root.querySelector('[data-quote-message]'),resultHost=root.querySelector('[data-quote-result]');
  const materialHost=form.querySelector('[data-quote-materials]'),packageHost=form.querySelector('[data-quote-packages]');
  const save=form.querySelector('[data-save-quote]'),draft=form.querySelector('[data-save-draft]');
- let calculated=null,revision=0,busy=false,page=1,history=[];
+ let calculated=null,revision=0,busy=false,page=1,history=[],catalogCache=new Map(),destinationRequest=0;
  const invalidate=()=>{revision++;calculated=null;save.disabled=true;resultHost.innerHTML='';};
  form.addEventListener('input',invalidate);form.addEventListener('change',invalidate,true);
  const notice=text=>{message.textContent=text;};
  const run=async action=>{if(busy)return;busy=true;form.querySelector('[type=submit]').disabled=true;save.disabled=true;draft.disabled=true;try{await action();}catch(error){notice(error.message);}finally{busy=false;form.querySelector('[type=submit]').disabled=false;save.disabled=!calculated||!can('freight_quotes','canCreate');draft.disabled=!can('freight_quotes','canCreate');}};
  async function destinations(department,key=''){
-  const request=revision;
+  const request=++destinationRequest;
   form.elements.destinationKey.disabled=true;
-  const data=await api.freightQuoteCatalog(department);
-  if(request!==revision)return;
+  if(!catalogCache.has(department))catalogCache.set(department,api.freightQuoteCatalog(department));
+  let data;try{data=await catalogCache.get(department);}catch(error){catalogCache.delete(department);throw error;}
+  if(request!==destinationRequest)return;
   form.elements.destinationKey.innerHTML=options(data.destinations,r=>`${r.name} · C.O ${r.center}`,r=>r.key);
   form.elements.destinationKey.disabled=false;form.elements.destinationKey.value=key;
   return data.destinations;
@@ -41,7 +42,7 @@ export async function renderFreightQuotes(root,context={}){
   const result=await api.freightQuoteCalculate(payload);
   if(request!==revision)return;
   resultHost.innerHTML=quoteResultHtml(result);
-  const available=result.reference.status==='HISTORICAL_REFERENCE'||result.prediction?.available;
+  const available=quoteCanSaveCalculated(result);
   calculated=available?{payload,result}:null;notice(available?'Cálculo disponible. Puedes guardar la cotización.':'Sin cálculo disponible. Puedes guardar un borrador.');
  });};
  save.onclick=()=>run(async()=>{
@@ -58,7 +59,7 @@ export async function renderFreightQuotes(root,context={}){
   if(button.dataset.quoteView){resultHost.innerHTML=quoteResultHtml(q.snapshot);resultHost.scrollIntoView({behavior:'smooth'});return;}
   if(button.dataset.quoteLink){const number=window.prompt('Número exacto del pedido a vincular');if(number)run(async()=>{await api.freightQuoteLink(q.id,number);await loadHistory();notice('Vínculo guardado. El pedido conserva sus datos.');});return;}
   run(async()=>{
-   invalidate();form.elements.origin.value=q.input.origin;form.elements.department.value=q.input.department;form.elements.declaredValue.value=q.input.declaredValue??'';
+   invalidate();form.elements.carrier.value=q.input.carrier||'TCC';form.elements.origin.value=q.input.origin;form.elements.department.value=q.input.department;form.elements.declaredValue.value=q.input.declaredValue??'';
    await destinations(q.input.department,q.input.destinationKey);
    materialHost.innerHTML='';packageHost.innerHTML='';
    q.input.materials.forEach(m=>addMaterial(materialHost,m,!!m.manual));q.input.packages.forEach(p=>addPackage(packageHost,p));
