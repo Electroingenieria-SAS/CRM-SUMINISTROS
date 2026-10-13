@@ -297,6 +297,9 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Install pinned modules for accurate SBOM
+        run: npm ci --no-fund
+
       - name: NPM audit · high severity gate
         run: npm audit --audit-level=high
 
