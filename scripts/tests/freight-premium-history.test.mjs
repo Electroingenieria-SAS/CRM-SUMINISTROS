@@ -62,7 +62,7 @@ test('se muestran controles para elegir la empresa, sin indicador histórico red
  assert.doesNotMatch(readonly,/data-quote-select-carrier/);
 });
 test('estilos móviles y controles reales, sin afectar matemáticas',()=>{
- const css=fs.readFileSync(new URL('../../assets/css/modules/freight/quotes.css',import.meta.url),'utf8');
+ const css=fs.readFileSync(new URL('../../assets/css/modules/freight/quotes.css',import.meta.url),'utf8')+fs.readFileSync(new URL('../../assets/css/modules/freight/quotes-enterprise.css',import.meta.url),'utf8');
  for(const mark of ['.freight-view-nav','.freight-history-table','.freight-history-overview','.freight-offer-select','@media(max-width:760px)','prefers-reduced-motion','[hidden]'])assert.ok(css.includes(mark));
  const controller=fs.readFileSync(new URL('../../assets/js/domains/freight-quotes/quote-controller.js',import.meta.url),'utf8');
  assert.match(controller,/setWorkspace\('history'\)/);
