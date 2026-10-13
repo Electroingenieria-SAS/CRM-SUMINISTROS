@@ -1,0 +1,42 @@
+.freight-dialog-layer{position:fixed;inset:0;z-index:12000;display:flex;justify-content:flex-end;align-items:stretch}
+.freight-dialog-scrim{position:absolute;inset:0;background:rgba(12,29,48,.55);backdrop-filter:blur(3px)}
+.freight-dialog-sheet,.freight-dialog-modal{position:relative;background:#fff;color:#183752;box-shadow:-16px 0 55px rgba(5,24,46,.25);outline:0;max-width:100%;min-width:0}
+.freight-dialog-sheet{width:min(510px,100%);height:100%;display:flex;flex-direction:column;animation:freight-sheet-enter .24s cubic-bezier(.2,.8,.2,1)}
+.freight-dialog-modal{width:min(490px,calc(100% - 32px));margin:auto;padding:0;border-radius:18px;animation:freight-modal-enter .24s cubic-bezier(.2,.8,.2,1)}
+@keyframes freight-sheet-enter{from{opacity:.72;transform:translateX(35px)}to{opacity:1;transform:translateX(0)}}
+@keyframes freight-modal-enter{from{opacity:.7;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.freight-dialog-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:24px 25px 17px;border-bottom:1px solid #e2eaf2}
+.freight-dialog-head h2{margin:3px 0 0;font-size:1.5rem;letter-spacing:-.035em;font-weight:800}
+.freight-dialog-head .btn{min-height:40px}
+.freight-dialog-body{padding:24px 25px;overflow-y:auto;overscroll-behavior:contain;flex:1}
+.freight-detail-route{display:flex;align-items:center;gap:10px;font-size:1.05rem;font-weight:760;padding-bottom:20px;color:#245b89;overflow-wrap:anywhere}
+.freight-detail-data{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 22px}
+.freight-detail-data>div{border:1px solid #e0e8f0;background:#f8fbfe;border-radius:12px;padding:13px;min-width:0}
+.freight-detail-data dt{font-size:.75rem;color:#667f96;margin-bottom:5px}
+.freight-detail-data dd{font-size:.95rem;font-weight:780;color:#193d62;margin:0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.freight-dialog-body h3{font-size:.95rem;margin:16px 0 10px}
+.freight-detail-materials{padding-left:18px;margin:0 0 20px;line-height:1.7;font-size:.82rem;color:#47637d}
+.freight-detail-materials li{margin-bottom:6px}
+.freight-detail-support{border-top:1px solid #e6edf4;padding:13px 0;color:#536d82;font-size:.8rem}
+.freight-detail-support summary{cursor:pointer;color:#275e91;font-weight:720}
+.freight-dialog-actions{display:flex;gap:9px;flex-wrap:wrap;padding:17px 24px 22px;border-top:1px solid #e6edf4}
+.freight-dialog-actions .btn{flex:1;min-width:100px;min-height:43px;font-size:.82rem}
+.freight-dialog-sheet [data-detail-notice]{margin:0 24px 12px;color:#216b55;font-size:.81rem}
+.freight-link-form{padding:22px 25px 8px}
+.freight-link-form p{font-size:.85rem;line-height:1.5;color:#596f83}
+.freight-link-form label{font-weight:720;color:#234a6f;display:flex;flex-direction:column;gap:8px}
+.freight-link-form input{min-height:46px;border:1px solid #bfd2e4;border-radius:9px;padding:10px 12px;font:inherit}
+.freight-link-form [data-link-message]{color:#a44132;font-size:.8rem;min-height:18px}
+.freight-link-form .freight-dialog-actions{padding:15px 0 12px}
+.freight-dialog-layer button:focus-visible,.freight-dialog-layer input:focus-visible{outline:2px solid #2671bc;outline-offset:3px}
+@media(max-width:650px){
+ .freight-dialog-layer{align-items:flex-end}
+ .freight-dialog-sheet{height:min(93dvh,100%);width:100%;border-radius:20px 20px 0 0;animation:freight-modal-enter .22s ease-out}
+ .freight-dialog-modal{margin:auto 12px 12px;width:calc(100% - 24px);border-radius:15px}
+ .freight-dialog-head,.freight-dialog-body{padding:17px}
+ .freight-dialog-actions{padding:13px 17px calc(15px + env(safe-area-inset-bottom));gap:7px}
+ .freight-dialog-actions .btn{min-width:0;padding:10px 5px}
+ .freight-detail-data{gap:7px}
+ .freight-detail-data>div{padding:10px}
+}
+@media(prefers-reduced-motion:reduce){.freight-dialog-sheet,.freight-dialog-modal{animation:none}}
