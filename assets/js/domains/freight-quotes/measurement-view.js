@@ -1,10 +1,10 @@
 import {fmt} from '../../core/format.js';
 const esc=fmt.escape;
 const labels={
- TCC_2024_IPC_2026:'Tarifa documental TCC 2023–2024 actualizada por IPC DANE hasta septiembre de 2026',
- TCC_REAL_GUIDE_MODEL:'Histórico de guías reales TCC para el origen y trayecto indicados',
- ENVIA_REAL_GUIDE_MODEL:'Histórico exclusivo de guías reales ENVÍA para este origen y trayecto',
- ENVIA_REFERENCE:'Reglas internas ENVÍA de la matriz aportada; no constituye tarifa contractual vigente'
+ TCC_2024_IPC_2026:'Estimación con tarifas TCC actualizadas a 2026',
+ TCC_REAL_GUIDE_MODEL:'Estimación con historial de TCC',
+ ENVIA_REAL_GUIDE_MODEL:'Estimación con historial de ENVÍA',
+ ENVIA_REFERENCE:'Estimación con referencias de ENVÍA'
 };
 function commercialHtml(snapshot){
  const estimate=snapshot.commercialEstimate||{};
@@ -15,8 +15,6 @@ function commercialHtml(snapshot){
    '<strong>≈ '+fmt.money(estimate.totalCop)+'</strong>';
  const breakdown=estimate.baseCop!=null?'<div class="freight-market-breakdown"><span>Flete base estimado <b>'+fmt.money(estimate.baseCop)+'</b></span><span>Componente variable / manejo <b>'+fmt.money(estimate.variableCop||0)+'</b></span><span>Total central <b>'+fmt.money(estimate.totalCop)+'</b></span></div>':
    '<p class="freight-market-warning">El histórico permite estimar un total, pero no desglosar el flete base y los recargos sin inventar valores.</p>';
- const samples=estimate.guideCalibration?.samples||0;
- const applied=estimate.guideCalibration?.applied;
  return '<div class="freight-price-hero" data-carrier-price="'+esc(snapshot.carrier)+'">'+
    (snapshot.cheapestCommercial?'<span class="freight-cheaper-label">Menor estimación orientativa</span>':'')+
    '<div class="freight-price-eyebrow">RANGO ESTIMADO DEL FLETE · '+(esc(snapshot.carrier==='ENVIA'?'ENVÍA':'TCC'))+'</div>'+
@@ -24,9 +22,7 @@ function commercialHtml(snapshot){
    '<p class="freight-price-central">Valor central estimado: <b>'+fmt.money(estimate.totalCop)+'</b> COP</p>'+
    breakdown+
    '<p class="freight-market-source">'+esc(labels[estimate.source]||'Estimación interna')+'</p>'+
-   (!hasRange?'<small>No existe un intervalo estadístico sustentado para estas condiciones.</small>':'<small>Intervalo derivado de la dispersión histórica de la misma transportadora, no es cotización oficial.</small>')+
-   (estimate.source==='TCC_2024_IPC_2026'?'<small>IPC compuesto: 2025 5,10 % y enero–septiembre 2026 5,74 %. No es un incremento publicado por TCC. Referencia antigua: '+fmt.money(estimate.reference2024Cop)+'.</small>':'')+
-   '<small>Guías nuevas estrictamente comparables: '+esc(samples)+'. '+(applied?'Corrección robusta aplicada.':'Sin recalibración automática hasta contar con tres guías comparables verificadas.')+'</small>'+
+   '<small>Valor estimado, no tarifa oficial.</small>'+
    '</div>';
 }
 export function measurementCardHtml(snapshot){
@@ -45,5 +41,6 @@ export function measurementCardHtml(snapshot){
  const basis=snapshot.selectedBasis==='VOLUME'?'volumen':'peso';
  return '<section class="freight-panel" data-carrier-reference="'+esc(snapshot.carrier)+'"><h2>'+esc(envia?'ENVÍA':'TCC')+' · Cotización del envío</h2><p>'+esc(snapshot.origin)+' → '+esc(snapshot.destination)+'</p>'+
   commercialHtml(snapshot)+
-  '<details class="freight-original-reference"><summary>Consultar referencia original y cálculo por medidas</summary><div class="freight-scenarios">'+cards+'</div><p>'+(snapshot.selectedBasis?(bothComplete?'Base de mayor cobro':'Base disponible')+': '+basis+'.':'Completa la medida de todos los materiales para guardar.')+'</p><small>'+esc(snapshot.measurementWarning)+'</small><p>'+esc(snapshot.warning)+'</p><small>Fuente: '+esc(snapshot.tariffVersion)+'. La tarifa y su vigencia documental se mantienen separadas del precio estimado.</small></details></section>';
+  '<details class="freight-original-reference"><summary>Consultar referencia original y cálculo por medidas</summary><div class="freight-scenarios">'+cards+'</div><p>'+(snapshot.selectedBasis?(bothComplete?'Base de mayor cobro':'Base disponible')+': '+basis+'.':'Completa la medida de todos los materiales para guardar.')+'</p><small>'+esc(snapshot.measurementWarning)+'</small><p>'+esc(snapshot.warning)+'</p><small>Fuente: '+esc(snapshot.tariffVersion)+'. La tarifa original se conserva sin cambios.</small>'+
+  (snapshot.commercialEstimate?.source==='TCC_2024_IPC_2026'?'<small>Estimación actualizada con IPC DANE hasta septiembre de 2026, no equivale a una tarifa vigente de TCC.</small>':'')</details></section>';
 }
