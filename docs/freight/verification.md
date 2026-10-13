@@ -40,6 +40,10 @@ Cotización de fletes permite usar referencias históricas por ruta literal, con
 
 ## Despliegue y segunda fase
 
-E2E tests/freight-quotes.spec.js agregado al workflow existente para Chromium, móvil, iPhone y tableta. Validación visual local bloqueada por descarga de navegador no disponible en el entorno. La ejecución efectiva y resultado de CI se consultan en el PR.
+E2E tests/freight-quotes.spec.js agregado al workflow existente para Chromium, móvil, iPhone y tableta. Validación local del cotizador en Chromium 153 completada: calcular, invalidar al editar, guardar, duplicar y cero escrituras de pedidos. Anchos 375/768/1024/1440 sin desbordamiento horizontal. Capturas en evidence/. La ejecución efectiva y resultado de CI se consultan en el PR.
 
 ENVÍA pendiente del prompt de Claude, no aportado. carrierAdapters está preparado para otra estrategia sin reutilizar la fórmula TCC por suposición.
+
+Prueba adicional SQL: order-without-freight.sql ejecutó el RPC real de creación con material Siesa válido, sin campos de flete ni cotización. PASS y ROLLBACK, sin pedido ficticio persistente.
+
+Regresión local adicional: siete pruebas Playwright de pedidos, Drive, jornada, recepción, alistamiento y límites/foco de formularios: 7/7 PASS. El cotizador tiene etiquetas accesibles estables para selects, verificadas mediante interacción por nombre accesible. Las capturas usan un material y API sintéticos de prueba; el cálculo y persistencia reales se verificaron por separado en SQL.

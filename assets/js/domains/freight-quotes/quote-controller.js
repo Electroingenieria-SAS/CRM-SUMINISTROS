@@ -19,7 +19,7 @@ export async function renderFreightQuotes(root,context={}){
   form.elements.destinationKey.disabled=true;
   const data=await api.freightQuoteCatalog(department);
   if(request!==revision)return;
-  form.elements.destinationKey.innerHTML=options(data.destinations,r=>`${r.name} · C.O ${r.center} · ${r.key}`,r=>r.key);
+  form.elements.destinationKey.innerHTML=options(data.destinations,r=>`${r.name} · C.O ${r.center}`,r=>r.key);
   form.elements.destinationKey.disabled=false;form.elements.destinationKey.value=key;
   return data.destinations;
  }

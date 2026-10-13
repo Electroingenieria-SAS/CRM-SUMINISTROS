@@ -1,5 +1,5 @@
 import {test,expect} from '@playwright/test';
-test('cotizador independiente: calcular, invalidar, guardar y duplicar, sin mutar pedidos',async({page})=>{
+test('cotizador independiente: calcular, invalidar, guardar y duplicar, sin mutar pedidos',async({page},testInfo)=>{
  await page.goto('/');
  await page.evaluate(async()=>{
   const {api}=await import('/assets/js/services/api.js');
@@ -35,6 +35,7 @@ test('cotizador independiente: calcular, invalidar, guardar y duplicar, sin muta
   await page.setViewportSize({width,height:900});
   const bounds=await page.evaluate(()=>({viewport:document.documentElement.clientWidth,content:document.documentElement.scrollWidth}));
   expect(bounds.content).toBeLessThanOrEqual(bounds.viewport+1);
+  await page.screenshot({path:testInfo.outputPath(`freight-${width}.png`),fullPage:true});
  }
  await page.getByLabel('Peso real por bulto (kg)').fill('21');
  await expect(page.getByRole('button',{name:'Guardar cotización',exact:true})).toBeDisabled();
