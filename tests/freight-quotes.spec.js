@@ -33,6 +33,8 @@ async function mountQuotes(page){
   };
   api.freightQuoteSave=async input=>{const q={id:String(window.__quoteFixtures.length+1),folio:window.__quoteFixtures.length+1,created_at:new Date().toISOString(),status:input.status,carrier:input.carrier,input,snapshot:await api.freightQuoteCalculate(input)};window.__quoteFixtures.unshift(q);return q;};
   api.freightQuoteList=async()=>({items:window.__quoteFixtures,total:window.__quoteFixtures.length});
+  window.__linkedQuotes=[];
+  api.freightQuoteLink=async(id,orderNumber)=>{window.__linkedQuotes.push({id,orderNumber});};
   api.materialSearch=async()=>[];
   document.body.innerHTML='<main id="quote-fixture" style="padding:16px"></main>';
   const {renderFreightQuotes}=await import('/assets/js/modules/freight-quotes.js');
@@ -206,4 +208,62 @@ test('seleccionar la transportadora desde la tarjeta cambia únicamente la cotiz
  await expect(page.locator('[data-history-workspace]')).toBeVisible();
  expect(await page.evaluate(()=>window.__quoteFixtures[0].input.carrier)).toBe('ENVIA');
  expect(await page.evaluate(()=>window.__orderWrites)).toBe(0);
+});
+
+
+test('historial animado: abrir panel, cerrar Escape, vincular con diálogo y preservar pedido',async({page})=>{
+ await mountQuotes(page);
+ await page.getByLabel('Nombre del material').fill('Tablero de control');
+ await page.getByLabel('Origen efectivo').selectOption('CALI');
+ await page.getByLabel('Departamento',{exact:true}).selectOption('VALLE DEL CAUCA');
+ await page.getByLabel('Municipio / localidad y centro operativo').selectOption('TCC_TEST');
+ await page.getByLabel('Peso del material (kg)').fill('25');
+ await page.getByRole('button',{name:'Guardar borrador'}).click();
+ const view=page.locator('[data-quote-view="1"]');
+ await view.click();
+ const dialog=page.getByRole('dialog',{name:'CF-1'});
+ await expect(dialog).toBeVisible();
+ await expect(dialog).toContainText('Tablero de control');
+ await page.keyboard.press('Escape');
+ await expect(dialog).toHaveCount(0);
+ await expect(view).toBeFocused();
+ await page.locator('[data-quote-link="1"]').click();
+ const link=page.getByRole('dialog',{name:/Vincular pedido/});
+ await expect(link).toBeVisible();
+ await link.getByRole('button',{name:'Confirmar vínculo'}).click();
+ await expect(link.getByLabel('Número de pedido')).toBeFocused();
+ await link.getByLabel('Número de pedido').fill('PED-2026-17');
+ await link.getByRole('button',{name:'Confirmar vínculo'}).click();
+ await expect(link).toHaveCount(0);
+ expect(await page.evaluate(()=>window.__linkedQuotes)).toEqual([{id:'1',orderNumber:'PED-2026-17'}]);
+ expect(await page.evaluate(()=>window.__orderWrites)).toBe(0);
+});
+
+test('preferencias de movimiento reducido conservan tablas, materiales, cálculo y navegación',async({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await mountQuotes(page);
+ await page.getByLabel('Nombre del material').fill('Conductor');
+ await page.getByLabel('Peso del material (kg)').fill('18');
+ await page.getByRole('button',{name:'+ Agregar material'}).click();
+ await expect(page.locator('[data-material-count]')).toHaveText('2');
+ await page.getByRole('tab',{name:/Historial/}).click();
+ await expect(page.locator('[data-history-workspace]')).toBeVisible();
+ await page.getByRole('tab',{name:'Nueva cotización'}).click();
+ await expect(page.locator('.freight-line')).toHaveCount(2);
+ await expect(page.locator('.freight-line').first().getByLabel('Nombre del material')).toHaveValue('Conductor');
+});
+
+test('componente de detalles y acciones accesible en ocho tamaños de pantalla',async({page},testInfo)=>{
+ await mountQuotes(page);
+ await page.getByLabel('Nombre del material').fill('Material');
+ await page.getByLabel('Peso del material (kg)').fill('10');
+ await page.getByRole('button',{name:'Guardar borrador'}).click();
+ await page.locator('[data-quote-view="1"]').click();
+ for(const width of [360,390,430,768,1024,1280,1440,1920]){
+  await page.setViewportSize({width,height:900});
+  await expect(page.getByRole('dialog',{name:'CF-1'})).toBeVisible();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+1);
+ }
+ await page.getByRole('dialog',{name:'CF-1'}).getByRole('button',{name:'Cerrar detalle'}).click();
+ await expect(page.getByRole('dialog',{name:'CF-1'})).toHaveCount(0);
 });
