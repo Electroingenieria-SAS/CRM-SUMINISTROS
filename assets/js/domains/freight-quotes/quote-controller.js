@@ -3,6 +3,7 @@ import {carrierAdapters,quoteCanSaveCalculated} from "./carrier-adapters.js";
 import {api} from '../../services/api.js';
 import {can} from '../../core/state.js';
 import {quoteView,options,quoteResultHtml,quoteHistoryHtml} from './quote-view.js';
+import {filterHistoryItems,historySummary,historyCsv} from './quote-history-view.js';
 import {restoreMeasurements,measurementSummary} from './material-measurements.js';
 import {addMaterial,readQuote} from './quote-lines.js';
 export async function renderFreightQuotes(root,context={}){
@@ -10,11 +11,23 @@ export async function renderFreightQuotes(root,context={}){
  const form=root.querySelector('[data-quote-form]'),message=root.querySelector('[data-quote-message]'),resultHost=root.querySelector('[data-quote-result]');
  const materialHost=form.querySelector('[data-quote-materials]');
  const save=form.querySelector('[data-save-quote]'),draft=form.querySelector('[data-save-draft]');
- let calculated=null,revision=0,busy=false,page=1,history=[],catalogCache=new Map(),destinationRequest=0,allDestinations=[];
+ let calculated=null,currentResult=null,revision=0,busy=false,page=1,history=[],visibleHistory=[],catalogCache=new Map(),destinationRequest=0,allDestinations=[];
+ let totalHistory=0;
+ const quoteWorkspace=root.querySelector('[data-quote-workspace]');
+ const historyWorkspace=root.querySelector('[data-history-workspace]');
+ const setWorkspace=target=>{
+  const isHistory=target==='history';
+  quoteWorkspace.hidden=isHistory;historyWorkspace.hidden=!isHistory;
+  root.querySelectorAll('[data-view-tab]').forEach(button=>{
+   const active=button.dataset.viewTab===target;
+   button.setAttribute('aria-selected',String(active));button.tabIndex=active?0:-1;
+  });
+ };
+ root.querySelectorAll('[data-view-tab]').forEach(button=>button.addEventListener('click',()=>setWorkspace(button.dataset.viewTab)));
  const searchCity=form.querySelector('[data-destination-search]');
  const searchFeedback=form.querySelector('[data-destination-feedback]');
  const normalize=value=>String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
- const invalidate=()=>{revision++;calculated=null;save.disabled=true;resultHost.innerHTML='';};
+ const invalidate=()=>{revision++;calculated=null;currentResult=null;save.disabled=true;resultHost.innerHTML='';};
  const number=new Intl.NumberFormat('es-CO',{maximumFractionDigits:3});
  const syncSummary=()=>{
   const fields=[...materialHost.querySelectorAll('.freight-line')];
@@ -51,15 +64,41 @@ export async function renderFreightQuotes(root,context={}){
  }
  searchCity.addEventListener('input',filterDestinations);
  function renderHistory(){
-  const term=normalize(root.querySelector('[data-history-search]').value);
-  const carrier=root.querySelector('[data-history-carrier]').value;
-  const filtered=history.filter(item=>(!carrier||item.carrier===carrier)&&(!term||
-   normalize([item.folio,item.carrier,item.snapshot?.origin,item.snapshot?.destination,item.order_number].join(' ')).includes(term)));
-  root.querySelector('[data-quote-history]').innerHTML=quoteHistoryHtml(filtered,{filtered:!!term||!!carrier});
+  const filters={
+   search:root.querySelector('[data-history-search]').value,
+   carrier:root.querySelector('[data-history-carrier]').value,
+   status:root.querySelector('[data-history-status]').value,
+   sort:root.querySelector('[data-history-sort]').value
+  };
+  const filtered=Object.values(filters).some(value=>value&&value!=='newest');
+  visibleHistory=filterHistoryItems(history,filters);
+  const summary=historySummary(visibleHistory);
+  root.querySelector('[data-quote-history]').innerHTML=quoteHistoryHtml(visibleHistory,{filtered});
+  root.querySelector('[data-history-count]').textContent=String(summary.count);
+  root.querySelector('[data-history-priced]').textContent=String(summary.priced);
+  root.querySelector('[data-history-actual]').textContent=String(summary.withActual);
+  root.querySelector('[data-history-visible-count]').textContent=summary.count+' visibles en esta página';
+  root.querySelector('[data-history-export]').disabled=summary.count===0;
   root.querySelectorAll('[data-quote-link]').forEach(button=>button.disabled=!can('freight_quotes','canUpdate'));
  }
- root.querySelector('[data-history-search]').addEventListener('input',renderHistory);
- root.querySelector('[data-history-carrier]').addEventListener('change',renderHistory);
+ for(const key of ['search','carrier','status','sort']){
+  const input=root.querySelector('[data-history-'+key+']');
+  input.addEventListener(key==='search'?'input':'change',renderHistory);
+ }
+ root.querySelector('[data-history-clear]').onclick=()=>{
+  root.querySelector('[data-history-search]').value='';
+  root.querySelector('[data-history-carrier]').value='';
+  root.querySelector('[data-history-status]').value='';
+  root.querySelector('[data-history-sort]').value='newest';renderHistory();
+ };
+ root.querySelector('[data-history-export]').onclick=()=>{
+  if(!visibleHistory.length)return;
+  const blob=new Blob([historyCsv(visibleHistory)],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob),anchor=document.createElement('a');
+  anchor.href=url;anchor.download='historial-fletes-pagina-'+page+'.csv';
+  document.body.append(anchor);anchor.click();anchor.remove();
+  URL.revokeObjectURL(url);
+ };
  async function destinations(department,key=''){
   const request=++destinationRequest;
   form.elements.destinationKey.disabled=true;searchCity.disabled=!department;
@@ -76,11 +115,12 @@ export async function renderFreightQuotes(root,context={}){
   return allDestinations;
  }
  async function loadHistory(){
-  const data=await api.freightQuoteList(page);history=data.items||[];
+  const data=await api.freightQuoteList(page);history=data.items||[];totalHistory=data.total||0;
+  root.querySelector('[data-history-tab-count]').textContent=String(totalHistory);
   renderHistory();
-  root.querySelector('[data-history-page]').textContent=`Página ${page} · ${data.total} cotizaciones`;
+  root.querySelector('[data-history-page]').textContent=`Página ${page} · ${totalHistory} cotizaciones en total`;
   root.querySelector('[data-history-prev]').disabled=page<=1;
-  root.querySelector('[data-history-next]').disabled=page*30>=data.total;
+  root.querySelector('[data-history-next]').disabled=page*30>=totalHistory;
   root.querySelectorAll('[data-quote-link]').forEach(b=>b.disabled=!can('freight_quotes','canUpdate'));
  }
  form.elements.department.addEventListener('change',()=>destinations(form.elements.department.value).catch(e=>notice(e.message)));
@@ -91,30 +131,51 @@ export async function renderFreightQuotes(root,context={}){
   if(!carrierAdapters[payload.carrier])throw Error("Transportadora pendiente de contrato.");
   const result=await api.freightQuoteCalculate(payload);
   if(request!==revision)return;
-  resultHost.innerHTML=quoteResultHtml(result);
+  currentResult=result;
+  resultHost.innerHTML=quoteResultHtml(result,{selectedCarrier:payload.carrier});
   const available=quoteCanSaveCalculated(result);
-  calculated=available?{payload,result}:null;notice(available?'Comparación lista. Puedes guardar la cotización.':'Sin cálculo disponible. Puedes guardar un borrador.');
+  calculated=available?{payload,result}:null;notice(available?'Comparación lista. Puedes guardar la cotización.':'Elige una transportadora con estimación o guarda un borrador.');
   resultHost.scrollIntoView?.({behavior:'smooth',block:'start'});
  },{calculating:true});};
  save.onclick=()=>run(async()=>{
   if(!calculated)throw Error('Calcula nuevamente.');
   const q=await api.freightQuoteSave({...calculated.payload,status:'CALCULATED'});
-  notice(`Cotización CF-${q.folio} guardada. No se modificó ningún pedido.`);await loadHistory();
+  notice(`Cotización CF-${q.folio} guardada. No se modificó ningún pedido.`);await loadHistory();setWorkspace('history');
  });
- draft.onclick=()=>run(async()=>{const q=await api.freightQuoteSave({...readQuote(form),status:'DRAFT'});notice(`Borrador CF-${q.folio} guardado.`);await loadHistory();});
+ draft.onclick=()=>run(async()=>{const q=await api.freightQuoteSave({...readQuote(form),status:'DRAFT'});notice(`Borrador CF-${q.folio} guardado.`);await loadHistory();setWorkspace('history');});
+  resultHost.addEventListener('click',event=>{
+  const button=event.target.closest('[data-quote-select-carrier]');
+  if(!button||!currentResult)return;
+  const carrier=button.dataset.quoteSelectCarrier;
+  const choice=(currentResult.comparison||[currentResult]).find(item=>item.carrier===carrier);
+  if(!choice)return;
+  const payload={...readQuote(form),carrier};
+  form.elements.carrier.value=carrier;
+  const selected={...choice,comparison:currentResult.comparison};
+  const available=quoteCanSaveCalculated(selected);
+  calculated=available?{payload,result:selected}:null;
+  save.disabled=!available||!can('freight_quotes','canCreate');
+  resultHost.querySelectorAll('[data-quote-select-carrier]').forEach(node=>{
+   const active=node.dataset.quoteSelectCarrier===carrier;
+   node.setAttribute('aria-pressed',String(active));
+   node.textContent=active?'Seleccionada':'Elegir '+(node.dataset.quoteSelectCarrier==='ENVIA'?'ENVÍA':'TCC');
+   node.closest('[data-offer-carrier]')?.classList.toggle('freight-offer-selected',active);
+  });
+  notice(available?'Transportadora seleccionada. Puedes guardar esta cotización.':'Esta transportadora no tiene un precio suficiente. Puedes guardar un borrador.');
+ });
  root.querySelector('[data-history-prev]').onclick=()=>{page--;loadHistory().catch(e=>notice(e.message));};
  root.querySelector('[data-history-next]').onclick=()=>{page++;loadHistory().catch(e=>notice(e.message));};
  root.querySelector('[data-quote-history]').onclick=e=>{
   const button=e.target.closest('button');if(!button)return;
   const q=history.find(q=>q.id===(button.dataset.quoteView||button.dataset.quoteDuplicate||button.dataset.quoteLink));if(!q)return;
-  if(button.dataset.quoteView){resultHost.innerHTML=quoteResultHtml(q.snapshot);resultHost.scrollIntoView({behavior:'smooth'});return;}
+  if(button.dataset.quoteView){currentResult=null;calculated=null;save.disabled=true;resultHost.innerHTML=quoteResultHtml(q.snapshot,{selectable:false});setWorkspace('quote');resultHost.scrollIntoView({behavior:'smooth'});return;}
   if(button.dataset.quoteLink){const number=window.prompt('Número exacto del pedido a vincular');if(number)run(async()=>{await api.freightQuoteLink(q.id,number);await loadHistory();notice('Vínculo guardado. El pedido conserva sus datos.');});return;}
   run(async()=>{
    invalidate();form.elements.carrier.value=q.input.carrier||'TCC';form.elements.origin.value=q.input.origin;form.elements.department.value=q.input.department;form.elements.declaredValue.value=q.input.declaredValue??'';
    await destinations(q.input.department,q.input.destinationKey);
    materialHost.innerHTML='';
    restoreMeasurements(q.input).forEach(m=>addMaterial(materialHost,m));syncSummary();
-   notice('Copia preparada. Calcula o guarda un nuevo borrador.');form.scrollIntoView({behavior:'smooth'});
+   notice('Copia preparada. Calcula o guarda un nuevo borrador.');setWorkspace('quote');form.scrollIntoView({behavior:'smooth'});
   });
  };
  addMaterial(materialHost);syncSummary();draft.disabled=!can('freight_quotes','canCreate');
