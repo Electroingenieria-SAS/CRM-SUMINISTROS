@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": "9b70d5e51052194b",
-  "sourceBytes": 2730755,
+  "revision": "504d6ad90c7e0423",
+  "sourceBytes": 2731553,
   "assets": [
     "./assets/css/analytics.css",
     "./assets/css/base/accessibility.css",
@@ -179,6 +179,7 @@
     "./assets/js/config.js",
     "./assets/js/core/animation/freight-effects.js",
     "./assets/js/core/animation/motion-tokens.js",
+    "./assets/js/core/animation/ui-motion.js",
     "./assets/js/core/auth/login-controller.js",
     "./assets/js/core/auth/session-lifecycle.js",
     "./assets/js/core/bootstrap/application.js",
