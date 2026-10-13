@@ -3,11 +3,12 @@ import {carrierAdapters,quoteCanSaveCalculated} from "./carrier-adapters.js";
 import {api} from '../../services/api.js';
 import {can} from '../../core/state.js';
 import {quoteView,options,quoteResultHtml,quoteHistoryHtml} from './quote-view.js';
-import {addMaterial,addPackage,readQuote} from './quote-lines.js';
+import {restoreMeasurements} from './material-measurements.js';
+import {addMaterial,readQuote} from './quote-lines.js';
 export async function renderFreightQuotes(root,context={}){
  root.innerHTML=quoteView();
  const form=root.querySelector('[data-quote-form]'),message=root.querySelector('[data-quote-message]'),resultHost=root.querySelector('[data-quote-result]');
- const materialHost=form.querySelector('[data-quote-materials]'),packageHost=form.querySelector('[data-quote-packages]');
+ const materialHost=form.querySelector('[data-quote-materials]');
  const save=form.querySelector('[data-save-quote]'),draft=form.querySelector('[data-save-draft]');
  let calculated=null,revision=0,busy=false,page=1,history=[],catalogCache=new Map(),destinationRequest=0;
  const invalidate=()=>{revision++;calculated=null;save.disabled=true;resultHost.innerHTML='';};
@@ -34,8 +35,6 @@ export async function renderFreightQuotes(root,context={}){
  }
  form.elements.department.addEventListener('change',()=>destinations(form.elements.department.value).catch(e=>notice(e.message)));
  form.querySelector('[data-add-material]').onclick=()=>{addMaterial(materialHost);invalidate();};
- form.querySelector('[data-add-manual]').onclick=()=>{addMaterial(materialHost,{},true);invalidate();};
- form.querySelector('[data-add-package]').onclick=()=>{addPackage(packageHost);invalidate();};
  form.onsubmit=e=>{e.preventDefault();run(async()=>{
   const payload=readQuote(form,{strict:true}),request=revision;
   if(!carrierAdapters[payload.carrier])throw Error("Transportadora pendiente de contrato.");
@@ -61,12 +60,12 @@ export async function renderFreightQuotes(root,context={}){
   run(async()=>{
    invalidate();form.elements.carrier.value=q.input.carrier||'TCC';form.elements.origin.value=q.input.origin;form.elements.department.value=q.input.department;form.elements.declaredValue.value=q.input.declaredValue??'';
    await destinations(q.input.department,q.input.destinationKey);
-   materialHost.innerHTML='';packageHost.innerHTML='';
-   q.input.materials.forEach(m=>addMaterial(materialHost,m,!!m.manual));q.input.packages.forEach(p=>addPackage(packageHost,p));
+   materialHost.innerHTML='';
+   restoreMeasurements(q.input).forEach(m=>addMaterial(materialHost,m));
    notice('Copia preparada. Calcula o guarda un nuevo borrador.');form.scrollIntoView({behavior:'smooth'});
   });
  };
- addMaterial(materialHost);addPackage(packageHost);draft.disabled=!can('freight_quotes','canCreate');
+ addMaterial(materialHost);draft.disabled=!can('freight_quotes','canCreate');
  try{
   const data=await api.freightQuoteCatalog();
   form.elements.origin.innerHTML=options(data.origins||[]);form.elements.origin.value=data.modelOrigin||'';
@@ -77,7 +76,7 @@ export async function renderFreightQuotes(root,context={}){
    const dept=order.metadata?.clientDepartment||'';
    form.elements.department.value=dept;
    if(form.elements.department.value){const rows=await destinations(dept);form.elements.destinationKey.value=exactDocumentDestination(rows,order.client_city);}
-   notice(`Materiales precargados del pedido ${order.order_number}. Confirma destino y bultos. Guardar no vincula ni modifica el pedido.`);
+   notice(`Materiales precargados del pedido ${order.order_number}. Confirma destino y las medidas de los materiales. Guardar no vincula ni modifica el pedido.`);
   }
  }catch(error){notice(error.message);}
 }
