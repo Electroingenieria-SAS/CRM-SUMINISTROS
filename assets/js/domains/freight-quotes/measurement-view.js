@@ -3,6 +3,7 @@ const esc=fmt.escape;
 const labels={
  TCC_2024_IPC_2026:'Tarifa documental TCC 2023–2024 actualizada por IPC DANE hasta septiembre de 2026',
  TCC_REAL_GUIDE_MODEL:'Histórico de guías reales TCC para el origen y trayecto indicados',
+ ENVIA_REAL_GUIDE_MODEL:'Histórico exclusivo de guías reales ENVÍA para este origen y trayecto',
  ENVIA_REFERENCE:'Reglas internas ENVÍA de la matriz aportada; no constituye tarifa contractual vigente'
 };
 function commercialHtml(snapshot){
@@ -17,6 +18,7 @@ function commercialHtml(snapshot){
  const samples=estimate.guideCalibration?.samples||0;
  const applied=estimate.guideCalibration?.applied;
  return '<div class="freight-price-hero" data-carrier-price="'+esc(snapshot.carrier)+'">'+
+   (snapshot.cheapestCommercial?'<span class="freight-cheaper-label">Menor estimación orientativa</span>':'')+
    '<div class="freight-price-eyebrow">RANGO ESTIMADO DEL FLETE · '+(esc(snapshot.carrier==='ENVIA'?'ENVÍA':'TCC'))+'</div>'+
    numbers+
    '<p class="freight-price-central">Valor central estimado: <b>'+fmt.money(estimate.totalCop)+'</b> COP</p>'+
@@ -35,8 +37,8 @@ export function measurementCardHtml(snapshot){
    '<h3>'+title+'</h3>'+
    (available?'<p>'+fmt.number(ref.amount,4)+' '+unit+' registrados</p><strong>'+fmt.money(total)+'</strong><p>Referencia original · Base: '+fmt.money(ref.baseCop)+(envia?' · Variable: '+fmt.money(ref.variableCop):' · Manejo: '+fmt.money(ref.handlingCop))+'</p>'+
     (basis==='VOLUME'?'<small>'+fmt.number(ref.conversionFactor,0)+' kg/m³ → '+fmt.number(ref.billableKg,3)+' kg equivalentes'+(envia?' · factor no confirmado para mercancía terrestre':'')+'</small>':''):
-    '<p>'+(ref.reason==='ORIGIN_ROUTE_UNAVAILABLE'?'Sin tarifa documental TCC para este origen. Consulta el rango histórico superior si está disponible.':ref.reason==='RATE_UNAVAILABLE'||ref.reason==='ROUTE_UNDOCUMENTED'?'Tarifa documental de la ruta no disponible.':'Registra esta medida para compararla.')+'</p>')+
-   (ref.warnings?.includes('EXTRAPOLATED_OVER_100_KG')?'<p>Más de 100 kg: extrapolación sin confirmar.</p>':'')+
+    '<p>'+(ref.reason==='ORIGIN_ROUTE_UNAVAILABLE'?'Sin tarifa documental TCC para este origen. Consulta el rango histórico superior si está disponible.':ref.reason==='RATE_UNAVAILABLE'||ref.reason==='ROUTE_UNDOCUMENTED'?'Tarifa documental de la ruta no disponible.':'Ingresa esta medida para compararla.')+'</p>')+
+   (ref.warnings?.includes('EXTRAPOLATED_OVER_100_KG')?'<p>Estimación extrapolada: más de 100 kg, linealidad no confirmada.</p>':'')+
    '<small>'+esc(ref.measuredMaterials)+' de '+esc(ref.totalMaterials)+' materiales con esta medida.'+(!ref.complete&&available?' Resultado parcial, no cubre el envío completo.':'')+'</small></article>';
  }).join('');
  const bothComplete=scenarios.weight.complete&&scenarios.volume.complete;
