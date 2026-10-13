@@ -40,7 +40,7 @@ test('historial representa estimado, real, diferencia, pedido y acciones',()=>{
 test('CSV de página filtra fórmulas y conserva encabezados sin datos sensibles',()=>{
  const csv=historyCsv([...entries,{...entries[0],id:'evil',folio:'=2+2',snapshot:{...entries[0].snapshot,destination:'@SUM(2;3)'}}]);
  assert.match(csv,/Folio;|Folio"/);
- assert.match(csv,/'=2\+2/);
+ assert.match(csv,/CF-=2\+2/);
  assert.match(csv,/'@SUM/);
  assert.match(csv,/TCC/);
  assert.match(csv,/Estimado COP/);
