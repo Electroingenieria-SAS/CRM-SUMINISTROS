@@ -19,7 +19,8 @@ export async function mountFreightEffects(root){
   animations.add(a);Promise.resolve(a.finished).catch(()=>{}).finally(()=>animations.delete(a));
  };
  const materialHost=surface.querySelector('[data-quote-materials]');
- if(materialHost&&!reducedMotion())controllers.push(lib.autoAnimate(materialHost,{duration:durations.list*1000,easing:'ease-in-out'}));
+ const materialAnimation=materialHost&&!reducedMotion()?lib.autoAnimate(materialHost,{duration:durations.list*1000,easing:'ease-in-out'}):null;
+ if(materialAnimation)controllers.push(materialAnimation);
  const historyHost=surface.querySelector('[data-quote-history]');
  // Animate the immediate table/empty state, not all 30 rows on every search.
  if(historyHost&&!reducedMotion())controllers.push(lib.autoAnimate(historyHost,{duration:durations.list*1000,easing:'ease-in-out'}));
@@ -51,6 +52,12 @@ export async function mountFreightEffects(root){
  const observer=new MutationObserver(()=>{if(!surface.isConnected)destroy();});
  observer.observe(root,{childList:true});
  return {
+  replaceMaterials(update){
+   // Bulk replacement is not a list animation: suppress leaving ghosts, then
+   // restore normal AutoAnimate for subsequent add/duplicate/remove actions.
+   materialAnimation?.disable?.();
+   try{update();}finally{materialAnimation?.enable?.();}
+  },
   results(){
    const cards=[...surface.querySelectorAll('[data-offer-carrier]')];
    cards.forEach((card,i)=>{
