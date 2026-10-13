@@ -69,7 +69,7 @@ revoke all on function erp_supply.freight_quote_guide_correction(text,text,text,
 
 create or replace function erp_supply.freight_quote_market_overlay(p_snapshot jsonb,p_payload jsonb)
 returns jsonb language plpgsql stable security definer set search_path=erp_supply,public,auth,pg_catalog as $$
-declare row jsonb; enriched jsonb:='[]'::jsonb; chosen jsonb; pr jsonb; doc jsonb; pred jsonb;
+declare row jsonb; enriched jsonb:='[]'::jsonb; chosen jsonb; pr jsonb; doc jsonb; pred jsonb; broad_calibration jsonb; range_scope text;
         carrier text; ref jsonb; source_type text; base numeric; variable numeric;
         central numeric; low numeric; high numeric; spread_low numeric;spread_high numeric;
         weight numeric; city text; calibration jsonb; k numeric; raw_total numeric;
@@ -86,7 +86,7 @@ begin
       where value->>'carrier'=case when carrier='ENVIA' then 'COLVANES' else 'TCC' end
       limit 1;
     end if;
-    base:=null;variable:=null;central:=null;low:=null;high:=null;source_type:=null;
+    base:=null;variable:=null;central:=null;low:=null;high:=null;source_type:=null;range_scope:=null;
     enough:=coalesce((row#>>'{measurementScenarios,weight,complete}')::boolean,false)
        or coalesce((row#>>'{measurementScenarios,volume,complete}')::boolean,false);
     if enough and carrier='TCC' and ref->>'status'='HISTORICAL_REFERENCE' then
@@ -118,6 +118,26 @@ begin
       if source_type in ('TCC_REAL_GUIDE_MODEL','ENVIA_REAL_GUIDE_MODEL') and low is null and pr is not null then
         low:=(pr->>'estimateLow')::numeric;high:=(pr->>'estimateHigh')::numeric;
       end if;
+      -- When this route lacks at least 3 comparable observations, use the
+      -- real-guide residual distribution for THIS carrier, if >=30 samples.
+      -- This is a LOW-specificity nationwide carrier range, not an official
+      -- route confidence interval nor a price substitution.
+      if low is null or high is null then
+        select m.calibration->(case when carrier='ENVIA' then 'COLVANES' else 'TCC' end)
+          into broad_calibration
+        from erp_supply.freight_prediction_models m
+        where m.organization_id=erp_supply.current_org_id() and m.active
+        order by m.updated_at desc limit 1;
+        if coalesce((broad_calibration->>'n')::int,0)>=30
+          and (broad_calibration->>'p20')::numeric>0
+          and (broad_calibration->>'p80')::numeric>=(broad_calibration->>'p20')::numeric then
+          low:=round(central*(broad_calibration->>'p20')::numeric);
+          high:=round(central*(broad_calibration->>'p80')::numeric);
+          range_scope:='CARRIER_GLOBAL_HISTORICAL';
+        end if;
+      else
+        range_scope:='CITY_OR_DEPARTMENT_HISTORY';
+      end if;
       weight:=case when (row#>>'{measurementScenarios,weight,complete}')::boolean
         then (row#>>'{measurementSummary,weightKg}')::numeric else null end;
       calibration:=erp_supply.freight_quote_guide_correction(carrier,row->>'origin',row->>'department',city,weight);
@@ -137,7 +157,7 @@ begin
         'reference2024Cop',case when source_type='TCC_2024_IPC_2026' then ref->'subtotalCop' else null end,
         'ipcFactor',case when source_type='TCC_2024_IPC_2026' then indexed else null end,
         'ipcReference','DANE_DIC_2025_SEP_2026',
-        'statisticalRange',low is not null and high is not null);
+        'statisticalRange',low is not null and high is not null,'rangeScope',range_scope);
     else
       doc:=jsonb_build_object('available',false,'reason','INSUFFICIENT_CARRIER_EVIDENCE');
     end if;
