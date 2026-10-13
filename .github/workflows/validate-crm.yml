@@ -158,7 +158,7 @@ jobs:
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v7
         with:
-          name: crm-suministros-v11.46.1-motion-deployable
+          name: crm-suministros-v11.46.0-motion-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
@@ -309,7 +309,7 @@ jobs:
       - name: Preserve SBOM
         uses: actions/upload-artifact@v7
         with:
-          name: crm-suministros-v11.46.1-motion-sbom
+          name: crm-suministros-v11.46.0-motion-sbom
           path: crm-suministros-sbom.cdx.json
           if-no-files-found: error
           retention-days: 90
