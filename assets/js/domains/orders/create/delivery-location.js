@@ -1,7 +1,7 @@
 import { fmt } from "../../../core/format.js";
 import { colombianMunicipalities } from "../../../services/location.js";
 
-export function bindOrderLocation(assistant,departments,scheduleFreightEstimate){
+export function bindOrderLocation(assistant,departments){
 const departmentSelect=assistant.root.querySelector('[name="clientDepartmentCode"]');
 const departmentName=assistant.root.querySelector('[name="clientDepartment"]');
 const municipalitySelect=assistant.root.querySelector('[name="clientCity"]');
@@ -26,6 +26,6 @@ const loadMunicipalities=async()=>{
       municipalityHelp?.querySelector('[data-retry-municipalities]')?.addEventListener("click",loadMunicipalities,{once:true});
     }
   };
-departmentSelect?.addEventListener("change",async()=>{await loadMunicipalities();scheduleFreightEstimate()});
-municipalitySelect?.addEventListener("change",scheduleFreightEstimate);
+departmentSelect?.addEventListener("change",loadMunicipalities);
+
 }

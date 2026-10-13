@@ -24,6 +24,7 @@ export const NAV_GROUPS = [
     {id:"dashboard",label:"Centro de operaciones",icon:"dashboard"},
     {id:"orders",label:"Pedidos",icon:"orders"},
     {id:"sales",label:"Ventas",icon:"sales"},
+    {id:"freight_quotes",label:"Cotización de fletes",icon:"shipping"},
     {id:"credit",label:"Crédito",icon:"credit"}
   ]},
   {label:"Operación de suministros",items:[

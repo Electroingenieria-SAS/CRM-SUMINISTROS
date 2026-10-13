@@ -46,12 +46,8 @@ export function syncSalesMaterialMode(card){
 
 export function renumberItems(editor){[...editor.querySelectorAll(".item-row-number")].forEach((element,index)=>element.textContent=String(index+1))}
 
-export function bindOrderMaterials(assistant,scheduleFreightEstimate){
+export function bindOrderMaterials(assistant){
 const editor=assistant.root.querySelector("#items-editor");
-editor?.addEventListener("input",scheduleFreightEstimate);
-editor?.addEventListener("change",scheduleFreightEstimate);
-editor?.addEventListener("material:selected",scheduleFreightEstimate);
-editor?.addEventListener("click",()=>setTimeout(scheduleFreightEstimate,0));
 const add=()=>{
     const card=document.createElement("article");
     card.className="sales-material-card";

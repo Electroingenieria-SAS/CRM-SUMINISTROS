@@ -4,8 +4,6 @@ import { fmt } from "../../../core/format.js";
 import { wizard, toast } from "../../../core/ui.js";
 import { colombianDepartments } from "../../../services/location.js";
 import { loadOrders } from "../list/load-orders.js";
-import { estimatedSalesWeight } from "../freight/material-weight.js";
-import { freightPredictionSnapshot, bindFreightPrediction } from "../freight/freight-prediction.js";
 import { collectSalesItems } from "./validation.js";
 import { openOrder } from "../detail/order-detail.js";
 import { orderFormStep, orderMaterialsStep, orderConfirmationStep } from "./order-form.js";
@@ -58,21 +56,13 @@ const assistant=wizard({
 decorateCreateOrderAssistant(assistant.root);
 bindRoutingConditions(assistant);
 bindCustomerIntelligence(assistant);
-const scheduleFreightEstimate=bindFreightPrediction(assistant);
-bindOrderLocation(assistant,departments,scheduleFreightEstimate);
-bindOrderMaterials(assistant,scheduleFreightEstimate);
+bindOrderLocation(assistant,departments);
+bindOrderMaterials(assistant);
 }
 
 export async function finishCreateOrder({root,form,data}){
       const items=collectSalesItems(root);
-      const freightWeight=estimatedSalesWeight(root);
-      const freightPrediction=freightPredictionSnapshot(root.__freightPrediction);
-      const metadata={
-        estimatedMaterialWeightKg:freightWeight.complete?freightWeight.weightKg:null,
-        freightPredictionVersion:freightPrediction?.version||null,
-        freightPredictionAtCreation:freightPrediction
-      };
-      const result=await api.createOrder({...data,...readClientExtraValues(form),metadata,requiresCut:items.some(item=>item.requiresCut),items});
+      const result=await api.createOrder({...data,...readClientExtraValues(form),requiresCut:items.some(item=>item.requiresCut),items});
       toast(`Pedido ${result.orderNumber} creado. Las cantidades quedaron reservadas lógicamente y el pedido fue enviado a ${fmt.step(result.currentStep)}.`,"success",7500);
       await loadOrders(1);setTimeout(()=>openOrder(result.orderId),180);
     }
