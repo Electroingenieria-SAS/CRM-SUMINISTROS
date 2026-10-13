@@ -24,3 +24,20 @@
 .freight-scenarios{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.freight-scenario{padding:16px;border:1px solid #dce3ed;border-radius:12px}.freight-scenario strong{display:block;font-size:1.2rem;margin:10px 0}.freight-scenario[data-greater=true]{border-color:#2373c8;background:#f0f6ff}.freight-scenario small{display:block;color:#5c6c85}
 @media(max-width:1050px){.freight-line{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.freight-line,.freight-scenarios{grid-template-columns:minmax(0,1fr)}.freight-line{padding:14px}.freight-material-heading{flex-direction:column}}
+
+/* Cotizador comercial 2026: precio y desglose como información principal. */
+.freight-price-hero{padding:22px;border-radius:15px;margin:17px 0;background:linear-gradient(135deg,#eaf3ff,#f7fbff);border:1px solid #9fc5fa;min-width:0}
+.freight-price-eyebrow{font-size:.78rem;font-weight:800;letter-spacing:.07em;color:#24517f;margin-bottom:10px}
+.freight-price-hero>strong{display:block;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:800;line-height:1.2;color:#102f51;letter-spacing:-.035em;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.freight-price-central{font-size:.98rem;margin:14px 0}
+.freight-market-breakdown{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:15px 0}
+.freight-market-breakdown span{display:flex;flex-direction:column;gap:5px;background:#fff;border:1px solid #d5e3f1;border-radius:10px;padding:12px;font-size:.8rem;color:#506177}
+.freight-market-breakdown b{font-size:.97rem;color:#123b61}
+.freight-market-source{font-size:.82rem;font-weight:700;margin:12px 0}
+.freight-price-hero small{display:block;line-height:1.55;margin:6px 0;color:#465e7a}
+.freight-price-unavailable{background:#fff7e8;color:#69501a;border:1px solid #f1dcad;border-radius:12px;padding:17px;margin:12px 0}
+.freight-original-reference{margin-top:15px}
+.freight-original-reference summary,.freight-historical-details summary{cursor:pointer;font-weight:650;color:#205c92;padding:11px 0}
+.freight-original-reference .freight-scenarios{margin:14px 0}
+.freight-cheaper-label{display:inline-flex;background:#d9f2e9;color:#195c47;padding:5px 12px;border-radius:30px;font-size:.8rem;font-weight:700;margin:10px 0}
+@media(max-width:620px){.freight-market-breakdown{grid-template-columns:minmax(0,1fr)}.freight-price-hero{padding:15px}}
