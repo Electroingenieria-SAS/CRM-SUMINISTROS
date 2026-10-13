@@ -28,6 +28,12 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Install exact UI dependencies
+        run: npm ci --no-fund
+
+      - name: Verify reproducible vendor ESM
+        run: npm run vendor:check
+
       - name: JavaScript syntax
         run: bash scripts/ci/check-javascript-syntax.sh
 
@@ -152,7 +158,7 @@ jobs:
       - name: Preserve deployable frontend artifact
         uses: actions/upload-artifact@v7
         with:
-          name: crm-suministros-v11.43.0-build37-deployable
+          name: crm-suministros-v11.46.0-motion-deployable
           path: dist-deployable/
           if-no-files-found: error
           retention-days: 90
@@ -291,6 +297,9 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Install pinned modules for accurate SBOM
+        run: npm ci --no-fund
+
       - name: NPM audit · high severity gate
         run: npm audit --audit-level=high
 
@@ -300,7 +309,7 @@ jobs:
       - name: Preserve SBOM
         uses: actions/upload-artifact@v7
         with:
-          name: crm-suministros-v11.43.0-sbom
+          name: crm-suministros-v11.46.0-motion-sbom
           path: crm-suministros-sbom.cdx.json
           if-no-files-found: error
           retention-days: 90

@@ -5,7 +5,7 @@ cp -R assets templates dist-deployable/
 touch dist-deployable/.nojekyll
 printf '%s\n' \
   "commit=${GITHUB_SHA}" \
-  "version=11.43.0" \
-  "build=2026-09-25.37" \
+  "version=$(node -p 'require("./package.json").version')" \
+  "build=2026-10-13.motion-ui" \
   "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
   > dist-deployable/BUILD_INFO.txt

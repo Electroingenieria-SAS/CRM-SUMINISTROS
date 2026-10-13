@@ -1,0 +1,24 @@
+/* Intentional motion. Never layer infinite effects over core operations. */
+.freight-quotes .freight-view-nav{position:relative;gap:8px;border-bottom:1px solid #e0e8f1}
+.freight-quotes .freight-view-tab{position:relative;isolation:isolate;transition:color .18s ease}
+.freight-quotes .freight-view-tab::after{content:"";position:absolute;bottom:-1px;left:9px;right:9px;height:3px;border-radius:3px;background:#1f6eb8;transform:scaleX(0);transform-origin:center;transition:transform .21s cubic-bezier(.18,.78,.23,1)}
+.freight-quotes .freight-view-tab[aria-selected=true]{border-bottom-color:transparent}
+.freight-quotes .freight-view-tab[aria-selected=true]::after{transform:scaleX(1)}
+.freight-quotes .freight-offer{transform:translateZ(0);transition:border-color .22s,box-shadow .22s,transform .22s}
+@media(hover:hover) and (pointer:fine){.freight-quotes .freight-offer:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(22,59,104,.1)}}
+.freight-quotes .freight-actions .btn,.freight-quotes .freight-offer-select,.freight-quotes .freight-history-buttons .btn,.freight-quotes .freight-add-material{transition:background .16s ease,border-color .16s ease,box-shadow .16s ease,transform .16s ease}
+.freight-quotes .btn:active:not(:disabled){transform:translateY(1px) scale(.994)}
+.freight-quotes .btn:disabled{opacity:.54;cursor:not-allowed;transform:none!important}
+.freight-quotes .btn:focus-visible{outline:2px solid #176cbc;outline-offset:3px}
+.freight-quotes [aria-busy=true] .freight-calculate{position:relative}
+.freight-quotes [aria-busy=true] .freight-calculate::after{content:"";display:inline-block;width:12px;height:12px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;margin-left:9px;vertical-align:-2px;animation:freight-spin .85s linear infinite}
+@keyframes freight-spin{to{transform:rotate(360deg)}}
+.freight-price-info{display:inline-grid;place-items:center;width:28px;height:28px;margin-left:4px;border:1px solid #cddcea;color:#306caa;background:#fff;cursor:help;border-radius:50%;font-size:.9rem;line-height:1}
+.freight-price-info:focus-visible{outline:2px solid #267bcc;outline-offset:3px}
+.freight-float-tip{position:fixed;z-index:11001;pointer-events:none;max-width:min(280px,calc(100vw - 30px));padding:10px 12px;border:1px solid #cbddea;border-radius:9px;background:#15354e;color:#fff;font-size:.76rem;line-height:1.5;box-shadow:0 10px 25px #17364c2b}
+.freight-quotes .freight-scenario:focus-within,.freight-quotes .freight-original-reference:focus-within{outline-offset:3px}
+.freight-quotes .freight-original-reference[open] summary{color:#1e6aaa}
+.freight-quotes .freight-original-reference>summary{transition:color .18s ease}
+@media(prefers-reduced-motion:reduce){
+ .freight-quotes *, .freight-quotes *::before,.freight-quotes *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
+}

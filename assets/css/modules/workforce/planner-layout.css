@@ -62,7 +62,7 @@
 }
 
 #workforce-content>.work-now,#workforce-content>.workforce-summary-grid,#workforce-content>.workforce-main-grid,#workforce-content>.card {
-  animation:crm-rise .34s ease both;
+  animation:crm-rise .27s cubic-bezier(.2,.75,.24,1) both;
 }
 
 #workforce-content>.workforce-summary-grid { animation-delay:.04s; }

@@ -236,7 +236,7 @@ tbody tr:last-child td { border-bottom:0; }
   overflow:hidden;
   display:flex;
   flex-direction:column;
-  animation:drawerIn .2s ease;
+  animation:drawerIn .24s cubic-bezier(.2,.78,.22,1);
   background:#f8fafc;
   box-shadow:-26px 0 70px rgba(4,17,45,.27);
 }
