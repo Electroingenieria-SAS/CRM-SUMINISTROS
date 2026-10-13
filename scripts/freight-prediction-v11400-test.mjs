@@ -53,8 +53,6 @@ for(const token of [
   "freightPredictionSnapshot",
   "freightPredictionsHtml",
   "api.freightPredictions",
-  "estimatedMaterialWeightKg",
-  "freightPredictionAtCreation",
   "PREDICCIÓN REFINADA",
   "749 despachos históricos",
   "Modelo validado fuera de muestra"
@@ -71,4 +69,9 @@ assert.equal(orders.includes('route==="NATIONAL_DISPATCH"'),true,"El modelo tran
 assert.equal(migration.includes("revoke all on table erp_supply.freight_prediction_models from public,anon,authenticated"),true,"Tabla de modelos no debe ser accesible directamente.");
 assert.equal(migration.includes("revoke all on table erp_supply.freight_route_reference from public,anon,authenticated"),true,"Tabla agregada de rutas no debe ser accesible directamente.");
 
+const quotes=readDomainSource("freight-quotes","assets/js/modules/freight-quotes.js");
+assert.match(quotes,/freightPredictionSnapshot/);
+assert.match(quotes,/freightPredictionsHtml/);
+assert.match(quotes,/freightQuoteCalculate/);
+assert.match(quotes,/Referencia histórica TCC/);
 console.log("freight predictive model v11.40.0 tests: OK");

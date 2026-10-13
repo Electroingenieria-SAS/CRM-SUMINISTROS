@@ -28,12 +28,6 @@ export function orderFormStep(types,payments,routes,departmentOptions){return {t
             <div class="field"><label>Municipio o ciudad *</label><select class="control" name="clientCity" required disabled><option value="">Primero selecciona el departamento</option></select><small class="field-help" data-municipality-help>La lista se cargará según el departamento.</small></div>
             <div class="field full"><label>Dirección completa *</label><input class="control" name="clientAddress" placeholder="Ejemplo: Carrera 40 # 28-15, Bodega 3" required autocomplete="street-address"><small class="field-help">Incluye vía, número, barrio, vereda, bodega, local o referencia cuando aplique.</small></div>
           </div>
-          <section class="sales-freight-estimate" data-freight-estimate>
-            <div class="sales-freight-icon">↗</div>
-            <div><span>FLETE ESTIMADO</span><strong data-freight-estimate-value>Selecciona modalidad y destino</strong><p data-freight-estimate-copy>El rango se aprenderá de guías y facturas reales por ciudad, modalidad, peso, paquetes y volumen cuando exista.</p></div>
-            <small data-freight-confidence>Sin histórico todavía</small>
-            <div class="sales-freight-carriers-v1140" data-freight-carriers></div>
-          </section>
         </section>
         <input type="hidden" name="clientDocument"><input type="hidden" name="clientPhone"><input type="hidden" name="externalReference"><input type="hidden" name="requestedDeliveryDate">`,validate:validateDeliveryAddress};}
 
@@ -44,9 +38,6 @@ export function orderMaterialsStep(){return {title:"Materiales",description:"Ven
         </section>
         <div class="items-wizard-head"><div><strong>Materiales vendidos</strong><p>Para materiales en metros puedes registrar entrega directa o varias medidas de corte. El total se calcula automáticamente.</p></div><button class="btn btn-create" type="button" id="add-item">Agregar material</button></div>
         <div class="sales-material-list" id="items-editor"></div>
-        <section class="sales-material-freight-v1140" data-material-freight-prediction>
-          <span>PREDICCIÓN LOGÍSTICA</span>
-          <div><strong>Completa los materiales para refinar el flete</strong><p>El CRM calculará el peso usando el maestro Siesa y comparará COLVANES, TCC y VELOENVIOS para despacho nacional.</p></div>
-        </section>`,validate:validateOrderMaterials};}
+`,validate:validateOrderMaterials};}
 
 export function orderConfirmationStep(){return {title:"Confirmar",description:"Revisa el destino, el total de materiales y si existen cortes antes de crear.",content:`<div id="order-review" class="wizard-summary"></div><section class="sales-reservation-confirm"><span>RESERVA ERP</span><div><strong>Ventas no asigna lotes</strong><p>Al crear el pedido, el ERP reservará la necesidad contra la disponibilidad comercial. Alistamiento y Corte definirán el origen físico real y lo dejarán trazado.</p></div></section>`,onEnter:renderOrderReview};}

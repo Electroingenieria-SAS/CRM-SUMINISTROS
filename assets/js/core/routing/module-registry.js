@@ -1,3 +1,4 @@
+import {renderFreightQuotes} from "../../modules/freight-quotes.js";
 import {renderDashboard} from "../../modules/dashboard.js";
 import {renderOrders} from "../../modules/orders.js";
 import {renderInventory} from "../../modules/inventory.js";
@@ -18,6 +19,7 @@ const ROUTES={
   dashboard:async root=>{await renderDashboard(root);await enhanceOperationalDashboard(root);await enhanceFreightIntelligenceDashboard(root)},
   orders:renderOrders,
   sales:renderOrders,
+  freight_quotes:renderFreightQuotes,
   credit:renderCredit,
   receiving:renderReceivingHub,
   inventory:renderInventory,
@@ -69,6 +71,7 @@ export async function renderModule(moduleId,root,context){
   switch(moduleId){
     case "orders":
     case "sales": return ROUTES.orders(root,context);
+    case "freight_quotes": return ROUTES.freight_quotes(root,context);
     case "credit": return ROUTES.credit(root,context);
     case "receiving": return ROUTES.receiving(root,context);
     case "inventory": return ROUTES.inventory(root,context);

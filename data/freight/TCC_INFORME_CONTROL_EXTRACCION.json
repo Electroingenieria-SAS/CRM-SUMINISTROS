@@ -1,0 +1,405 @@
+{
+  "source_pdf": "Tarifas-tradicionales-2023-2024-1.pdf",
+  "source_sha256": "0a56ce97012329b5fa5a7fc758f628416a544e54ecd8417a0f26ddc595b98bb2",
+  "pdf_pages": 43,
+  "total_destino_rows": 1309,
+  "origins": [
+    "ARMENIA",
+    "BARRANQUILLA",
+    "BOGOTA, D.C",
+    "BUCARAMANGA",
+    "BUENAVENTURA",
+    "CALI",
+    "CARTAGENA DE INDIAS",
+    "CAUCASIA",
+    "CUCUTA",
+    "IBAGUE",
+    "IPIALES",
+    "MANIZALES",
+    "MEDELLIN",
+    "MONTERIA",
+    "NEIVA",
+    "PASTO",
+    "PEREIRA",
+    "SANTA MARTA",
+    "SINCELEJO",
+    "TUNJA",
+    "VALLEDUPAR",
+    "VILLAVICENCIO",
+    "YOPAL"
+  ],
+  "total_pairs_Paq_Msj": 30107,
+  "paq_numeric_cells_verified_positionally": 30086,
+  "paq_uncertain_cells": 21,
+  "msj_invalid_codes": 0,
+  "pdf_pairs_alignment_warnings": [],
+  "rx_PAQ_Msj_differences": [
+    [
+      94,
+      4,
+      "BARBOSA (ANTIOQUIA)",
+      "NO",
+      "SI"
+    ],
+    [
+      415,
+      14,
+      "ESPINAL (TOLIMA)",
+      "NO",
+      "SI"
+    ],
+    [
+      449,
+      15,
+      "GALAPA (ATLANTICO)",
+      "NO",
+      "SI"
+    ],
+    [
+      463,
+      16,
+      "GIRARDOT (CUNDINAMARCA)",
+      "NO",
+      "SI"
+    ]
+  ],
+  "header_warnings": [],
+  "Paq_invalid_cells": [
+    {
+      "record": 100,
+      "page": 4,
+      "destination": "BARRANCABERMEJA (SANTANDER)",
+      "origin": "BARRANQUILLA",
+      "source": "IRAVITOB"
+    },
+    {
+      "record": 100,
+      "page": 4,
+      "destination": "BARRANCABERMEJA (SANTANDER)",
+      "origin": "BOGOTA, D.C",
+      "source": ""
+    },
+    {
+      "record": 100,
+      "page": 4,
+      "destination": "BARRANCABERMEJA (SANTANDER)",
+      "origin": "BUCARAMANGA",
+      "source": "NUNCHIACHAMEZATARAPACAAGONVAL"
+    },
+    {
+      "record": 100,
+      "page": 4,
+      "destination": "BARRANCABERMEJA (SANTANDER)",
+      "origin": "BUENAVENTURA",
+      "source": ""
+    },
+    {
+      "record": 100,
+      "page": 4,
+      "destination": "BARRANCABERMEJA (SANTANDER)",
+      "origin": "CALI",
+      "source": ""
+    },
+    {
+      "record": 100,
+      "page": 4,
+      "destination": "BARRANCABERMEJA (SANTANDER)",
+      "origin": "CARTAGENA DE INDIAS",
+      "source": "ZIPACON"
+    },
+    {
+      "record": 100,
+      "page": 4,
+      "destination": "BARRANCABERMEJA (SANTANDER)",
+      "origin": "CAUCASIA",
+      "source": "NILO"
+    },
+    {
+      "record": 100,
+      "page": 4,
+      "destination": "BARRANCABERMEJA (SANTANDER)",
+      "origin": "CUCUTA",
+      "source": "MAPIRIPAAPUNAU"
+    },
+    {
+      "record": 100,
+      "page": 4,
+      "destination": "BARRANCABERMEJA (SANTANDER)",
+      "origin": "IBAGUE",
+      "source": ""
+    },
+    {
+      "record": 100,
+      "page": 4,
+      "destination": "BARRANCABERMEJA (SANTANDER)",
+      "origin": "IPIALES",
+      "source": "CHÍA"
+    },
+    {
+      "record": 100,
+      "page": 4,
+      "destination": "BARRANCABERMEJA (SANTANDER)",
+      "origin": "MANIZALES",
+      "source": "CHINÚ"
+    },
+    {
+      "record": 100,
+      "page": 4,
+      "destination": "BARRANCABERMEJA (SANTANDER)",
+      "origin": "MEDELLIN",
+      "source": "CRUZ DE"
+    },
+    {
+      "record": 100,
+      "page": 4,
+      "destination": "BARRANCABERMEJA (SANTANDER)",
+      "origin": "MONTERIA",
+      "source": "MTOLÚ VIEJOAN"
+    },
+    {
+      "record": 100,
+      "page": 4,
+      "destination": "BARRANCABERMEJA (SANTANDER)",
+      "origin": "NEIVA",
+      "source": "ANTER"
+    },
+    {
+      "record": 100,
+      "page": 4,
+      "destination": "BARRANCABERMEJA (SANTANDER)",
+      "origin": "PASTO",
+      "source": "CHÍA"
+    },
+    {
+      "record": 100,
+      "page": 4,
+      "destination": "BARRANCABERMEJA (SANTANDER)",
+      "origin": "PEREIRA",
+      "source": "BOJACÁ"
+    },
+    {
+      "record": 100,
+      "page": 4,
+      "destination": "BARRANCABERMEJA (SANTANDER)",
+      "origin": "SINCELEJO",
+      "source": "PATILLALEN"
+    },
+    {
+      "record": 100,
+      "page": 4,
+      "destination": "BARRANCABERMEJA (SANTANDER)",
+      "origin": "TUNJA",
+      "source": "FAUSTINERTO"
+    },
+    {
+      "record": 100,
+      "page": 4,
+      "destination": "BARRANCABERMEJA (SANTANDER)",
+      "origin": "VALLEDUPAR",
+      "source": "LLEREN"
+    },
+    {
+      "record": 100,
+      "page": 4,
+      "destination": "BARRANCABERMEJA (SANTANDER)",
+      "origin": "VILLAVICENCIO",
+      "source": "DE TONA"
+    },
+    {
+      "record": 100,
+      "page": 4,
+      "destination": "BARRANCABERMEJA (SANTANDER)",
+      "origin": "YOPAL",
+      "source": "GABARR"
+    }
+  ],
+  "msj_invalid_cells": [],
+  "page_row_tags": {
+    "1": {
+      "PAQ": 31,
+      "MSJ": 30
+    },
+    "2": {
+      "PAQ": 30,
+      "MSJ": 31
+    },
+    "3": {
+      "PAQ": 31,
+      "MSJ": 30
+    },
+    "4": {
+      "PAQ": 30,
+      "MSJ": 31
+    },
+    "5": {
+      "PAQ": 31,
+      "MSJ": 30
+    },
+    "6": {
+      "PAQ": 30,
+      "MSJ": 31
+    },
+    "7": {
+      "PAQ": 31,
+      "MSJ": 30
+    },
+    "8": {
+      "PAQ": 30,
+      "MSJ": 31
+    },
+    "9": {
+      "PAQ": 31,
+      "MSJ": 30
+    },
+    "10": {
+      "PAQ": 30,
+      "MSJ": 31
+    },
+    "11": {
+      "PAQ": 31,
+      "MSJ": 30
+    },
+    "12": {
+      "PAQ": 30,
+      "MSJ": 31
+    },
+    "13": {
+      "PAQ": 31,
+      "MSJ": 30
+    },
+    "14": {
+      "PAQ": 30,
+      "MSJ": 31
+    },
+    "15": {
+      "PAQ": 31,
+      "MSJ": 30
+    },
+    "16": {
+      "PAQ": 30,
+      "MSJ": 31
+    },
+    "17": {
+      "PAQ": 31,
+      "MSJ": 30
+    },
+    "18": {
+      "PAQ": 30,
+      "MSJ": 31
+    },
+    "19": {
+      "PAQ": 31,
+      "MSJ": 30
+    },
+    "20": {
+      "PAQ": 30,
+      "MSJ": 31
+    },
+    "21": {
+      "PAQ": 31,
+      "MSJ": 30
+    },
+    "22": {
+      "PAQ": 30,
+      "MSJ": 31
+    },
+    "23": {
+      "PAQ": 31,
+      "MSJ": 30
+    },
+    "24": {
+      "PAQ": 30,
+      "MSJ": 31
+    },
+    "25": {
+      "PAQ": 31,
+      "MSJ": 30
+    },
+    "26": {
+      "PAQ": 30,
+      "MSJ": 31
+    },
+    "27": {
+      "PAQ": 31,
+      "MSJ": 30
+    },
+    "28": {
+      "PAQ": 30,
+      "MSJ": 31
+    },
+    "29": {
+      "PAQ": 31,
+      "MSJ": 30
+    },
+    "30": {
+      "PAQ": 30,
+      "MSJ": 31
+    },
+    "31": {
+      "PAQ": 31,
+      "MSJ": 30
+    },
+    "32": {
+      "PAQ": 30,
+      "MSJ": 31
+    },
+    "33": {
+      "PAQ": 31,
+      "MSJ": 30
+    },
+    "34": {
+      "PAQ": 30,
+      "MSJ": 31
+    },
+    "35": {
+      "PAQ": 31,
+      "MSJ": 30
+    },
+    "36": {
+      "PAQ": 30,
+      "MSJ": 31
+    },
+    "37": {
+      "PAQ": 31,
+      "MSJ": 30
+    },
+    "38": {
+      "PAQ": 30,
+      "MSJ": 31
+    },
+    "39": {
+      "PAQ": 31,
+      "MSJ": 30
+    },
+    "40": {
+      "PAQ": 30,
+      "MSJ": 31
+    },
+    "41": {
+      "PAQ": 31,
+      "MSJ": 30
+    },
+    "42": {
+      "PAQ": 30,
+      "MSJ": 31
+    },
+    "43": {
+      "PAQ": 28,
+      "MSJ": 28
+    }
+  },
+  "duplicate_literal_destinations": {
+    "SAN PABLO (BOLIVAR)": 2
+  },
+  "geometric_text_overlaps_count": 23,
+  "independent_comparison_count": 1296,
+  "independent_comparison_differences": [],
+  "important_findings": [
+    "Los datos corresponden a un cuadro tradicional TCC 2023-2024; no afirmar vigencia 2026.",
+    "El PDF contiene columna CALI como origen, no TULUA. NO usar Cali como sinónimo de Tuluá sin contrato.",
+    "Las celdas PAQ de ruta son números que el material comercial actual de TCC identifica como tarifa por kilogramo, pero no demuestran el acuerdo contractual 2026.",
+    "Los valores MSJ son códigos de clasificación; NO importes monetarios de mensajería.",
+    "Barrancabermeja (Santander), página 4, presenta sobreimpresión de nombres de destinos. Los valores ilegibles permanecen NULOS; no imputar.",
+    "No combinar identificadores de destino usando sólo nombre sin departamento y/o autoridad territorial."
+  ]
+}

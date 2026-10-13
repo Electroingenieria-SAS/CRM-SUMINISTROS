@@ -21,7 +21,7 @@ const metadataSource=source('../../assets/js/core/layout/module-metadata.js');
 const rendererNames=[
   'renderDashboard','renderOrders','renderInventory','renderApprovals','renderVsm','renderImports',
   'renderAudit','renderAdmin','renderCredit','renderReports','renderCutting','renderWorkforce',
-  'renderReceivingHub','enhanceOperationalDashboard','enhanceFreightIntelligenceDashboard'
+  'renderFreightQuotes','renderReceivingHub','enhanceOperationalDashboard','enhanceFreightIntelligenceDashboard'
 ];
 const rendererCalls=[];
 const renderers=Object.fromEntries(rendererNames.map(name=>{
@@ -54,7 +54,7 @@ const {createAuthenticatedRuntimeInstaller}=new Function(
 )(()=>{},()=>{},()=>{},()=>{},()=>{},()=>{});
 
 const EXPECTED_MODULES=[
-  'dashboard','orders','sales','credit','receiving','inventory','approvals','vsm','imports','audit','admin','reports','cutting','workforce',
+  'dashboard','orders','sales','freight_quotes','credit','receiving','inventory','approvals','vsm','imports','audit','admin','reports','cutting','workforce',
   'cartera','caja','purchasing','picking','billing','shipping'
 ];
 

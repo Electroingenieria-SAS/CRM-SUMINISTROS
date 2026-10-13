@@ -21,12 +21,10 @@ assert.equal(fs.existsSync(new URL("../assets/js/modules/order-priority-v117.js"
 
 for(const token of [
   "data-customer-intelligence",
-  "data-freight-estimate",
   "api.customerIntelligence",
   "api.freightEstimate",
   "customerSegmentBadgeFromPriority",
   "Segmento cliente",
-  "Flete estimado"
 ]) assert.equal(orders.includes(token),true,`Pedidos debe integrar ${token}`);
 
 for(const token of [
@@ -108,4 +106,8 @@ for(const token of [
   "customerRankingHtml"
 ]) assert.equal(workforce.includes(token),true,`Indicadores debe integrar ${token}`);
 
+const createOrder=fs.readFileSync(new URL("../assets/js/domains/orders/create/create-order.js",import.meta.url),"utf8");
+const orderForm=fs.readFileSync(new URL("../assets/js/domains/orders/create/order-form.js",import.meta.url),"utf8");
+assert.doesNotMatch(createOrder,/bindFreightPrediction|freightPredictionAtCreation/);
+assert.doesNotMatch(orderForm,/data-freight-estimate|data-freight-carriers/);
 console.log("customer + freight intelligence v11.39.1 tests: OK");

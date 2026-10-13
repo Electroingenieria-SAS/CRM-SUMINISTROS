@@ -2,6 +2,7 @@ const MODULE_METADATA={
   dashboard:["Centro de operaciones","Indicadores, cargas y prioridades de la operación"],
   orders:["Pedidos","Consulta, trazabilidad y gestión integral"],
   sales:["Ventas y pedidos","Creación y seguimiento comercial"],
+  freight_quotes:["Cotización de fletes","Referencias TCC y predicciones desde guías reales"],
   credit:["Crédito","Radicación, estudio y decisión"],
   cartera:["Cartera","Validación financiera y liberación"],
   caja:["Caja","Retenidos y facturación de pedidos PVN"],

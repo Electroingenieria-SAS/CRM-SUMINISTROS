@@ -1,3 +1,4 @@
+import {mountFreightQuoteOrderEntry} from "../../freight-quotes/quote-order-entry.js";
 import { api } from "../../../services/api.js";
 import { fmt } from "../../../core/format.js";
 import { loading } from "../../../core/ui.js";
@@ -30,11 +31,11 @@ export async function openOrder(orderId){
 
 export function renderSimpleOrder(host,data){
   const cancellationOptions={reload:()=>openOrder(data.order.id),refresh:refreshLists};
-  if(isOrderReceptionStep(data)){renderOrderReception(host,data,{reload:cancellationOptions.reload,refreshLists});mountOrderCancellationAction(host,data,cancellationOptions);return;}
-  if(isFinancialFlowStep(data)){renderFinancialFlow(host,data,{reload:cancellationOptions.reload,refreshLists});mountOrderCancellationAction(host,data,cancellationOptions);return;}
-  if(isCuttingFlow(data)){renderCuttingOrder(host,data);mountOrderCancellationAction(host,data,cancellationOptions);return;}
-  if(isPickingFlow(data)){renderPickingFlow(host,data,{reload:cancellationOptions.reload,refreshLists});mountOrderCancellationAction(host,data,cancellationOptions);return;}
-  if(isShippingFlow(data)){renderShippingFlow(host,data,{reload:cancellationOptions.reload,refreshLists});mountOrderCancellationAction(host,data,cancellationOptions);return;}
+  if(isOrderReceptionStep(data)){renderOrderReception(host,data,{reload:cancellationOptions.reload,refreshLists});mountOrderCancellationAction(host,data,cancellationOptions);mountFreightQuoteOrderEntry(host,data);return;}
+  if(isFinancialFlowStep(data)){renderFinancialFlow(host,data,{reload:cancellationOptions.reload,refreshLists});mountOrderCancellationAction(host,data,cancellationOptions);mountFreightQuoteOrderEntry(host,data);return;}
+  if(isCuttingFlow(data)){renderCuttingOrder(host,data);mountOrderCancellationAction(host,data,cancellationOptions);mountFreightQuoteOrderEntry(host,data);return;}
+  if(isPickingFlow(data)){renderPickingFlow(host,data,{reload:cancellationOptions.reload,refreshLists});mountOrderCancellationAction(host,data,cancellationOptions);mountFreightQuoteOrderEntry(host,data);return;}
+  if(isShippingFlow(data)){renderShippingFlow(host,data,{reload:cancellationOptions.reload,refreshLists});mountOrderCancellationAction(host,data,cancellationOptions);mountFreightQuoteOrderEntry(host,data);return;}
   const order=data.order;
   const task=activeTask(data);
   const status=simpleStatus(task?.status||order.status);
@@ -94,7 +95,7 @@ export function renderSimpleOrder(host,data){
     </div>`;
 
   host.querySelectorAll("[data-close]").forEach(button=>button.onclick=()=>host.replaceChildren());
-  mountOrderCancellationAction(host,data,cancellationOptions);
+  mountOrderCancellationAction(host,data,cancellationOptions);mountFreightQuoteOrderEntry(host,data);
   host.querySelector("[data-next-action]")?.addEventListener("click",()=>runSimpleIntent(data,next.button));
   host.querySelectorAll("[data-status-choice]").forEach(button=>button.onclick=()=>runSimpleIntent(data,button.dataset.statusChoice));
   host.querySelectorAll("[data-secondary]").forEach(button=>button.onclick=()=>runSecondary(data,button.dataset.secondary));

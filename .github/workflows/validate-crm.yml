@@ -135,7 +135,7 @@ jobs:
         run: npx playwright install --with-deps chromium webkit
 
       - name: Browser smoke · public shell + XSS trust boundary
-        run: npx playwright test tests/smoke.spec.js tests/domain-refactor.spec.js tests/responsive-refactor.spec.js --project=chromium --project=mobile --project=iphone --project=tablet --grep-invert "authenticated shell, critical modules and native API"
+        run: npx playwright test tests/smoke.spec.js tests/domain-refactor.spec.js tests/responsive-refactor.spec.js tests/freight-quotes.spec.js --project=chromium --project=mobile --project=iphone --project=tablet --grep-invert "authenticated shell, critical modules and native API"
 
       - name: Package deployable frontend
         run: bash scripts/ci/package-frontend.sh
