@@ -30,7 +30,7 @@ export function measurementCardHtml(snapshot){
  const cards=[['weight','WEIGHT','Por peso','kg'],['volume','VOLUME','Por volumen','m³']].map(([key,basis,title,unit])=>{
   const ref=scenarios[key],available=['HISTORICAL_REFERENCE','ESTIMATED_REFERENCE'].includes(ref.status),total=ref.subtotalCop??ref.totalCop;
   return '<article class="freight-scenario" data-measurement-basis="'+basis+'" data-greater="'+(snapshot.selectedBasis===basis)+'">'+
-   '<h3>'+title+'</h3>'+
+   '<h3>'+title+(basis==='VOLUME'?'<button type="button" class="freight-price-info" data-freight-tip="volume" aria-label="Explicación de peso volumétrico">ⓘ</button>':'')+'</h3>'+
    (available?'<p>'+fmt.number(ref.amount,4)+' '+unit+' registrados</p><strong>'+fmt.money(total)+'</strong><p>Referencia original · Base: '+fmt.money(ref.baseCop)+(envia?' · Variable: '+fmt.money(ref.variableCop):' · Manejo: '+fmt.money(ref.handlingCop))+'</p>'+
     (basis==='VOLUME'?'<small>'+fmt.number(ref.conversionFactor,0)+' kg/m³ → '+fmt.number(ref.billableKg,3)+' kg equivalentes'+(envia?' · factor no confirmado para mercancía terrestre':'')+'</small>':''):
     '<p>'+(ref.reason==='ORIGIN_ROUTE_UNAVAILABLE'?'Sin tarifa documental TCC para este origen. Consulta el rango histórico superior si está disponible.':ref.reason==='RATE_UNAVAILABLE'||ref.reason==='ROUTE_UNDOCUMENTED'?'Tarifa documental de la ruta no disponible.':'Ingresa esta medida para compararla.')+'</p>')+
