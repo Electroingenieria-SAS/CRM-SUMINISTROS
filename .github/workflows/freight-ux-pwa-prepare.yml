@@ -1,0 +1,26 @@
+name: Refresh freight UX PWA assets (temporary)
+on:
+  push:
+    branches:
+      - feat/freight-ux-refresh-20261013
+permissions:
+  contents: write
+jobs:
+  revision:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - name: Regenerate site manifest
+        run: node scripts/ci/generate-precache-manifest.mjs
+      - name: Commit PWA files only
+        run: |
+          set -eu
+          git add assets/precache-manifest.json service-worker.js
+          if git diff --staged --quiet; then exit 0; fi
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'chore(pwa): refresh redesigned freight quote assets'
+          git push origin HEAD:feat/freight-ux-refresh-20261013
