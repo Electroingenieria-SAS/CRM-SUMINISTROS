@@ -21,6 +21,9 @@ export async function openCarrierGuideDialog(orderId){
           <div class="field"><label>Transportadora *</label><input class="control" name="carrier" value="${escapeText(delivery?.carrier||"")}" required></div>
           <div class="field"><label>Número factura transportadora</label><input class="control" name="carrierInvoiceNumber" value="${escapeText(delivery?.carrier_invoice_number||"")}"></div>
           <div class="field"><label>Costo transportadora</label><input class="control" name="carrierCost" type="number" min="0" step="0.01" value="${delivery?.carrier_cost??""}"></div>
+          <div class="field"><label>Origen real del despacho (TCC / ENVÍA)</label><input class="control" name="freightOrigin" maxlength="120" value="${escapeText(delivery?.metadata?.freightOrigin||"")}" placeholder="Ej. TULUA"></div>
+          <div class="field"><label>Peso real facturado (kg)</label><input class="control" name="freightWeightKg" type="number" min="0.001" step="any" value="${delivery?.metadata?.freightWeightKg??""}"></div>
+          <div class="field"><label>Volumen real (m³, opcional)</label><input class="control" name="freightVolumeM3" type="number" min="0.000001" step="any" value="${delivery?.metadata?.freightVolumeM3??""}"></div>
           <div class="field"><label>Moneda</label><select class="control" name="carrierCostCurrency"><option value="COP" selected>COP</option><option value="USD">USD</option></select></div>
           <div class="field full"><label>Soporte de guía, opcional</label><input class="control" name="guideFile" type="file" accept="image/*,.pdf,application/pdf"></div>
         </div>
@@ -33,6 +36,13 @@ export async function openCarrierGuideDialog(orderId){
         const costRaw=dialog.querySelector('[name="carrierCost"]').value;
         const carrierCost=costRaw===""?null:Number(costRaw);
         const currency=dialog.querySelector('[name="carrierCostCurrency"]').value;
+        const freightOrigin=dialog.querySelector('[name="freightOrigin"]').value.trim().toUpperCase();
+        const freightWeightKg=Number(dialog.querySelector('[name="freightWeightKg"]').value);
+        const freightVolumeRaw=dialog.querySelector('[name="freightVolumeM3"]').value;
+        const freightVolumeM3=freightVolumeRaw===""?null:Number(freightVolumeRaw);
+        const provider=carrier.normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase();
+        if(['TCC','ENVIA','COLVANES'].includes(provider)&&(!freightOrigin||!(freightWeightKg>0)))throw new Error('Para que TCC/ENVÍA aprenda del costo real, confirma origen y peso real de la guía.');
+        if(freightVolumeM3!==null&&!(freightVolumeM3>0))throw new Error('Volumen inválido.');
         const file=dialog.querySelector('[name="guideFile"]').files?.[0];
         if(carrierCost!==null&&carrierCost<0)throw new Error("El costo de transportadora no puede ser negativo.");
         if(carrierCost!==null&&!carrierInvoiceNumber)throw new Error("Indica el número de factura de la transportadora para registrar un costo.");
@@ -41,7 +51,8 @@ export async function openCarrierGuideDialog(orderId){
           const uploaded=await uploadOrderFile(orderId,file,"SHIPPING_GUIDE",task?.id,data.order.order_number);
           guideFileId=uploaded?.file?.id||null;
         }
-        await api.saveShippingGuide(orderId,{trackingNumber,carrier,carrierInvoiceNumber,carrierCost,carrierCostCurrency:currency,guideFileId});
+        await api.saveShippingGuide(orderId,{trackingNumber,carrier,carrierInvoiceNumber,carrierCost,carrierCostCurrency:currency,guideFileId,
+          ...(freightOrigin?{freightOrigin}:{}),...(freightWeightKg>0?{freightWeightKg}:{}),...(freightVolumeM3!==null?{freightVolumeM3}:{})});
         const prediction=carrierPredictionV1141(data.order,carrier);
         const outside=carrierCost!=null&&prediction?.estimateHigh!=null&&carrierCost>Number(prediction.estimateHigh);
         toast(outside?"Guía guardada. El costo quedó por encima del rango predicho y será auditado por PACO.":"Guía y datos de transportadora guardados en el despacho.",outside?"warning":"success",7500);reopenOrder(orderId);
