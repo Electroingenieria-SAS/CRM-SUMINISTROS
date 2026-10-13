@@ -2,6 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {measurementCardHtml} from '../../assets/js/domains/freight-quotes/measurement-view.js';
+import {quoteResultHtml} from '../../assets/js/domains/freight-quotes/quote-view.js';
 import {buildShippingGuidePayload} from '../../assets/js/domains/logistics/shipping/guide/payload.js';
 import {quoteCanSaveCalculated} from '../../assets/js/domains/freight-quotes/carrier-adapters.js';
 
@@ -46,10 +47,42 @@ test('tarjeta comercial destaca rango y conserva trazabilidad y precios por fuen
  assert.match(html,/Menor estimación orientativa/);
  assert.match(html,/Flete base estimado/);
  assert.match(html,/IPC DANE/);
- assert.doesNotMatch(html,/Rango heurístico/);
+ assert.match(html,/Estimación con tarifas TCC actualizadas a 2026/);
+ assert.match(html,/Valor estimado, no tarifa oficial/);
+ for(const lengthy of [/Guías nuevas estrictamente comparables/,/dispersión histórica/,/Sin recalibración automática/,/IPC compuesto:/, /Rango heurístico/])
+   assert.doesNotMatch(html,lengthy,'Eliminar detalles técnicos de la tarjeta principal');
  assert.match(html,/Consultar referencia original/);
 });
 test('solo se permite guardar estimado de la transportadora elegida',()=>{
  assert.equal(quoteCanSaveCalculated({carrier:'TCC',commercialEstimate:{available:false},prediction:{available:true}}),false);
  assert.equal(quoteCanSaveCalculated({carrier:'ENVIA',commercialEstimate:{available:true}}),true);
+});
+
+test('TCC y ENVÍA muestran la fuente breve, sin guías o notas técnicas visibles',()=>{
+ const fixture=(carrier,source)=>measurementCardHtml({
+  carrier,origin:'TULUA',destination:'BOGOTA',tariffVersion:'HISTORICO',
+  measurementScenarios:{
+   weight:{status:'UNAVAILABLE',measuredMaterials:0,totalMaterials:1,complete:false},
+   volume:{status:'UNAVAILABLE',measuredMaterials:0,totalMaterials:1,complete:false}
+  },
+  commercialEstimate:{available:true,source,totalCop:65000,rangeLowCop:55000,rangeHighCop:75000,statisticalRange:true,guideCalibration:{samples:0,applied:false}}
+ });
+ const tcc=fixture('TCC','TCC_REAL_GUIDE_MODEL'),envia=fixture('ENVIA','ENVIA_REFERENCE');
+ assert.match(tcc,/Estimación con historial de TCC/);
+ assert.match(envia,/Estimación con referencias de ENVÍA/);
+ for(const html of [tcc,envia]){
+  assert.match(html,/Valor estimado, no tarifa oficial/);
+  assert.doesNotMatch(html,/Guías nuevas estrictamente comparables|Intervalo derivado de la dispersión histórica|Sin recalibración automática|Reglas internas ENVÍA/);
+ }
+});
+test('no se renderiza el panel histórico duplicado, pero se conserva la cotización comparativa',()=>{
+ const result={comparison:[
+  {carrier:'TCC',origin:'TULUA',destination:'BOGOTA',reference:{status:'UNAVAILABLE'},tariffVersion:'TCC',warning:'',commercialEstimate:{available:true,totalCop:65000}},
+  {carrier:'ENVIA',origin:'TULUA',destination:'BOGOTA',reference:{status:'UNAVAILABLE'},tariffVersion:'ENVIA',warning:'',commercialEstimate:{available:true,totalCop:61000}}
+ ],prediction:{available:true,carriers:[{carrier:'TCC',estimateMid:62000},{carrier:'COLVANES',estimateMid:61000}]}};
+ const html=quoteResultHtml(result);
+ assert.match(html,/freight-comparison-grid/);
+ assert.match(html,/data-carrier-reference="TCC"/);
+ assert.match(html,/data-carrier-reference="ENVIA"/);
+ assert.doesNotMatch(html,/freight-historical-details|Ver indicador estadístico histórico por transportadora|sales-freight-carriers-v1140/);
 });

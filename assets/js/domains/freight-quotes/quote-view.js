@@ -1,4 +1,6 @@
 import {referenceCardHtml} from "./quote-reference-view.js";
+// Preserve the existing Orders freight module graph without rendering the
+// redundant historical comparison section on the quote page.
 import {freightPredictionsHtml} from "../orders/freight/freight-display.js";
 import {freightPredictionSnapshot} from "../orders/freight/freight-prediction.js";
 import {fmt} from '../../core/format.js';
@@ -19,12 +21,10 @@ export function quoteView(){return `<section class="freight-quotes"><header clas
 <div data-quote-result></div><section class="freight-panel"><h2>Historial de cotizaciones</h2><div data-quote-history></div><div class="freight-actions"><button class="btn" data-history-prev>Anterior</button><span data-history-page></span><button class="btn" data-history-next>Siguiente</button></div></section></section>`;}
 export function options(rows,label=x=>x,value=x=>x){return '<option value="">Selecciona</option>'+rows.map(r=>`<option value="${esc(value(r))}">${esc(label(r))}</option>`).join('');}
 export function quoteResultHtml(result){
- const pred=result.prediction,modelSnapshot=freightPredictionSnapshot(pred);
  const cards=result.comparison?.length?result.comparison:[result];
- const presented=pred?{...pred,carriers:(pred.carriers||[]).map(row=>({...row,carrier:result.carrierAliases?.[row.carrier]?`${result.carrierAliases[row.carrier]} (${row.carrier})`:row.carrier})),cheapestCarrier:result.carrierAliases?.[pred.cheapestCarrier]?`${result.carrierAliases[pred.cheapestCarrier]} (${pred.cheapestCarrier})`:pred.cheapestCarrier}:pred;
  const valued=cards.filter(card=>card.commercialEstimate?.available&&Number(card.commercialEstimate.totalCop)>0);
  const cheapest=valued.length===2?valued.reduce((a,b)=>Number(a.commercialEstimate.totalCop)<Number(b.commercialEstimate.totalCop)?a:b).carrier:null;
  const quoteCards=cards.map(card=>({...card,cheapestCommercial:card.carrier===cheapest}));
- return `<div class="freight-comparison-grid">${quoteCards.map(referenceCardHtml).join('')}</div><details class="freight-panel freight-historical-details"><summary>Ver indicador estadístico histórico por transportadora</summary>${pred?.available?`<div class="freight-breakdown">${freightPredictionsHtml(presented)}</div><p>Versión ${esc(modelSnapshot?.version||pred.version)}. Base histórica del CRM, separada de los cobros facturados y las tarifas.</p>`:'<p>No hay una predicción histórica con el origen y peso indicados.</p>'}</details>`;
+ return `<div class="freight-comparison-grid">${quoteCards.map(referenceCardHtml).join('')}</div>`;
 }
 export function quoteHistoryHtml(items){return items.length?items.map(q=>`<article class="freight-history-row"><div><strong>CF-${esc(q.folio)}</strong><p>${esc(q.carrier==='ENVIA'?'ENVÍA':'TCC')} · ${esc(q.snapshot.origin)} → ${esc(q.snapshot.destination)} · ${esc(({DRAFT:'Borrador',CALCULATED:'Calculada',EXPIRED:'Vencida'})[q.status]||q.status)}</p><small>${esc(new Date(q.created_at).toLocaleString('es-CO'))} · Pedido ${esc(q.order_number||'sin vincular')}</small><p>Estimación: ${q.snapshot.commercialEstimate?.available?fmt.money(q.snapshot.commercialEstimate.totalCop):((q.snapshot.reference.subtotalCop??q.snapshot.reference.totalCop)!=null?fmt.money(q.snapshot.reference.subtotalCop??q.snapshot.reference.totalCop):'sin precio')} · Real de guía ${esc(q.carrier==='ENVIA'?'ENVÍA':'TCC')}: ${q.actual_cost_cop!=null?fmt.money(q.actual_cost_cop):'pendiente'} · Desviación: ${q.actual_cost_cop!=null&&q.snapshot.commercialEstimate?.available?fmt.money(Number(q.actual_cost_cop)-Number(q.snapshot.commercialEstimate.totalCop)):'pendiente'} ${esc(q.actual_carrier||'')}</p></div><div class="freight-actions"><button type="button" class="btn" data-quote-view="${esc(q.id)}">Ver</button><button type="button" class="btn" data-quote-duplicate="${esc(q.id)}">Duplicar</button><button type="button" class="btn" data-quote-link="${esc(q.id)}">Vincular pedido</button></div></article>`).join(''):'<p>Aún no hay cotizaciones guardadas.</p>';}
