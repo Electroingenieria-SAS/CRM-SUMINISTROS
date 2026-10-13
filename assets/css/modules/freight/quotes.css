@@ -95,7 +95,7 @@
 .freight-calculate{min-height:46px;min-width:120px;font-weight:750}
 .freight-message{min-height:26px;margin:7px 0 15px;padding:0 2px;font-size:.85rem;color:#28587c}
 .freight-message[data-kind=warning]{color:#a44c2a}
-.freight-results-section{scroll-margin-top:30px;animation:freight-fade-in .27s ease-out;margin:25px 0}
+.freight-results-section{scroll-margin-top:30px;margin:25px 0}
 .freight-results-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:15px}
 .freight-results-heading h2{font-size:1.3rem!important;margin:0 0 4px;color:var(--freight-ink)}
 .freight-results-heading p:not(.freight-overline){margin:0;font-size:.84rem;color:var(--freight-muted)}
@@ -127,7 +127,6 @@
 .freight-history-empty{color:#637993;text-align:center;padding:25px;border:1px dashed #d5e3ef;border-radius:12px}
 .freight-pagination{justify-content:flex-end;margin-top:18px}
 .freight-pagination span{font-size:.8rem;color:#5b738b}
-@keyframes freight-fade-in{from{opacity:.2;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:1150px){
  .freight-route-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  .freight-destination-field{grid-column:1/-1}
