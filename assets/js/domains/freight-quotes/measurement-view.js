@@ -42,5 +42,5 @@ export function measurementCardHtml(snapshot){
  return '<section class="freight-panel" data-carrier-reference="'+esc(snapshot.carrier)+'"><h2>'+esc(envia?'ENVÍA':'TCC')+' · Cotización del envío</h2><p>'+esc(snapshot.origin)+' → '+esc(snapshot.destination)+'</p>'+
   commercialHtml(snapshot)+
   '<details class="freight-original-reference"><summary>Consultar referencia original y cálculo por medidas</summary><div class="freight-scenarios">'+cards+'</div><p>'+(snapshot.selectedBasis?(bothComplete?'Base de mayor cobro':'Base disponible')+': '+basis+'.':'Completa la medida de todos los materiales para guardar.')+'</p><small>'+esc(snapshot.measurementWarning)+'</small><p>'+esc(snapshot.warning)+'</p><small>Fuente: '+esc(snapshot.tariffVersion)+'. La tarifa original se conserva sin cambios.</small>'+
-  (snapshot.commercialEstimate?.source==='TCC_2024_IPC_2026'?'<small>Estimación actualizada con IPC DANE hasta septiembre de 2026, no equivale a una tarifa vigente de TCC.</small>':'')</details></section>';
+  (snapshot.commercialEstimate?.source==='TCC_2024_IPC_2026'?'<small>Estimación actualizada con IPC DANE hasta septiembre de 2026, no equivale a una tarifa vigente de TCC.</small>':'')+'</details></section>';
 }
