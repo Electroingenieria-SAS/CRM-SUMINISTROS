@@ -46,6 +46,7 @@ test('material con dos botones: conserva medidas, compara, guarda y duplica sin 
  await page.getByLabel('Origen efectivo').selectOption('CALI');
  await page.getByLabel('Departamento',{exact:true}).selectOption('VALLE DEL CAUCA');
  await page.getByLabel('Municipio / localidad y centro operativo').selectOption('TCC_TEST');
+ await page.locator('.freight-route-extras summary').click();
  await page.getByLabel('Valor declarado (COP)').fill('100000');
  await page.getByLabel('Peso del material (kg)').fill('20');
  await page.getByRole('button',{name:'Volumen',exact:true}).click();
@@ -80,6 +81,7 @@ test('ENVÍA por peso y volumen: faltantes visibles y materiales mixtos no omiti
  await page.getByLabel('Origen efectivo').selectOption('TULUA');
  await page.getByLabel('Departamento',{exact:true}).selectOption('VALLE DEL CAUCA');
  await page.getByLabel('Municipio / localidad y centro operativo').selectOption('TCC_TEST');
+ await page.locator('.freight-route-extras summary').click();
  await page.getByLabel('Transportadora',{exact:true}).selectOption('ENVIA');
  await page.getByLabel('Peso del material (kg)').fill('38.001');
  await page.getByRole('button',{name:'Calcular',exact:true}).click();
@@ -99,5 +101,43 @@ test('ENVÍA por peso y volumen: faltantes visibles y materiales mixtos no omiti
  await page.getByRole('button',{name:'Guardar borrador',exact:true}).click();
  await expect(page.locator('[data-quote-history]')).toContainText('CF-2');
  expect(await page.evaluate(()=>window.__quoteFixtures[0].input.materials.length)).toBe(2);
+ expect(await page.evaluate(()=>window.__orderWrites)).toBe(0);
+});
+
+
+test('cotizador renovado: buscar destino, resumen y duplicación de materiales, filtros y móvil',async({page},testInfo)=>{
+ await mountQuotes(page);
+ await expect(page.locator('[data-material-count]')).toHaveText('1');
+ await page.getByLabel('Nombre del material').fill('Cable eléctrico');
+ await page.getByLabel('Peso del material (kg)').fill('20');
+ await expect(page.locator('[data-material-weight]')).toContainText('20');
+ await page.getByRole('button',{name:'Duplicar material'}).click();
+ await expect(page.locator('[data-material-count]')).toHaveText('2');
+ await expect(page.locator('[data-material-weight]')).toContainText('40');
+ await page.locator('.freight-line').nth(1).getByRole('button',{name:'Eliminar material'}).click();
+ await expect(page.locator('[data-material-count]')).toHaveText('1');
+ await page.getByLabel('Departamento',{exact:true}).selectOption('VALLE DEL CAUCA');
+ const search=page.getByLabel('Buscar municipio o centro operativo');
+ await search.fill('inexistente');
+ await expect(page.getByLabel('Municipio / localidad y centro operativo')).toBeDisabled();
+ await search.fill('tulua');
+ await expect(page.getByLabel('Municipio / localidad y centro operativo')).toBeEnabled();
+ await page.getByLabel('Municipio / localidad y centro operativo').selectOption('TCC_TEST');
+ await page.getByLabel('Origen efectivo').selectOption('CALI');
+ await page.getByRole('button',{name:'Calcular',exact:true}).click();
+ await expect(page.locator('[data-carrier-reference="TCC"]')).toBeVisible();
+ await expect(page.locator('[data-carrier-reference="ENVIA"]')).toBeVisible();
+ await expect(page.getByText('Ver indicador estadístico histórico por transportadora')).toHaveCount(0);
+ await page.getByRole('button',{name:'Guardar borrador',exact:true}).click();
+ await expect(page.locator('[data-quote-history]')).toContainText('CF-1');
+ await page.locator('[data-history-search]').fill('sin coincidencia');
+ await expect(page.locator('[data-quote-history]')).toContainText('No hay coincidencias en esta página');
+ await page.locator('[data-history-search]').fill('');
+ await expect(page.locator('[data-quote-history]')).toContainText('CF-1');
+ for(const width of [375,768,1024,1440]){
+  await page.setViewportSize({width,height:900});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+1);
+  await page.screenshot({path:testInfo.outputPath('freight-renovated-'+width+'.png'),fullPage:true});
+ }
  expect(await page.evaluate(()=>window.__orderWrites)).toBe(0);
 });

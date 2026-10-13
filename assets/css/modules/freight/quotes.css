@@ -41,3 +41,128 @@
 .freight-original-reference .freight-scenarios{margin:14px 0}
 .freight-cheaper-label{display:inline-flex;background:#d9f2e9;color:#195c47;padding:5px 12px;border-radius:30px;font-size:.8rem;font-weight:700;margin:10px 0}
 @media(max-width:620px){.freight-market-breakdown{grid-template-columns:minmax(0,1fr)}.freight-price-hero{padding:15px}}
+
+
+/* Cotización UX: scoped visual enhancement; no changes to the freight engine. */
+.freight-quotes{--freight-blue:#135da8;--freight-ink:#162c47;--freight-muted:#587088}
+.freight-page-head{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:0 0 20px}
+.freight-page-head h1{font-weight:800;letter-spacing:-.035em;font-size:clamp(1.5rem,2.4vw,2.15rem);color:var(--freight-ink)}
+.freight-page-head p:not(.freight-overline){max-width:65ch;color:var(--freight-muted);margin:0}
+.freight-overline{font-size:.7rem;font-weight:800;letter-spacing:.13em;color:var(--freight-blue);margin:0 0 8px}
+.freight-head-icon{display:grid;place-items:center;width:56px;height:56px;flex:none;border-radius:16px;background:linear-gradient(145deg,#e4f0ff,#f7fbff);border:1px solid #cfdef0;color:var(--freight-blue);font-size:1.8rem;font-weight:800}
+.freight-quotes .freight-notice{padding:14px 18px;border:1px solid #cee1f3;border-left:4px solid #2478cb;background:#f3f8ff;color:#35516d;border-radius:12px;margin-bottom:20px;font-size:.88rem}
+.freight-quotes .freight-panel{box-shadow:0 7px 22px rgba(14,45,78,.035);border-color:#dce6f1;border-radius:19px}
+.freight-quotes .freight-step-panel{padding:25px 28px}
+.freight-step-heading{display:flex;align-items:center;gap:13px;margin-bottom:22px;min-width:0}
+.freight-step-heading>div{flex:1;min-width:0}.freight-step-heading h2{margin:0 0 3px;font-size:1.14rem;font-weight:760;color:var(--freight-ink)}
+.freight-step-heading p{font-size:.85rem;color:var(--freight-muted);margin:0}
+.freight-step-number,.freight-history-icon{width:39px;height:39px;flex:none;display:grid;place-items:center;border-radius:12px;background:#e7f1ff;color:var(--freight-blue);font-size:1.1rem;font-weight:800}
+.freight-step-tag,.freight-unit-badge{border-radius:99px;padding:7px 13px;background:#f0f6fd;color:#336a9a;font-size:.75rem;font-weight:760;white-space:nowrap}
+.freight-route-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.5fr);gap:15px;align-items:start}
+.freight-quotes label{font-size:.84rem;font-weight:650;color:#36506a}
+.freight-quotes .control{border-radius:11px;min-height:45px;border:1px solid #cdd9e6;background:#fff;color:#19344f}
+.freight-quotes .control:focus-visible{outline:2px solid #397dcc;outline-offset:2px;border-color:#458dd9}
+.freight-quotes .control:disabled{background:#f5f8fc;color:#718397;cursor:not-allowed}
+.freight-destination-field{min-width:0;display:flex;flex-direction:column;gap:7px}
+.freight-field-secondary{font-size:.76rem!important;font-weight:500!important;color:#536d85!important}
+.freight-field-note{font-size:.73rem;line-height:1.4;color:#6c8095}
+.freight-route-extras{margin-top:17px;border-top:1px dashed #d7e2ee;padding-top:12px}
+.freight-route-extras summary{width:max-content;max-width:100%;cursor:pointer;color:#1d629d;font-weight:700;font-size:.83rem;padding:5px 0}
+.freight-route-extras[open] summary{margin-bottom:15px}
+.freight-route-extras p{font-size:.78rem;color:#64788a;margin:10px 0 0}
+.freight-extra-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+.freight-material-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-bottom:16px}
+.freight-material-summary>span{padding:13px 16px;border:1px solid #dce7f3;border-radius:13px;background:#f7faff;min-width:0}
+.freight-material-summary small{display:block;font-size:.73rem;color:#627891;margin-bottom:4px}
+.freight-material-summary strong{display:block;font-size:1.02rem;color:#143c63;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.freight-line{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr);gap:14px;background:#fff;border:1px solid #dce5ef;border-radius:14px;padding:17px;margin:0 0 12px;transition:border-color .18s,box-shadow .18s}
+.freight-line:hover{border-color:#b6d4ef;box-shadow:0 5px 15px rgba(23,75,130,.055)}
+.freight-line-header{display:flex;align-items:center;justify-content:space-between;gap:10px;grid-column:1/-1;padding-bottom:10px;border-bottom:1px solid #edf1f6}
+.freight-line-header>span{font-size:.83rem;font-weight:800;color:#285983}
+.freight-line-tools{display:flex;align-items:center;gap:6px}
+.freight-line-tools .btn{font-size:.76rem!important;min-height:35px;padding:7px 11px;border-radius:9px}
+.freight-line-tools [data-remove-line]{color:#a53b42}
+.freight-line-name,.freight-measure-field{min-width:0}
+.freight-mode legend{color:#36506a;font-weight:650;font-size:.84rem}
+.freight-mode button{transition:background .18s,color .18s}
+.freight-mode button[aria-pressed=true]{box-shadow:0 2px 8px rgba(17,65,121,.12)}
+.freight-line .freight-measure-hint{grid-column:1/-1;margin-top:-3px;font-size:.76rem;color:#617992;line-height:1.35}
+.freight-add-material{border:1px dashed #8fb6e0!important;background:#f5f9ff!important;color:#185a9d!important;min-height:44px;font-weight:700}
+.freight-action-bar{display:flex;align-items:center;justify-content:space-between;gap:18px;background:linear-gradient(110deg,#f0f6ff,#fff);border:1px solid #cbdff4;border-radius:18px;padding:17px 20px;margin-bottom:10px}
+.freight-action-caption{display:flex;flex-direction:column;gap:3px;min-width:0}
+.freight-action-caption strong{color:#1e456d;font-size:1rem}.freight-action-caption small{font-size:.77rem;color:#617891}
+.freight-action-bar .freight-actions{justify-content:flex-end;margin:0}
+.freight-calculate{min-height:46px;min-width:120px;font-weight:750}
+.freight-message{min-height:26px;margin:7px 0 15px;padding:0 2px;font-size:.85rem;color:#28587c}
+.freight-message[data-kind=warning]{color:#a44c2a}
+.freight-results-section{scroll-margin-top:30px;animation:freight-fade-in .27s ease-out;margin:25px 0}
+.freight-results-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:15px}
+.freight-results-heading h2{font-size:1.3rem!important;margin:0 0 4px;color:var(--freight-ink)}
+.freight-results-heading p:not(.freight-overline){margin:0;font-size:.84rem;color:var(--freight-muted)}
+.freight-results-count{font-size:.78rem;font-weight:700;color:#345d7e;padding:8px 12px;border:1px solid #d7e5f3;border-radius:30px;white-space:nowrap}
+.freight-comparison-grid{gap:18px;align-items:stretch}
+.freight-comparison-grid>.freight-panel{margin-bottom:0;box-shadow:0 10px 28px rgba(22,64,110,.08);border:1px solid #d6e3f1;border-top:4px solid #377fca;padding:21px}
+.freight-comparison-grid>[data-carrier-reference=ENVIA]{border-top-color:#21869b}
+.freight-comparison-grid h2{font-size:1.13rem}
+.freight-price-hero{border-color:#c1d8f5;background:linear-gradient(150deg,#e8f2ff 0%,#f9fcff 85%);padding:23px;margin-top:13px}
+.freight-comparison-grid [data-carrier-reference=ENVIA] .freight-price-hero{background:linear-gradient(145deg,#eff9fb,#fcfefe);border-color:#c2e0e4}
+.freight-price-hero>strong{font-size:clamp(1.65rem,2.6vw,2.3rem);font-variant-numeric:tabular-nums}
+.freight-market-breakdown{grid-template-columns:repeat(3,minmax(0,1fr))}
+.freight-market-breakdown span{box-shadow:0 2px 5px rgba(20,61,107,.025)}
+.freight-original-reference summary{list-style-position:inside}
+.freight-history-panel{margin-top:27px}
+.freight-history-tools{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:13px;margin-bottom:12px}
+.freight-history-row{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;padding:19px 4px;border-bottom:1px solid #e4eaf2;align-items:center}
+.freight-history-main{min-width:0}.freight-history-topline{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin-bottom:7px}
+.freight-history-topline>strong{font-size:.94rem;color:#213d5b}
+.freight-history-status,.freight-history-carrier{font-size:.7rem;font-weight:700;border-radius:20px;padding:4px 9px;background:#edf5fd;color:#285c8c}
+.freight-history-status[data-quote-status=DRAFT]{background:#fff5df;color:#85600e}
+.freight-history-status[data-quote-status=CALCULATED]{background:#e7f5ed;color:#246b47}
+.freight-history-route{margin:0 0 4px;font-weight:650;color:#193b5d;font-size:.88rem}
+.freight-history-main small{font-size:.72rem;color:#637a92}
+.freight-history-prices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.freight-history-prices span{min-width:0}.freight-history-prices small{display:block;color:#687c90;font-size:.71rem}.freight-history-prices strong{display:block;color:#203f5f;font-size:.87rem;overflow-wrap:anywhere}
+.freight-history-buttons{grid-column:1/-1;justify-content:flex-end;margin:0}
+.freight-history-buttons .btn{min-height:38px;border-radius:9px;font-size:.8rem}
+.freight-history-empty{color:#637993;text-align:center;padding:25px;border:1px dashed #d5e3ef;border-radius:12px}
+.freight-pagination{justify-content:flex-end;margin-top:18px}
+.freight-pagination span{font-size:.8rem;color:#5b738b}
+@keyframes freight-fade-in{from{opacity:.2;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:1150px){
+ .freight-route-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .freight-destination-field{grid-column:1/-1}
+ .freight-action-bar{align-items:stretch;flex-direction:column}
+ .freight-action-bar .freight-actions{justify-content:flex-start}
+}
+@media(max-width:760px){
+ .freight-quotes .freight-step-panel{padding:18px}
+ .freight-route-grid{grid-template-columns:minmax(0,1fr)}
+ .freight-destination-field{grid-column:auto}
+ .freight-line{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .freight-line-name{grid-column:1/-1}
+ .freight-market-breakdown{grid-template-columns:minmax(0,1fr)}
+ .freight-history-row{grid-template-columns:minmax(0,1fr)}
+ .freight-history-buttons{justify-content:flex-start}
+ .freight-results-heading{align-items:flex-start;flex-direction:column}
+}
+@media(max-width:600px){
+ .freight-head-icon{display:none}
+ .freight-quotes .freight-panel{padding:16px;border-radius:15px}
+ .freight-quotes .freight-line{padding:13px}
+ .freight-step-heading{gap:10px;align-items:flex-start}
+ .freight-unit-badge,.freight-step-tag{font-size:.7rem}
+ .freight-material-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .freight-material-summary>span:first-child{grid-column:1/-1}
+ .freight-line{grid-template-columns:minmax(0,1fr)}
+ .freight-mode,.freight-measure-field,.freight-line-name{grid-column:auto}
+ .freight-line-tools{flex-wrap:wrap;justify-content:flex-end}
+ .freight-action-bar{position:sticky;bottom:0;z-index:5;border-radius:14px 14px 0 0;margin:0 -5px 4px;padding:12px;background:#f9fcff;box-shadow:0 -8px 24px rgba(24,60,104,.12)}
+ .freight-action-caption{display:none}
+ .freight-action-bar .freight-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}
+ .freight-action-bar .freight-calculate{grid-column:1/-1}
+ .freight-action-bar .btn{min-width:0;padding:10px 7px;font-size:.8rem}
+ .freight-extra-fields,.freight-history-tools{grid-template-columns:minmax(0,1fr)}
+ .freight-history-buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+ .freight-history-buttons .btn{padding:8px 3px;min-width:0}
+}
+@media(prefers-reduced-motion:reduce){.freight-results-section{animation:none}.freight-line,.freight-mode button{transition:none}}
