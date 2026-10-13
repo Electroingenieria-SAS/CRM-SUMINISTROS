@@ -141,3 +141,69 @@ test('cotizador renovado: buscar destino, resumen y duplicación de materiales, 
  }
  expect(await page.evaluate(()=>window.__orderWrites)).toBe(0);
 });
+
+
+test('Historial profesional: pestañas, filtros, tabla, exportación y acciones seguras',async({page},testInfo)=>{
+ await mountQuotes(page);
+ await page.getByRole('tab',{name:/Historial/}).click();
+ await expect(page.locator('[data-history-workspace]')).toBeVisible();
+ await expect(page.getByText('Tu historial comienza aquí')).toBeVisible();
+ await page.getByRole('tab',{name:'Nueva cotización'}).click();
+ await page.getByLabel('Nombre del material').fill('Cable eléctrico');
+ await page.getByLabel('Origen efectivo').selectOption('CALI');
+ await page.getByLabel('Departamento',{exact:true}).selectOption('VALLE DEL CAUCA');
+ await page.getByLabel('Municipio / localidad y centro operativo').selectOption('TCC_TEST');
+ await page.getByLabel('Peso del material (kg)').fill('20');
+ await page.getByRole('button',{name:'Guardar borrador'}).click();
+ await expect(page.locator('[data-history-workspace]')).toBeVisible();
+ await expect(page.locator('[data-history-count]')).toHaveText('1');
+ await expect(page.locator('.freight-history-table tbody tr')).toHaveCount(1);
+ await page.locator('[data-history-status]').selectOption('CALCULATED');
+ await expect(page.getByText('Sin resultados para estos filtros')).toBeVisible();
+ await page.locator('[data-history-clear]').click();
+ await expect(page.locator('.freight-history-table tbody tr')).toHaveCount(1);
+ const downloadPromise=page.waitForEvent('download');
+ await page.locator('[data-history-export]').click();
+ const download=await downloadPromise;
+ expect(download.suggestedFilename()).toMatch(/historial-fletes-pagina-/);
+ await page.locator('[data-history-search]').fill('sin coincidencias');
+ await expect(page.locator('[data-history-export]')).toBeDisabled();
+ await page.locator('[data-history-clear]').click();
+ for(const width of [375,768,1024,1440]){
+  await page.setViewportSize({width,height:900});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+1);
+  await page.screenshot({path:testInfo.outputPath('history-premium-'+width+'.png'),fullPage:true});
+ }
+ await page.getByRole('button',{name:'Duplicar'}).click();
+ await expect(page.locator('[data-quote-workspace]')).toBeVisible();
+ await expect(page.getByLabel('Nombre del material')).toHaveValue('Cable eléctrico');
+ expect(await page.evaluate(()=>window.__orderWrites)).toBe(0);
+});
+
+test('seleccionar la transportadora desde la tarjeta cambia únicamente la cotización guardada',async({page})=>{
+ await mountQuotes(page);
+ await page.evaluate(async()=>{
+  const {api}=await import('/assets/js/services/api.js');
+  const original=api.freightQuoteCalculate;
+  api.freightQuoteCalculate=async payload=>{
+   const comparison=await original(payload);
+   const rows=comparison.comparison.map((card,index)=>({
+    ...card,commercialEstimate:{available:true,totalCop:index?54000:67000,rangeLowCop:index?49000:59000,rangeHighCop:index?60000:74000,source:index?'ENVIA_REFERENCE':'TCC_REAL_GUIDE_MODEL',statisticalRange:true}
+   }));
+   return {...rows.find(card=>card.carrier===payload.carrier),comparison:rows};
+  };
+ });
+ await page.getByLabel('Nombre del material').fill('Cable empresarial');
+ await page.getByLabel('Origen efectivo').selectOption('CALI');
+ await page.getByLabel('Departamento',{exact:true}).selectOption('VALLE DEL CAUCA');
+ await page.getByLabel('Municipio / localidad y centro operativo').selectOption('TCC_TEST');
+ await page.getByLabel('Peso del material (kg)').fill('20');
+ await page.getByRole('button',{name:'Calcular',exact:true}).click();
+ await page.locator('[data-quote-select-carrier="ENVIA"]').click();
+ await expect(page.locator('[data-quote-select-carrier="ENVIA"]')).toHaveAttribute('aria-pressed','true');
+ await expect(page.getByRole('button',{name:'Guardar cotización'})).toBeEnabled();
+ await page.getByRole('button',{name:'Guardar cotización'}).click();
+ await expect(page.locator('[data-history-workspace]')).toBeVisible();
+ expect(await page.evaluate(()=>window.__quoteFixtures[0].input.carrier)).toBe('ENVIA');
+ expect(await page.evaluate(()=>window.__orderWrites)).toBe(0);
+});
