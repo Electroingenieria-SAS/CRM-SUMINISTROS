@@ -24,13 +24,13 @@ export async function mountFreightEffects(root){
  // Animate the immediate table/empty state, not all 30 rows on every search.
  if(historyHost&&!reducedMotion())controllers.push(lib.autoAnimate(historyHost,{duration:durations.list*1000,easing:'ease-in-out'}));
  let tip=null,closePosition=null,anchor=null;
- const hideTip=()=>{closePosition?.();closePosition=null;tip?.remove();tip=null;anchor=null;};
+ const hideTip=()=>{closePosition?.();closePosition=null;anchor?.removeAttribute('aria-describedby');tip?.remove();tip=null;anchor=null;};
  const showTip=node=>{
   if(!node||reducedMotion()&&node===anchor)return;
   const message=tooltips[node.dataset.freightTip];if(!message)return;
   if(node===anchor)return;
   hideTip();anchor=node;
-  tip=document.createElement('div');tip.className='freight-float-tip';tip.setAttribute('role','tooltip');tip.textContent=message;surface.append(tip);
+  tip=document.createElement('div');tip.id='freight-rate-tooltip';tip.className='freight-float-tip';tip.setAttribute('role','tooltip');tip.textContent=message;surface.append(tip);node.setAttribute('aria-describedby',tip.id);
   const update=()=>lib.computePosition(node,tip,{strategy:'fixed',placement:'top',
    middleware:[lib.offset(9),lib.flip(),lib.shift({padding:9})]}).then(({x,y})=>{
     if(tip&&node===anchor){tip.style.left=x+'px';tip.style.top=y+'px';}
