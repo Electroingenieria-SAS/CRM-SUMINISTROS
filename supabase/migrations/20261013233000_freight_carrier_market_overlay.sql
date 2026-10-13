@@ -101,7 +101,10 @@ begin
       source_type:='ENVIA_REFERENCE';
     elsif carrier in ('TCC','ENVIA') and enough
        and coalesce((row#>>'{measurementScenarios,weight,complete}')::boolean,false)
-       and (pr->>'estimateMid') ~ '^[0-9]+(\.[0-9]+)?
+       and (pr->>'estimateMid') ~ '^[0-9]+(\.[0-9]+)?$' then
+       -- No Tuluá/Cali equivalence. Empirical fallback is isolated by provider.
+       central:=(pr->>'estimateMid')::numeric;
+       source_type:=case when carrier='ENVIA' then 'ENVIA_REAL_GUIDE_MODEL' else 'TCC_REAL_GUIDE_MODEL' end;
     end if;
     if central is not null and central>0 then
       if pr is not null and (pr->>'estimateMid') ~ '^[0-9]+(\.[0-9]+)?$'
@@ -122,67 +125,6 @@ begin
       -- documentary CPI uplift. Keep authoritative raw components unchanged.
       if coalesce((calibration->>'applied')::boolean,false)
          and source_type in ('TCC_REAL_GUIDE_MODEL','ENVIA_REAL_GUIDE_MODEL','ENVIA_REFERENCE') then
-        k:=(calibration->>'factor')::numeric;
-        central:=round(central*k);low:=round(low*k);high:=round(high*k);
-        if base is not null then
-          base:=round(base*k);variable:=central-base;
-        end if;
-      end if;
-      doc:=jsonb_build_object('available',true,'source',source_type,'totalCop',central,
-        'rangeLowCop',low,'rangeHighCop',high,'baseCop',base,'variableCop',variable,
-        'guideCalibration',calibration,
-        'reference2024Cop',case when source_type='TCC_2024_IPC_2026' then ref->'subtotalCop' else null end,
-        'ipcFactor',case when source_type='TCC_2024_IPC_2026' then indexed else null end,
-        'ipcReference','DANE_DIC_2025_SEP_2026',
-        'statisticalRange',low is not null and high is not null);
-    else
-      doc:=jsonb_build_object('available',false,'reason','INSUFFICIENT_CARRIER_EVIDENCE');
-    end if;
-    row:=row||jsonb_build_object('commercialEstimate',doc);
-    enriched:=enriched||jsonb_build_array(row);
-    if row->>'carrier'=coalesce(p_payload->>'carrier','TCC') then chosen:=row;end if;
-  end loop;
-  if chosen is null then return p_snapshot;end if;
-  return chosen||jsonb_build_object('comparison',enriched,'prediction',pred,'carrierAliases',p_snapshot->'carrierAliases');
-end $$;
-revoke all on function erp_supply.freight_quote_market_overlay(jsonb,jsonb) from public,anon,authenticated;
-
-create or replace function public.erp_x_freight_quote_calculate(p_payload jsonb) returns jsonb
-language plpgsql stable security definer set search_path=erp_supply,public,auth,pg_catalog as $$
-begin
- perform erp_supply.require_freight_quote_access();
- if p_payload->>'measurementVersion'='2' then
-   return erp_supply.freight_quote_market_overlay(
-     erp_supply.freight_quote_material_calculate(p_payload),p_payload);
- end if;
- return erp_supply.freight_quote_legacy_calculate(p_payload);
-end $$;
-revoke all on function public.erp_x_freight_quote_calculate(jsonb) from public,anon;
-grant execute on function public.erp_x_freight_quote_calculate(jsonb) to authenticated;
- then
-      -- No origin substitution. A carrier-only empirical fallback is clearly identified.
-      central:=(pr->>'estimateMid')::numeric;
-      source_type:=case when carrier='ENVIA' then 'ENVIA_REAL_GUIDE_MODEL' else 'TCC_REAL_GUIDE_MODEL' end;
-    end if;
-    if central is not null and central>0 then
-      if pr is not null and (pr->>'estimateMid') ~ '^[0-9]+(\.[0-9]+)?$'
-         and (pr->>'estimateMid')::numeric>0
-         and coalesce((pr->>'referenceSamples')::numeric,0)>=3 then
-        spread_low:=greatest(0,(pr->>'estimateLow')::numeric/(pr->>'estimateMid')::numeric);
-        spread_high:=greatest(spread_low,(pr->>'estimateHigh')::numeric/(pr->>'estimateMid')::numeric);
-        low:=round(central*spread_low);
-        high:=round(central*spread_high);
-      end if;
-      if source_type='TCC_REAL_GUIDE_MODEL' and low is null and pr is not null then
-        low:=(pr->>'estimateLow')::numeric;high:=(pr->>'estimateHigh')::numeric;
-      end if;
-      weight:=case when (row#>>'{measurementScenarios,weight,complete}')::boolean
-        then (row#>>'{measurementSummary,weightKg}')::numeric else null end;
-      calibration:=erp_supply.freight_quote_guide_correction(carrier,row->>'origin',row->>'department',city,weight);
-      -- Correction is residual vs contemporary real-guide model, never mixed with
-      -- documentary CPI uplift. Keep authoritative raw components unchanged.
-      if coalesce((calibration->>'applied')::boolean,false)
-         and source_type in ('TCC_REAL_GUIDE_MODEL','ENVIA_REFERENCE') then
         k:=(calibration->>'factor')::numeric;
         central:=round(central*k);low:=round(low*k);high:=round(high*k);
         if base is not null then
