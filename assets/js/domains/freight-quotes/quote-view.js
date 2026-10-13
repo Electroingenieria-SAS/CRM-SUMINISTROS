@@ -30,7 +30,7 @@ export function quoteView(){return `<section class="freight-quotes">
 <label>Estado<select class="control" data-history-status><option value="">Todos los estados</option><option value="CALCULATED">Calculadas</option><option value="DRAFT">Borradores</option><option value="EXPIRED">Vencidas</option></select></label>
 <label>Orden<select class="control" data-history-sort><option value="newest">Más recientes</option><option value="oldest">Más antiguas</option><option value="highest">Mayor estimado</option><option value="lowest">Menor estimado</option></select></label></div>
 <div class="freight-history-filter-note"><small>Los filtros y la exportación corresponden únicamente a esta página del historial.</small><strong data-history-visible-count></strong></div></div>
-<div data-quote-history></div><div class="freight-actions freight-pagination"><button class="btn" data-history-prev>Anterior</button><span data-history-page></span><button class="btn" data-history-next>Siguiente</button></div></section></section>`;}
+<div data-quote-history></div><div class="freight-actions freight-pagination"><button class="btn" data-history-prev>Anterior</button><span data-history-page></span><button class="btn" data-history-next>Siguiente</button></div></section><div data-history-dialog-host></div></section>`;}
 export function options(rows,label=x=>x,value=x=>x){return '<option value="">Selecciona</option>'+rows.map(r=>`<option value="${esc(value(r))}">${esc(label(r))}</option>`).join('');}
 export function quoteResultHtml(result,{selectable=true,selectedCarrier=result.carrier}={}){
  const cards=result.comparison?.length?result.comparison:[result];
