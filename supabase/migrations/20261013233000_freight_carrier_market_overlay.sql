@@ -122,9 +122,9 @@ begin
         then (row#>>'{measurementSummary,weightKg}')::numeric else null end;
       calibration:=erp_supply.freight_quote_guide_correction(carrier,row->>'origin',row->>'department',city,weight);
       -- Correction is residual vs contemporary real-guide model, never mixed with
-      -- documentary CPI uplift. Keep authoritative raw components unchanged.
+      -- documentary CPI uplift: residual against the 2026 guide model is independent of the 2024-to-2026 CPI factor. Keep raw components unchanged.
       if coalesce((calibration->>'applied')::boolean,false)
-         and source_type in ('TCC_REAL_GUIDE_MODEL','ENVIA_REAL_GUIDE_MODEL','ENVIA_REFERENCE') then
+         and source_type in ('TCC_2024_IPC_2026','TCC_REAL_GUIDE_MODEL','ENVIA_REAL_GUIDE_MODEL','ENVIA_REFERENCE') then
         k:=(calibration->>'factor')::numeric;
         central:=round(central*k);low:=round(low*k);high:=round(high*k);
         if base is not null then
