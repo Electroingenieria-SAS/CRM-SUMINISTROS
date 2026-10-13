@@ -100,6 +100,24 @@
       "productionVersion": "20261013213231",
       "repositoryFile": "supabase/migrations/20261013233200_freight_quote_same_carrier_audit.sql",
       "verifiedAt": "2026-10-13"
+    },
+    {
+      "productionName": "freight_carrier_market_overlay_20261013",
+      "productionVersion": "20261013213223",
+      "repositoryFile": "supabase/migrations/20261013233000_freight_carrier_market_overlay.sql",
+      "verifiedAt": "2026-10-13"
+    },
+    {
+      "productionName": "freight_guide_carrier_measurements_20261013",
+      "productionVersion": "20261013213226",
+      "repositoryFile": "supabase/migrations/20261013233100_freight_guide_carrier_measurements.sql",
+      "verifiedAt": "2026-10-13"
+    },
+    {
+      "productionName": "freight_quote_same_carrier_audit_20261013",
+      "productionVersion": "20261013213228",
+      "repositoryFile": "supabase/migrations/20261013233200_freight_quote_same_carrier_audit.sql",
+      "verifiedAt": "2026-10-13"
     }
   ],
   "knownDatabaseOnly": [
