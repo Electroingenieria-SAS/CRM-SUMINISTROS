@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": "e1a1c4f3e2cf0fb7",
-  "sourceBytes": 2678867,
+  "revision": "6cde100fe100442a",
+  "sourceBytes": 2678914,
   "assets": [
     "./assets/css/analytics.css",
     "./assets/css/base/accessibility.css",
@@ -70,6 +70,7 @@
     "./assets/css/modules/dashboard/operational-overview-dashboard.css",
     "./assets/css/modules/finance/status-actions.css",
     "./assets/css/modules/finance/status-density.css",
+    "./assets/css/modules/freight/quotes-enterprise.css",
     "./assets/css/modules/freight/quotes.css",
     "./assets/css/modules/history/workspace-history-modal-backdrop.css",
     "./assets/css/modules/history/workspace-history-range.css",
