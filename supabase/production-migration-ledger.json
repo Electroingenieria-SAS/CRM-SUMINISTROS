@@ -25,6 +25,30 @@
       "repositoryFile": "supabase/migrations/079_jefatura_revision_aprobacion_sin_operacion_v11_8_1.sql",
       "productionVersion": "20260904150023",
       "statementsMd5": "28fc02a957269598f4ab2c5b8ee97022"
+    },
+    {
+      "productionName": "freight_quotes_catalog",
+      "productionVersion": "20261013185631",
+      "repositoryFile": "supabase/migrations/20261013210000_freight_quotes_catalog.sql",
+      "verifiedAt": "2026-10-13"
+    },
+    {
+      "productionName": "freight_quotes_api",
+      "productionVersion": "20261013185644",
+      "repositoryFile": "supabase/migrations/20261013210100_freight_quotes_api.sql",
+      "verifiedAt": "2026-10-13"
+    },
+    {
+      "productionName": "freight_quote_evaluation",
+      "productionVersion": "20261013190055",
+      "repositoryFile": "supabase/migrations/20261013210200_freight_quote_evaluation.sql",
+      "verifiedAt": "2026-10-13"
+    },
+    {
+      "productionName": "freight_quote_input_visibility",
+      "productionVersion": "20261013190347",
+      "repositoryFile": "supabase/migrations/20261013210300_freight_quote_input_visibility.sql",
+      "verifiedAt": "2026-10-13"
     }
   ],
   "knownDatabaseOnly": [
