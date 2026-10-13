@@ -82,6 +82,24 @@
       "productionVersion": "20261013202651",
       "repositoryFile": "supabase/migrations/20261013230100_freight_material_surcharge.sql",
       "verifiedAt": "2026-10-13"
+    },
+    {
+      "productionName": "freight_carrier_market_overlay",
+      "productionVersion": "20261013213218",
+      "repositoryFile": "supabase/migrations/20261013233000_freight_carrier_market_overlay.sql",
+      "verifiedAt": "2026-10-13"
+    },
+    {
+      "productionName": "freight_guide_carrier_measurements",
+      "productionVersion": "20261013213224",
+      "repositoryFile": "supabase/migrations/20261013233100_freight_guide_carrier_measurements.sql",
+      "verifiedAt": "2026-10-13"
+    },
+    {
+      "productionName": "freight_quote_same_carrier_audit",
+      "productionVersion": "20261013213231",
+      "repositoryFile": "supabase/migrations/20261013233200_freight_quote_same_carrier_audit.sql",
+      "verifiedAt": "2026-10-13"
     }
   ],
   "knownDatabaseOnly": [
