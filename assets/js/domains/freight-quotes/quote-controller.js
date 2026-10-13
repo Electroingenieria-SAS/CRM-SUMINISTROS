@@ -179,6 +179,7 @@ export async function renderFreightQuotes(root,context={}){
   setWorkspace('quote');form.scrollIntoView({behavior:'smooth'});
  }
  const dialogs=createFreightHistoryDialogs(root,{
+  canLink:can('freight_quotes','canUpdate'),
   onDuplicate:q=>run(()=>duplicateQuote(q)),
   onLink:async(q,orderNumber)=>{if(!can('freight_quotes','canUpdate'))throw Error('No tienes permiso para vincular pedidos.');
    await api.freightQuoteLink(q.id,orderNumber);await loadHistory();
