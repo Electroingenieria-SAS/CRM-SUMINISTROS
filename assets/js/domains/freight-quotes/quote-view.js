@@ -32,10 +32,17 @@ export function quoteView(){return `<section class="freight-quotes">
 <div class="freight-history-filter-note"><small>Los filtros y la exportación corresponden únicamente a esta página del historial.</small><strong data-history-visible-count></strong></div></div>
 <div data-quote-history></div><div class="freight-actions freight-pagination"><button class="btn" data-history-prev>Anterior</button><span data-history-page></span><button class="btn" data-history-next>Siguiente</button></div></section></section>`;}
 export function options(rows,label=x=>x,value=x=>x){return '<option value="">Selecciona</option>'+rows.map(r=>`<option value="${esc(value(r))}">${esc(label(r))}</option>`).join('');}
-export function quoteResultHtml(result){
+export function quoteResultHtml(result,{selectable=true,selectedCarrier=result.carrier}={}){
  const cards=result.comparison?.length?result.comparison:[result];
  const valued=cards.filter(card=>card.commercialEstimate?.available&&Number(card.commercialEstimate.totalCop)>0);
  const cheapest=valued.length===2?valued.reduce((a,b)=>Number(a.commercialEstimate.totalCop)<Number(b.commercialEstimate.totalCop)?a:b).carrier:null;
- const quoteCards=cards.map(card=>({...card,cheapestCommercial:card.carrier===cheapest}));
- return '<section class="freight-results-section" aria-label="Resultados de cotización"><div class="freight-results-heading"><div><p class="freight-overline">RESULTADOS</p><h2>Compara tus opciones</h2><p>Valores orientativos para la mercancía y ruta registradas.</p></div><span class="freight-results-count">'+esc(valued.length)+' de '+esc(cards.length)+' con estimación</span></div><div class="freight-comparison-grid">'+quoteCards.map(referenceCardHtml).join('')+'</div></section>';
+ const offers=cards.map(card=>{
+  const selected=selectedCarrier===card.carrier;
+  const choice=card.commercialEstimate?.available===true;
+  const reference={...card,cheapestCommercial:card.carrier===cheapest};
+  const choiceButton=selectable?'<div class="freight-offer-choice"><button class="btn freight-offer-select" type="button" data-quote-select-carrier="'+esc(card.carrier)+'" aria-pressed="'+selected+'" '+(!choice?'disabled title="Sin estimación disponible"':'')+'>'+
+   (selected?'Seleccionada':'Elegir '+(card.carrier==='ENVIA'?'ENVÍA':'TCC'))+'</button></div>':'';
+  return '<div class="freight-offer'+(selected?' freight-offer-selected':'')+'" data-offer-carrier="'+esc(card.carrier)+'">'+referenceCardHtml(reference)+choiceButton+'</div>';
+ }).join('');
+ return '<section class="freight-results-section" aria-label="Resultados de cotización"><div class="freight-results-heading"><div><p class="freight-overline">COMPARATIVA DE TRANSPORTADORAS</p><h2>Opciones para tu envío</h2><p>Compara los rangos y selecciona la empresa antes de guardar.</p></div><span class="freight-results-count">'+esc(valued.length)+' de '+esc(cards.length)+' con estimación</span></div><div class="freight-comparison-grid">'+offers+'</div></section>';
 }
