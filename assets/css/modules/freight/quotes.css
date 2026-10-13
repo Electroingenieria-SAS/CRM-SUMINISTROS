@@ -13,3 +13,9 @@
 .freight-history-row{display:flex;justify-content:space-between;gap:16px;padding:16px 0;border-bottom:1px solid #dce3ed;overflow-wrap:anywhere}
 @media(max-width:1050px){.freight-grid,.freight-package,.freight-breakdown{grid-template-columns:repeat(2,minmax(0,1fr))}.freight-line{grid-template-columns:repeat(2,minmax(0,1fr))}.freight-history-row{flex-direction:column}}
 @media(max-width:600px){.freight-panel{padding:16px}.freight-grid,.freight-package,.freight-breakdown,.freight-line{grid-template-columns:minmax(0,1fr)}.freight-quotes .btn{white-space:normal}.freight-quotes p{overflow-wrap:anywhere}}
+
+.freight-comparison-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
+.freight-comparison-grid .freight-breakdown{grid-template-columns:minmax(0,1fr)}
+.freight-reference-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.freight-reference-values div{background:#f4f7fc;border-radius:10px;padding:12px}.freight-reference-values dt{font-size:.85rem;color:#52627b}.freight-reference-values dd{margin:6px 0 0;font-weight:600}
+@media(max-width:1050px){.freight-comparison-grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){.freight-reference-values{grid-template-columns:minmax(0,1fr)}}

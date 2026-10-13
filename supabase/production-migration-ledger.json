@@ -49,6 +49,27 @@
       "productionVersion": "20261013190347",
       "repositoryFile": "supabase/migrations/20261013210300_freight_quote_input_visibility.sql",
       "verifiedAt": "2026-10-13"
+    },
+    {
+      "productionName": "envia_reference_rules",
+      "productionVersion": "20261013194052",
+      "repositoryFile": "supabase/migrations/20261013220000_envia_reference_rules.sql",
+      "verifiedAt": "2026-10-13",
+      "note": "SQL idéntico; orden canónico posterior a TCC. Historial aplicado conservado."
+    },
+    {
+      "productionName": "envia_reference_engine",
+      "productionVersion": "20261013194055",
+      "repositoryFile": "supabase/migrations/20261013220100_envia_reference_engine.sql",
+      "verifiedAt": "2026-10-13",
+      "note": "SQL idéntico; orden canónico posterior a TCC. Historial aplicado conservado."
+    },
+    {
+      "productionName": "freight_quotes_multi_carrier",
+      "productionVersion": "20261013194057",
+      "repositoryFile": "supabase/migrations/20261013220200_freight_quotes_multi_carrier.sql",
+      "verifiedAt": "2026-10-13",
+      "note": "SQL idéntico; orden canónico posterior a TCC. Historial aplicado conservado."
     }
   ],
   "knownDatabaseOnly": [
