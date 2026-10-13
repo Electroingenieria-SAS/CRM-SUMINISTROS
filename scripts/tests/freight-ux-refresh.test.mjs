@@ -31,7 +31,7 @@ test('historial: cotizaciones claras, filtro vacío y escapes seguros',()=>{
  assert.match(html,/Desviación/);
  assert.match(html,/data-quote-duplicate/);
  assert.doesNotMatch(html,/<svg/);
- assert.match(quoteHistoryHtml([],{filtered:true}),/No hay coincidencias en esta página/);
+ assert.match(quoteHistoryHtml([],{filtered:true}),/Sin resultados para estos filtros/);
  assert.match(quoteHistoryHtml([]),/Aún no hay cotizaciones guardadas/);
 });
 test('materiales: botones duplicar/eliminar preservan el contrato de peso y volumen',()=>{
