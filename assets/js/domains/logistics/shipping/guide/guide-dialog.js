@@ -27,7 +27,10 @@ export function openGuideDialog(data,delivery,{reload,refreshLists}={}){
         carrierInvoiceNumber:value(dialog,"carrierInvoiceNumber"),
         carrierCost:value(dialog,"carrierCost"),
         carrierCostCurrency:"COP",
-        guideFileId:fileId
+        guideFileId:fileId,
+        freightOrigin:value(dialog,"freightOrigin"),
+        freightWeightKg:value(dialog,"freightWeightKg"),
+        freightVolumeM3:value(dialog,"freightVolumeM3")
       });
       await saveShippingGuideExplicit(data.order.id,payload);
       toast("Guía guardada. Revisa los datos y continúa.","success",5000);
@@ -108,7 +111,10 @@ function existingGuidePayload(delivery){
     carrierInvoiceNumber:metadata.carrierInvoiceNumber||"",
     carrierCost:metadata.carrierCost??"",
     carrierCostCurrency:metadata.carrierCostCurrency||"COP",
-    guideFileId:metadata.guideFileId||null
+    guideFileId:metadata.guideFileId||null,
+    freightOrigin:metadata.freightOrigin||"",
+    freightWeightKg:metadata.freightWeightKg??"",
+    freightVolumeM3:metadata.freightVolumeM3??""
   };
 }
 
@@ -122,6 +128,9 @@ function guideBody(existing){
       ${field("Número de guía","trackingNumber",existing.trackingNumber,"Número o código de seguimiento")}
       ${field("Factura de la transportadora","carrierInvoiceNumber",existing.carrierInvoiceNumber,"Número de factura o cobro del transportador")}
       ${field("Costo del flete (COP)","carrierCost",existing.carrierCost,"0","number",'step="0.01" min="0.01" inputmode="decimal"')}
+      <label class="guide-reader-field-v11101"><span>Origen real de TCC / ENVÍA</span><input class="control" name="freightOrigin" maxlength="120" value="${fmt.escape(existing.freightOrigin)}" placeholder="Ej. TULUA"><small>Confirma el origen. No se equipara Tuluá con Cali.</small></label>
+      <label class="guide-reader-field-v11101"><span>Peso real total del flete (kg)</span><input class="control" name="freightWeightKg" type="number" min="0.001" step="any" value="${fmt.escape(existing.freightWeightKg)}"><small>Necesario para aprender de TCC / ENVÍA.</small></label>
+      <label class="guide-reader-field-v11101"><span>Volumen (m³, opcional)</span><input class="control" name="freightVolumeM3" type="number" min="0.000001" step="any" value="${fmt.escape(existing.freightVolumeM3)}"><small>Dato complementario para calibración futura.</small></label>
     </div>
     <div class="guide-reader-help-v11101"><span><b>Automático:</b> el lector completa lo que encuentre.</span><span><b>Manual:</b> puedes editar cualquier campo antes de guardar.</span></div>`;
 }

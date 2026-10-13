@@ -49,7 +49,7 @@ test("shipping guide parser detects carrier, tracking, carrier invoice and local
 
 test("shipping payload validates required carrier data, uses COP and preserves existing tracking/carrier",()=>{
   const payload=buildShippingGuidePayload({
-    existingPayload:{trackingNumber:"OLD-1",carrier:"TCC",guideFileId:"file-1"},
+    existingPayload:{trackingNumber:"OLD-1",carrier:"TCC",guideFileId:"file-1",freightOrigin:"TULUA",freightWeightKg:20},
     carrierInvoiceNumber:"INV-77",
     carrierCost:"45.500",
     carrierCostCurrency:"COP"
@@ -58,6 +58,8 @@ test("shipping payload validates required carrier data, uses COP and preserves e
     trackingNumber:"OLD-1",
     carrier:"TCC",
     guideFileId:"file-1",
+    freightOrigin:"TULUA",
+    freightWeightKg:20,
     carrierInvoiceNumber:"INV-77",
     carrierCostCurrency:"COP",
     carrierCost:45500
@@ -127,7 +129,9 @@ test("omitted carrier preserves the existing carrier while an explicit empty car
       carrier:"TCC",
       carrierInvoiceNumber:"INV-OLD",
       carrierCost:25000,
-      carrierCostCurrency:"COP"
+      carrierCostCurrency:"COP",
+      freightOrigin:"TULUA",
+      freightWeightKg:20
     },
     trackingNumber:"G-NEW",
     carrierInvoiceNumber:"INV-NEW",
