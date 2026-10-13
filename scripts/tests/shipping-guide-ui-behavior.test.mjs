@@ -68,7 +68,10 @@ function uiHarness(){
     carrier:eventNode({name:"carrier",value:""}),
     trackingNumber:eventNode({name:"trackingNumber",value:""}),
     carrierInvoiceNumber:eventNode({name:"carrierInvoiceNumber",value:""}),
-    carrierCost:eventNode({name:"carrierCost",value:""})
+    carrierCost:eventNode({name:"carrierCost",value:""}),
+    freightOrigin:eventNode({name:"freightOrigin",value:""}),
+    freightWeightKg:eventNode({name:"freightWeightKg",value:""}),
+    freightVolumeM3:eventNode({name:"freightVolumeM3",value:""})
   };
   const hints=Object.fromEntries(Object.keys(controls).map(name=>[name,eventNode({textContent:""})]));
   const input=eventNode({files:[],clicked:0,click(){this.clicked++}});
@@ -161,13 +164,17 @@ test("final visible Shipping values build the saved payload and save exactly onc
   h.controls.trackingNumber.value="TRACK-FINAL";
   h.controls.carrierInvoiceNumber.value="INV-FINAL";
   h.controls.carrierCost.value="52.500";
+  h.controls.freightOrigin.value="TULUA";
+  h.controls.freightWeightKg.value="18";
 
   const payload=buildShippingGuidePayload({
     trackingNumber:h.controls.trackingNumber.value,
     carrier:h.controls.carrier.value,
     carrierInvoiceNumber:h.controls.carrierInvoiceNumber.value,
     carrierCost:h.controls.carrierCost.value,
-    carrierCostCurrency:"COP"
+    carrierCostCurrency:"COP",
+    freightOrigin:h.controls.freightOrigin.value,
+    freightWeightKg:h.controls.freightWeightKg.value
   });
   const identity=api.saveShippingGuide;
   const calls=[];
@@ -179,7 +186,9 @@ test("final visible Shipping values build the saved payload and save exactly onc
     carrier:"TCC",
     carrierInvoiceNumber:"INV-FINAL",
     carrierCostCurrency:"COP",
-    carrierCost:52500
+    carrierCost:52500,
+    freightOrigin:"TULUA",
+    freightWeightKg:18
   });
   assert.equal(api.saveShippingGuide,identity);
 });
