@@ -176,7 +176,7 @@ export async function renderFreightQuotes(root,context={}){
   materialHost.innerHTML='';
   restoreMeasurements(q.input).forEach(m=>addMaterial(materialHost,m));syncSummary();
   notice('Copia preparada. Calcula o guarda un borrador cuando quieras.');
-  setWorkspace('quote');form.scrollIntoView({behavior:'smooth'});
+  setWorkspace('quote');form.scrollIntoView({behavior:'smooth'});materialHost.querySelector('[data-material-name]')?.focus({preventScroll:true});
  }
  const dialogs=createFreightHistoryDialogs(root,{
   canLink:can('freight_quotes','canUpdate'),
