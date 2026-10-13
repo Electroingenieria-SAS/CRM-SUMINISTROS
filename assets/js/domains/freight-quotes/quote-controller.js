@@ -15,7 +15,7 @@ export async function renderFreightQuotes(root,context={}){
  const save=form.querySelector('[data-save-quote]'),draft=form.querySelector('[data-save-draft]');
  let calculated=null,currentResult=null,revision=0,busy=false,page=1,history=[],visibleHistory=[],catalogCache=new Map(),destinationRequest=0,allDestinations=[];
  let totalHistory=0,effects=null;
- void mountFreightEffects(root).then(value=>{effects=value;});
+ const effectsReady=mountFreightEffects(root).then(value=>{effects=value;}).catch(()=>{});
  const quoteWorkspace=root.querySelector('[data-quote-workspace]');
  const historyWorkspace=root.querySelector('[data-history-workspace]');
  const setWorkspace=target=>{
@@ -173,8 +173,10 @@ export async function renderFreightQuotes(root,context={}){
   invalidate();form.elements.carrier.value=q.input.carrier||'TCC';form.elements.origin.value=q.input.origin;
   form.elements.department.value=q.input.department;form.elements.declaredValue.value=q.input.declaredValue??'';
   await destinations(q.input.department,q.input.destinationKey);
-  materialHost.innerHTML='';
-  restoreMeasurements(q.input).forEach(m=>addMaterial(materialHost,m));syncSummary();
+  await effectsReady;
+  const restore=()=>{materialHost.replaceChildren();restoreMeasurements(q.input).forEach(m=>addMaterial(materialHost,m));};
+  if(effects?.replaceMaterials)effects.replaceMaterials(restore);else restore();
+  syncSummary();
   notice('Copia preparada. Calcula o guarda un borrador cuando quieras.');
   setWorkspace('quote');form.scrollIntoView({behavior:'smooth'});materialHost.querySelector('[data-material-name]')?.focus({preventScroll:true});
  }
@@ -200,7 +202,9 @@ export async function renderFreightQuotes(root,context={}){
   form.elements.department.innerHTML=options(data.departments||[]);await loadHistory();
   if(context.params?.orderId){
    const orderData=await api.getOrder(context.params.orderId),order=orderData.order;
-   materialHost.innerHTML='';quoteOrderMaterials(orderData).forEach(m=>addMaterial(materialHost,m,!!m.manual));
+   await effectsReady;
+   const preload=()=>{materialHost.replaceChildren();quoteOrderMaterials(orderData).forEach(m=>addMaterial(materialHost,m,!!m.manual));};
+   if(effects?.replaceMaterials)effects.replaceMaterials(preload);else preload();
    const dept=order.metadata?.clientDepartment||'';syncSummary();
    form.elements.department.value=dept;
    if(form.elements.department.value){const rows=await destinations(dept);form.elements.destinationKey.value=exactDocumentDestination(rows,order.client_city);}
