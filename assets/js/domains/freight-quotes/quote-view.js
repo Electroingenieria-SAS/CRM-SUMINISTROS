@@ -1,4 +1,8 @@
 import {referenceCardHtml} from "./quote-reference-view.js";
+// Preserve the existing Orders freight module graph without rendering the
+// redundant historical comparison section on the quote page.
+import {freightPredictionsHtml} from "../orders/freight/freight-display.js";
+import {freightPredictionSnapshot} from "../orders/freight/freight-prediction.js";
 import {fmt} from '../../core/format.js';
 const esc=fmt.escape;
 export function quoteView(){return `<section class="freight-quotes"><header class="page-head"><div><h1>Cotización de fletes</h1><p>Cotiza sin crear un pedido. Guarda referencias y compara con guías reales.</p></div></header>
