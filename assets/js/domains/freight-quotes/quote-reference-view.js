@@ -1,8 +1,10 @@
+import {measurementCardHtml} from './measurement-view.js';
 import {fmt} from '../../core/format.js';
 const esc=fmt.escape,money=v=>v===null||v===undefined?'—':fmt.money(v);
 const rateMoney=v=>v===null||v===undefined?'—':new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(v));
 const warnings={DIVISOR_ASSUMED_5000:'Divisor de volumen 5000 cm³/kg supuesto, sin confirmación de ENVÍA.',SOURCE_CONFIDENCE_NOT_STATISTICAL:'El soporte alta/media describe la fuente, no una probabilidad de acierto.',ORIGIN_NOT_VERIFIED:'La fuente no confirma el origen contractual de estas tarifas.',MULTI_PACKAGE_POLICY_UNCONFIRMED:'Varios bultos: política por bulto o envío pendiente. No se liquida un total automático.',DIMENSIONS_NOT_CONFIRMED:'Medidas no confirmadas: cálculo provisional basado solo en peso real.',EXTRAPOLATED_OVER_100_KG:'Más de 100 kg: estimación extrapolada, linealidad no confirmada.'};
 export function referenceCardHtml(snapshot){
+ if(snapshot.measurementScenarios)return measurementCardHtml(snapshot);
  const ref=snapshot.reference||{},envia=snapshot.carrier==='ENVIA';
  const title=envia?'Estimación interna ENVÍA':'Referencia histórica TCC';
  let detail='';

@@ -1,28 +1,27 @@
-import {materialPickerHtml,bindMaterialPicker,readMaterialPicker} from '../../services/materials.js';
 import {fmt} from '../../core/format.js';
-export function addMaterial(host,initial={},manual=false){
- const row=document.createElement('article');row.className='freight-line';row.dataset.manual=String(manual);
- row.innerHTML=manual?`<label>Descripción manual<input class="control" data-manual-description value="${fmt.escape(initial.description||'')}" required maxlength="240"></label>`:materialPickerHtml(initial);
- row.insertAdjacentHTML('beforeend',`<label>Cantidad<input class="control" data-material-qty type="number" min="0.0001" step="any" value="${Number(initial.quantity)||1}" required></label><label>Unidad<input class="control" data-material-unit value="${fmt.escape(initial.unit||'UND')}" ${manual?'':'readonly'} required maxlength="20"></label><button type="button" class="btn" data-remove-line>Eliminar material</button>`);
- host.append(row);
- if(!manual)bindMaterialPicker(row.querySelector('[data-material-picker]'),{onChange:()=>{row.querySelector('[data-material-unit]').value=readMaterialPicker(row.querySelector('[data-material-picker]'),false).unit;host.dispatchEvent(new Event('change',{bubbles:true}));}});
+import {measurementSummary} from './material-measurements.js';
+export function addMaterial(host,initial={}){
+ const row=document.createElement('article');row.className='freight-line';
+ let mode=initial.measurementMode==='VOLUME'?'VOLUME':'WEIGHT';
+ const values={WEIGHT:initial.weightKg??'',VOLUME:initial.volumeM3??''};
+ row.innerHTML=`<label>Nombre del material<input class="control" data-material-name value="${fmt.escape(initial.description||'')}" required maxlength="240" placeholder="Ej. cable, tubería, tablero"></label><fieldset class="freight-mode"><legend>Calcular con</legend><div role="group" aria-label="Medida del material"><button type="button" data-mode="WEIGHT">Peso</button><button type="button" data-mode="VOLUME">Volumen</button></div></fieldset><label><span data-measure-label></span><input class="control" data-measure-value type="number" min="0.000001" step="any" required></label><button type="button" class="btn" data-remove-line aria-label="Eliminar material">Eliminar</button><small data-saved-measure></small>`;
+ const input=row.querySelector('[data-measure-value]');
+ const render=()=>{
+  row.dataset.mode=mode;input.value=values[mode];
+  row.querySelector('[data-measure-label]').textContent=mode==='WEIGHT'?'Peso del material (kg)':'Volumen del material (m³)';
+  row.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===mode)));
+  const other=mode==='WEIGHT'?'VOLUME':'WEIGHT';
+  row.querySelector('[data-saved-measure]').textContent=values[other]!==''?`También registrado: ${values[other]} ${other==='WEIGHT'?'kg':'m³'}`:'Puedes alternar para registrar la otra medida del mismo material.';
+ };
+ input.oninput=()=>{values[mode]=input.value;};
+ row.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{values[mode]=input.value;mode=b.dataset.mode;render();host.dispatchEvent(new Event('change',{bubbles:true}));});
+ row.readMaterial=()=>({description:row.querySelector('[data-material-name]').value.trim(),manual:true,quantity:1,unit:'UND',measurementMode:mode,weightKg:values.WEIGHT===''?null:Number(values.WEIGHT),volumeM3:values.VOLUME===''?null:Number(values.VOLUME)});
  row.querySelector('[data-remove-line]').onclick=()=>{row.remove();host.dispatchEvent(new Event('change',{bubbles:true}));};
-}
-export function addPackage(host,initial={}){
- const row=document.createElement('article');row.className='freight-package';
- const fields=[['quantity','Cantidad de bultos',1],['weightKg','Peso real por bulto (kg)',''],['lengthM','Largo (m)',''],['widthM','Ancho (m)',''],['heightM','Alto (m)',''],['volumeM3','O volumen por bulto (m³)','']];
- row.innerHTML=fields.map(([name,label,def])=>`<label>${label}<input class="control" data-package-field="${name}" type="number" min="${name==='quantity'?1:0.000001}" step="${name==='quantity'?1:'any'}" value="${fmt.escape(String(initial[name]??def))}"></label>`).join('')+'<button type="button" class="btn" data-remove-line>Eliminar bulto</button>';
- host.append(row);row.querySelector('[data-remove-line]').onclick=()=>{row.remove();host.dispatchEvent(new Event('change',{bubbles:true}));};
+ host.append(row);render();
 }
 export function readQuote(form,{strict=false}={}){
- const nullable=input=>input.value===''?null:Number(input.value);
- const materials=[...form.querySelector('[data-quote-materials]').children].map(row=>{
-  const manual=row.dataset.manual==='true';const material=manual?{description:row.querySelector('[data-manual-description]').value.trim(),unit:row.querySelector('[data-material-unit]').value.trim(),manual:true}:readMaterialPicker(row.querySelector('[data-material-picker]'),strict);
-  const quantity=Number(row.querySelector('[data-material-qty]').value);
-  if(strict&&(!material.description||quantity<=0||!Number.isFinite(quantity)))throw Error('Completa los materiales y cantidades.');
-  return {...material,quantity};
- });
- const packages=[...form.querySelector('[data-quote-packages]').children].map(row=>Object.fromEntries([...row.querySelectorAll('[data-package-field]')].map(input=>[input.dataset.packageField,nullable(input)])));
- if(strict&&(!packages.length||!materials.length))throw Error('Agrega al menos un material y un bulto.');
- return {origin:form.elements.origin.value,department:form.elements.department.value,destinationKey:form.elements.destinationKey.value,carrier:form.elements.carrier.value,declaredValue:nullable(form.elements.declaredValue),materials,packages};
+ const materials=[...form.querySelector('[data-quote-materials]').children].map(row=>row.readMaterial());
+ measurementSummary(materials);
+ if(strict&&(!materials.length||materials.some(m=>!m.description||!(m[m.measurementMode==='VOLUME'?'volumeM3':'weightKg']>0))))throw Error('Completa el nombre y la medida elegida de cada material.');
+ return {measurementVersion:2,origin:form.elements.origin.value,department:form.elements.department.value,destinationKey:form.elements.destinationKey.value,carrier:form.elements.carrier.value,declaredValue:form.elements.declaredValue.value===''?null:Number(form.elements.declaredValue.value),materials};
 }

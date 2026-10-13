@@ -13,10 +13,23 @@ async function mountQuotes(page){
   api.createOrder=async()=>{window.__orderWrites++;throw Error('No debe crear pedidos');};
   api.freightQuoteCatalog=async()=>({origins:['CALI','TULUA'],modelOrigin:'TULUA',departments:['VALLE DEL CAUCA'],destinations:[{key:'TCC_TEST',name:'TULUA (VALLE DEL CAUCA)',center:'CALI'}]});
   api.freightQuoteCalculate=async p=>{
-   const common={origin:p.origin,destination:'TULUA (VALLE DEL CAUCA)',center:'CALI',prediction:{available:false}};
-   const tcc={...common,carrier:'TCC',tariffVersion:'TRADICIONALES_2023_2024',warning:'Referencia histórica. No es tarifa vigente.',rateCopKg:953,reference:p.origin==='CALI'?calculateTccReference(953,p.packages,p.declaredValue):{status:'UNAVAILABLE',reason:'ORIGIN_ROUTE_UNAVAILABLE'}};
-   const envia={...common,carrier:'ENVIA',tariffVersion:source.dataset_id,warning:'Estimación interna, origen y divisor no confirmados.',reference:calculateEnviaReference(source.entries.find(r=>r.key==='Valle del Cauca (Cali)'),p.packages,source.policy)};
-   return {...(p.carrier==='ENVIA'?envia:tcc),comparison:[tcc,envia]};
+   const {measurementSummary}=await import('/assets/js/domains/freight-quotes/material-measurements.js');
+   const summary=measurementSummary(p.materials),w=summary.weightKg,v=summary.volumeM3,n=summary.count;
+   const comparison=['TCC','ENVIA'].map(carrier=>{
+    const rule=source.entries.find(r=>r.key==='Valle del Cauca (Cali)');
+    const scenario=(basis,amount,count)=>{
+     const common={amount,complete:count===n,measuredMaterials:count,totalMaterials:n};
+     if(!amount)return {...common,status:'REQUIRES_INFORMATION'};
+     if(carrier==='TCC'&&p.origin!=='CALI')return {...common,status:'UNAVAILABLE',reason:'ORIGIN_ROUTE_UNAVAILABLE'};
+     const pkg={quantity:1,weightKg:basis==='WEIGHT'?amount:amount*200,volumeM3:basis==='VOLUME'?amount:0.000000001};
+     const r=carrier==='TCC'?calculateTccReference(953,[pkg],p.declaredValue??0):calculateEnviaReference(rule,[pkg],source.policy);
+     return {...r,...common,conversionFactor:carrier==='TCC'?400:200,billableKg:carrier==='TCC'?r.packages[0].billableKg:r.billableKg};
+    };
+    const weight=scenario('WEIGHT',w,summary.weightCount),volume=scenario('VOLUME',v,summary.volumeCount);
+    const selectedBasis=weight.complete&&volume.complete?(volume.billableKg>weight.billableKg?'VOLUME':'WEIGHT'):weight.complete?'WEIGHT':volume.complete?'VOLUME':null;
+    return {carrier,origin:p.origin,destination:'TULUA (VALLE DEL CAUCA)',tariffVersion:carrier==='TCC'?'TRADICIONALES_2023_2024':source.dataset_id,warning:'Referencia interna, sin precio contractual confirmado.',measurementVersion:2,measurementSummary:summary,measurementScenarios:{weight,volume},selectedBasis,reference:selectedBasis==='WEIGHT'?weight:selectedBasis==='VOLUME'?volume:{status:'REQUIRES_INFORMATION'},prediction:{available:false}};
+   });
+   return {...comparison.find(r=>r.carrier===p.carrier),comparison};
   };
   api.freightQuoteSave=async input=>{const q={id:String(window.__quoteFixtures.length+1),folio:window.__quoteFixtures.length+1,created_at:new Date().toISOString(),status:input.status,carrier:input.carrier,input,snapshot:await api.freightQuoteCalculate(input)};window.__quoteFixtures.unshift(q);return q;};
   api.freightQuoteList=async()=>({items:window.__quoteFixtures,total:window.__quoteFixtures.length});
@@ -26,69 +39,65 @@ async function mountQuotes(page){
   await renderFreightQuotes(document.querySelector('main'));
  },source);
 }
-test('cotizador independiente: calcular, invalidar, guardar y duplicar, sin mutar pedidos',async({page},testInfo)=>{
+test('material con dos botones: conserva medidas, compara, guarda y duplica sin pedidos',async({page},testInfo)=>{
  await mountQuotes(page);
- await page.getByRole('button',{name:'Eliminar material',exact:true}).click();
- await page.getByRole('button',{name:'Material manual',exact:true}).click();
- await page.getByLabel('Descripción manual').fill('Cable de prueba');
+ await expect(page.getByText('Bultos y medidas',{exact:true})).toHaveCount(0);
+ await page.getByLabel('Nombre del material').fill('Cable de prueba');
  await page.getByLabel('Origen efectivo').selectOption('CALI');
  await page.getByLabel('Departamento',{exact:true}).selectOption('VALLE DEL CAUCA');
  await page.getByLabel('Municipio / localidad y centro operativo').selectOption('TCC_TEST');
  await page.getByLabel('Valor declarado (COP)').fill('100000');
- await page.getByLabel('Peso real por bulto (kg)').fill('20');
- await page.getByLabel('Largo (m)',{exact:true}).fill('0.5');
- await page.getByLabel('Ancho (m)',{exact:true}).fill('0.4');
- await page.getByLabel('Alto (m)',{exact:true}).fill('0.3');
+ await page.getByLabel('Peso del material (kg)').fill('20');
+ await page.getByRole('button',{name:'Volumen',exact:true}).click();
+ await expect(page.getByLabel('Peso del material (kg)')).toHaveCount(0);
+ await page.getByLabel('Volumen del material (m³)').fill('0.06');
+ await page.getByRole('button',{name:'Peso',exact:true}).click();
+ await expect(page.getByLabel('Peso del material (kg)')).toHaveValue('20');
  await page.getByRole('button',{name:'Calcular',exact:true}).click();
- await expect(page.getByRole('heading',{name:/Subtotal de referencia/})).toContainText('22.872');
- await expect(page.getByRole('button',{name:'Guardar cotización',exact:true})).toBeEnabled();
+ const tcc=page.locator('[data-carrier-reference="TCC"]');
+ await expect(tcc.locator('[data-measurement-basis="WEIGHT"]')).toContainText('19.060');
+ await expect(tcc.locator('[data-measurement-basis="VOLUME"]')).toContainText('22.872');
+ await expect(tcc).toContainText('mayor cobro: volumen');
  for(const width of [375,768,1024,1440]){
   await page.setViewportSize({width,height:900});
-  const bounds=await page.evaluate(()=>({viewport:document.documentElement.clientWidth,content:document.documentElement.scrollWidth}));
-  expect(bounds.content).toBeLessThanOrEqual(bounds.viewport+1);
-  await page.screenshot({path:testInfo.outputPath(`freight-${width}.png`),fullPage:true});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+1);
+  await page.screenshot({path:testInfo.outputPath(`materials-${width}.png`),fullPage:true});
  }
- await page.getByLabel('Peso real por bulto (kg)').fill('21');
- await expect(page.getByRole('button',{name:'Guardar cotización',exact:true})).toBeDisabled();
- await page.getByRole('button',{name:'Calcular',exact:true}).click();
  await page.getByRole('button',{name:'Guardar cotización',exact:true}).click();
  await expect(page.locator('[data-quote-history]')).toContainText('CF-1');
  await page.getByRole('button',{name:'Duplicar',exact:true}).click();
+ await expect(page.getByLabel('Peso del material (kg)')).toHaveValue('20');
+ await page.getByRole('button',{name:'Volumen',exact:true}).click();
+ await expect(page.getByLabel('Volumen del material (m³)')).toHaveValue('0.06');
+ await page.getByLabel('Volumen del material (m³)').fill('0.07');
  await expect(page.getByRole('button',{name:'Guardar cotización',exact:true})).toBeDisabled();
- await expect(page.getByLabel('Peso real por bulto (kg)')).toHaveValue('21');
  expect(await page.evaluate(()=>window.__orderWrites)).toBe(0);
 });
 
-test('ENVÍA comparte formulario, persiste estrategia y conserva varios bultos pendientes',async({page},testInfo)=>{
+test('ENVÍA por peso y volumen: faltantes visibles y materiales mixtos no omitidos',async({page})=>{
  await mountQuotes(page);
- await page.getByRole('button',{name:'Eliminar material',exact:true}).click();
- await page.getByRole('button',{name:'Material manual',exact:true}).click();
- await page.getByLabel('Descripción manual').fill('Material ENVÍA');
+ await page.getByLabel('Nombre del material').fill('Material ENVÍA');
  await page.getByLabel('Origen efectivo').selectOption('TULUA');
  await page.getByLabel('Departamento',{exact:true}).selectOption('VALLE DEL CAUCA');
  await page.getByLabel('Municipio / localidad y centro operativo').selectOption('TCC_TEST');
  await page.getByLabel('Transportadora',{exact:true}).selectOption('ENVIA');
- await page.getByLabel('Peso real por bulto (kg)').fill('38.001');
+ await page.getByLabel('Peso del material (kg)').fill('38.001');
  await page.getByRole('button',{name:'Calcular',exact:true}).click();
- await expect(page.getByRole('heading',{name:/Estimado ENVÍA:/})).toContainText('24.114');
- await expect(page.locator('[data-carrier-reference="TCC"]')).toContainText('no existe esta ruta/origen');
- await expect(page.locator('[data-carrier-reference="ENVIA"]')).toContainText('provisional');
- for(const width of [375,768,1024,1440]){
-  await page.setViewportSize({width,height:900});
-  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+1);
-  await page.screenshot({path:testInfo.outputPath(`envia-${width}.png`),fullPage:true});
- }
+ await expect(page.locator('[data-carrier-reference="ENVIA"] [data-measurement-basis="WEIGHT"]')).toContainText('24.114');
+ await expect(page.locator('[data-carrier-reference="ENVIA"] [data-measurement-basis="VOLUME"]')).toContainText('Ingresa esta medida');
  await page.getByRole('button',{name:'Guardar cotización',exact:true}).click();
- await expect(page.locator('[data-quote-history]')).toContainText('ENVÍA');
- await page.getByRole('button',{name:'Ver',exact:true}).click();
- await expect(page.getByRole('heading',{name:/Estimado ENVÍA:/})).toBeVisible();
  await page.getByRole('button',{name:'Duplicar',exact:true}).click();
  await expect(page.getByLabel('Transportadora',{exact:true})).toHaveValue('ENVIA');
- await page.getByLabel('Cantidad de bultos').fill('2');
+ await page.getByRole('button',{name:'+ Agregar material',exact:true}).click();
+ const second=page.locator('.freight-line').nth(1);
+ await second.getByLabel('Nombre del material').fill('Tubería');
+ await second.getByRole('button',{name:'Volumen',exact:true}).click();
+ await second.getByLabel('Volumen del material (m³)').fill('0.2');
  await page.getByRole('button',{name:'Calcular',exact:true}).click();
- await expect(page.locator('[data-carrier-reference="ENVIA"]')).toContainText('varios bultos pendiente');
+ await expect(page.locator('[data-carrier-reference="ENVIA"]')).toContainText('Resultado parcial');
  await expect(page.getByRole('button',{name:'Guardar cotización',exact:true})).toBeDisabled();
  await page.getByRole('button',{name:'Guardar borrador',exact:true}).click();
- expect(await page.evaluate(()=>window.__quoteFixtures[0].snapshot.reference.status)).toBe('PENDING_PACKAGING_RULE');
+ await expect(page.locator('[data-quote-history]')).toContainText('CF-2');
+ expect(await page.evaluate(()=>window.__quoteFixtures[0].input.materials.length)).toBe(2);
  expect(await page.evaluate(()=>window.__orderWrites)).toBe(0);
 });

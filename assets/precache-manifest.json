@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": "d2d62cf15486ccf7",
-  "sourceBytes": 2625057,
+  "revision": "40f8319baedffa18",
+  "sourceBytes": 2629250,
   "assets": [
     "./assets/css/analytics.css",
     "./assets/css/base/accessibility.css",
@@ -295,6 +295,8 @@
     "./assets/js/domains/freight-quotes/carrier-adapters.js",
     "./assets/js/domains/freight-quotes/decimal-ratio.js",
     "./assets/js/domains/freight-quotes/envia-reference.js",
+    "./assets/js/domains/freight-quotes/material-measurements.js",
+    "./assets/js/domains/freight-quotes/measurement-view.js",
     "./assets/js/domains/freight-quotes/quote-controller.js",
     "./assets/js/domains/freight-quotes/quote-lines.js",
     "./assets/js/domains/freight-quotes/quote-order-entry.js",
