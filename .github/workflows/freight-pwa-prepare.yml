@@ -10,11 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout change branch
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c30afed # v4.2.2
+        uses: actions/checkout@v7
         with:
           persist-credentials: true
       - name: Setup Node 24
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
       - name: Regenerate deterministic PWA manifest
