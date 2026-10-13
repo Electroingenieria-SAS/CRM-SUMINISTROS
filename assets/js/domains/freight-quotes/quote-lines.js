@@ -31,7 +31,7 @@ export function addMaterial(host,initial={}){
   host.dispatchEvent(new Event('change',{bubbles:true}));
   copy.querySelector('[data-material-name]').focus();
  };
- row.querySelector('[data-remove-line]').onclick=()=>{row.remove();numberMaterials(host);host.dispatchEvent(new Event('change',{bubbles:true}));};
+ row.querySelector('[data-remove-line]').onclick=()=>{const next=row.nextElementSibling?.querySelector('[data-material-name]')||row.previousElementSibling?.querySelector('[data-material-name]')||host.parentElement.querySelector('[data-add-material]');row.remove();numberMaterials(host);host.dispatchEvent(new Event('change',{bubbles:true}));next?.focus();};
  host.append(row);numberMaterials(host);render();return row;
 }
 export function readQuote(form,{strict=false}={}){
