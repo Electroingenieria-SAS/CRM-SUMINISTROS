@@ -22,18 +22,18 @@ function quoteDetail(q){
 }
 export function createFreightHistoryDialogs(root,{onDuplicate,onLink,canLink=true}){
  const host=root.querySelector('[data-history-dialog-host]');
- let previous=null,closeKey=null,scroll='',open=false;
- const observer=new MutationObserver(()=>{if(open&&!host.isConnected){close();observer.disconnect();}});
- observer.observe(root,{childList:true});
+ let previous=null,closeKey=null,scroll='',open=false,observer=null;
  const close=()=>{
   if(!open)return;open=false;
   document.removeEventListener('keydown',closeKey,true);closeKey=null;
+  observer?.disconnect();observer=null;
   host.replaceChildren();document.body.style.overflow=scroll;
   if(previous?.isConnected)previous.focus();previous=null;
  };
  const present=(markup,firstSelector)=>{
   close();previous=document.activeElement;scroll=document.body.style.overflow;
   host.innerHTML=markup;open=true;document.body.style.overflow='hidden';
+  observer=new MutationObserver(()=>{if(!host.isConnected)close();});observer.observe(root,{childList:true});
   const dialog=host.querySelector('[role="dialog"]');
   host.querySelectorAll('[data-close-dialog]').forEach(b=>b.addEventListener('click',close));
   host.querySelector('[data-dialog-scrim]')?.addEventListener('click',close);
