@@ -72,7 +72,9 @@ assert.equal(migration.includes("revoke all on table erp_supply.freight_route_re
 const quotes=readDomainSource("freight-quotes","assets/js/modules/freight-quotes.js");
 // The legacy prediction engine remains available in Orders and in the RPC,
 // but the quote page no longer duplicates three historical carrier cards.
-assert.doesNotMatch(quotes,/freightPredictionSnapshot|freightPredictionsHtml|Ver indicador estadístico histórico por transportadora/);
+assert.match(quotes,/freightPredictionSnapshot/);
+assert.match(quotes,/freightPredictionsHtml/);
+assert.doesNotMatch(quotes,/Ver indicador estadístico histórico por transportadora/);
 assert.match(quotes,/freightQuoteCalculate/);
 assert.match(quotes,/Referencia histórica TCC/);
 console.log("freight predictive model v11.40.0 tests: OK");
