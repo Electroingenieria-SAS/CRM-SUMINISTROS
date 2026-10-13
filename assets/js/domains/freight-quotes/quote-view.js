@@ -44,5 +44,5 @@ export function quoteResultHtml(result,{selectable=true,selectedCarrier=result.c
    (selected?'Seleccionada':'Elegir '+(card.carrier==='ENVIA'?'ENVÍA':'TCC'))+'</button></div>':'';
   return '<div class="freight-offer'+(selected?' freight-offer-selected':'')+'" data-offer-carrier="'+esc(card.carrier)+'">'+referenceCardHtml(reference)+choiceButton+'</div>';
  }).join('');
- return '<section class="freight-results-section" aria-label="Resultados de cotización"><div class="freight-results-heading"><div><p class="freight-overline">COMPARATIVA DE TRANSPORTADORAS</p><h2>Opciones para tu envío</h2><p>Compara los rangos y selecciona la empresa antes de guardar.</p></div><span class="freight-results-count">'+esc(valued.length)+' de '+esc(cards.length)+' con estimación</span></div><div class="freight-comparison-grid">'+offers+'</div></section>';
+ return '<section class="freight-results-section" aria-label="Resultados de cotización"><div class="freight-results-heading"><div><p class="freight-overline">COMPARATIVA DE TRANSPORTADORAS</p><h2>Compara tus opciones</h2><p>Compara los rangos y selecciona la empresa antes de guardar.</p></div><span class="freight-results-count">'+esc(valued.length)+' de '+esc(cards.length)+' con estimación</span></div><div class="freight-comparison-grid">'+offers+'</div></section>';
 }
