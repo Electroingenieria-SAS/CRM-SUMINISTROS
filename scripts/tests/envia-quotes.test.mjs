@@ -42,7 +42,14 @@ test('replay cronológico conserva las APIs multitransportadora después del cat
  const files=fs.readdirSync(dir).filter(f=>f.endsWith('.sql')).sort();
  const latest=signature=>files.filter(f=>fs.readFileSync(new URL(f,dir),'utf8').includes(signature)).at(-1);
  const calculate=latest('create or replace function public.erp_x_freight_quote_calculate(');
- assert.match(fs.readFileSync(new URL(calculate,dir),'utf8'),/envia_reference_calculate/);
+ const newest=fs.readFileSync(new URL(calculate,dir),'utf8');
+ const carrierCore=files.filter(name=>/_(?:envia_reference_engine|freight_quotes_multi_carrier|freight_material_measurements)\.sql$/.test(name)).map(name=>fs.readFileSync(new URL(name,dir),'utf8')).join('\n');
+ assert.match(carrierCore,/envia_reference_calculate/,'Motor ENVÍA original debe permanecer disponible');
+ assert.match(carrierCore,/freight_quote_legacy_calculate/,'Mantener motor multitransportadora anterior');
+ assert.match(carrierCore,/freight_quote_material_calculate/,'Mantener cálculo de materiales');
+ assert.match(newest,/freight_quote_market_overlay\(/,'La API debe envolver y no reemplazar el modelo existente');
+ assert.match(newest,/freight_quote_material_calculate\(p_payload\)/);
+ assert.match(newest,/freight_quote_legacy_calculate\(p_payload\)/);
  const rules=files.find(f=>f.endsWith('_envia_reference_rules.sql'));
  assert.ok(rules>files.find(f=>f.endsWith('_freight_quotes_catalog.sql')));
  const save=latest('create or replace function public.erp_x_freight_quote_save(');
