@@ -30,6 +30,24 @@ export function quoteResultHtml(result){
  const valued=cards.filter(card=>card.commercialEstimate?.available&&Number(card.commercialEstimate.totalCop)>0);
  const cheapest=valued.length===2?valued.reduce((a,b)=>Number(a.commercialEstimate.totalCop)<Number(b.commercialEstimate.totalCop)?a:b).carrier:null;
  const quoteCards=cards.map(card=>({...card,cheapestCommercial:card.carrier===cheapest}));
- return `<div class="freight-comparison-grid">${quoteCards.map(referenceCardHtml).join('')}</div>`;
+ return '<section class="freight-results-section" aria-label="Resultados de cotización"><div class="freight-results-heading"><div><p class="freight-overline">RESULTADOS</p><h2>Compara tus opciones</h2><p>Valores orientativos para la mercancía y ruta registradas.</p></div><span class="freight-results-count">'+esc(valued.length)+' de '+esc(cards.length)+' con estimación</span></div><div class="freight-comparison-grid">'+quoteCards.map(referenceCardHtml).join('')+'</div></section>';
 }
-export function quoteHistoryHtml(items){return items.length?items.map(q=>`<article class="freight-history-row"><div><strong>CF-${esc(q.folio)}</strong><p>${esc(q.carrier==='ENVIA'?'ENVÍA':'TCC')} · ${esc(q.snapshot.origin)} → ${esc(q.snapshot.destination)} · ${esc(({DRAFT:'Borrador',CALCULATED:'Calculada',EXPIRED:'Vencida'})[q.status]||q.status)}</p><small>${esc(new Date(q.created_at).toLocaleString('es-CO'))} · Pedido ${esc(q.order_number||'sin vincular')}</small><p>Estimación: ${q.snapshot.commercialEstimate?.available?fmt.money(q.snapshot.commercialEstimate.totalCop):((q.snapshot.reference.subtotalCop??q.snapshot.reference.totalCop)!=null?fmt.money(q.snapshot.reference.subtotalCop??q.snapshot.reference.totalCop):'sin precio')} · Real de guía ${esc(q.carrier==='ENVIA'?'ENVÍA':'TCC')}: ${q.actual_cost_cop!=null?fmt.money(q.actual_cost_cop):'pendiente'} · Desviación: ${q.actual_cost_cop!=null&&q.snapshot.commercialEstimate?.available?fmt.money(Number(q.actual_cost_cop)-Number(q.snapshot.commercialEstimate.totalCop)):'pendiente'} ${esc(q.actual_carrier||'')}</p></div><div class="freight-actions"><button type="button" class="btn" data-quote-view="${esc(q.id)}">Ver</button><button type="button" class="btn" data-quote-duplicate="${esc(q.id)}">Duplicar</button><button type="button" class="btn" data-quote-link="${esc(q.id)}">Vincular pedido</button></div></article>`).join(''):'<p>Aún no hay cotizaciones guardadas.</p>';}
+const historyStatus=Object.freeze({DRAFT:'Borrador',CALCULATED:'Calculada',EXPIRED:'Vencida'});
+const quoteMoney=value=>value===null||value===undefined||!Number.isFinite(Number(value))?'—':fmt.money(value);
+export function quoteHistoryHtml(items,{filtered=false}={}){
+ if(!items.length)return '<p class="freight-history-empty">'+(filtered?'No hay coincidencias en esta página. Prueba otra búsqueda.':'Aún no hay cotizaciones guardadas.')+'</p>';
+ return items.map(q=>{
+  const snapshot=q.snapshot||{},reference=snapshot.reference||{},estimate=snapshot.commercialEstimate||{};
+  const amount=estimate.available?estimate.totalCop:reference.subtotalCop??reference.totalCop;
+  const actual=q.actual_cost_cop,carrier=q.carrier==='ENVIA'?'ENVÍA':'TCC';
+  const deviation=actual!==null&&actual!==undefined&&estimate.available?Number(actual)-Number(estimate.totalCop):null;
+  const date=q.created_at?new Date(q.created_at):null;
+  const formattedDate=date&&!Number.isNaN(date.getTime())?date.toLocaleString('es-CO'):'Sin fecha';
+  return '<article class="freight-history-row" data-history-carrier="'+esc(q.carrier||'')+'">'+
+   '<div class="freight-history-main"><div class="freight-history-topline"><strong>CF-'+esc(q.folio)+'</strong><span class="freight-history-status" data-quote-status="'+esc(q.status||'')+'">'+esc(historyStatus[q.status]||q.status||'')+'</span><span class="freight-history-carrier">'+carrier+'</span></div>'+
+   '<p class="freight-history-route">'+esc(snapshot.origin||'—')+' <span aria-hidden="true">→</span> '+esc(snapshot.destination||'—')+'</p><small>'+esc(formattedDate)+' · Pedido '+esc(q.order_number||'sin vincular')+'</small></div>'+
+   '<div class="freight-history-prices"><span><small>Estimado</small><strong>'+quoteMoney(amount)+'</strong></span><span><small>Valor cobrado</small><strong>'+quoteMoney(actual)+'</strong></span>'+
+   (deviation!==null?'<span><small>Desviación</small><strong>'+quoteMoney(deviation)+'</strong></span>':'')+'</div>'+
+   '<div class="freight-actions freight-history-buttons"><button type="button" class="btn" data-quote-view="'+esc(q.id)+'">Ver</button><button type="button" class="btn" data-quote-duplicate="'+esc(q.id)+'">Duplicar</button><button type="button" class="btn" data-quote-link="'+esc(q.id)+'">Vincular pedido</button></div></article>';
+ }).join('');
+}
