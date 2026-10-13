@@ -1,16 +1,16 @@
 import {durations,reducedMotion} from './motion-tokens.js';
+import {animationVendor} from './ui-motion.js';
 const tooltips=Object.freeze({
  estimate:'Valor aproximado calculado con la información disponible. La transportadora confirma el cobro final.',
  source:'Referencia utilizada por el cotizador. No equivale necesariamente a una tarifa contractual vigente.',
  volume:'La transportadora puede considerar peso real o equivalencia volumétrica según su modalidad.'
 });
-let vendorPromise;
-const loadVendor=()=>vendorPromise??=import('../../vendor/ui-animations.js');
+
 export async function mountFreightEffects(root){
  const surface=root.querySelector('.freight-quotes');
  if(!surface)return {results(){},history(){},tab(){},destroy(){}};
  let lib;
- try{lib=await loadVendor();}catch(error){console.warn('Animaciones opcionales no disponibles',error);return {results(){},history(){},tab(){},destroy(){}};}
+ try{lib=await animationVendor();}catch(error){console.warn('Animaciones opcionales no disponibles',error);return {results(){},history(){},tab(){},destroy(){}};}
  if(!surface.isConnected)return {results(){},history(){},tab(){},destroy(){}};
  const controllers=[],animations=new Set(),abort=new AbortController();
  const run=(element,frames,duration)=>{
