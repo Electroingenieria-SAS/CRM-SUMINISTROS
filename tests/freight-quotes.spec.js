@@ -131,7 +131,7 @@ test('cotizador renovado: buscar destino, resumen y duplicación de materiales, 
  await page.getByRole('button',{name:'Guardar borrador',exact:true}).click();
  await expect(page.locator('[data-quote-history]')).toContainText('CF-1');
  await page.locator('[data-history-search]').fill('sin coincidencia');
- await expect(page.locator('[data-quote-history]')).toContainText('No hay coincidencias en esta página');
+ await expect(page.locator('[data-quote-history]')).toContainText('Sin resultados para estos filtros');
  await page.locator('[data-history-search]').fill('');
  await expect(page.locator('[data-quote-history]')).toContainText('CF-1');
  for(const width of [375,768,1024,1440]){
