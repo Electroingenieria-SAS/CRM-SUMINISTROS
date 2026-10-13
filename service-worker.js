@@ -1,6 +1,6 @@
 // previous-cache: crm-suministros-v11-45-0-20261002-39
 const CACHE="crm-suministros-v11-46-0-20261006-40";
-const STATIC_REVISION="40f8319baedffa18";
+const STATIC_REVISION="fb2ec33ac35e7db6";
 const ASSET_CACHE=CACHE+"-"+STATIC_REVISION;
 const PRECACHE_MANIFEST="./assets/precache-manifest.json";
 

@@ -14,7 +14,7 @@ if(updatedWorker===worker&&!worker.includes(`const STATIC_REVISION="${manifest.r
 }
 if(process.argv.includes('--check')){
   if(!fs.existsSync(manifestFile)||fs.readFileSync(manifestFile,'utf8')!==json||updatedWorker!==worker){
-    console.error('PWA manifest is stale. Run npm run pwa:generate and commit both generated changes.');
+    console.error(`PWA manifest is stale (expected revision ${manifest.revision}, ${manifest.sourceBytes} bytes). Run npm run pwa:generate and commit both generated changes.`);
     process.exit(1);
   }
 }else{
