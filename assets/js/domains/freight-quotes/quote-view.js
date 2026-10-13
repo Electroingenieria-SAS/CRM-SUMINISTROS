@@ -4,9 +4,11 @@ import {referenceCardHtml} from "./quote-reference-view.js";
 import {freightPredictionsHtml} from "../orders/freight/freight-display.js";
 import {freightPredictionSnapshot} from "../orders/freight/freight-prediction.js";
 import {fmt} from '../../core/format.js';
+export {quoteHistoryHtml} from './quote-history-view.js';
 const esc=fmt.escape;
 export function quoteView(){return `<section class="freight-quotes">
-<header class="page-head freight-page-head"><div><p class="freight-overline">LOGÍSTICA / COTIZADOR</p><h1>Cotización de fletes</h1><p>Elige el destino, registra la mercancía y compara TCC con ENVÍA.</p></div><span class="freight-head-icon" aria-hidden="true">↗</span></header>
+<header class="page-head freight-page-head"><div><p class="freight-overline">LOGÍSTICA / COTIZADOR</p><h1>Cotización de fletes</h1><p>Elige el destino, registra la mercancía y compara TCC con ENVÍA.</p></div><div class="freight-head-detail" aria-label="Módulo de logística"><span class="freight-head-icon" aria-hidden="true">↗</span><span>COTIZACIONES<br>LOGÍSTICAS</span></div></header>
+<nav class="freight-view-nav" role="tablist" aria-label="Vistas de cotización"><button class="freight-view-tab" type="button" role="tab" id="freight-tab-new" aria-controls="freight-panel-new" aria-selected="true" data-view-tab="quote">Nueva cotización</button><button class="freight-view-tab" type="button" role="tab" id="freight-tab-history" aria-controls="freight-panel-history" aria-selected="false" data-view-tab="history">Historial <span data-history-tab-count aria-hidden="true">0</span></button></nav><div data-quote-workspace role="tabpanel" id="freight-panel-new" aria-labelledby="freight-tab-new">
 <div class="freight-notice" role="note"><strong>Precios orientativos.</strong> Las transportadoras conservan sus propios datos. El valor se confirma al despachar.</div>
 <form data-quote-form class="freight-quote-form">
 <section class="freight-panel freight-step-panel"><div class="freight-step-heading"><span class="freight-step-number" aria-hidden="true">1</span><div><h2>¿A dónde enviaremos?</h2><p>Selecciona el recorrido real del envío.</p></div><span class="freight-step-tag">Ruta</span></div>
@@ -20,34 +22,27 @@ export function quoteView(){return `<section class="freight-quotes">
 <div data-quote-materials class="freight-material-list"></div><button type="button" class="btn freight-add-material" data-add-material>+ Agregar material</button></section>
 <div class="freight-action-bar"><div class="freight-action-caption"><strong>3. Compara los fletes</strong><small>El cálculo no crea ni modifica pedidos.</small></div><div class="freight-actions"><button class="btn btn-primary freight-calculate" type="submit">Calcular</button><button class="btn" type="button" data-save-quote disabled>Guardar cotización</button><button class="btn" type="button" data-save-draft>Guardar borrador</button></div></div>
 <p data-quote-message role="status" aria-live="polite" class="freight-message"></p></form>
-<div data-quote-result class="freight-result-host" aria-live="polite"></div>
-<section class="freight-panel freight-history-panel"><div class="freight-step-heading freight-history-heading"><span class="freight-history-icon" aria-hidden="true">◷</span><div><h2>Historial de cotizaciones</h2><p>Consulta, duplica o vincula cotizaciones anteriores.</p></div></div>
-<div class="freight-history-tools"><label>Buscar en esta página<input class="control" type="search" data-history-search placeholder="Folio, ruta o transportadora" autocomplete="off"></label><label>Transportadora<select class="control" data-history-carrier><option value="">Todas</option><option value="TCC">TCC</option><option value="ENVIA">ENVÍA</option></select></label></div>
+<div data-quote-result class="freight-result-host" aria-live="polite"></div></div>
+<section class="freight-panel freight-history-panel" data-history-workspace role="tabpanel" id="freight-panel-history" aria-labelledby="freight-tab-history" hidden><div class="freight-step-heading freight-history-heading"><span class="freight-history-icon" aria-hidden="true">◷</span><div><h2>Historial de cotizaciones</h2><p>Consulta, duplica o vincula cotizaciones anteriores.</p></div></div>
+<div class="freight-history-overview" data-history-overview role="status" aria-live="polite"><div><span>Cotizaciones visibles</span><strong data-history-count>0</strong></div><div><span>Con estimación</span><strong data-history-priced>0</strong></div><div><span>Con costo real</span><strong data-history-actual>0</strong></div></div>
+<div class="freight-history-toolbar"><div class="freight-history-toolbar-top"><label>Buscar cotización <input class="control" type="search" data-history-search placeholder="Folio, origen, destino o pedido" autocomplete="off"></label><div class="freight-history-toolbar-actions"><button type="button" class="btn" data-history-clear>Limpiar filtros</button><button type="button" class="btn" data-history-export disabled>Exportar CSV</button></div></div>
+<div class="freight-history-tools"><label>Transportadora<select class="control" data-history-carrier><option value="">Todas</option><option value="TCC">TCC</option><option value="ENVIA">ENVÍA</option></select></label>
+<label>Estado<select class="control" data-history-status><option value="">Todos los estados</option><option value="CALCULATED">Calculadas</option><option value="DRAFT">Borradores</option><option value="EXPIRED">Vencidas</option></select></label>
+<label>Orden<select class="control" data-history-sort><option value="newest">Más recientes</option><option value="oldest">Más antiguas</option><option value="highest">Mayor estimado</option><option value="lowest">Menor estimado</option></select></label></div>
+<div class="freight-history-filter-note"><small>Los filtros y la exportación corresponden únicamente a esta página del historial.</small><strong data-history-visible-count></strong></div></div>
 <div data-quote-history></div><div class="freight-actions freight-pagination"><button class="btn" data-history-prev>Anterior</button><span data-history-page></span><button class="btn" data-history-next>Siguiente</button></div></section></section>`;}
 export function options(rows,label=x=>x,value=x=>x){return '<option value="">Selecciona</option>'+rows.map(r=>`<option value="${esc(value(r))}">${esc(label(r))}</option>`).join('');}
-export function quoteResultHtml(result){
+export function quoteResultHtml(result,{selectable=true,selectedCarrier=result.carrier}={}){
  const cards=result.comparison?.length?result.comparison:[result];
  const valued=cards.filter(card=>card.commercialEstimate?.available&&Number(card.commercialEstimate.totalCop)>0);
  const cheapest=valued.length===2?valued.reduce((a,b)=>Number(a.commercialEstimate.totalCop)<Number(b.commercialEstimate.totalCop)?a:b).carrier:null;
- const quoteCards=cards.map(card=>({...card,cheapestCommercial:card.carrier===cheapest}));
- return '<section class="freight-results-section" aria-label="Resultados de cotización"><div class="freight-results-heading"><div><p class="freight-overline">RESULTADOS</p><h2>Compara tus opciones</h2><p>Valores orientativos para la mercancía y ruta registradas.</p></div><span class="freight-results-count">'+esc(valued.length)+' de '+esc(cards.length)+' con estimación</span></div><div class="freight-comparison-grid">'+quoteCards.map(referenceCardHtml).join('')+'</div></section>';
-}
-const historyStatus=Object.freeze({DRAFT:'Borrador',CALCULATED:'Calculada',EXPIRED:'Vencida'});
-const quoteMoney=value=>value===null||value===undefined||!Number.isFinite(Number(value))?'—':fmt.money(value);
-export function quoteHistoryHtml(items,{filtered=false}={}){
- if(!items.length)return '<p class="freight-history-empty">'+(filtered?'No hay coincidencias en esta página. Prueba otra búsqueda.':'Aún no hay cotizaciones guardadas.')+'</p>';
- return items.map(q=>{
-  const snapshot=q.snapshot||{},reference=snapshot.reference||{},estimate=snapshot.commercialEstimate||{};
-  const amount=estimate.available?estimate.totalCop:reference.subtotalCop??reference.totalCop;
-  const actual=q.actual_cost_cop,carrier=q.carrier==='ENVIA'?'ENVÍA':'TCC';
-  const deviation=actual!==null&&actual!==undefined&&estimate.available?Number(actual)-Number(estimate.totalCop):null;
-  const date=q.created_at?new Date(q.created_at):null;
-  const formattedDate=date&&!Number.isNaN(date.getTime())?date.toLocaleString('es-CO'):'Sin fecha';
-  return '<article class="freight-history-row" data-history-carrier="'+esc(q.carrier||'')+'">'+
-   '<div class="freight-history-main"><div class="freight-history-topline"><strong>CF-'+esc(q.folio)+'</strong><span class="freight-history-status" data-quote-status="'+esc(q.status||'')+'">'+esc(historyStatus[q.status]||q.status||'')+'</span><span class="freight-history-carrier">'+carrier+'</span></div>'+
-   '<p class="freight-history-route">'+esc(snapshot.origin||'—')+' <span aria-hidden="true">→</span> '+esc(snapshot.destination||'—')+'</p><small>'+esc(formattedDate)+' · Pedido '+esc(q.order_number||'sin vincular')+'</small></div>'+
-   '<div class="freight-history-prices"><span><small>Estimado</small><strong>'+quoteMoney(amount)+'</strong></span><span><small>Valor cobrado</small><strong>'+quoteMoney(actual)+'</strong></span>'+
-   (deviation!==null?'<span><small>Desviación</small><strong>'+quoteMoney(deviation)+'</strong></span>':'')+'</div>'+
-   '<div class="freight-actions freight-history-buttons"><button type="button" class="btn" data-quote-view="'+esc(q.id)+'">Ver</button><button type="button" class="btn" data-quote-duplicate="'+esc(q.id)+'">Duplicar</button><button type="button" class="btn" data-quote-link="'+esc(q.id)+'">Vincular pedido</button></div></article>';
+ const offers=cards.map(card=>{
+  const selected=selectedCarrier===card.carrier;
+  const choice=card.commercialEstimate?.available===true;
+  const reference={...card,cheapestCommercial:card.carrier===cheapest};
+  const choiceButton=selectable?'<div class="freight-offer-choice"><button class="btn freight-offer-select" type="button" data-quote-select-carrier="'+esc(card.carrier)+'" aria-pressed="'+selected+'" '+(!choice?'disabled title="Sin estimación disponible"':'')+'>'+
+   (selected?'Seleccionada':'Elegir '+(card.carrier==='ENVIA'?'ENVÍA':'TCC'))+'</button></div>':'';
+  return '<div class="freight-offer'+(selected?' freight-offer-selected':'')+'" data-offer-carrier="'+esc(card.carrier)+'">'+referenceCardHtml(reference)+choiceButton+'</div>';
  }).join('');
+ return '<section class="freight-results-section" aria-label="Resultados de cotización"><div class="freight-results-heading"><div><p class="freight-overline">COMPARATIVA DE TRANSPORTADORAS</p><h2>Compara tus opciones</h2><p>Compara los rangos y selecciona la empresa antes de guardar.</p></div><span class="freight-results-count">'+esc(valued.length)+' de '+esc(cards.length)+' con estimación</span></div><div class="freight-comparison-grid">'+offers+'</div></section>';
 }
