@@ -41,7 +41,7 @@ export async function mountFreightEffects(root){
  surface.addEventListener('pointerout',e=>{if(anchor&&!anchor.contains(e.relatedTarget))hideTip();},{signal:abort.signal});
  surface.addEventListener('focusin',e=>{const n=e.target.closest?.('[data-freight-tip]');if(n)showTip(n);},{signal:abort.signal});
  surface.addEventListener('focusout',e=>{if(anchor&&!anchor.contains(e.relatedTarget))hideTip();},{signal:abort.signal});
- surface.addEventListener('click',e=>{const n=e.target.closest?.('[data-freight-tip]');if(n){if(n===anchor)hideTip();else showTip(n);}},{signal:abort.signal});
+ surface.addEventListener('click',e=>{const n=e.target.closest?.('[data-freight-tip]');if(n)showTip(n);else hideTip();},{signal:abort.signal});
  surface.addEventListener('keydown',e=>{if(e.key==='Escape')hideTip();},{signal:abort.signal});
  let stopped=false;
  const destroy=()=>{
