@@ -28,6 +28,12 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Install exact UI dependencies
+        run: npm ci --no-fund
+
+      - name: Verify reproducible vendor ESM
+        run: npm run vendor:check
+
       - name: JavaScript syntax
         run: bash scripts/ci/check-javascript-syntax.sh
 
