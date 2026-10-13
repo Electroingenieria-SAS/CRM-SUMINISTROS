@@ -95,8 +95,36 @@ test("later migrations preserve the Shipping RPC and its required repository con
   assert.ok(index>=0,"Shipping migration missing");
   for(const name of migrations.slice(index+1)){
     const later=fs.readFileSync(path.join(root,"supabase/migrations",name),"utf8");
-    assert.doesNotMatch(later, /\b(?:create\s+(?:or\s+replace\s+)?|alter\s+|drop\s+)function\s+(?:public\.)?erp_x_shipping_save_guide\b/i,
-      `later migration ${name} changes the Shipping RPC and requires contract review`);
+    const changesGuide=/\b(?:create\s+(?:or\s+replace\s+)?|alter\s+|drop\s+)function\s+(?:public\.)?erp_x_shipping_save_guide\b/i.test(later);
+    if(!changesGuide)continue;
+    // Authorized additive extension retains original Shipping guards, column
+    // writes and grants; no other migration may rewrite the protected RPC.
+    assert.equal(name,"20261013233100_freight_guide_carrier_measurements.sql",
+      "Unreviewed migration changes the guarded Shipping RPC");
+    for(const expr of [
+      /create or replace function public\.erp_x_shipping_save_guide\(p_order_id uuid, p_payload jsonb\)/i,
+      /security definer/i,
+      /set search_path = erp_supply, public, auth, pg_catalog/i,
+      /erp_supply\.can_access_module\('shipping','update'\)/,
+      /erp_supply\.has_role\('super_admin'\)/,
+      /v_task\.assigned_profile_id is distinct from v_actor/,
+      /v_task\.status<>'IN_PROGRESS'/,
+      /carrier_invoice_number=v_carrier_invoice/,
+      /carrier_cost=v_carrier_cost/,
+      /carrier_cost_currency=v_carrier_cost_currency/,
+      /carrier_cost_recorded_by=case when v_has_cost then v_actor else carrier_cost_recorded_by end/,
+      /carrier_cost_recorded_at=case when v_has_cost then now\(\) else carrier_cost_recorded_at end/,
+      /'freightOrigin',coalesce\(v_freight_origin,v_delivery\.metadata->>'freightOrigin'\)/,
+      /'freightWeightKg',coalesce\(v_freight_weight,erp_supply\.safe_numeric/,
+      /'freightVolumeM3',coalesce\(v_freight_volume,erp_supply\.safe_numeric/,
+      /revoke all on function public\.erp_x_shipping_save_guide\(uuid,jsonb\) from public,anon/,
+      /grant execute on function public\.erp_x_shipping_save_guide\(uuid,jsonb\) to authenticated,service_role/
+    ])assert.match(later,expr,"Reviewed Shipping RPC extension lost a mandatory contract");
+    for(const expr of [/\bdrop\s+(?:function|table|column)\b/i,/\btruncate\b/i,/\bdelete\s+from\b/i])
+      assert.doesNotMatch(later,expr,"Guide extension must not perform destructive migration");
+    const insert=later.match(/insert into erp_supply\.deliveries\(([\s\S]*?)\) values/i);
+    assert.ok(insert,"Shipping guide canonical INSERT missing");
+    for(const field of carrierFields)assert.match(insert[1],new RegExp("\\b"+field+"\\b"),field);
   }
   assert.match(required,/20261001205000_shipping_carrier_persistence_v11_43_1\.sql/);
   assert.match(required,/shipping-guide-persistence-contract\.test\.mjs/);
