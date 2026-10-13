@@ -12,8 +12,8 @@ set local role authenticated;
 do $$
 declare k text;dep text; input jsonb;tcc jsonb;envia jsonb;outcome jsonb;
 begin
- select left(tcc_row_id,8) into k from erp_supply.freight_tariff_rows
-  where origin_city='CALI' and destination_pdf='TULUA (VALLE DEL CAUCA)' limit 1;
+ select value->>'key' into k from jsonb_array_elements(public.erp_x_freight_quote_catalog('VALLE DEL CAUCA')->'destinations')
+  where value->>'name'='TULUA (VALLE DEL CAUCA)' limit 1;
  input:=jsonb_build_object('measurementVersion',2,'origin','CALI','carrier','TCC','department','VALLE DEL CAUCA','destinationKey',k,'declaredValue',100000,
  'materials','[{"description":"Cable","measurementMode":"WEIGHT","weightKg":20}]'::jsonb);
  outcome:=public.erp_x_freight_quote_calculate(input);
@@ -24,8 +24,9 @@ begin
  if envia#>>'{commercialEstimate,source}'<>'ENVIA_REFERENCE'
    or (envia#>>'{commercialEstimate,totalCop}')::numeric<>23900 then
    raise exception 'Regression ENVIA separated pricing: %',envia;end if;
- select left(tcc_row_id,8),destination_departamento_pdf into k,dep from erp_supply.freight_tariff_rows
- where destination_pdf ilike 'BOGOTA%' and destination_departamento_pdf ilike '%CUNDINAMARCA%' limit 1;
+ select value->>'key',value->>'department' into k,dep
+ from jsonb_array_elements(public.erp_x_freight_quote_catalog('CUNDINAMARCA')->'destinations')
+ where value->>'name' ilike 'BOGOTA%' limit 1;
  if k is null then raise exception 'Bogota document lookup failed';end if;
  input:=jsonb_build_object('measurementVersion',2,'origin','TULUA','carrier','TCC','department',dep,'destinationKey',k,'declaredValue',100000,
  'materials','[{"description":"Cable","measurementMode":"WEIGHT","weightKg":20}]'::jsonb);
