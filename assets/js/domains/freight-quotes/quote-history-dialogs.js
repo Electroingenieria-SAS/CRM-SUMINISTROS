@@ -20,9 +20,11 @@ function quoteDetail(q){
   '<p>'+esc(snapshot.tariffVersion||'Sin versión documentada')+'</p>'+
   '<p>'+esc(snapshot.warning||'La estimación no sustituye la cotización oficial.')+'</p></details>';
 }
-export function createFreightHistoryDialogs(root,{onDuplicate,onLink}){
+export function createFreightHistoryDialogs(root,{onDuplicate,onLink,canLink=true}){
  const host=root.querySelector('[data-history-dialog-host]');
  let previous=null,closeKey=null,scroll='',open=false;
+ const observer=new MutationObserver(()=>{if(open&&!host.isConnected){close();observer.disconnect();}});
+ observer.observe(root,{childList:true});
  const close=()=>{
   if(!open)return;open=false;
   document.removeEventListener('keydown',closeKey,true);closeKey=null;
@@ -58,7 +60,7 @@ export function createFreightHistoryDialogs(root,{onDuplicate,onLink}){
    '<div class="freight-dialog-body">'+quoteDetail(q)+'</div>'+
    '<footer class="freight-dialog-actions"><button type="button" class="btn" data-detail-copy>Copiar folio</button>'+
    '<button type="button" class="btn" data-detail-duplicate>Duplicar</button>'+
-   '<button type="button" class="btn" data-detail-link>Vincular pedido</button></footer><p role="status" data-detail-notice></p>'
+   '<button type="button" class="btn" data-detail-link '+(canLink?'':'disabled')+'>Vincular pedido</button></footer><p role="status" data-detail-notice></p>'
   ),'[data-close-dialog]');
   dialog.querySelector('[data-detail-copy]').onclick=async()=>{
    const status=dialog.querySelector('[data-detail-notice]');
