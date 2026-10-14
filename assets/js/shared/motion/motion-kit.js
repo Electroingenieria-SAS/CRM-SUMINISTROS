@@ -4,7 +4,7 @@ export function createMotionKit(root){
  let disposed=false,activeAnimations=[],listController=null,tooltip=null,stopPosition=null;
  const events=new AbortController();
  const active=()=>!disposed&&root.isConnected;
- const clearAnimations=()=>{for(const item of activeAnimations)item.cancel?.();activeAnimations=[];};
+ const clearAnimations=()=>{for(const item of activeAnimations){item.stop?.();item.cancel?.();}activeAnimations=[];};
  async function enableMaterialMotion(host){
   if(shouldReduceMotion()||!active()||!host)return;
   try{
