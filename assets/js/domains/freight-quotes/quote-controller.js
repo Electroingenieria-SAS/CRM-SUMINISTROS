@@ -8,11 +8,15 @@ import {restoreMeasurements,measurementSummary} from './material-measurements.js
 import {addMaterial,readQuote} from './quote-lines.js';
 import {createMotionKit} from '../../shared/motion/motion-kit.js';
 import {createFreightDialogs} from './quote-dialogs.js';
+import {setupFreightDestinationPicker} from './destination-picker.js';
 export async function renderFreightQuotes(root,context={}){
+ root.__freightController?.abort();
+ root.__crmFreightMotion?.dispose?.();
  root.innerHTML=quoteView();
  const form=root.querySelector('[data-quote-form]'),message=root.querySelector('[data-quote-message]'),resultHost=root.querySelector('[data-quote-result]');
  const materialHost=form.querySelector('[data-quote-materials]');
- root.__crmFreightMotion?.dispose?.();
+ const controller=new AbortController();root.__freightController=controller;
+ form.__freightSignal=controller.signal;
  const motion=createMotionKit(root);
  root.__crmFreightMotion=motion;
  void motion.enableMaterialMotion(materialHost);
@@ -30,8 +34,22 @@ export async function renderFreightQuotes(root,context={}){
   });
  };
  root.querySelectorAll('[data-view-tab]').forEach(button=>button.addEventListener('click',()=>setWorkspace(button.dataset.viewTab)));
- const searchCity=form.querySelector('[data-destination-search]');
- const searchFeedback=form.querySelector('[data-destination-feedback]');
+ const destinationPicker=setupFreightDestinationPicker(form);
+ const syncCarrier=()=>{
+  const selected=form.elements.carrier.value;
+  root.querySelectorAll('[data-carrier-choice]').forEach(button=>{
+   const active=button.dataset.carrierChoice===selected;
+   button.setAttribute('aria-pressed',String(active));
+   const label=button.querySelector('small');if(label)label.textContent=active?'Seleccionada':'Elegir';
+  });
+ };
+ root.querySelectorAll('[data-carrier-choice]').forEach(button=>button.addEventListener('click',()=>{
+   if(form.elements.carrier.value===button.dataset.carrierChoice)return;
+   form.elements.carrier.value=button.dataset.carrierChoice;
+   form.elements.carrier.dispatchEvent(new Event('change',{bubbles:true}));
+   syncCarrier();
+ }));
+ form.elements.carrier.addEventListener('change',syncCarrier);syncCarrier();
  const normalize=value=>String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
  const invalidate=()=>{revision++;calculated=null;currentResult=null;save.disabled=true;resultHost.innerHTML='';};
  const number=new Intl.NumberFormat('es-CO',{maximumFractionDigits:3});
@@ -66,16 +84,6 @@ export async function renderFreightQuotes(root,context={}){
    save.disabled=!calculated||!can('freight_quotes','canCreate');draft.disabled=!can('freight_quotes','canCreate');
   }
  };
- function filterDestinations(){
-  const query=normalize(searchCity.value),select=form.elements.destinationKey,selected=select.value;
-  const filtered=query?allDestinations.filter(row=>normalize(row.name).includes(query)||normalize(row.center).includes(query)):allDestinations;
-  select.innerHTML=options(filtered,row=>row.name+' · C.O '+row.center,row=>row.key);
-  select.value=filtered.some(row=>row.key===selected)?selected:'';
-  select.disabled=!filtered.length;
-  searchFeedback.textContent=filtered.length?filtered.length+' destinos disponibles. Selecciona el correspondiente.':'No se encontraron destinos. Prueba otra búsqueda.';
-  if(selected&&!select.value)invalidate();
- }
- searchCity.addEventListener('input',filterDestinations);
  function renderHistory(){
   const filters={
    search:root.querySelector('[data-history-search]').value,
@@ -114,17 +122,14 @@ export async function renderFreightQuotes(root,context={}){
  };
  async function destinations(department,key=''){
   const request=++destinationRequest;
-  form.elements.destinationKey.disabled=true;searchCity.disabled=!department;
-  searchCity.value='';allDestinations=[];
-  if(!department){form.elements.destinationKey.innerHTML=options([]);searchFeedback.textContent='Selecciona un departamento para comenzar.';return [];}
+  destinationPicker.reset(department?'Cargando municipios…':'Selecciona un departamento para comenzar.');
+  allDestinations=[];
+  if(!department)return [];
   if(!catalogCache.has(department))catalogCache.set(department,api.freightQuoteCatalog(department));
   let data;try{data=await catalogCache.get(department);}catch(error){catalogCache.delete(department);throw error;}
   if(request!==destinationRequest)return;
   allDestinations=data.destinations||[];
-  form.elements.destinationKey.innerHTML=options(allDestinations,r=>r.name+' · C.O '+r.center,r=>r.key);
-  form.elements.destinationKey.disabled=!allDestinations.length;
-  form.elements.destinationKey.value=key;
-  searchFeedback.textContent=allDestinations.length+' destinos disponibles. Selecciona el correspondiente.';
+  destinationPicker.setDestinations(allDestinations,key);
   return allDestinations;
  }
  async function loadHistory(){
@@ -165,7 +170,7 @@ export async function renderFreightQuotes(root,context={}){
   const choice=(currentResult.comparison||[currentResult]).find(item=>item.carrier===carrier);
   if(!choice)return;
   const payload={...readQuote(form),carrier};
-  form.elements.carrier.value=carrier;
+  form.elements.carrier.value=carrier;syncCarrier();
   const selected={...choice,comparison:currentResult.comparison};
   const available=quoteCanSaveCalculated(selected);
   calculated=available?{payload,result:selected}:null;
@@ -185,7 +190,7 @@ export async function renderFreightQuotes(root,context={}){
   link:async(id,number)=>{await api.freightQuoteLink(id,number);await loadHistory();},
   duplicate:q=>{
    run(async()=>{
-    invalidate();form.elements.carrier.value=q.input.carrier||'TCC';form.elements.origin.value=q.input.origin;
+    invalidate();form.elements.carrier.value=q.input.carrier||'TCC';syncCarrier();form.elements.origin.value=q.input.origin;
     form.elements.department.value=q.input.department;form.elements.declaredValue.value=q.input.declaredValue??'';
     await destinations(q.input.department,q.input.destinationKey);
     replaceMaterials(restoreMeasurements(q.input));
@@ -200,7 +205,7 @@ export async function renderFreightQuotes(root,context={}){
   if(button.dataset.quoteView){dialogs.showDetails(q,button);return;}
   if(button.dataset.quoteLink){dialogs.showLink(q,button);return;}
   run(async()=>{
-   invalidate();form.elements.carrier.value=q.input.carrier||'TCC';form.elements.origin.value=q.input.origin;form.elements.department.value=q.input.department;form.elements.declaredValue.value=q.input.declaredValue??'';
+   invalidate();form.elements.carrier.value=q.input.carrier||'TCC';syncCarrier();form.elements.origin.value=q.input.origin;form.elements.department.value=q.input.department;form.elements.declaredValue.value=q.input.declaredValue??'';
    await destinations(q.input.department,q.input.destinationKey);
    replaceMaterials(restoreMeasurements(q.input));
    notice('Copia preparada. Calcula o guarda un nuevo borrador.');setWorkspace('quote');form.scrollIntoView({behavior:'smooth'});
@@ -216,7 +221,7 @@ export async function renderFreightQuotes(root,context={}){
    replaceMaterials(quoteOrderMaterials(orderData));
    const dept=order.metadata?.clientDepartment||'';syncSummary();
    form.elements.department.value=dept;
-   if(form.elements.department.value){const rows=await destinations(dept);form.elements.destinationKey.value=exactDocumentDestination(rows,order.client_city);}
+   if(form.elements.department.value){const rows=await destinations(dept);form.elements.destinationKey.value=exactDocumentDestination(rows,order.client_city);destinationPicker.sync();}
    notice(`Materiales precargados del pedido ${order.order_number}. Confirma destino y las medidas de los materiales. Guardar no vincula ni modifica el pedido.`);
   }
  }catch(error){notice(error.message);}
