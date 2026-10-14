@@ -284,3 +284,61 @@ test('cotizador premium: municipio único, empresa principal y valor declarado v
  await expect(page.locator('[data-carrier-reference="TCC"]')).toBeVisible();
  expect(await page.evaluate(()=>window.__orderWrites)).toBe(0);
 });
+
+
+test('visual premium: hero compacto, precios TCC/ENVÍA e historial responsive',async({page},testInfo)=>{
+ await mountQuotes(page);
+ const header=page.locator('.freight-premium-head');
+ await expect(header).toBeVisible();
+ await expect(page.locator('.freight-hero-logos')).toContainText('TCC');
+ await expect(page.locator('.freight-hero-logos')).toContainText('ENVÍA');
+ await page.evaluate(async()=>{
+  const {api}=await import('/assets/js/services/api.js');
+  const original=api.freightQuoteCalculate;
+  api.freightQuoteCalculate=async data=>{
+   const result=await original(data);
+   const comparison=result.comparison.map((card,i)=>({...card,commercialEstimate:{
+     available:true,statisticalRange:true,source:i===0?'TCC_REAL_GUIDE_MODEL':'ENVIA_REFERENCE',
+     totalCop:i===0?92000:75000,rangeLowCop:i===0?82000:68000,rangeHighCop:i===0?105000:89000,
+     baseCop:i===0?70000:60000,variableCop:i===0?22000:15000
+   }}));
+   return {...comparison.find(x=>x.carrier===data.carrier),comparison};
+  };
+ });
+ await page.getByLabel('Nombre del material').fill('Equipo comercial');
+ await page.getByLabel('Origen efectivo').selectOption('CALI');
+ await page.getByLabel('Departamento',{exact:true}).selectOption('VALLE DEL CAUCA');
+ await page.getByLabel('Municipio / localidad y centro operativo').selectOption('TCC_TEST');
+ await page.getByLabel('Peso del material (kg)').fill('20');
+ await page.getByRole('button',{name:'Calcular',exact:true}).click();
+ await expect(page.locator('[data-offer-carrier="TCC"] .freight-price-hero')).toContainText('82.000');
+ await expect(page.locator('[data-offer-carrier="ENVIA"] .freight-price-hero')).toContainText('68.000');
+ for(const width of [375,768,1024,1440]){
+  await page.setViewportSize({width,height:900});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+1);
+  await page.screenshot({path:testInfo.outputPath('premium-v3-'+width+'.png'),fullPage:true});
+ }
+ await page.getByRole('tab',{name:/Historial/}).click();
+ await expect(page.locator('.freight-history-metric')).toHaveCount(3);
+});
+
+test('503 del catálogo: reintentar lecturas sin mutar pedidos ni cotizaciones',async({page})=>{
+ await mountQuotes(page);
+ await page.evaluate(async()=>{
+  const {api}=await import('/assets/js/services/api.js');
+  api.freightQuoteCatalog=async department=>{
+   if(department){
+    if(window.__serviceHealthy)return {destinations:[{key:'TCC_TEST',name:'TULUA (VALLE DEL CAUCA)',center:'CALI'}]};
+    const error=new Error('Supabase está temporalmente ocupado.');error.status=503;throw error;
+   }
+   return {origins:['CALI','TULUA'],modelOrigin:'TULUA',departments:['VALLE DEL CAUCA']};
+  };
+ });
+ await page.getByLabel('Departamento',{exact:true}).selectOption('VALLE DEL CAUCA');
+ await expect(page.locator('[data-freight-service-banner]')).toBeVisible();
+ await page.evaluate(()=>{window.__serviceHealthy=true;});
+ await page.locator('[data-freight-retry]').click();
+ await expect(page.locator('[data-freight-service-banner]')).toBeHidden();
+ await expect(page.getByLabel('Municipio / localidad y centro operativo')).toBeEnabled();
+ expect(await page.evaluate(()=>window.__orderWrites)).toBe(0);
+});

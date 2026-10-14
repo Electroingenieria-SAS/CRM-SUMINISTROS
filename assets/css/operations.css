@@ -2,6 +2,7 @@
 @import "modules/freight/quotes-enterprise.css";
 @import "modules/freight/quote-motion.css";
 @import "modules/freight/freight-design-v2.css";
+@import "modules/freight/freight-premium-v3.css";
 /* Ordered composition: preserve the existing production cascade. */
 @import "modules/receiving/goods-receipt-receiving-head.css";
 @import "modules/receiving/goods-receipt-form-section.css";

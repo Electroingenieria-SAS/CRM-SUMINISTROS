@@ -28,6 +28,18 @@ async function rpc(name,params={}){
   return data;
 }
 
+// Retry only read-only freight RPCs once on transient 503/504 responses.
+// Never auto-retry saves or order links: their outcome could already be committed.
+const freightTransient=e=>[503,504].includes(Number(e?.status))||
+ /service unavailable|gateway timeout|supabase está temporalmente ocupado|pgrst003/i.test(String(e?.message||''));
+async function freightReadRpc(name,params={}){
+ try{return await rpc(name,params);}
+ catch(error){
+  if(!freightTransient(error))throw error;
+  await new Promise(resolve=>setTimeout(resolve,650));
+  return rpc(name,params);
+ }
+}
 async function mutationRpc(name,params={}){
   const data=await rpc(name,params);
   if(typeof window!=="undefined")window.dispatchEvent(new CustomEvent("erp:work-changed",{detail:{rpc:name}}));
@@ -56,10 +68,10 @@ async function edgeFunction(name,body={}){
 }
 
 export const api={
-  freightQuoteCatalog:(department=null)=>rpc("erp_x_freight_quote_catalog",{p_department:department}),
+  freightQuoteCatalog:(department=null)=>freightReadRpc("erp_x_freight_quote_catalog",{p_department:department}),
   freightQuoteCalculate:payload=>rpc("erp_x_freight_quote_calculate",{p_payload:payload}),
   freightQuoteSave:payload=>mutationRpc("erp_x_freight_quote_save",{p_payload:payload}),
-  freightQuoteList:(page=1)=>rpc("erp_x_freight_quote_list",{p_page:page}),
+  freightQuoteList:(page=1)=>freightReadRpc("erp_x_freight_quote_list",{p_page:page}),
   freightQuoteLink:(quoteId,orderNumber)=>mutationRpc("erp_x_freight_quote_link",{p_quote_id:quoteId,p_order_number:orderNumber}),
   session:()=>rpc("erp_x_session"),
   health:()=>rpc("erp_x_health_check"),
