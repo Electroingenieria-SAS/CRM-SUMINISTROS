@@ -38,5 +38,19 @@ export function readQuote(form,{strict=false}={}){
  const materials=[...form.querySelector('[data-quote-materials]').children].map(row=>row.readMaterial());
  measurementSummary(materials);
  if(strict&&(!materials.length||materials.some(m=>!m.description||!(m[m.measurementMode==='VOLUME'?'volumeM3':'weightKg']>0))))throw Error('Completa el nombre y la medida elegida de cada material.');
- return {measurementVersion:2,origin:form.elements.origin.value,department:form.elements.department.value,destinationKey:form.elements.destinationKey.value,carrier:form.elements.carrier.value,declaredValue:form.elements.declaredValue.value===''?null:Number(form.elements.declaredValue.value),materials};
+ const local=form.elements.carrier.value==='LOCAL';
+ const localDestinationCode=form.elements.localDestinationCode?.value||'';
+ const localUnloadingCost=Number(form.elements.localUnloadingCost?.value||0);
+ const localDiversionCost=Number(form.elements.localDiversionCost?.value||0);
+ const localExtraReason=form.elements.localExtraReason?.value.trim()||'';
+ if(strict&&local){
+  if(!localDestinationCode)throw Error('Selecciona el destino local.');
+  if(materials.some(item=>!Number.isFinite(item.weightKg)||!(item.weightKg>0)))throw Error('El transporte local necesita el peso real de todos los materiales.');
+  if(localUnloadingCost+localDiversionCost>0&&localExtraReason.length<8)throw Error('Explica el motivo del auxiliar o la subruta urgente (mínimo 8 caracteres).');
+ }
+ return {measurementVersion:2,origin:local?'TULUA':form.elements.origin.value,
+  department:local?'':form.elements.department.value,destinationKey:local?'':form.elements.destinationKey.value,
+  carrier:form.elements.carrier.value,declaredValue:form.elements.declaredValue.value===''?null:Number(form.elements.declaredValue.value),
+  localDestinationCode:local?localDestinationCode:'',localUnloadingCost:local?localUnloadingCost:0,
+  localDiversionCost:local?localDiversionCost:0,localExtraReason:local?localExtraReason:'',materials};
 }

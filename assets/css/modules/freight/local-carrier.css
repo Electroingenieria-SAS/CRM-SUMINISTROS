@@ -1,0 +1,31 @@
+/* Third carrier: verified internal source, fixed route pricing, no national-price contamination. */
+.freight-quotes .freight-carrier-segment{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.freight-quotes .freight-carrier-segment button{min-width:0;justify-content:center;padding:8px;gap:7px}
+.freight-quotes .freight-carrier-segment button small{display:none}
+.freight-quotes .freight-route-grid [hidden],.freight-quotes [data-local-controls][hidden]{display:none!important}
+.freight-quotes .freight-local-route-panel{grid-column:1/-1;display:grid;gap:14px;padding:19px;border:1px solid #c3dbcc;border-radius:13px;background:linear-gradient(135deg,#f4faf5,#fff)}
+.freight-local-route-field,.freight-local-reason-field{display:grid;gap:7px;min-width:0;font-weight:760;color:#244f45;font-size:.85rem}
+.freight-local-route-field select{width:100%;min-height:50px}
+.freight-local-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.freight-local-fields label{display:grid;gap:7px;color:#2d6457;font-weight:760;font-size:.8rem}
+.freight-local-fields input,.freight-local-reason-field textarea{background:#fff}
+.freight-local-help{margin:0;color:#567968;line-height:1.55;font-size:.77rem}
+.freight-quotes .freight-hero-local{background:#eaf7ec;border:1px solid #b8debc;color:#246b39}
+.freight-quotes .freight-carrier-segment button[data-carrier-choice=LOCAL][aria-pressed=true]{border-color:#a8d6b6;color:#175b36}
+.freight-quotes .freight-carrier-segment button[data-carrier-choice=LOCAL][aria-pressed=true] .freight-carrier-symbol{background:linear-gradient(135deg,#267646,#114e34)}
+.freight-quotes .freight-offer[data-offer-carrier=LOCAL]{border-color:#b4d8c2}
+.freight-quotes .freight-offer[data-offer-carrier=LOCAL]::before{background:linear-gradient(90deg,#1b7452,#52ac71,#b1d6b7)}
+.freight-quotes .freight-offer[data-offer-carrier=LOCAL] .freight-company-symbol{background:linear-gradient(145deg,#258351,#135337)}
+.freight-quotes .freight-offer[data-offer-carrier=LOCAL] .freight-price-hero{background:linear-gradient(145deg,#175638,#0c3227)!important;border-color:#277b50}
+.freight-quotes .freight-offer[data-offer-carrier=LOCAL] .freight-company-meta{background:#e7f6ec;color:#26724a}
+.freight-quotes .freight-offer[data-offer-carrier=LOCAL] .freight-offer-select{background:linear-gradient(125deg,#247b4b,#175936)!important;color:#fff!important;border-color:#1b6842!important}
+.freight-quotes .freight-offer[data-offer-carrier=LOCAL] .freight-offer-select[aria-pressed=true]{background:#e5f5e9!important;color:#155437!important;border-color:#a7d5b8!important}
+.freight-quotes .freight-local-card-note{margin:13px 0 0;font-size:.77rem;color:#587265;line-height:1.55}
+.freight-quotes .freight-local-card .freight-market-breakdown{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:15px}
+.freight-quotes .freight-local-card .freight-market-breakdown span{display:grid;gap:4px;min-height:58px}
+.local-dispatch-matrix-source{font-size:.75rem;line-height:1.5;color:#286d47;background:#eaf8ee;border:1px solid #c7e5d1;padding:10px 13px;border-radius:10px;margin:6px 0 12px}
+.local-dispatch-matrix-warning{color:#885b13;background:#fff6db;border:1px solid #f0d79b;padding:11px 13px;border-radius:10px;font-size:.79rem;margin:12px 0}
+.local-dispatch-matrix-warning[hidden]{display:none!important}
+@media(max-width:760px){.freight-quotes .freight-carrier-segment button{flex-direction:column;gap:4px;font-size:.8rem;padding:8px 2px}.freight-quotes .freight-carrier-segment .freight-carrier-symbol{height:29px;width:29px}.freight-local-fields{grid-template-columns:1fr}.freight-quotes .freight-local-route-panel{padding:14px}.freight-quotes .freight-local-card .freight-market-breakdown{grid-template-columns:1fr 1fr}}
+@media(max-width:440px){.freight-quotes .freight-hero-logos{gap:4px;flex-wrap:wrap}.freight-quotes .freight-hero-logo{min-width:56px;font-size:.67rem}.freight-quotes .freight-local-card .freight-market-breakdown{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.freight-quotes .freight-carrier-segment button{transition:none!important}}

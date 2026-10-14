@@ -6,17 +6,17 @@ import { LOCAL_DISPATCH_TARIFFS,calculateLocalDispatch,latestInvoiceDefaults } f
 const root=new URL("../../",import.meta.url);
 const source=path=>readFile(new URL(path,root),"utf8");
 
-test("tarifario local conserva los 60 destinos y cálculo original por sobrepeso",()=>{
-  assert.equal(LOCAL_DISPATCH_TARIFFS.length,60);
+test("tarifario local adopta exactamente 54 destinos del CSV y calcula por kilo adicional",()=>{
+  assert.equal(LOCAL_DISPATCH_TARIFFS.length,54);
   const armenia=calculateLocalDispatch("ARMENIA",1250,20000,10000);
-  assert.equal(armenia.tariffBase,400000);
+  assert.equal(armenia.tariffBase,700000);
   assert.equal(armenia.extraKg,250);
-  assert.equal(armenia.extraCost,150000);
-  assert.equal(armenia.total,580000);
+  assert.equal(armenia.extraCost,25000);
+  assert.equal(armenia.total,755000);
   const urbano=calculateLocalDispatch("URBANO",1600,0,0);
   assert.equal(urbano.extraKg,600);
-  assert.equal(urbano.extraCost,0);
-  assert.equal(urbano.total,30000);
+  assert.equal(urbano.extraCost,28200);
+  assert.equal(urbano.total,58200);
 });
 
 test("facturación alimenta factura y peso del despacho sin duplicar captura",()=>{
