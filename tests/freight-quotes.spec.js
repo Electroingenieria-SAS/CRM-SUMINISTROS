@@ -431,7 +431,9 @@ test('cotizador local: ruta Tuluá, peso, auxiliar y desvío sin contaminar TCC/
    return {...item,comparison:[item]};
   };
  });
- await page.locator('[data-carrier-choice="LOCAL"]').click();
+ await page.locator('[data-quote-scope="LOCAL"]').click();
+ await expect(page.locator('[data-quote-scope="LOCAL"]')).toHaveAttribute('aria-pressed','true');
+ await expect(page.locator('[data-carrier-choice="LOCAL"]')).toHaveAttribute('aria-pressed','true');
  await expect(page.locator('[data-local-controls]')).toBeVisible();
  await expect(page.locator('[data-national-route]').first()).toBeHidden();
  await expect(page.getByLabel('Origen efectivo')).toHaveValue('TULUA');
@@ -454,4 +456,19 @@ test('cotizador local: ruta Tuluá, peso, auxiliar y desvío sin contaminar TCC/
  expect(await page.evaluate(()=>window.__orderWrites)).toBe(0);
  await page.getByRole('tab',{name:/Historial/}).click();
  await expect(page.locator('[data-history-carrier] option[value=LOCAL]')).toHaveCount(1);
+});
+
+
+test('selector de modalidad distingue local y nacional sin perder TCC ni ENVÍA',async({page})=>{
+ await mountQuotes(page);
+ await expect(page.locator('[data-quote-scope="NATIONAL"]')).toHaveAttribute('aria-pressed','true');
+ await expect(page.locator('[data-national-route]').first()).toBeVisible();
+ await page.locator('[data-carrier-choice="ENVIA"]').click();
+ await page.locator('[data-quote-scope="LOCAL"]').click();
+ await expect(page.locator('[data-local-controls]')).toBeVisible();
+ await expect(page.locator('[data-national-route]').first()).toBeHidden();
+ await expect(page.locator('[data-carrier-choice="LOCAL"]')).toHaveAttribute('aria-pressed','true');
+ await page.locator('[data-quote-scope="NATIONAL"]').click();
+ await expect(page.locator('[data-local-controls]')).toBeHidden();
+ await expect(page.locator('[data-carrier-choice="ENVIA"]')).toHaveAttribute('aria-pressed','true');
 });
