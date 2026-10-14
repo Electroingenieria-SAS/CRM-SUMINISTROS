@@ -437,7 +437,11 @@ test('cotizador local: ruta Tuluá, peso, auxiliar y desvío sin contaminar TCC/
  await expect(page.locator('[data-local-controls]')).toBeVisible();
  await expect(page.locator('[data-national-route]').first()).toBeHidden();
  await expect(page.getByLabel('Origen efectivo')).toHaveValue('TULUA');
- await page.getByLabel('Destino de transporte local').selectOption('SAN PEDRO');
+ await page.locator('[data-local-controls] [data-local-route-trigger]').click();
+ await expect(page.locator('[data-local-controls] [data-local-route-menu]')).toBeVisible();
+ await page.locator('[data-local-controls] [data-local-route-query]').fill('San Pedro');
+ await page.locator('[data-local-controls] [data-local-route-choice="SAN PEDRO"]').click();
+ await expect(page.getByLabel('Destino de transporte local')).toHaveValue('SAN PEDRO');
  await page.getByLabel('Nombre del material').fill('Tableros');
  await page.getByLabel('Peso del material (kg)').fill('1010');
  await page.getByLabel('Auxiliar / descargue (COP)').fill('30000');
