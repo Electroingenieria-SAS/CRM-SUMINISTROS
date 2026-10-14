@@ -2,6 +2,7 @@ import {motionTokens,shouldReduceMotion} from './motion-tokens.js';
 export {motionTokens,shouldReduceMotion};
 export function createMotionKit(root){
  let disposed=false,activeAnimations=[],listController=null,tooltip=null,stopPosition=null;
+ const events=new AbortController();
  const active=()=>!disposed&&root.isConnected;
  const clearAnimations=()=>{for(const item of activeAnimations)item.cancel?.();activeAnimations=[];};
  async function enableMaterialMotion(host){
@@ -54,21 +55,21 @@ export function createMotionKit(root){
   try{
    const {computePosition,offset,flip,shift,autoUpdate}=await import('./vendor-floating-ui.js');
    if(!active()||!tooltip?.isConnected)return hideTooltip();
-   const positioned=()=>computePosition(button,tooltip,{placement:'top',middleware:[offset(9),flip(),shift({padding:12})]})
+   const positioned=()=>computePosition(button,tooltip,{placement:'top',strategy:'fixed',middleware:[offset(9),flip(),shift({padding:12})]})
     .then(({x,y})=>{if(tooltip?.isConnected){tooltip.style.left=x+'px';tooltip.style.top=y+'px';}});
    tooltip.style.position='fixed';
    stopPosition=autoUpdate(button,tooltip,positioned,{ancestorScroll:true,ancestorResize:true,elementResize:false,layoutShift:false});
   }catch(error){hideTooltip();button.title=help;console.warn('Tooltip positioning unavailable',error);}
  }
  function wireHelp(){
-  root.addEventListener('pointerover',e=>{const button=e.target.closest?.('[data-freight-help]');if(button&&e.pointerType!=='touch')void showTooltip(button);});
-  root.addEventListener('pointerout',e=>{if(e.target.closest?.('[data-freight-help]'))hideTooltip();});
-  root.addEventListener('focusin',e=>{const button=e.target.closest?.('[data-freight-help]');if(button)void showTooltip(button);});
-  root.addEventListener('focusout',e=>{if(e.target.closest?.('[data-freight-help]'))hideTooltip();});
-  root.addEventListener('click',e=>{const button=e.target.closest?.('[data-freight-help]');if(button&&e.detail!==0){e.preventDefault();tooltip?hideTooltip():void showTooltip(button);}});
-  root.addEventListener('keydown',e=>{if(e.key==='Escape')hideTooltip();});
+  root.addEventListener('pointerover',e=>{const button=e.target.closest?.('[data-freight-help]');if(button&&e.pointerType!=='touch')void showTooltip(button);},{signal:events.signal});
+  root.addEventListener('pointerout',e=>{if(e.target.closest?.('[data-freight-help]'))hideTooltip();}, {signal:events.signal});
+  root.addEventListener('focusin',e=>{const button=e.target.closest?.('[data-freight-help]');if(button)void showTooltip(button);}, {signal:events.signal});
+  root.addEventListener('focusout',e=>{if(e.target.closest?.('[data-freight-help]'))hideTooltip();}, {signal:events.signal});
+  root.addEventListener('click',e=>{const button=e.target.closest?.('[data-freight-help]');if(button&&e.detail!==0){e.preventDefault();tooltip?hideTooltip():void showTooltip(button);}}, {signal:events.signal});
+  root.addEventListener('keydown',e=>{if(e.key==='Escape')hideTooltip();}, {signal:events.signal});
  }
- function dispose(){disposed=true;clearAnimations();hideTooltip();listController?.disable?.();}
+ function dispose(){disposed=true;events.abort();clearAnimations();hideTooltip();listController?.disable?.();}
  wireHelp();
  return {enableMaterialMotion,revealResults,highlightMoney,hideTooltip,dispose};
 }
