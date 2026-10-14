@@ -57,32 +57,23 @@ export async function renderFreightQuotes(root,context={}){
  };
  let lastNationalCarrier='TCC';
  const syncCarrier=()=>{
-  const selected=form.elements.carrier.value;
-  const scope=selected==='LOCAL'?'LOCAL':'NATIONAL';
+  const selected=form.elements.carrier.value,scope=selected==='LOCAL'?'LOCAL':'NATIONAL';
   if(scope==='NATIONAL')lastNationalCarrier=selected;
   root.querySelector('.freight-quotes').dataset.quoteScope=scope;
-  root.querySelectorAll('[data-quote-scope]').forEach(button=>{
-   button.setAttribute('aria-pressed',String(button.dataset.quoteScope===scope));
-  });
+  root.querySelectorAll('[data-quote-scope]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.quoteScope===scope)));
   syncRouteMode();
   root.querySelectorAll('[data-carrier-choice]').forEach(button=>{
-   const active=button.dataset.carrierChoice===selected;
-   button.setAttribute('aria-pressed',String(active));
+   const active=button.dataset.carrierChoice===selected;button.setAttribute('aria-pressed',String(active));
    const label=button.querySelector('small');if(label)label.textContent=active?'Seleccionada':'Elegir';
   });
  };
  root.querySelectorAll('[data-quote-scope]').forEach(button=>button.addEventListener('click',()=>{
   const next=button.dataset.quoteScope==='LOCAL'?'LOCAL':lastNationalCarrier;
-  if(next===form.elements.carrier.value)return;
-  form.elements.carrier.value=next;
-  form.elements.carrier.dispatchEvent(new Event('change',{bubbles:true}));
-  syncCarrier();
+  if(next===form.elements.carrier.value)return;form.elements.carrier.value=next;form.elements.carrier.dispatchEvent(new Event('change',{bubbles:true}));syncCarrier();
  }));
  root.querySelectorAll('[data-carrier-choice]').forEach(button=>button.addEventListener('click',()=>{
-   if(form.elements.carrier.value===button.dataset.carrierChoice)return;
-   form.elements.carrier.value=button.dataset.carrierChoice;
-   form.elements.carrier.dispatchEvent(new Event('change',{bubbles:true}));
-   syncCarrier();
+  if(form.elements.carrier.value===button.dataset.carrierChoice)return;form.elements.carrier.value=button.dataset.carrierChoice;
+  form.elements.carrier.dispatchEvent(new Event('change',{bubbles:true}));syncCarrier();
  }));
  form.elements.carrier.addEventListener('change',syncCarrier);syncCarrier();
  const normalize=value=>String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
@@ -289,11 +280,10 @@ export async function renderFreightQuotes(root,context={}){
    const dept=order.metadata?.clientDepartment||'';syncSummary();
    const orderIsLocal=context.params?.shippingScope==='LOCAL'||order.current_step_code==='LOCAL_DISPATCH'||order.delivery_route_code==='LOCAL_DISPATCH';
    if(orderIsLocal){
-    form.elements.carrier.value='LOCAL';syncCarrier();
-    form.elements.localDestinationCode.value=suggestedDestination(order.client_city||order.metadata?.clientCity||'');
+    form.elements.carrier.value='LOCAL';syncCarrier();form.elements.localDestinationCode.value=suggestedDestination(order.client_city||order.metadata?.clientCity||'');
    }else{
     form.elements.department.value=dept;
-    if(form.elements.department.value){const rows=await destinations(dept);form.elements.destinationKey.value=exactDocumentDestination(rows,order.client_city);destinationPicker.sync();}
+    if(dept){const rows=await destinations(dept);form.elements.destinationKey.value=exactDocumentDestination(rows,order.client_city);destinationPicker.sync();}
    }
    notice(`Materiales precargados del pedido ${order.order_number}. Confirma destino y las medidas de los materiales. Guardar no vincula ni modifica el pedido.`);
   }
