@@ -29,3 +29,28 @@
 @media(max-width:760px){.freight-quotes .freight-carrier-segment button{flex-direction:column;gap:4px;font-size:.8rem;padding:8px 2px}.freight-quotes .freight-carrier-segment .freight-carrier-symbol{height:29px;width:29px}.freight-local-fields{grid-template-columns:1fr}.freight-quotes .freight-local-route-panel{padding:14px}.freight-quotes .freight-local-card .freight-market-breakdown{grid-template-columns:1fr 1fr}}
 @media(max-width:440px){.freight-quotes .freight-hero-logos{gap:4px;flex-wrap:wrap}.freight-quotes .freight-hero-logo{min-width:56px;font-size:.67rem}.freight-quotes .freight-local-card .freight-market-breakdown{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.freight-quotes .freight-carrier-segment button{transition:none!important}}
+
+
+/* Guided entry point: shipping type is explicit before route and carrier. */
+.freight-quotes .freight-scope-picker{padding:23px 26px;margin-bottom:18px;background:linear-gradient(130deg,#f7fbff,#fff);border:1px solid #c9dbef;border-radius:17px;box-shadow:0 8px 25px rgba(28,72,120,.045)}
+.freight-scope-heading{margin-bottom:15px}
+.freight-scope-eyebrow{display:block;font-size:.7rem;font-weight:850;letter-spacing:.11em;color:#1d68a9;margin-bottom:7px}
+.freight-quotes .freight-scope-heading h2{margin:0 0 5px;color:#143c67;font-size:1.28rem;letter-spacing:-.025em}
+.freight-scope-heading p{margin:0;color:#627b92;font-size:.84rem;line-height:1.5}
+.freight-scope-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.freight-quotes .freight-scope-option{position:relative;display:flex;align-items:center;gap:13px;min-width:0;min-height:94px;padding:18px;border:1px solid #d4e2ed;border-radius:14px;text-align:left;background:#fff;color:#1d456a;cursor:pointer;transition:border-color .2s,background .2s,box-shadow .2s,transform .2s}
+.freight-quotes .freight-scope-option:hover{border-color:#629bd6;transform:translateY(-1px);box-shadow:0 6px 19px rgba(16,88,159,.095)}
+.freight-quotes .freight-scope-option[aria-pressed=true]{background:#edf5ff;border-color:#2478d5;box-shadow:0 0 0 2px rgba(36,120,213,.08)}
+.freight-scope-option .freight-scope-icon{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;background:#eaf3fc;border-radius:12px;color:#1269bb;font-weight:900;font-size:1.25rem}
+.freight-scope-option>span:nth-child(2){display:grid;min-width:0;gap:5px}
+.freight-scope-option strong{font-weight:860;font-size:1rem}
+.freight-scope-option small{font-size:.78rem;color:#668099;line-height:1.4}
+.freight-scope-check{display:grid;place-items:center;margin-left:auto;color:#fff;font-weight:900;background:#1874cf;width:26px;height:26px;border-radius:50%;opacity:0}
+.freight-scope-option[aria-pressed=true] .freight-scope-check{opacity:1}
+.freight-quotes .freight-scope-option:focus-visible{outline:3px solid #dfa61a;outline-offset:3px}
+.freight-quotes[data-quote-scope=LOCAL] [data-carrier-choice=TCC],.freight-quotes[data-quote-scope=LOCAL] [data-carrier-choice=ENVIA]{display:none}
+.freight-quotes[data-quote-scope=NATIONAL] [data-carrier-choice=LOCAL]{display:none}
+.freight-quotes[data-quote-scope=LOCAL] .freight-carrier-segment{grid-template-columns:1fr}
+.freight-quotes[data-quote-scope=NATIONAL] .freight-carrier-segment{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:760px){.freight-quotes .freight-scope-picker{padding:16px}.freight-scope-actions{grid-template-columns:1fr;gap:9px}.freight-quotes .freight-scope-option{min-height:76px;padding:13px}.freight-scope-option .freight-scope-icon{width:36px;height:36px;flex-basis:36px}}
+@media(prefers-reduced-motion:reduce){.freight-quotes .freight-scope-option{transition:none!important;transform:none!important}}
