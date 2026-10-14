@@ -8,7 +8,7 @@ const labels={
 };
 function commercialHtml(snapshot){
  const estimate=snapshot.commercialEstimate||{};
- if(!estimate.available)return '<div class="freight-price-unavailable">No hay evidencia suficiente para calcular un precio comercial verificable con los datos ingresados.</div>';
+ if(!estimate.available)return '<div class="freight-price-unavailable"><span class="freight-unavailable-symbol" aria-hidden="true">!</span><div><strong>Estimación todavía no disponible</strong><p>Faltan referencias suficientes para este recorrido. Puedes consultar el detalle de la tarifa original.</p></div></div>';
  const hasRange=estimate.statisticalRange&&estimate.rangeLowCop!=null&&estimate.rangeHighCop!=null;
  const numbers=hasRange?
    '<strong>'+fmt.money(estimate.rangeLowCop)+' – '+fmt.money(estimate.rangeHighCop)+'</strong>':
@@ -39,7 +39,7 @@ export function measurementCardHtml(snapshot){
  }).join('');
  const bothComplete=scenarios.weight.complete&&scenarios.volume.complete;
  const basis=snapshot.selectedBasis==='VOLUME'?'volumen':'peso';
- return '<section class="freight-panel" data-carrier-reference="'+esc(snapshot.carrier)+'"><h2>'+esc(envia?'ENVÍA':'TCC')+' · Cotización del envío</h2><p>'+esc(snapshot.origin)+' → '+esc(snapshot.destination)+'</p>'+
+ return '<section class="freight-panel" data-carrier-reference="'+esc(snapshot.carrier)+'"><div class="freight-carrier-heading"><span class="freight-company-symbol" aria-hidden="true">'+(envia?'E':'T')+'</span><div class="freight-company-name"><small>TRANSPORTADORA</small><h2>'+esc(envia?'ENVÍA':'TCC')+'</h2></div><span class="freight-company-meta">'+(envia?'ENVÍOS NACIONALES':'TRANSPORTE NACIONAL')+'</span></div><p class="freight-carrier-route"><span aria-hidden="true">↗</span> '+esc(snapshot.origin)+' <span aria-hidden="true">→</span> '+esc(snapshot.destination)+'</p>'+
   commercialHtml(snapshot)+
   '<details class="freight-original-reference"><summary>Consultar referencia original y cálculo por medidas</summary><div class="freight-scenarios">'+cards+'</div><p>'+(snapshot.selectedBasis?(bothComplete?'Base de mayor cobro':'Base disponible')+': '+basis+'.':'Completa la medida de todos los materiales para guardar.')+'</p><small>'+esc(snapshot.measurementWarning)+'</small><p>'+esc(snapshot.warning)+'</p><small>Fuente: '+esc(snapshot.tariffVersion)+'. La tarifa original se conserva sin cambios.</small>'+
   (snapshot.commercialEstimate?.source==='TCC_2024_IPC_2026'?'<small>Estimación actualizada con IPC DANE hasta septiembre de 2026, no equivale a una tarifa vigente de TCC.</small>':'')+'</details></section>';
