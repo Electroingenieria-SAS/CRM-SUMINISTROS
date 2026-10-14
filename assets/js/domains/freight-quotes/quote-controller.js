@@ -47,6 +47,13 @@ export async function renderFreightQuotes(root,context={}){
    root.querySelector('[data-material-volume]').textContent='Revisar dato';
   }
  };
+ const replaceMaterials=items=>{
+  motion.suspendMaterialMotion();
+  materialHost.replaceChildren();
+  items.forEach(item=>addMaterial(materialHost,item));
+  motion.resumeMaterialMotion();
+  syncSummary();
+ };
  const onChange=event=>{if(event.target.matches('[data-destination-search]'))return;invalidate();syncSummary();};
  form.addEventListener('input',onChange);form.addEventListener('change',onChange,true);
  const notice=text=>{message.textContent=text;message.dataset.kind=/error|inválid|sin cálculo|completa|revisa/i.test(String(text))?'warning':'info';};
@@ -181,8 +188,7 @@ export async function renderFreightQuotes(root,context={}){
     invalidate();form.elements.carrier.value=q.input.carrier||'TCC';form.elements.origin.value=q.input.origin;
     form.elements.department.value=q.input.department;form.elements.declaredValue.value=q.input.declaredValue??'';
     await destinations(q.input.department,q.input.destinationKey);
-    materialHost.innerHTML='';
-    restoreMeasurements(q.input).forEach(m=>addMaterial(materialHost,m));syncSummary();
+    replaceMaterials(restoreMeasurements(q.input));
     notice('Copia preparada. Calcula o guarda un borrador.');setWorkspace('quote');form.scrollIntoView({behavior:'smooth'});
    });
   },
@@ -208,7 +214,7 @@ export async function renderFreightQuotes(root,context={}){
   form.elements.department.innerHTML=options(data.departments||[]);await loadHistory();
   if(context.params?.orderId){
    const orderData=await api.getOrder(context.params.orderId),order=orderData.order;
-   materialHost.innerHTML='';quoteOrderMaterials(orderData).forEach(m=>addMaterial(materialHost,m,!!m.manual));
+   replaceMaterials(quoteOrderMaterials(orderData));
    const dept=order.metadata?.clientDepartment||'';syncSummary();
    form.elements.department.value=dept;
    if(form.elements.department.value){const rows=await destinations(dept);form.elements.destinationKey.value=exactDocumentDestination(rows,order.client_city);}
