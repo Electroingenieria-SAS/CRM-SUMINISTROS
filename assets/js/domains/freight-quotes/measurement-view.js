@@ -17,7 +17,7 @@ function commercialHtml(snapshot){
    '<p class="freight-market-warning">El histórico permite estimar un total, pero no desglosar el flete base y los recargos sin inventar valores.</p>';
  return '<div class="freight-price-hero" data-carrier-price="'+esc(snapshot.carrier)+'">'+
    (snapshot.cheapestCommercial?'<span class="freight-cheaper-label">Menor estimación orientativa</span>':'')+
-   '<div class="freight-price-eyebrow">RANGO ESTIMADO DEL FLETE · '+(esc(snapshot.carrier==='ENVIA'?'ENVÍA':'TCC'))+'</div>'+
+   '<div class="freight-price-eyebrow">RANGO ESTIMADO DEL FLETE · '+(esc(snapshot.carrier==='ENVIA'?'ENVÍA':'TCC'))+' <button type="button" class="freight-help-button" aria-label="¿Qué significa precio estimado?" data-freight-help="Es un valor orientativo basado en referencias disponibles. El precio final lo confirma la transportadora.">?</button></div>'+
    numbers+
    '<p class="freight-price-central">Valor central estimado: <b>'+fmt.money(estimate.totalCop)+'</b> COP</p>'+
    breakdown+
