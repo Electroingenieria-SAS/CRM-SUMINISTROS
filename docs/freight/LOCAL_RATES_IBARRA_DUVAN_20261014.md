@@ -32,8 +32,8 @@ un costo real local cuando corresponde a `VEHÍCULO LOCAL`.
 ## Secuencia de despliegue
 1. Revisar/aprobar la fuente CSV y su relación comercial con el conductor.
 2. Validar SQL con pruebas y autorización: aplicar las migraciones
-   `20261014160100_local_freight_ibarra_54_routes.sql` y
-   `20261014160200_local_dispatch_quoted_weights.sql` a Supabase.
+   `20261014215409_local_freight_ibarra_54_routes_20261014.sql` y
+   `20261014215415_local_dispatch_quoted_weights_20261014.sql` a Supabase.
 3. Ejecutar smoke SQL y controles de permisos; recién después fusionar
    la UI a `main` y publicar GitHub Pages.
 4. Ensayar manualmente un pedido local real con Duván y comprobar el total
