@@ -10,7 +10,7 @@ import {createMotionKit} from '../../shared/motion/motion-kit.js';
 import {createFreightDialogs} from './quote-dialogs.js';
 import {setupFreightDestinationPicker} from './destination-picker.js';
 import {animateCRMMetric} from '../../shared/motion/crm-visual-system.js';
-import {suggestedDestination} from '../logistics/local-dispatch/tariffs.js';
+import {suggestedDestination} from '../logistics/local-dispatch/tariffs.js';import {bindLocalRoutePicker} from '../logistics/local-dispatch/local-route-picker.js';
 export async function renderFreightQuotes(root,context={}){
  root.__freightController?.abort();
  root.__crmFreightMotion?.dispose?.();
@@ -36,7 +36,7 @@ export async function renderFreightQuotes(root,context={}){
   });
  };
  root.querySelectorAll('[data-view-tab]').forEach(button=>button.addEventListener('click',()=>setWorkspace(button.dataset.viewTab)));
- const destinationPicker=setupFreightDestinationPicker(form);
+ const destinationPicker=setupFreightDestinationPicker(form),localPicker=bindLocalRoutePicker(form);
  const localControls=root.querySelector('[data-local-controls]');
  const nationalControls=root.querySelectorAll('[data-national-route]');
  const syncRouteMode=()=>{
@@ -243,7 +243,7 @@ export async function renderFreightQuotes(root,context={}){
     invalidate();form.elements.carrier.value=q.input.carrier||'TCC';syncCarrier();form.elements.origin.value=q.input.carrier==='LOCAL'?'TULUA':q.input.origin;
     form.elements.department.value=q.input.department;form.elements.declaredValue.value=q.input.declaredValue??'';
     if(q.input.carrier!=='LOCAL')await destinations(q.input.department,q.input.destinationKey);
-     form.elements.localDestinationCode.value=q.input.localDestinationCode||'';
+     form.elements.localDestinationCode.value=q.input.localDestinationCode||'';localPicker.sync();
      form.elements.localUnloadingCost.value=q.input.localUnloadingCost??0;
      form.elements.localDiversionCost.value=q.input.localDiversionCost??0;
      form.elements.localExtraReason.value=q.input.localExtraReason||'';
@@ -261,7 +261,7 @@ export async function renderFreightQuotes(root,context={}){
   run(async()=>{
    invalidate();form.elements.carrier.value=q.input.carrier||'TCC';syncCarrier();form.elements.origin.value=q.input.carrier==='LOCAL'?'TULUA':q.input.origin;form.elements.department.value=q.input.department;form.elements.declaredValue.value=q.input.declaredValue??'';
    if(q.input.carrier!=='LOCAL')await destinations(q.input.department,q.input.destinationKey);
-     form.elements.localDestinationCode.value=q.input.localDestinationCode||'';
+     form.elements.localDestinationCode.value=q.input.localDestinationCode||'';localPicker.sync();
      form.elements.localUnloadingCost.value=q.input.localUnloadingCost??0;
      form.elements.localDiversionCost.value=q.input.localDiversionCost??0;
      form.elements.localExtraReason.value=q.input.localExtraReason||'';
@@ -280,7 +280,7 @@ export async function renderFreightQuotes(root,context={}){
    const dept=order.metadata?.clientDepartment||'';syncSummary();
    const orderIsLocal=context.params?.shippingScope==='LOCAL'||order.current_step_code==='LOCAL_DISPATCH'||order.delivery_route_code==='LOCAL_DISPATCH';
    if(orderIsLocal){
-    form.elements.carrier.value='LOCAL';syncCarrier();form.elements.localDestinationCode.value=suggestedDestination(order.client_city||order.metadata?.clientCity||'');
+    form.elements.carrier.value='LOCAL';syncCarrier();form.elements.localDestinationCode.value=suggestedDestination(order.client_city||order.metadata?.clientCity||'');localPicker.sync();
    }else{
     form.elements.department.value=dept;
     if(dept){const rows=await destinations(dept);form.elements.destinationKey.value=exactDocumentDestination(rows,order.client_city);destinationPicker.sync();}
