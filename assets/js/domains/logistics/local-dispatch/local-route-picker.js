@@ -7,20 +7,20 @@ const zoneLabels={
  SUR_VALLE_IBARRA:'Ruta sur del Valle'
 };
 
-export function localRoutePickerHtml(current=''){
+export function localRoutePickerHtml(current='',field='cityDestination',prefix='local-route'){
  const selected=tariffFor(current);
  return `<div class="local-route-picker" data-local-route-picker>
-  <div class="local-route-picker-title"><label id="local-route-title">Destino tarifario *</label><small>Busca por municipio, corregimiento o ruta.</small></div>
-  <button type="button" class="local-route-trigger" data-local-route-trigger aria-expanded="false" aria-haspopup="dialog" aria-controls="local-route-menu" aria-labelledby="local-route-title local-route-selected">
-   <span class="local-route-trigger-icon" aria-hidden="true">⌕</span><span id="local-route-selected" data-local-route-selected>${fmt.escape(selected?.code||'Buscar y seleccionar destino')}</span><strong data-local-route-rate>${selected?currencyCOP(selected.base):''}</strong><span aria-hidden="true">⌄</span>
+  <div class="local-route-picker-title"><label id="${fmt.escape(prefix)}-title">Destino tarifario *</label><small>Busca por municipio, corregimiento o ruta.</small></div>
+  <button type="button" class="local-route-trigger" data-local-route-trigger aria-expanded="false" aria-haspopup="dialog" aria-controls="${fmt.escape(prefix)}-menu" aria-labelledby="${fmt.escape(prefix)}-title ${fmt.escape(prefix)}-selected">
+   <span class="local-route-trigger-icon" aria-hidden="true">⌕</span><span id="${fmt.escape(prefix)}-selected" data-local-route-selected>${fmt.escape(selected?.code||'Buscar y seleccionar destino')}</span><strong data-local-route-rate>${selected?currencyCOP(selected.base):''}</strong><span aria-hidden="true">⌄</span>
   </button>
-  <select class="local-route-native" name="cityDestination" aria-label="Destino tarifario" tabindex="-1" required>
+  <select class="local-route-native" name="${fmt.escape(field)}" aria-label="${field==='localDestinationCode'?'Destino de transporte local':'Destino tarifario'}" tabindex="-1" required>
    <option value="">Selecciona destino</option>
    ${LOCAL_DISPATCH_TARIFFS.map(row=>`<option value="${fmt.escape(row.code)}" ${selected?.code===row.code?'selected':''}>${fmt.escape(row.code)}</option>`).join('')}
   </select>
-  <div id="local-route-menu" class="local-route-menu" data-local-route-menu role="dialog" aria-label="Seleccionar destino tarifario" hidden>
-   <label for="local-route-query">Buscar destino</label>
-   <input id="local-route-query" class="control" data-local-route-query type="search" autocomplete="off" placeholder="Escribe el municipio o la zona…">
+  <div id="${fmt.escape(prefix)}-menu" class="local-route-menu" data-local-route-menu role="dialog" aria-label="Seleccionar destino tarifario" hidden>
+   <label for="${fmt.escape(prefix)}-query">Buscar destino</label>
+   <input id="${fmt.escape(prefix)}-query" class="control" data-local-route-query type="search" autocomplete="off" placeholder="Escribe el municipio o la zona…">
    <div class="local-route-results" data-local-route-results></div>
   </div>
  </div>`;
@@ -32,7 +32,7 @@ export function bindLocalRoutePicker(root){
  const menu=picker.querySelector('[data-local-route-menu]');
  const input=picker.querySelector('[data-local-route-query]');
  const results=picker.querySelector('[data-local-route-results]');
- const select=picker.querySelector('[name="cityDestination"]');
+ const select=picker.querySelector('.local-route-native');
  const label=picker.querySelector('[data-local-route-selected]');
  const price=picker.querySelector('[data-local-route-rate]');
  const setLabel=()=>{
@@ -78,5 +78,5 @@ export function bindLocalRoutePicker(root){
  });
  root.addEventListener('pointerdown',event=>{if(!menu.hidden&&!picker.contains(event.target))toggle(false)});
  setLabel();
- return {select,close:()=>toggle(false)};
+ return {select,sync:setLabel,close:()=>toggle(false)};
 }
