@@ -342,3 +342,72 @@ test('503 del catálogo: reintentar lecturas sin mutar pedidos ni cotizaciones',
  await expect(page.getByLabel('Municipio / localidad y centro operativo')).toBeEnabled();
  expect(await page.evaluate(()=>window.__orderWrites)).toBe(0);
 });
+
+
+test('TCC y ENVÍA seleccionadas conservan contraste blanco sobre su botón oscuro',async({page})=>{
+ await mountQuotes(page);
+ await page.evaluate(async()=>{
+  const {api}=await import('/assets/js/services/api.js');
+  const previous=api.freightQuoteCalculate;
+  api.freightQuoteCalculate=async input=>{
+   const result=await previous(input);
+   const comparison=result.comparison.map((card,i)=>({
+    ...card,commercialEstimate:{available:true,totalCop:i?60000:70000,
+     rangeLowCop:i?56000:66000,rangeHighCop:i?68000:78000,
+     source:i?'ENVIA_REFERENCE':'TCC_REAL_GUIDE_MODEL',statisticalRange:true}
+   }));
+   return {...comparison.find(x=>x.carrier===input.carrier),comparison};
+  };
+ });
+ await page.getByLabel('Nombre del material').fill('Cable comercial');
+ await page.getByLabel('Origen efectivo').selectOption('CALI');
+ await page.getByLabel('Departamento',{exact:true}).selectOption('VALLE DEL CAUCA');
+ await page.getByLabel('Municipio / localidad y centro operativo').selectOption('TCC_TEST');
+ await page.getByLabel('Peso del material (kg)').fill('20');
+ await page.getByRole('button',{name:'Calcular',exact:true}).click();
+ const tcc=page.locator('[data-quote-select-carrier="TCC"]');
+ const envia=page.locator('[data-quote-select-carrier="ENVIA"]');
+ await expect(tcc).toHaveAttribute('aria-pressed','true');
+ await expect(tcc).toHaveCSS('color','rgb(255, 255, 255)');
+ await envia.click();
+ await expect(envia).toHaveAttribute('aria-pressed','true');
+ await expect(envia).toHaveCSS('color','rgb(255, 255, 255)');
+ await expect(tcc).toHaveAttribute('aria-pressed','false');
+ expect(await page.evaluate(()=>window.__orderWrites)).toBe(0);
+});
+
+test('Gestión rápida mantiene cerrar a la derecha de Cotización de fletes en PC y móvil',async({page})=>{
+ await mountQuotes(page);
+ await page.evaluate(async()=>{
+  const root=document.createElement('div');root.id='modal-root';
+  root.innerHTML='<div class="modal-overlay simple-process-overlay"><section class="modal popup-ux-v1190 simple-process-modal wide"><header class="modal-head simple-process-head"><div><span class="wizard-kicker">Gestión rápida</span><h3>PVC PRUEBA</h3><p>CLIENTE DE PRUEBA · Cerrado</p></div><button type="button" class="icon-btn" data-close aria-label="Cerrar">×</button></header></section></div>';
+  document.body.append(root);
+  const {mountFreightQuoteOrderEntry}=await import('/assets/js/domains/freight-quotes/quote-order-entry.js');
+  mountFreightQuoteOrderEntry(root,{order:{id:'order-test-1'}});
+ });
+ const header=page.locator('#modal-root .order-freight-action-head');
+ const action=header.locator('[data-order-freight-quote]');
+ const close=header.locator(':scope > [data-close]');
+ await expect(action).toHaveCount(1);
+ await expect(close).toHaveCount(1);
+ expect(await header.locator(':scope > *').evaluateAll(nodes=>nodes.map(n=>n.hasAttribute('data-close')?'close':n.hasAttribute('data-order-freight-quote')?'freight':'title'))).toEqual(['title','freight','close']);
+ for(const width of [1280,375]){
+  await page.setViewportSize({width,height:800});
+  const geometry=await page.evaluate(()=>{
+   const head=document.querySelector('#modal-root .order-freight-action-head');
+   const c=head.querySelector('[data-close]').getBoundingClientRect();
+   const a=head.querySelector('[data-order-freight-quote]').getBoundingClientRect();
+   const h=head.getBoundingClientRect();
+   return {actionRight:a.right,actionTop:a.top,closeLeft:c.left,closeTop:c.top,headerRight:h.right,actionLeft:a.left,headerLeft:h.left};
+  });
+  expect(geometry.closeLeft).toBeGreaterThan(geometry.headerLeft+40);
+  expect(geometry.closeLeft).toBeLessThanOrEqual(geometry.headerRight);
+  if(width===1280){
+   expect(geometry.closeLeft).toBeGreaterThanOrEqual(geometry.actionRight-1);
+   expect(Math.abs(geometry.closeTop-geometry.actionTop)).toBeLessThan(6);
+  }else{
+   expect(geometry.actionTop).toBeGreaterThan(geometry.closeTop);
+   expect(geometry.actionLeft).toBeGreaterThanOrEqual(geometry.headerLeft-1);
+  }
+ }
+});

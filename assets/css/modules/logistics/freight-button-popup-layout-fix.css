@@ -1,0 +1,141 @@
+/* Freight contrast and order-modal header repairs; scoped to affected surfaces. */
+
+/* Prior ENVIA specificity overrode the selected background but not selected text. */
+.freight-quotes .freight-offer[data-offer-carrier="TCC"] .freight-offer-select[aria-pressed="true"]{
+  background:linear-gradient(130deg,#155f9c,#103b6b)!important;
+  border:1px solid #15548a!important;
+  color:#fff!important;
+  box-shadow:0 5px 15px rgba(14,61,108,.18)!important;
+}
+.freight-quotes .freight-offer[data-offer-carrier="ENVIA"] .freight-offer-select[aria-pressed="true"]{
+  background:linear-gradient(130deg,#126e79,#0b4e59)!important;
+  border:1px solid #11606b!important;
+  color:#fff!important;
+  box-shadow:0 5px 15px rgba(10,74,83,.17)!important;
+}
+.freight-quotes .freight-offer .freight-offer-select[aria-pressed="true"]{
+  cursor:default;
+  font-weight:850;
+  text-shadow:none!important;
+}
+.freight-quotes .freight-offer .freight-offer-select[aria-pressed="true"] *{
+  color:inherit!important;
+}
+.freight-quotes .freight-offer[data-offer-carrier="ENVIA"] .freight-offer-select[aria-pressed="false"]{
+  background:linear-gradient(125deg,#f0faf9,#e1f4f2)!important;
+  border:1px solid #9dd6d2!important;
+  color:#0c5d68!important;
+  box-shadow:0 4px 11px rgba(12,87,98,.07)!important;
+}
+.freight-quotes .freight-offer .freight-offer-select:disabled{
+  background:#f1f5f9!important;
+  border-color:#d7e1eb!important;
+  color:#526a7f!important;
+  box-shadow:none!important;
+  opacity:1;
+}
+.freight-quotes .freight-offer .freight-offer-select:focus-visible{
+  outline:3px solid #e9b83a!important;
+  outline-offset:3px;
+}
+
+/* The freight CTA is injected before [data-close] and the X occupies its own column. */
+#modal-root .simple-process-modal .modal-head.order-freight-action-head{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto 42px!important;
+  grid-template-rows:auto!important;
+  align-items:start!important;
+  column-gap:14px!important;
+  row-gap:10px!important;
+}
+#modal-root .simple-process-modal .order-freight-action-head > div:first-child{
+  min-width:0;
+  grid-column:1;
+  grid-row:1;
+}
+#modal-root .simple-process-modal .order-freight-action-head > .order-freight-action{
+  grid-column:2!important;
+  grid-row:1!important;
+  align-self:start!important;
+  justify-self:end!important;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  min-height:43px;
+  padding:9px 16px;
+  white-space:nowrap;
+  border-radius:11px;
+  border:1px solid #176eb3!important;
+  background:linear-gradient(130deg,#1d79c7,#12538d)!important;
+  color:#fff!important;
+  font-size:.82rem;
+  font-weight:800;
+  letter-spacing:.005em;
+  box-shadow:0 6px 16px rgba(17,88,151,.18)!important;
+  text-shadow:none!important;
+}
+#modal-root .simple-process-modal .order-freight-action-head > .order-freight-action::before{
+  content:"↗";
+  font-size:1.05rem;
+  font-weight:900;
+  color:#fff;
+}
+#modal-root .simple-process-modal .order-freight-action-head > .order-freight-action:hover{
+  background:linear-gradient(130deg,#156cb7,#103e75)!important;
+  color:#fff!important;
+  box-shadow:0 8px 19px rgba(17,88,151,.23)!important;
+}
+#modal-root .simple-process-modal .order-freight-action-head > .icon-btn[data-close]{
+  grid-column:3!important;
+  grid-row:1!important;
+  justify-self:end!important;
+  align-self:start!important;
+  position:static!important;
+  inset:auto!important;
+  transform:none!important;
+  display:grid!important;
+  place-items:center!important;
+  width:42px!important;
+  min-width:42px!important;
+  height:42px!important;
+  margin:0!important;
+  padding:0!important;
+  border-radius:11px!important;
+  border:1px solid #c7d9e8!important;
+  background:#fff!important;
+  color:#234f75!important;
+  box-shadow:0 2px 8px rgba(14,54,92,.055)!important;
+}
+#modal-root .simple-process-modal .order-freight-action-head > .icon-btn[data-close]:hover{
+  border-color:#8fb7d9!important;
+  background:#edf6fd!important;
+  color:#0b5792!important;
+}
+#modal-root .simple-process-modal .order-freight-action-head > :is(button,a):focus-visible{
+  outline:3px solid #edbd3f!important;
+  outline-offset:3px!important;
+}
+@media(max-width:700px){
+  #modal-root .simple-process-modal .modal-head.order-freight-action-head{
+    grid-template-columns:minmax(0,1fr) 42px!important;
+    align-items:start!important;
+    padding-right:16px!important;
+  }
+  #modal-root .simple-process-modal .order-freight-action-head > div:first-child{
+    grid-column:1;grid-row:1;
+  }
+  #modal-root .simple-process-modal .order-freight-action-head > .icon-btn[data-close]{
+    grid-column:2!important;grid-row:1!important;
+  }
+  #modal-root .simple-process-modal .order-freight-action-head > .order-freight-action{
+    grid-column:1/-1!important;grid-row:2!important;
+    justify-self:stretch!important;width:100%;
+    min-height:45px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #modal-root .simple-process-modal .order-freight-action-head > .order-freight-action{
+    animation:none!important;transition:none!important;
+  }
+}

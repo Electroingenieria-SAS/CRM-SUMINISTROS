@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": "55cc164f2f9f73d0",
-  "sourceBytes": 2799228,
+  "revision": "bcbe4d9e8237d632",
+  "sourceBytes": 2804597,
   "assets": [
     "./assets/css/analytics.css",
     "./assets/css/base/accessibility.css",
@@ -94,6 +94,7 @@
     "./assets/css/modules/logistics/delivered-orders-sent-orders-panel.css",
     "./assets/css/modules/logistics/dispatch-shipping-core-summary.css",
     "./assets/css/modules/logistics/dispatch-shipping-process-modal.css",
+    "./assets/css/modules/logistics/freight-button-popup-layout-fix.css",
     "./assets/css/modules/logistics/guide-reader.css",
     "./assets/css/modules/logistics/local-dispatch.css",
     "./assets/css/modules/logistics/process-foundation-shipping-process-overlay.css",
