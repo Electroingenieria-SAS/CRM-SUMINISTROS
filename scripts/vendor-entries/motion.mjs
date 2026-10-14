@@ -1,1 +1,1 @@
-export {animate,stagger} from 'motion/mini';
+export {animate} from 'motion/mini';
