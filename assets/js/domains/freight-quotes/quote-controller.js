@@ -60,14 +60,14 @@ export async function renderFreightQuotes(root,context={}){
   const selected=form.elements.carrier.value,scope=selected==='LOCAL'?'LOCAL':'NATIONAL';
   if(scope==='NATIONAL')lastNationalCarrier=selected;
   root.querySelector('.freight-quotes').dataset.quoteScope=scope;
-  root.querySelectorAll('[data-quote-scope]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.quoteScope===scope)));
+  root.querySelectorAll('button[data-quote-scope]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.quoteScope===scope)));
   syncRouteMode();
   root.querySelectorAll('[data-carrier-choice]').forEach(button=>{
    const active=button.dataset.carrierChoice===selected;button.setAttribute('aria-pressed',String(active));
    const label=button.querySelector('small');if(label)label.textContent=active?'Seleccionada':'Elegir';
   });
  };
- root.querySelectorAll('[data-quote-scope]').forEach(button=>button.addEventListener('click',()=>{
+ root.querySelectorAll('button[data-quote-scope]').forEach(button=>button.addEventListener('click',()=>{
   const next=button.dataset.quoteScope==='LOCAL'?'LOCAL':lastNationalCarrier;
   if(next===form.elements.carrier.value)return;form.elements.carrier.value=next;form.elements.carrier.dispatchEvent(new Event('change',{bubbles:true}));syncCarrier();
  }));
