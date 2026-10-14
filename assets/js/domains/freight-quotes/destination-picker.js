@@ -41,7 +41,7 @@ export function setupFreightDestinationPicker(form,{onSelected=()=>{}}={}){
    name.textContent=row.name;detail.textContent='Centro operativo: '+row.center;
    option.append(name,detail);
    option.addEventListener('pointerdown',e=>e.preventDefault());
-   option.addEventListener('click',()=>{choose(row);input.focus();});
+   option.addEventListener('click',()=>choose(row));
    list.append(option);
   });
   opened=true;list.hidden=false;input.setAttribute('aria-expanded','true');
