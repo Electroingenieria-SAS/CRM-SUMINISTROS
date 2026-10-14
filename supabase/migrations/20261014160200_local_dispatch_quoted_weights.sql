@@ -34,6 +34,9 @@ begin
  if not found then raise exception 'El destino no tiene una tarifa local activa';end if;
  -- Preserve earlier trip calculations; enforce supplied CSV's upper boundary and whole-chargeable-kg rule for new routes.
  if v_tariff.source_version='LUIS_IBARRA_CSV_2026_10_14' then
+   if (v_unloading+v_diversion)>0 and length(btrim(coalesce(v_notes,'')))<8 then
+     raise exception 'Explica en observaciones por qué se requiere auxiliar o desvío' using errcode='22023';
+   end if;
    if v_weight>coalesce(v_tariff.max_weight_kg,2500) then
      raise exception 'La ruta local solo tiene tarifa hasta 2.500 kg; solicita valor especial' using errcode='22023';
    end if;
