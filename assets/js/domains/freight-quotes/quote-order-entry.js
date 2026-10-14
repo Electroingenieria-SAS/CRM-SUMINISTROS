@@ -6,7 +6,6 @@ export function mountFreightQuoteOrderEntry(host,data){
  const button=document.createElement('button');
  button.type='button';button.className='btn order-freight-action';
  button.dataset.orderFreightQuote='';button.textContent='Cotización de fletes';
- button.setAttribute('aria-label','Abrir cotización de fletes para este pedido');
  button.onclick=()=>{host.replaceChildren();navigate('freight_quotes',{orderId:data.order.id});};
  // Keep the existing close control in its dedicated, rightmost header position.
  const close=target.querySelector(':scope > [data-close]');
