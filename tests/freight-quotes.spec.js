@@ -411,3 +411,45 @@ test('Gestión rápida mantiene cerrar a la derecha de Cotización de fletes en 
   }
  }
 });
+
+
+test('cotizador local: ruta Tuluá, peso, auxiliar y desvío sin contaminar TCC/ENVÍA',async({page})=>{
+ await mountQuotes(page);
+ await page.evaluate(async()=>{
+  const {api}=await import('/assets/js/services/api.js');
+  const original=api.freightQuoteCalculate;
+  api.freightQuoteCalculate=async payload=>{
+   if(payload.carrier!=='LOCAL')return original(payload);
+   const {calculateLocalDispatch}=await import('/assets/js/domains/logistics/local-dispatch/tariffs.js');
+   const weight=payload.materials.reduce((a,b)=>a+Number(b.weightKg||0),0);
+   const calc=calculateLocalDispatch(payload.localDestinationCode,weight,payload.localUnloadingCost,payload.localDiversionCost);
+   const item={carrier:'LOCAL',origin:'TULUA',destination:payload.localDestinationCode,
+    localExtras:{unloadingCop:payload.localUnloadingCost,diversionCop:payload.localDiversionCost,reason:payload.localExtraReason},
+    reference:{status:'LOCAL_TARIFF_REFERENCE',baseCop:calc.tariffBase,extraKg:calc.extraKg,
+     extraPerKgCop:calc.tariff?.extraPerKg||0},
+    commercialEstimate:{available:calc.available,totalCop:calc.total,rangeLowCop:calc.total,rangeHighCop:calc.total}};
+   return {...item,comparison:[item]};
+  };
+ });
+ await page.locator('[data-carrier-choice="LOCAL"]').click();
+ await expect(page.locator('[data-local-controls]')).toBeVisible();
+ await expect(page.locator('[data-national-route]').first()).toBeHidden();
+ await expect(page.getByLabel('Origen efectivo')).toHaveValue('TULUA');
+ await page.getByLabel('Destino de transporte local').selectOption('SAN PEDRO');
+ await page.getByLabel('Nombre del material').fill('Tableros');
+ await page.getByLabel('Peso del material (kg)').fill('1010');
+ await page.getByLabel('Auxiliar / descargue (COP)').fill('30000');
+ await page.getByLabel('Desvío o subruta urgente (COP)').fill('15000');
+ await page.getByLabel('Motivo del costo extraordinario').fill('Ayudante y subruta urgente');
+ await page.getByRole('button',{name:'Calcular',exact:true}).click();
+ await expect(page.locator('[data-carrier-reference="LOCAL"]')).toContainText('105.470');
+ await expect(page.locator('[data-carrier-reference="TCC"]')).toHaveCount(0);
+ await expect(page.locator('[data-carrier-reference="ENVIA"]')).toHaveCount(0);
+ await expect(page.getByRole('button',{name:'Guardar cotización',exact:true})).toBeEnabled();
+ await page.getByRole('button',{name:'Guardar cotización',exact:true}).click();
+ expect(await page.evaluate(()=>window.__quoteFixtures[0].input.carrier)).toBe('LOCAL');
+ expect(await page.evaluate(()=>window.__quoteFixtures[0].input.localDestinationCode)).toBe('SAN PEDRO');
+ expect(await page.evaluate(()=>window.__orderWrites)).toBe(0);
+ await page.getByRole('tab',{name:/Historial/}).click();
+ await expect(page.locator('[data-history-carrier] option[value=LOCAL]')).toHaveCount(1);
+});
