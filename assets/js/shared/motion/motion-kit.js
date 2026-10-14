@@ -1,4 +1,7 @@
 import {motionTokens,shouldReduceMotion} from './motion-tokens.js';
+import {animate} from './vendor-motion.js';
+import {autoAnimate} from './vendor-auto-animate.js';
+import {computePosition,offset,flip,shift,autoUpdate} from './vendor-floating-ui.js';
 export {motionTokens,shouldReduceMotion};
 export function createMotionKit(root){
  let disposed=false,activeAnimations=[],listController=null,tooltip=null,stopPosition=null;
@@ -8,7 +11,6 @@ export function createMotionKit(root){
  async function enableMaterialMotion(host){
   if(shouldReduceMotion()||!active()||!host)return;
   try{
-   const {autoAnimate}=await import('./vendor-auto-animate.js');
    if(!active()||!host.isConnected)return;
    listController=autoAnimate(host,{duration:motionTokens.list,easing:'ease-in-out'});
   }catch(error){console.warn('Material animation unavailable',error);}
@@ -19,7 +21,6 @@ export function createMotionKit(root){
   const nodes=[...host.querySelectorAll('[data-offer-carrier]')];
   if(!nodes.length)return;
   try{
-   const {animate}=await import('./vendor-motion.js');
    if(!active())return;
    nodes.forEach((node,index)=>{
     const animation=animate(node,{opacity:[0,1],transform:['translateY(12px)','translateY(0px)']},
@@ -55,7 +56,6 @@ export function createMotionKit(root){
   button.setAttribute('aria-describedby','freight-motion-tooltip');
   tooltip.id='freight-motion-tooltip';
   try{
-   const {computePosition,offset,flip,shift,autoUpdate}=await import('./vendor-floating-ui.js');
    if(!active()||!tooltip?.isConnected)return hideTooltip();
    const positioned=()=>computePosition(button,tooltip,{placement:'top',strategy:'fixed',middleware:[offset(9),flip(),shift({padding:12})]})
     .then(({x,y})=>{if(tooltip?.isConnected){tooltip.style.left=x+'px';tooltip.style.top=y+'px';}});
