@@ -16,7 +16,7 @@ function option(value,label,current){return `<option value="${fmt.escape(value)}
 function tariffOptions(current){
   const groups=new Map();
   LOCAL_DISPATCH_TARIFFS.forEach(row=>{if(!groups.has(row.zone))groups.set(row.zone,[]);groups.get(row.zone).push(row)});
-  const labels={URBANO_LOCAL:"Urbanos y locales",NORTE_VALLE:"Norte y Valle",OCCIDENTE:"Occidente",SUR:"Sur",EJE_CAFETERO:"Eje Cafetero y nacionales"};
+  const labels={TULUA_CERCANAS:'Tuluá y poblaciones cercanas',NORTE_VALLE_IBARRA:'Ruta norte del Valle',SUR_VALLE_IBARRA:'Ruta sur del Valle'};
   return [...groups].map(([zone,rows])=>`<optgroup label="${fmt.escape(labels[zone]||zone)}">${rows.map(row=>option(row.code,`${row.code} · ${currencyCOP(row.base)}`,current)).join("")}</optgroup>`).join("");
 }
 function initialValues(data){
@@ -37,7 +37,7 @@ function initialValues(data){
   };
 }
 function formHtml(data,values,place){
-  return `<div class="shipping-core-task-head-v11107"><div><span class="shipping-core-task-kicker-v11107">PASO 2 · DESPACHO LOCAL</span><h4>Cargue y liquidación del flete</h4><p>Registra los datos operativos y deja definido el costo original del viaje. Los costos conocidos después del despacho se administran de forma auditada desde el historial.</p></div><span class="shipping-core-step-badge-v11107">Paso 2 de 3</span></div>
+  return `<div class="shipping-core-task-head-v11107"><div><span class="shipping-core-task-kicker-v11107">PASO 2 · DESPACHO LOCAL</span><h4>Cargue y liquidación del flete</h4><p>Selecciona la ruta, registra el peso y revisa el costo calculado con la matriz interna de 54 destinos. Los cambios posteriores se registran con trazabilidad.</p></div><span class="shipping-core-step-badge-v11107">Paso 2 de 3</span></div>
     ${destinationCard(place,"Destino registrado por Ventas")}
     <section class="local-dispatch-form-v1145" data-local-dispatch-form>
       <section class="local-dispatch-block-v1146">
@@ -47,7 +47,7 @@ function formHtml(data,values,place){
           <label><span>Factura *</span><input class="control" name="invoiceNumber" value="${fmt.escape(values.invoiceNumber)}" required><small>Precargada desde Facturación cuando está disponible.</small></label>
           <label><span>Sucursal / asesor *</span><select class="control" name="branch" required>${LOCAL_DISPATCH_BRANCHES.map(code=>option(code,code,values.branch)).join("")}</select></label>
           <label><span>Destino tarifario *</span><select class="control" name="cityDestination" required><option value="">Selecciona destino</option>${tariffOptions(values.city)}</select></label>
-          <label><span>Peso total (kg) *</span><input class="control" type="number" min="0.001" step="0.001" name="weightKg" value="${values.weightKg||""}" required><small>Se precarga con el peso registrado en Facturación.</small></label>
+          <label><span>Peso total (kg) *</span><input class="control" type="number" min="0.001" step="0.001" name="weightKg" value="${values.weightKg||""}" required><small>Se precarga desde Facturación. Al cambiar el peso, el precio se actualiza automáticamente.</small></label>
           <label><span>Placa del vehículo *</span><input class="control" name="vehiclePlate" maxlength="20" value="${fmt.escape(values.vehiclePlate)}" placeholder="Ej. ABC123" required></label>
           <label><span>Conductor *</span><input class="control" name="driverName" maxlength="120" value="${fmt.escape(values.driverName)}" placeholder="Nombre del conductor" required></label>
           <label class="local-dispatch-wide-v1145"><span>Observaciones de salida</span><textarea class="control" name="observations" rows="2" maxlength="1000">${fmt.escape(values.observations)}</textarea></label>
@@ -56,16 +56,16 @@ function formHtml(data,values,place){
       <section class="local-dispatch-block-v1146 cost">
         <header><div><small>COSTOS INICIALES DEL VIAJE</small><h5>Liquidación antes del despacho</h5></div><span>Estos valores forman el costo original</span></header>
         <div class="local-dispatch-initial-costs-v1146">
-          <label><span>Ayudante / descargue inicial</span><input class="control" type="number" min="0" step="1" name="unloadingCost" value="${values.unloadingCost}"><small>Regístralo aquí solo si ya se conoce antes de despachar.</small></label>
-          <label><span>Destino adicional / desvío inicial</span><input class="control" type="number" min="0" step="1" name="diversionCost" value="${values.diversionCost}"><small>Los costos posteriores se agregan desde Gestión de costos.</small></label>
+          <label><span>Auxiliar / descargue inicial</span><input class="control" type="number" min="0" step="1" name="unloadingCost" value="${values.unloadingCost}"><small>Regístralo aquí solo si ya se conoce antes de despachar.</small></label>
+          <label><span>Desvío / subruta urgente</span><input class="control" type="number" min="0" step="1" name="diversionCost" value="${values.diversionCost}"><small>Los costos posteriores se agregan desde Gestión de costos.</small></label>
         </div>
-        <div class="local-dispatch-liquidation-v1145" aria-live="polite">
+        <div class="local-dispatch-matrix-source">Precios de la matriz interna de Luis Ibarra · Base hasta 1.000 kg · Adicional de 1.001 a 2.500 kg</div><div class="local-dispatch-liquidation-v1145" aria-live="polite">
           <article><small>Tarifa base</small><strong data-trip-base>$0</strong></article>
           <article><small>Kilos extra (&gt; 1.000 kg)</small><strong data-trip-extra-kg>0 kg</strong></article>
           <article><small>Costo kilos extra</small><strong data-trip-extra-cost>$0</strong></article>
           <article class="total"><small>Total inicial del flete</small><strong data-trip-total>$0</strong></article>
         </div>
-        <div class="local-dispatch-post-cost-note-v1146"><strong>¿Apareció un costo después de enviar?</strong><span>Ayudantes, paradas, peajes, descargues, desvíos, parqueadero o esperas posteriores al despacho se registran como ajustes auditados, con justificación y máximo 3 revisiones.</span></div>
+        <p data-local-matrix-warning class="local-dispatch-matrix-warning" role="status" hidden></p><div class="local-dispatch-post-cost-note-v1146"><strong>¿Apareció un costo después de enviar?</strong><span>Ayudantes, paradas, peajes, descargues, desvíos, parqueadero o esperas posteriores al despacho se registran como ajustes auditados, con justificación y máximo 3 revisiones.</span></div>
       </section>
       <div class="local-dispatch-form-actions-v1145">
         <span data-local-save-state>${values.persisted?"Cargue guardado · puedes ajustar los datos mientras el pedido permanezca en esta etapa.":"Aún no se ha registrado el cargue."}</span>
@@ -87,7 +87,17 @@ function preview(root){
   root.querySelector("[data-trip-base]").textContent=currencyCOP(calc.tariffBase);
   root.querySelector("[data-trip-extra-kg]").textContent=`${new Intl.NumberFormat("es-CO",{maximumFractionDigits:3}).format(calc.extraKg)} kg`;
   root.querySelector("[data-trip-extra-cost]").textContent=currencyCOP(calc.extraCost);
-  root.querySelector("[data-trip-total]").textContent=currencyCOP(calc.total);
+  root.querySelector("[data-trip-total]").textContent=calc.available?currencyCOP(calc.total):"Sin tarifa";
+  const warning=root.querySelector('[data-local-matrix-warning]');
+  const reason=calc.reason==='PESO_FUERA_DE_RANGO'
+   ?'Esta ruta solo tiene tarifa documentada hasta 2.500 kg. Solicita una liquidación especial.'
+   :calc.reason==='RUTA_SIN_TARIFA'?'Selecciona una ruta incluida en la matriz.'
+   :calc.reason==='EXTRAS_INVALIDOS'?'Revisa los recargos adicionales.'
+   :'Registra un peso válido para calcular automáticamente.';
+  warning.textContent=reason;
+  warning.hidden=calc.available;
+  const button=root.querySelector('[data-save-local-dispatch]');
+  if(button)button.disabled=!calc.available;
 }
 export function localDispatchSummary(delivery){
   const trip=localTrip(delivery);
@@ -111,6 +121,9 @@ export function renderLocalDispatchStage(host,data,{reload,refreshLists}={}){
   preview(form);
   const save=async()=>{
     const payload=readPayload(form);
+    const tariff=calculateLocalDispatch(payload.ciudadDestino,payload.pesoKg,payload.costoDescargue,payload.costoDesvio);
+    if(!tariff.available)throw new Error("La matriz local no permite liquidar este peso o destino.");
+    if(payload.costoDescargue+payload.costoDesvio>0&&payload.observaciones.trim().length<8)throw new Error("Describe el motivo del auxiliar o subruta en Observaciones.");
     if(!payload.fecha||!payload.numeroFactura||!payload.sucursal||!payload.ciudadDestino||!(payload.pesoKg>0)||!payload.vehiculoPlaca||!payload.conductor)throw new Error("Completa fecha, factura, sucursal, destino, peso, placa y conductor.");
     const result=await api.localDispatchSave(data.order.id,payload);
     dirty=false;
