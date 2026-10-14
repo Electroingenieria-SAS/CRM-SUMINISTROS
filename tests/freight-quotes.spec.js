@@ -269,7 +269,8 @@ test('cotizador premium: municipio único, empresa principal y valor declarado v
  await page.getByLabel('Departamento',{exact:true}).selectOption('VALLE DEL CAUCA');
  await destination.fill('tulua');
  await expect(page.getByRole('listbox')).toBeVisible();
- await page.getByRole('option').first().click();
+ await page.locator('[data-destination-options] [role="option"]').first().click();
+ await expect(page.locator('[data-destination-options]')).toBeHidden();
  await expect(page.locator('[name=destinationKey]')).toHaveValue('TCC_TEST');
  await page.locator('[data-carrier-choice="ENVIA"]').click();
  await expect(page.locator('[data-carrier-choice="ENVIA"]')).toHaveAttribute('aria-pressed','true');
