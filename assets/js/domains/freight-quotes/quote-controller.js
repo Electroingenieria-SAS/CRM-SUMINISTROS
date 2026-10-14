@@ -78,6 +78,27 @@ export async function renderFreightQuotes(root,context={}){
  const onChange=event=>{if(event.target.matches('[data-destination-search]'))return;invalidate();syncSummary();};
  form.addEventListener('input',onChange);form.addEventListener('change',onChange,true);
  const notice=text=>{message.textContent=text;message.dataset.kind=/error|inválid|sin cálculo|completa|revisa/i.test(String(text))?'warning':'info';};
+ // Re-query catalog/history only. Never replay save or link operations after a 503.
+ const serviceBanner=root.querySelector('[data-freight-service-banner]');
+ const serviceMessage=root.querySelector('[data-freight-service-message]');
+ const transientError=error=>[503,504].includes(Number(error?.status))||
+   /supabase está temporalmente ocupado|service unavailable|gateway timeout|pgrst003|503|504/i.test(String(error?.message||''));
+ let lastSafeRetry=null;
+ const showReadFailure=(error,retry)=>{
+   notice(error.message||'No fue posible consultar los datos.');
+   if(!transientError(error))return;
+   lastSafeRetry=retry;
+   serviceMessage.textContent='El servicio de consultas no respondió. Puedes reintentar sin duplicar cotizaciones ni modificar pedidos.';
+   serviceBanner.hidden=false;
+ };
+ root.querySelector('[data-freight-retry]').onclick=async()=>{
+   if(!lastSafeRetry)return;
+   const button=root.querySelector('[data-freight-retry]');
+   button.disabled=true;button.textContent='Consultando…';
+   try{await lastSafeRetry();serviceBanner.hidden=true;lastSafeRetry=null;notice('Consulta restablecida.');}
+   catch(error){showReadFailure(error,lastSafeRetry);}
+   finally{button.disabled=false;button.textContent='Reintentar consulta';}
+ };
  const run=async(action,{calculating=false}={})=>{
   if(busy)return;busy=true;const submit=form.querySelector('[type=submit]');
   submit.disabled=true;save.disabled=true;draft.disabled=true;form.setAttribute('aria-busy','true');
@@ -145,7 +166,7 @@ export async function renderFreightQuotes(root,context={}){
   root.querySelector('[data-history-next]').disabled=page*30>=totalHistory;
   root.querySelectorAll('[data-quote-link]').forEach(b=>b.disabled=!can('freight_quotes','canUpdate'));
  }
- form.elements.department.addEventListener('change',()=>destinations(form.elements.department.value).catch(e=>notice(e.message)));
+ form.elements.department.addEventListener('change',()=>destinations(form.elements.department.value).catch(e=>showReadFailure(e,()=>destinations(form.elements.department.value))));
  form.querySelector('[data-add-material]').onclick=()=>{addMaterial(materialHost);invalidate();syncSummary();};
  form.onsubmit=e=>{e.preventDefault();run(async()=>{
   if(!form.reportValidity())return;
@@ -228,5 +249,13 @@ export async function renderFreightQuotes(root,context={}){
    if(form.elements.department.value){const rows=await destinations(dept);form.elements.destinationKey.value=exactDocumentDestination(rows,order.client_city);destinationPicker.sync();}
    notice(`Materiales precargados del pedido ${order.order_number}. Confirma destino y las medidas de los materiales. Guardar no vincula ni modifica el pedido.`);
   }
- }catch(error){notice(error.message);}
+ }catch(error){
+   showReadFailure(error,async()=>{
+     const data=await api.freightQuoteCatalog();
+     form.elements.origin.innerHTML=options(data.origins||[]);
+     form.elements.origin.value=data.modelOrigin||'';
+     form.elements.department.innerHTML=options(data.departments||[]);
+     await loadHistory();
+   });
+ }
 }
