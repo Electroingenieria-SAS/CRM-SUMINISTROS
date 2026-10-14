@@ -258,3 +258,28 @@ test('Motion reducido y Floating UI: precio real visible, tooltip accesible y li
  await expect(page.getByRole('tooltip')).toHaveCount(0);
  expect(await page.evaluate(async()=>{const m=await import('/assets/js/shared/motion/motion-tokens.js');return m.shouldReduceMotion();})).toBe(true);
 });
+
+
+test('cotizador premium: municipio único, empresa principal y valor declarado visibles',async({page})=>{
+ await mountQuotes(page);
+ const destination=page.getByRole('combobox',{name:'Buscar municipio o centro operativo'});
+ await expect(destination).toHaveCount(1);
+ await expect(page.locator('.freight-destination-field .control')).toHaveCount(1);
+ await expect(page.getByText('Opciones adicionales')).toHaveCount(0);
+ await page.getByLabel('Departamento',{exact:true}).selectOption('VALLE DEL CAUCA');
+ await destination.fill('tulua');
+ await expect(page.getByRole('listbox')).toBeVisible();
+ await page.getByRole('option').first().click();
+ await expect(page.locator('[name=destinationKey]')).toHaveValue('TCC_TEST');
+ await page.locator('[data-carrier-choice="ENVIA"]').click();
+ await expect(page.locator('[data-carrier-choice="ENVIA"]')).toHaveAttribute('aria-pressed','true');
+ await expect(page.locator('[name=carrier]')).toHaveValue('ENVIA');
+ await page.getByLabel('Valor declarado (COP)').fill('125000');
+ await page.getByLabel('Origen efectivo').selectOption('CALI');
+ await page.getByLabel('Nombre del material').fill('Tablero eléctrico');
+ await page.getByLabel('Peso del material (kg)').fill('20');
+ await page.getByRole('button',{name:'Calcular',exact:true}).click();
+ await expect(page.locator('[data-carrier-reference="ENVIA"]')).toBeVisible();
+ await expect(page.locator('[data-carrier-reference="TCC"]')).toBeVisible();
+ expect(await page.evaluate(()=>window.__orderWrites)).toBe(0);
+});
