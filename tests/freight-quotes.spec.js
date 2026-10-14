@@ -466,9 +466,12 @@ test('selector de modalidad distingue local y nacional sin perder TCC ni ENVÍA'
  await page.locator('[data-carrier-choice="ENVIA"]').click();
  await page.locator('[data-quote-scope="LOCAL"]').click();
  await expect(page.locator('[data-local-controls]')).toBeVisible();
+ await expect(page.locator('[data-carrier-choice="TCC"]')).toBeHidden();
+ await expect(page.locator('[data-carrier-choice="ENVIA"]')).toBeHidden();
  await expect(page.locator('[data-national-route]').first()).toBeHidden();
  await expect(page.locator('[data-carrier-choice="LOCAL"]')).toHaveAttribute('aria-pressed','true');
  await page.locator('[data-quote-scope="NATIONAL"]').click();
  await expect(page.locator('[data-local-controls]')).toBeHidden();
+ await expect(page.locator('[data-carrier-choice="LOCAL"]')).toBeHidden();
  await expect(page.locator('[data-carrier-choice="ENVIA"]')).toHaveAttribute('aria-pressed','true');
 });
