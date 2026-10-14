@@ -2,6 +2,26 @@
 -- Original uploaded SHA-256: 7be632a885a842222e97f86ae4f6c5af2b1b696aac43bbf43fc4d1169ff97f5d
 -- Historical trips/legacy tariff codes remain intact; the new UI offers only 54 supplied routes.
 begin;
+-- Immutable pre-import record of the 60 original routes so no pre-existing fare is lost.
+create table if not exists erp_supply.local_dispatch_rate_snapshots (
+ snapshot_batch text not null,
+ destination_code text not null,
+ zone_code text,
+ base_cost numeric,
+ extra_per_kg numeric,
+ limit_kg numeric,
+ was_active boolean,
+ original_updated_at timestamptz,
+ captured_at timestamptz not null default now(),
+ primary key(snapshot_batch,destination_code)
+);
+alter table erp_supply.local_dispatch_rate_snapshots enable row level security;
+revoke all on erp_supply.local_dispatch_rate_snapshots from public,anon,authenticated;
+insert into erp_supply.local_dispatch_rate_snapshots
+ (snapshot_batch,destination_code,zone_code,base_cost,extra_per_kg,limit_kg,was_active,original_updated_at)
+select 'BEFORE_LUIS_IBARRA_CSV_2026_10_14',destination_code,zone_code,base_cost,extra_per_kg,limit_kg,active,updated_at
+from erp_supply.local_dispatch_tariffs
+on conflict(snapshot_batch,destination_code) do nothing;
 alter table erp_supply.local_dispatch_tariffs add column if not exists source_version text;
 alter table erp_supply.local_dispatch_tariffs add column if not exists max_weight_kg numeric;
 insert into erp_supply.local_dispatch_tariffs(destination_code,zone_code,base_cost,extra_per_kg,limit_kg,active,source_version,max_weight_kg)
