@@ -54,8 +54,15 @@ export async function renderFreightQuotes(root,context={}){
   form.elements.origin.disabled=local;
   if(local){form.elements.origin.value='TULUA';}
  };
+ let lastNationalCarrier='TCC';
  const syncCarrier=()=>{
   const selected=form.elements.carrier.value;
+  const scope=selected==='LOCAL'?'LOCAL':'NATIONAL';
+  if(scope==='NATIONAL')lastNationalCarrier=selected;
+  root.dataset.quoteScope=scope;
+  root.querySelectorAll('[data-quote-scope]').forEach(button=>{
+   button.setAttribute('aria-pressed',String(button.dataset.quoteScope===scope));
+  });
   syncRouteMode();
   root.querySelectorAll('[data-carrier-choice]').forEach(button=>{
    const active=button.dataset.carrierChoice===selected;
@@ -63,6 +70,13 @@ export async function renderFreightQuotes(root,context={}){
    const label=button.querySelector('small');if(label)label.textContent=active?'Seleccionada':'Elegir';
   });
  };
+ root.querySelectorAll('[data-quote-scope]').forEach(button=>button.addEventListener('click',()=>{
+  const next=button.dataset.quoteScope==='LOCAL'?'LOCAL':lastNationalCarrier;
+  if(next===form.elements.carrier.value)return;
+  form.elements.carrier.value=next;
+  form.elements.carrier.dispatchEvent(new Event('change',{bubbles:true}));
+  syncCarrier();
+ }));
  root.querySelectorAll('[data-carrier-choice]').forEach(button=>button.addEventListener('click',()=>{
    if(form.elements.carrier.value===button.dataset.carrierChoice)return;
    form.elements.carrier.value=button.dataset.carrierChoice;
