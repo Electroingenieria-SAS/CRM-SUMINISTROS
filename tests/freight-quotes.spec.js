@@ -447,6 +447,8 @@ test('cotizador local: ruta Tuluá, peso, auxiliar y desvío sin contaminar TCC/
  await expect(page.locator('[data-carrier-reference="ENVIA"]')).toHaveCount(0);
  await expect(page.getByRole('button',{name:'Guardar cotización',exact:true})).toBeEnabled();
  await page.getByRole('button',{name:'Guardar cotización',exact:true}).click();
+ await expect(page.locator('[data-quote-history]')).toContainText('CF-1');
+ await expect.poll(()=>page.evaluate(()=>window.__quoteFixtures.length)).toBe(1);
  expect(await page.evaluate(()=>window.__quoteFixtures[0].input.carrier)).toBe('LOCAL');
  expect(await page.evaluate(()=>window.__quoteFixtures[0].input.localDestinationCode)).toBe('SAN PEDRO');
  expect(await page.evaluate(()=>window.__orderWrites)).toBe(0);
