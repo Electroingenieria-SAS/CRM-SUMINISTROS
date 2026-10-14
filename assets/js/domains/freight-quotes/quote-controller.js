@@ -9,6 +9,7 @@ import {addMaterial,readQuote} from './quote-lines.js';
 import {createMotionKit} from '../../shared/motion/motion-kit.js';
 import {createFreightDialogs} from './quote-dialogs.js';
 import {setupFreightDestinationPicker} from './destination-picker.js';
+import {animateCRMMetric} from '../../shared/motion/crm-visual-system.js';
 export async function renderFreightQuotes(root,context={}){
  root.__freightController?.abort();
  root.__crmFreightMotion?.dispose?.();
@@ -60,6 +61,8 @@ export async function renderFreightQuotes(root,context={}){
    const summary=measurementSummary(fields.map(row=>row.readMaterial()));
    root.querySelector('[data-material-weight]').textContent=number.format(summary.weightKg)+' kg';
    root.querySelector('[data-material-volume]').textContent=number.format(summary.volumeM3)+' m³';
+   animateCRMMetric(root.querySelector('[data-material-weight]'));
+   animateCRMMetric(root.querySelector('[data-material-volume]'));
   }catch{
    root.querySelector('[data-material-weight]').textContent='Revisar dato';
    root.querySelector('[data-material-volume]').textContent='Revisar dato';
@@ -98,6 +101,7 @@ export async function renderFreightQuotes(root,context={}){
   root.querySelector('[data-history-count]').textContent=String(summary.count);
   root.querySelector('[data-history-priced]').textContent=String(summary.priced);
   root.querySelector('[data-history-actual]').textContent=String(summary.withActual);
+  animateCRMMetric(root.querySelector('[data-history-count]'));
   root.querySelector('[data-history-visible-count]').textContent=summary.count+' visibles en esta página';
   root.querySelector('[data-history-export]').disabled=summary.count===0;
   root.querySelectorAll('[data-quote-link]').forEach(button=>button.disabled=!can('freight_quotes','canUpdate'));
