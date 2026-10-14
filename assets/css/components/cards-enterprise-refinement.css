@@ -1,0 +1,19 @@
+/* Shared enterprise-card refinement: consistent visual hierarchy without changing widgets' data. */
+#app .card,#app .kpi,#app .stat-card{
+ border-color:#d0dfeb;border-radius:15px;background:linear-gradient(155deg,#fff,#fafcff);
+ box-shadow:0 8px 24px rgba(15,52,87,.07),inset 0 1px 0 #fff;
+ transition:box-shadow 180ms ease,border-color 180ms ease,transform 180ms ease
+}
+#app .card:hover,#app .kpi:hover,#app .stat-card:hover{
+ border-color:#a9cce9;box-shadow:0 13px 29px rgba(17,69,113,.11),inset 0 1px 0 #fff
+}
+#app .card-head{background:linear-gradient(130deg,#f4f9ff,#fff);border-bottom-color:#d8e6f1}
+#app .card-head h3{font-weight:850;letter-spacing:-.015em;color:#153b5b}
+#app .kpi{min-height:120px;display:flex;flex-direction:column;justify-content:center}
+#app .kpi-value{font-size:clamp(1.5rem,2vw,2rem);font-variant-numeric:tabular-nums;letter-spacing:-.045em}
+#app .kpi-label{font-size:.72rem;letter-spacing:.09em}
+#app .kpi-foot{font-size:.73rem;line-height:1.45}
+#app .card:focus-within,#app .kpi:focus-within,#app .stat-card:focus-within{border-color:#72a8d5}
+@media(prefers-reduced-motion:reduce){
+ #app .card,#app .kpi,#app .stat-card{transition:none!important}
+}
