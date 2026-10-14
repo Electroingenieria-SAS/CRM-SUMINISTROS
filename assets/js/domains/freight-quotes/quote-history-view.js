@@ -61,7 +61,7 @@ export function quoteHistoryHtml(items,{filtered=false}={}){
   const snapshot=q.snapshot||{},estimated=centralValue(q),actual=q.actual_cost_cop;
   const deviation=actual!=null&&estimated!=null?Number(actual)-Number(estimated):null;
   const date=calendarDate(q.created_at),formatted=date?date.toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric'}):'Sin fecha';
-  const label=q.carrier==='ENVIA'?'ENVÍA':q.carrier==='TCC'?'TCC':'Sin operador';
+  const label=q.carrier==='ENVIA'?'ENVÍA':q.carrier==='TCC'?'TCC':q.carrier==='LOCAL'?'Transporte local':'Sin operador';
   const folio='CF-'+q.folio,route=(snapshot.origin||'—')+' → '+(snapshot.destination||'—');
   const notes=q.order_number?'Pedido '+q.order_number:'Sin pedido vinculado';
   return '<tr data-history-carrier="'+escape(q.carrier||'')+'">'+
