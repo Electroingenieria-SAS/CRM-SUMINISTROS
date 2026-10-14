@@ -22,7 +22,7 @@ export function setupFreightDestinationPicker(form,{onSelected=()=>{}}={}){
  function choose(row){
   if(!row)return;
   const old=select.value;
-  select.value=row.key;
+  select.disabled=false;select.value=row.key;
   sync();
   if(old!==row.key){select.dispatchEvent(new Event('change',{bubbles:true}));onSelected(row);}
  }
@@ -46,6 +46,7 @@ export function setupFreightDestinationPicker(form,{onSelected=()=>{}}={}){
   });
   opened=true;list.hidden=false;input.setAttribute('aria-expanded','true');
   const all=rows.filter(row=>normalize(label(row)).includes(query));
+  select.disabled=!all.length;
   feedback.textContent=all.length?all.length+' destinos coincidentes. Elige uno.':'Sin coincidencias. Prueba otro municipio.';
   if(!displayed.length){const empty=document.createElement('p');empty.className='freight-city-empty';empty.textContent='No encontramos ese municipio.';list.append(empty);}
  }
