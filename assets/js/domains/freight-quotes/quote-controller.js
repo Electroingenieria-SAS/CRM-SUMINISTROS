@@ -202,8 +202,7 @@ export async function renderFreightQuotes(root,context={}){
   run(async()=>{
    invalidate();form.elements.carrier.value=q.input.carrier||'TCC';form.elements.origin.value=q.input.origin;form.elements.department.value=q.input.department;form.elements.declaredValue.value=q.input.declaredValue??'';
    await destinations(q.input.department,q.input.destinationKey);
-   materialHost.innerHTML='';
-   restoreMeasurements(q.input).forEach(m=>addMaterial(materialHost,m));syncSummary();
+   replaceMaterials(restoreMeasurements(q.input));
    notice('Copia preparada. Calcula o guarda un nuevo borrador.');setWorkspace('quote');form.scrollIntoView({behavior:'smooth'});
   });
  };
