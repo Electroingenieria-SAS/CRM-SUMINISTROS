@@ -10,6 +10,7 @@ import {createMotionKit} from '../../shared/motion/motion-kit.js';
 import {createFreightDialogs} from './quote-dialogs.js';
 import {setupFreightDestinationPicker} from './destination-picker.js';
 import {animateCRMMetric} from '../../shared/motion/crm-visual-system.js';
+import {suggestedDestination} from '../logistics/local-dispatch/tariffs.js';
 export async function renderFreightQuotes(root,context={}){
  root.__freightController?.abort();
  root.__crmFreightMotion?.dispose?.();
@@ -286,8 +287,14 @@ export async function renderFreightQuotes(root,context={}){
    const orderData=await api.getOrder(context.params.orderId),order=orderData.order;
    replaceMaterials(quoteOrderMaterials(orderData));
    const dept=order.metadata?.clientDepartment||'';syncSummary();
-   form.elements.department.value=dept;
-   if(form.elements.department.value){const rows=await destinations(dept);form.elements.destinationKey.value=exactDocumentDestination(rows,order.client_city);destinationPicker.sync();}
+   const orderIsLocal=context.params?.shippingScope==='LOCAL'||order.current_step_code==='LOCAL_DISPATCH'||order.delivery_route_code==='LOCAL_DISPATCH';
+   if(orderIsLocal){
+    form.elements.carrier.value='LOCAL';syncCarrier();
+    form.elements.localDestinationCode.value=suggestedDestination(order.client_city||order.metadata?.clientCity||'');
+   }else{
+    form.elements.department.value=dept;
+    if(form.elements.department.value){const rows=await destinations(dept);form.elements.destinationKey.value=exactDocumentDestination(rows,order.client_city);destinationPicker.sync();}
+   }
    notice(`Materiales precargados del pedido ${order.order_number}. Confirma destino y las medidas de los materiales. Guardar no vincula ni modifica el pedido.`);
   }
  }catch(error){
