@@ -19,11 +19,13 @@ export function createMotionKit(root){
   const nodes=[...host.querySelectorAll('[data-offer-carrier]')];
   if(!nodes.length)return;
   try{
-   const {animate,stagger}=await import('./vendor-motion.js');
+   const {animate}=await import('./vendor-motion.js');
    if(!active())return;
-   const animation=animate(nodes,{opacity:[0,1],transform:['translateY(12px)','translateY(0px)']},
-    {duration:motionTokens.card/1000,ease:'easeOut',delay:stagger(.045)});
-   activeAnimations.push(animation);
+   nodes.forEach((node,index)=>{
+    const animation=animate(node,{opacity:[0,1],transform:['translateY(12px)','translateY(0px)']},
+      {duration:motionTokens.card/1000,ease:'ease-out',delay:index*.045});
+    activeAnimations.push(animation);
+   });
   }catch(error){console.warn('Card animation unavailable',error);}
  }
  async function highlightMoney(host){
