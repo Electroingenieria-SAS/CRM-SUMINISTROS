@@ -12,7 +12,9 @@ export async function renderFreightQuotes(root,context={}){
  root.innerHTML=quoteView();
  const form=root.querySelector('[data-quote-form]'),message=root.querySelector('[data-quote-message]'),resultHost=root.querySelector('[data-quote-result]');
  const materialHost=form.querySelector('[data-quote-materials]');
+ root.__crmFreightMotion?.dispose?.();
  const motion=createMotionKit(root);
+ root.__crmFreightMotion=motion;
  void motion.enableMaterialMotion(materialHost);
  const save=form.querySelector('[data-save-quote]'),draft=form.querySelector('[data-save-draft]');
  let calculated=null,currentResult=null,revision=0,busy=false,page=1,history=[],visibleHistory=[],catalogCache=new Map(),destinationRequest=0,allDestinations=[];
