@@ -36,6 +36,7 @@
   "dependencies": {
     "@floating-ui/dom": "1.8.0",
     "@formkit/auto-animate": "0.10.0",
+    "animejs": "4.5.0",
     "motion": "14.2.0"
   },
   "devDependencies": {

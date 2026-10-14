@@ -6,7 +6,8 @@ await mkdir(outdir,{recursive:true});
 const dependencies=[
  ['motion','motion.mjs','vendor-motion.js','Motion MIT'],
  ['auto-animate','auto-animate.mjs','vendor-auto-animate.js','AutoAnimate MIT'],
- ['floating-ui','floating-ui.mjs','vendor-floating-ui.js','Floating UI MIT']
+ ['floating-ui','floating-ui.mjs','vendor-floating-ui.js','Floating UI MIT'],
+ ['animejs','anime.mjs','vendor-anime.js','Anime.js MIT']
 ];
 for(const [name,source,file,license] of dependencies){
  await build({
