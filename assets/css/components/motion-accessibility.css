@@ -1,0 +1,16 @@
+/* Accessible motion reconciliation for existing components. Keep their original animations,
+   suppress decorative movement when OS requests it. Avoid layering new global effects. */
+@media(prefers-reduced-motion:reduce){
+ .modal.popup-ux-v1190,
+ .popup-process-guide-v1190,
+ #workforce-content>.work-now,
+ #workforce-content>.workforce-summary-grid,
+ #workforce-content>.workforce-main-grid,
+ #workforce-content>.card{animation:none!important}
+ #paco-bot.paco2-root .paco2-action,
+ #paco-bot.paco2-root .paco2-cap,
+ .segment-control button{transition:none!important}
+}
+.modal.popup-ux-v1190 :is(.icon-close,[data-close].icon-btn):focus-visible,
+ #paco-bot.paco2-root .paco2-action:focus-visible,
+ .segment-control button:focus-visible{outline:3px solid #e8b92e;outline-offset:2px}

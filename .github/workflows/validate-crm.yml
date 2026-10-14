@@ -294,6 +294,9 @@ jobs:
       - name: NPM audit · high severity gate
         run: npm audit --audit-level=high
 
+      - name: Install locked dependencies for SBOM
+        run: npm ci --ignore-scripts
+
       - name: Generate CycloneDX SBOM
         run: npm sbom --sbom-format=cyclonedx > crm-suministros-sbom.cdx.json
 

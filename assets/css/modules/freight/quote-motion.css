@@ -1,0 +1,49 @@
+/* CRM Suministros · Motion tokens / premium modal + freight interactions */
+:root{--crm-motion-hover:130ms;--crm-motion-button:170ms;--crm-motion-tab:210ms;--crm-motion-panel:260ms;--crm-motion-ease:cubic-bezier(.2,.8,.2,1)}
+.freight-view-tab{position:relative;transition:color var(--crm-motion-tab) ease,background-color var(--crm-motion-tab) ease}
+.freight-view-tab[aria-selected=true]{background:linear-gradient(180deg,#f9fcff,#eff6fd)}
+.freight-offer-select,.freight-add-material,.freight-calculate{transition:transform var(--crm-motion-button) ease,box-shadow var(--crm-motion-button) ease,background-color var(--crm-motion-button) ease}
+.freight-offer-select:not(:disabled):active,.freight-add-material:not(:disabled):active,.freight-calculate:not(:disabled):active{transform:scale(.985)}
+.freight-offer-select:focus-visible,.freight-view-tab:focus-visible,.freight-help-button:focus-visible{outline:3px solid #efc344;outline-offset:3px}
+.freight-offer:hover{box-shadow:0 12px 30px rgba(19,70,116,.1);border-color:#b4d1e8}
+.freight-help-button{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border:1px solid #9fbfda;border-radius:50%;color:#285980;background:#fff;font-weight:800;font-size:.8rem;cursor:pointer;margin-inline-start:8px}
+.crm-motion-tooltip{position:fixed;z-index:1200;width:max-content;max-width:min(270px,calc(100vw - 24px));background:#193852;color:#fff;border:1px solid #2a5273;border-radius:10px;padding:9px 12px;font-size:.75rem;line-height:1.55;box-shadow:0 12px 25px rgba(6,29,53,.2);pointer-events:none}
+.freight-original-reference[open]>summary{color:#125f9f;font-weight:750}
+.freight-original-reference>summary{cursor:pointer;transition:color var(--crm-motion-hover) ease}
+.freight-detail-sheet,.freight-link-dialog{border:1px solid #cddae7;background:#fff;color:#173956;box-shadow:0 20px 80px rgba(6,30,55,.3);padding:0}
+.freight-detail-sheet::backdrop,.freight-link-dialog::backdrop{background:rgba(9,26,45,.5);backdrop-filter:blur(3px)}
+.freight-detail-sheet{position:fixed;inset:0 0 0 auto;width:min(530px,100vw);max-width:100vw;height:100dvh;max-height:100dvh;margin:0;border-radius:18px 0 0 18px;animation:freight-sheet-in var(--crm-motion-panel) var(--crm-motion-ease) both}
+.freight-sheet-layout{height:100%;display:flex;flex-direction:column;min-height:0}
+.freight-sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:25px 24px;border-bottom:1px solid #e0e8f0;background:#f8fbfe}
+.freight-sheet-head small{color:#3a73a3;font-size:.7rem;letter-spacing:.1em;font-weight:800}
+.freight-sheet-head h2{margin:6px 0 0;font-size:1.5rem;font-weight:800}
+.freight-sheet-body{padding:23px 24px;overflow:auto;flex:1}
+.freight-sheet-data,.freight-sheet-breakdown dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0}
+.freight-sheet-data>div,.freight-sheet-breakdown dl>div{min-width:0;padding:13px 14px;border:1px solid #e0e9f2;border-radius:10px;background:#fbfdff;overflow-wrap:anywhere}
+.freight-sheet-data dt,.freight-sheet-breakdown dt{font-size:.73rem;color:#678199;margin-bottom:6px}
+.freight-sheet-data dd,.freight-sheet-breakdown dd{margin:0;font-size:.92rem;font-weight:700;color:#153855}
+.freight-sheet-breakdown{margin-top:20px;border-top:1px solid #e0eaf2;padding-top:17px}
+.freight-sheet-breakdown summary{cursor:pointer;font-weight:700;color:#205e91;margin-bottom:13px}
+.freight-sheet-footer{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:18px 24px;border-top:1px solid #e4eaf2;background:#fff}
+.freight-sheet-footer small{flex-basis:100%;font-size:.76rem;color:#285c83}
+.freight-link-dialog{width:min(460px,calc(100vw - 24px));max-width:100%;border-radius:17px;animation:freight-dialog-in var(--crm-motion-panel) var(--crm-motion-ease) both}
+.freight-link-form{display:grid;gap:14px;padding:27px}
+.freight-link-form h2{margin:0;color:#153958;font-size:1.35rem}
+.freight-link-form p{margin:0;color:#607b93;font-size:.87rem;line-height:1.5}
+.freight-link-form label{display:grid;gap:7px;font-weight:720;font-size:.86rem}
+.freight-link-form [data-link-error]{color:#9a3131;font-size:.78rem;min-height:1em}
+.freight-dialog-actions{display:flex;justify-content:flex-end;gap:10px}
+@keyframes freight-sheet-in{from{opacity:.6;transform:translateX(25px)}to{opacity:1;transform:translateX(0)}}
+@keyframes freight-dialog-in{from{opacity:.5;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){
+ .freight-detail-sheet{inset:auto 0 0;width:100vw;height:min(90dvh,850px);border-radius:18px 18px 0 0;animation-name:freight-dialog-in}
+ .freight-sheet-head,.freight-sheet-body{padding:18px}
+ .freight-sheet-footer{padding:15px}
+ .freight-sheet-data,.freight-sheet-breakdown dl{grid-template-columns:1fr}
+ .freight-link-form{padding:22px}
+ .freight-dialog-actions{display:grid;grid-template-columns:1fr 1fr}
+}
+@media(prefers-reduced-motion:reduce){
+ .freight-detail-sheet,.freight-link-dialog{animation:none!important}
+ .freight-view-tab,.freight-offer-select,.freight-add-material,.freight-calculate,.freight-original-reference>summary{transition:none!important}
+}

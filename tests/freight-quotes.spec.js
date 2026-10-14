@@ -207,3 +207,56 @@ test('seleccionar la transportadora desde la tarjeta cambia únicamente la cotiz
  expect(await page.evaluate(()=>window.__quoteFixtures[0].input.carrier)).toBe('ENVIA');
  expect(await page.evaluate(()=>window.__orderWrites)).toBe(0);
 });
+
+
+test('historial animado: detalle accesible, Escape, duplicación y vínculo con confirmación',async({page})=>{
+ await mountQuotes(page);
+ await page.evaluate(async()=>{
+  const {api}=await import('/assets/js/services/api.js');
+  api.freightQuoteLink=async(id,orderNumber)=>{window.__linkedQuote={id,orderNumber};};
+ });
+ await page.getByLabel('Nombre del material').fill('Tubería industrial');
+ await page.getByLabel('Origen efectivo').selectOption('CALI');
+ await page.getByLabel('Departamento',{exact:true}).selectOption('VALLE DEL CAUCA');
+ await page.getByLabel('Municipio / localidad y centro operativo').selectOption('TCC_TEST');
+ await page.getByLabel('Peso del material (kg)').fill('20');
+ await page.getByRole('button',{name:'Guardar borrador',exact:true}).click();
+ const view=page.locator('[data-quote-view]').first();
+ await view.click();
+ const detail=page.getByRole('dialog',{name:'Detalle de la cotización'});
+ await expect(detail).toBeVisible();
+ await expect(detail).toContainText('Tubería industrial');
+ await page.keyboard.press('Escape');
+ await expect(detail).toBeHidden();
+ await expect(view).toBeFocused();
+ await page.locator('[data-quote-link]').first().click();
+ const linking=page.getByRole('dialog',{name:'Vincular cotización a pedido'});
+ await expect(linking).toBeVisible();
+ await linking.getByLabel('Número de pedido').fill('PED-OPER-99');
+ await linking.getByRole('button',{name:'Confirmar vínculo'}).click();
+ await expect(linking).toBeHidden();
+ expect(await page.evaluate(()=>window.__linkedQuote?.orderNumber)).toBe('PED-OPER-99');
+ expect(await page.evaluate(()=>window.__orderWrites)).toBe(0);
+});
+
+test('Motion reducido y Floating UI: precio real visible, tooltip accesible y limpieza',async({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await mountQuotes(page);
+ await page.evaluate(async()=>{
+  const {quoteResultHtml}=await import('/assets/js/domains/freight-quotes/quote-view.js');
+  const mk=carrier=>({carrier,origin:'CALI',destination:'TULUA',tariffVersion:'2024',
+    measurementScenarios:{weight:{status:'REQUIRES_INFORMATION',measuredMaterials:0,totalMaterials:1,complete:false},
+      volume:{status:'REQUIRES_INFORMATION',measuredMaterials:0,totalMaterials:1,complete:false}},
+    reference:{status:'UNAVAILABLE'},commercialEstimate:{available:true,source:carrier==='TCC'?'TCC_REAL_GUIDE_MODEL':'ENVIA_REFERENCE',
+      totalCop:carrier==='TCC'?60000:50000,rangeLowCop:44000,rangeHighCop:77000,statisticalRange:true}});
+  document.querySelector('[data-quote-result]').innerHTML=quoteResultHtml({carrier:'TCC',comparison:[mk('TCC'),mk('ENVIA')]});
+ });
+ const range=page.locator('[data-carrier-price="TCC"] strong').first();
+ await expect(range).toContainText('44.000');
+ const help=page.getByRole('button',{name:'¿Qué significa precio estimado?'}).first();
+ await help.focus();
+ await expect(page.getByRole('tooltip')).toBeVisible();
+ await page.keyboard.press('Escape');
+ await expect(page.getByRole('tooltip')).toHaveCount(0);
+ expect(await page.evaluate(async()=>{const m=await import('/assets/js/shared/motion/motion-tokens.js');return m.shouldReduceMotion();})).toBe(true);
+});

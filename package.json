@@ -30,6 +30,15 @@
     "validate:paco-language": "node scripts/paco-language-v11373-test.mjs",
     "validate:domains": "node --test scripts/tests/*.test.mjs tests/security/*.test.mjs",
     "pwa:generate": "node scripts/ci/generate-precache-manifest.mjs",
-    "pwa:check": "node scripts/ci/generate-precache-manifest.mjs --check && node scripts/architecture/check-asset-budget.mjs"
+    "pwa:check": "node scripts/ci/generate-precache-manifest.mjs --check && node scripts/architecture/check-asset-budget.mjs",
+    "motion:bundle": "node scripts/ci/build-motion-vendors.mjs"
+  },
+  "dependencies": {
+    "@floating-ui/dom": "1.8.0",
+    "@formkit/auto-animate": "0.10.0",
+    "motion": "14.2.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12"
   }
 }

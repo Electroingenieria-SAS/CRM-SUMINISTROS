@@ -6,10 +6,16 @@ import {quoteView,options,quoteResultHtml,quoteHistoryHtml} from './quote-view.j
 import {filterHistoryItems,historySummary,historyCsv} from './quote-history-view.js';
 import {restoreMeasurements,measurementSummary} from './material-measurements.js';
 import {addMaterial,readQuote} from './quote-lines.js';
+import {createMotionKit} from '../../shared/motion/motion-kit.js';
+import {createFreightDialogs} from './quote-dialogs.js';
 export async function renderFreightQuotes(root,context={}){
  root.innerHTML=quoteView();
  const form=root.querySelector('[data-quote-form]'),message=root.querySelector('[data-quote-message]'),resultHost=root.querySelector('[data-quote-result]');
  const materialHost=form.querySelector('[data-quote-materials]');
+ root.__crmFreightMotion?.dispose?.();
+ const motion=createMotionKit(root);
+ root.__crmFreightMotion=motion;
+ void motion.enableMaterialMotion(materialHost);
  const save=form.querySelector('[data-save-quote]'),draft=form.querySelector('[data-save-draft]');
  let calculated=null,currentResult=null,revision=0,busy=false,page=1,history=[],visibleHistory=[],catalogCache=new Map(),destinationRequest=0,allDestinations=[];
  let totalHistory=0;
@@ -40,6 +46,13 @@ export async function renderFreightQuotes(root,context={}){
    root.querySelector('[data-material-weight]').textContent='Revisar dato';
    root.querySelector('[data-material-volume]').textContent='Revisar dato';
   }
+ };
+ const replaceMaterials=items=>{
+  motion.suspendMaterialMotion();
+  materialHost.replaceChildren();
+  items.forEach(item=>addMaterial(materialHost,item));
+  motion.resumeMaterialMotion();
+  syncSummary();
  };
  const onChange=event=>{if(event.target.matches('[data-destination-search]'))return;invalidate();syncSummary();};
  form.addEventListener('input',onChange);form.addEventListener('change',onChange,true);
@@ -133,6 +146,8 @@ export async function renderFreightQuotes(root,context={}){
   if(request!==revision)return;
   currentResult=result;
   resultHost.innerHTML=quoteResultHtml(result,{selectedCarrier:payload.carrier});
+  void motion.revealResults(resultHost);
+  void motion.highlightMoney(resultHost);
   const available=quoteCanSaveCalculated(result);
   calculated=available?{payload,result}:null;notice(available?'Comparación lista. Puedes guardar la cotización.':'Elige una transportadora con estimación o guarda un borrador.');
   resultHost.scrollIntoView?.({behavior:'smooth',block:'start'});
@@ -165,16 +180,29 @@ export async function renderFreightQuotes(root,context={}){
  });
  root.querySelector('[data-history-prev]').onclick=()=>{page--;loadHistory().catch(e=>notice(e.message));};
  root.querySelector('[data-history-next]').onclick=()=>{page++;loadHistory().catch(e=>notice(e.message));};
+ const dialogs=createFreightDialogs(root,{
+  canLink:()=>can('freight_quotes','canUpdate'),
+  link:async(id,number)=>{await api.freightQuoteLink(id,number);await loadHistory();},
+  duplicate:q=>{
+   run(async()=>{
+    invalidate();form.elements.carrier.value=q.input.carrier||'TCC';form.elements.origin.value=q.input.origin;
+    form.elements.department.value=q.input.department;form.elements.declaredValue.value=q.input.declaredValue??'';
+    await destinations(q.input.department,q.input.destinationKey);
+    replaceMaterials(restoreMeasurements(q.input));
+    notice('Copia preparada. Calcula o guarda un borrador.');setWorkspace('quote');form.scrollIntoView({behavior:'smooth'});
+   });
+  },
+  notice
+ });
  root.querySelector('[data-quote-history]').onclick=e=>{
   const button=e.target.closest('button');if(!button)return;
   const q=history.find(q=>q.id===(button.dataset.quoteView||button.dataset.quoteDuplicate||button.dataset.quoteLink));if(!q)return;
-  if(button.dataset.quoteView){currentResult=null;calculated=null;save.disabled=true;resultHost.innerHTML=quoteResultHtml(q.snapshot,{selectable:false});setWorkspace('quote');resultHost.scrollIntoView({behavior:'smooth'});return;}
-  if(button.dataset.quoteLink){const number=window.prompt('Número exacto del pedido a vincular');if(number)run(async()=>{await api.freightQuoteLink(q.id,number);await loadHistory();notice('Vínculo guardado. El pedido conserva sus datos.');});return;}
+  if(button.dataset.quoteView){dialogs.showDetails(q,button);return;}
+  if(button.dataset.quoteLink){dialogs.showLink(q,button);return;}
   run(async()=>{
    invalidate();form.elements.carrier.value=q.input.carrier||'TCC';form.elements.origin.value=q.input.origin;form.elements.department.value=q.input.department;form.elements.declaredValue.value=q.input.declaredValue??'';
    await destinations(q.input.department,q.input.destinationKey);
-   materialHost.innerHTML='';
-   restoreMeasurements(q.input).forEach(m=>addMaterial(materialHost,m));syncSummary();
+   replaceMaterials(restoreMeasurements(q.input));
    notice('Copia preparada. Calcula o guarda un nuevo borrador.');setWorkspace('quote');form.scrollIntoView({behavior:'smooth'});
   });
  };
@@ -185,7 +213,7 @@ export async function renderFreightQuotes(root,context={}){
   form.elements.department.innerHTML=options(data.departments||[]);await loadHistory();
   if(context.params?.orderId){
    const orderData=await api.getOrder(context.params.orderId),order=orderData.order;
-   materialHost.innerHTML='';quoteOrderMaterials(orderData).forEach(m=>addMaterial(materialHost,m,!!m.manual));
+   replaceMaterials(quoteOrderMaterials(orderData));
    const dept=order.metadata?.clientDepartment||'';syncSummary();
    form.elements.department.value=dept;
    if(form.elements.department.value){const rows=await destinations(dept);form.elements.destinationKey.value=exactDocumentDestination(rows,order.client_city);}
