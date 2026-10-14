@@ -60,7 +60,7 @@ export async function renderFreightQuotes(root,context={}){
   const selected=form.elements.carrier.value;
   const scope=selected==='LOCAL'?'LOCAL':'NATIONAL';
   if(scope==='NATIONAL')lastNationalCarrier=selected;
-  root.dataset.quoteScope=scope;
+  root.querySelector('.freight-quotes').dataset.quoteScope=scope;
   root.querySelectorAll('[data-quote-scope]').forEach(button=>{
    button.setAttribute('aria-pressed',String(button.dataset.quoteScope===scope));
   });
