@@ -11,7 +11,7 @@ test('CSV = 54 únicas, JS y SQL con importes idénticos',()=>{
  const [header,...lines]=text('data/freight/local/ibarra-routes.csv').trim().split(/\r?\n/);
  assert.equal(lines.length,54);
  assert.match(header,/valor_flete_base_cop/);
- const sql=text('supabase/migrations/20261014160100_local_freight_ibarra_54_routes.sql');
+ const sql=text('supabase/migrations/20261014215409_local_freight_ibarra_54_routes_20261014.sql');
  assert.equal(LOCAL_DISPATCH_TARIFFS.length,54);
  assert.equal(new Set(LOCAL_DISPATCH_TARIFFS.map(x=>x.code)).size,54);
  for(const line of lines){
@@ -58,8 +58,8 @@ test('third carrier has its own route, source, recargos, save and history contro
  assert.equal(quoteCanSaveCalculated(result.comparison[0]),true);
 });
 test('no overwrite TCC/ENVIA data, local save bound to server and cost changes remain audited',()=>{
- const one=text('supabase/migrations/20261014160100_local_freight_ibarra_54_routes.sql');
- const two=text('supabase/migrations/20261014160200_local_dispatch_quoted_weights.sql');
+ const one=text('supabase/migrations/20261014215409_local_freight_ibarra_54_routes_20261014.sql');
+ const two=text('supabase/migrations/20261014215415_local_dispatch_quoted_weights_20261014.sql');
  const stage=text('assets/js/domains/logistics/local-dispatch/local-dispatch-stage.js');
  const audit=text('assets/js/domains/logistics/local-dispatch/cost-adjustments.js');
  assert.match(one,/if p_payload->>'carrier'='LOCAL'/);
