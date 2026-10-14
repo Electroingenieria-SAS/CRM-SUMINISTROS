@@ -36,8 +36,27 @@ export async function renderFreightQuotes(root,context={}){
  };
  root.querySelectorAll('[data-view-tab]').forEach(button=>button.addEventListener('click',()=>setWorkspace(button.dataset.viewTab)));
  const destinationPicker=setupFreightDestinationPicker(form);
+ const localControls=root.querySelector('[data-local-controls]');
+ const nationalControls=root.querySelectorAll('[data-national-route]');
+ const syncRouteMode=()=>{
+  const local=form.elements.carrier.value==='LOCAL';
+  localControls.hidden=!local;
+  nationalControls.forEach(field=>{field.hidden=local;});
+  form.elements.department.disabled=local;
+  form.elements.department.required=!local;
+  const search=form.querySelector('[data-destination-search]');
+  search.disabled=local||!form.elements.department.value;
+  search.required=!local;
+  form.elements.destinationKey.disabled=local||!form.elements.destinationKey.options.length||!form.elements.department.value;
+  form.elements.localDestinationCode.disabled=!local;
+  form.elements.localDestinationCode.required=local;
+  ['localUnloadingCost','localDiversionCost','localExtraReason'].forEach(key=>form.elements[key].disabled=!local);
+  form.elements.origin.disabled=local;
+  if(local){form.elements.origin.value='TULUA';}
+ };
  const syncCarrier=()=>{
   const selected=form.elements.carrier.value;
+  syncRouteMode();
   root.querySelectorAll('[data-carrier-choice]').forEach(button=>{
    const active=button.dataset.carrierChoice===selected;
    button.setAttribute('aria-pressed',String(active));
@@ -179,7 +198,7 @@ export async function renderFreightQuotes(root,context={}){
   void motion.revealResults(resultHost);
   void motion.highlightMoney(resultHost);
   const available=quoteCanSaveCalculated(result);
-  calculated=available?{payload,result}:null;notice(available?'Comparación lista. Puedes guardar la cotización.':'Elige una transportadora con estimación o guarda un borrador.');
+  calculated=available?{payload,result}:null;notice(available?(payload.carrier==='LOCAL'?'Flete local calculado con la matriz interna. Puedes guardarlo.':'Comparación lista. Puedes guardar la cotización.'):'No hay un flete respaldado por la información ingresada. Revisa el peso o guarda un borrador.');
   resultHost.scrollIntoView?.({behavior:'smooth',block:'start'});
  },{calculating:true});};
  save.onclick=()=>run(async()=>{
@@ -203,7 +222,7 @@ export async function renderFreightQuotes(root,context={}){
   resultHost.querySelectorAll('[data-quote-select-carrier]').forEach(node=>{
    const active=node.dataset.quoteSelectCarrier===carrier;
    node.setAttribute('aria-pressed',String(active));
-   node.textContent=active?'Seleccionada':'Elegir '+(node.dataset.quoteSelectCarrier==='ENVIA'?'ENVÍA':'TCC');
+   node.textContent=active?'Seleccionada':'Elegir '+(node.dataset.quoteSelectCarrier==='ENVIA'?'ENVÍA':node.dataset.quoteSelectCarrier==='LOCAL'?'LOCAL':'TCC');
    node.closest('[data-offer-carrier]')?.classList.toggle('freight-offer-selected',active);
   });
   notice(available?'Transportadora seleccionada. Puedes guardar esta cotización.':'Esta transportadora no tiene un precio suficiente. Puedes guardar un borrador.');
@@ -215,9 +234,13 @@ export async function renderFreightQuotes(root,context={}){
   link:async(id,number)=>{await api.freightQuoteLink(id,number);await loadHistory();},
   duplicate:q=>{
    run(async()=>{
-    invalidate();form.elements.carrier.value=q.input.carrier||'TCC';syncCarrier();form.elements.origin.value=q.input.origin;
+    invalidate();form.elements.carrier.value=q.input.carrier||'TCC';syncCarrier();form.elements.origin.value=q.input.carrier==='LOCAL'?'TULUA':q.input.origin;
     form.elements.department.value=q.input.department;form.elements.declaredValue.value=q.input.declaredValue??'';
-    await destinations(q.input.department,q.input.destinationKey);
+    if(q.input.carrier!=='LOCAL')await destinations(q.input.department,q.input.destinationKey);
+     form.elements.localDestinationCode.value=q.input.localDestinationCode||'';
+     form.elements.localUnloadingCost.value=q.input.localUnloadingCost??0;
+     form.elements.localDiversionCost.value=q.input.localDiversionCost??0;
+     form.elements.localExtraReason.value=q.input.localExtraReason||'';
     replaceMaterials(restoreMeasurements(q.input));
     notice('Copia preparada. Calcula o guarda un borrador.');setWorkspace('quote');form.scrollIntoView({behavior:'smooth'});
    });
@@ -230,8 +253,12 @@ export async function renderFreightQuotes(root,context={}){
   if(button.dataset.quoteView){dialogs.showDetails(q,button);return;}
   if(button.dataset.quoteLink){dialogs.showLink(q,button);return;}
   run(async()=>{
-   invalidate();form.elements.carrier.value=q.input.carrier||'TCC';syncCarrier();form.elements.origin.value=q.input.origin;form.elements.department.value=q.input.department;form.elements.declaredValue.value=q.input.declaredValue??'';
-   await destinations(q.input.department,q.input.destinationKey);
+   invalidate();form.elements.carrier.value=q.input.carrier||'TCC';syncCarrier();form.elements.origin.value=q.input.carrier==='LOCAL'?'TULUA':q.input.origin;form.elements.department.value=q.input.department;form.elements.declaredValue.value=q.input.declaredValue??'';
+   if(q.input.carrier!=='LOCAL')await destinations(q.input.department,q.input.destinationKey);
+     form.elements.localDestinationCode.value=q.input.localDestinationCode||'';
+     form.elements.localUnloadingCost.value=q.input.localUnloadingCost??0;
+     form.elements.localDiversionCost.value=q.input.localDiversionCost??0;
+     form.elements.localExtraReason.value=q.input.localExtraReason||'';
    replaceMaterials(restoreMeasurements(q.input));
    notice('Copia preparada. Calcula o guarda un nuevo borrador.');setWorkspace('quote');form.scrollIntoView({behavior:'smooth'});
   });
@@ -240,7 +267,7 @@ export async function renderFreightQuotes(root,context={}){
  try{
   const data=await api.freightQuoteCatalog();
   form.elements.origin.innerHTML=options(data.origins||[]);form.elements.origin.value=data.modelOrigin||'';
-  form.elements.department.innerHTML=options(data.departments||[]);await loadHistory();
+  form.elements.department.innerHTML=options(data.departments||[]);syncRouteMode();await loadHistory();
   if(context.params?.orderId){
    const orderData=await api.getOrder(context.params.orderId),order=orderData.order;
    replaceMaterials(quoteOrderMaterials(orderData));
