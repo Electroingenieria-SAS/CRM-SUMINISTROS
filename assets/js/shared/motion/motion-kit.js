@@ -71,7 +71,9 @@ export function createMotionKit(root){
   root.addEventListener('click',e=>{const button=e.target.closest?.('[data-freight-help]');if(button&&e.detail!==0){e.preventDefault();tooltip?hideTooltip():void showTooltip(button);}}, {signal:events.signal});
   root.addEventListener('keydown',e=>{if(e.key==='Escape')hideTooltip();}, {signal:events.signal});
  }
+ function suspendMaterialMotion(){listController?.disable?.();}
+ function resumeMaterialMotion(){queueMicrotask(()=>{if(active())listController?.enable?.();});}
  function dispose(){disposed=true;events.abort();clearAnimations();hideTooltip();listController?.disable?.();}
  wireHelp();
- return {enableMaterialMotion,revealResults,highlightMoney,hideTooltip,dispose};
+ return {enableMaterialMotion,suspendMaterialMotion,resumeMaterialMotion,revealResults,highlightMoney,hideTooltip,dispose};
 }
