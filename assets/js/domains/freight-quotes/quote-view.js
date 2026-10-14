@@ -1,6 +1,6 @@
 import {referenceCardHtml} from "./quote-reference-view.js";
 import {localFreightCardHtml} from './local-freight-card.js';
-import {LOCAL_DISPATCH_TARIFFS,currencyCOP} from '../logistics/local-dispatch/tariffs.js';
+import {localRoutePickerHtml} from '../logistics/local-dispatch/local-route-picker.js';
 // Preserve the existing Orders freight module graph without rendering the
 // redundant historical comparison section on the quote page.
 import {freightPredictionsHtml} from "../orders/freight/freight-display.js";
@@ -27,9 +27,7 @@ export function quoteView(){return `<section class="freight-quotes">
 <span class="freight-city-magnifier" aria-hidden="true">⌕</span><div id="freight-city-options" class="freight-city-results" data-destination-options role="listbox" hidden></div></div>
 <select id="freight-destination-select" class="freight-native-select" name="destinationKey" aria-label="Municipio / localidad y centro operativo" tabindex="-1" disabled><option value="">Selecciona</option></select>
 <small class="freight-field-note" data-destination-feedback>Selecciona un departamento para comenzar.</small></div><div class="freight-local-route-panel" data-local-controls hidden>
-<label class="freight-local-route-field"><span>Ruta local · matriz interna</span>
-<select class="control" name="localDestinationCode" aria-label="Destino de transporte local" disabled>
-<option value="">Selecciona una ruta local</option>${[...new Set(LOCAL_DISPATCH_TARIFFS.map(row=>row.category))].map(group=>'<optgroup label="'+esc(group)+'">'+LOCAL_DISPATCH_TARIFFS.filter(x=>x.category===group).map(row=>'<option value="'+esc(row.code)+'">'+esc(row.code)+' · '+currencyCOP(row.base)+'</option>').join('')+'</optgroup>').join('')}</select></label>
+${localRoutePickerHtml("", "localDestinationCode", "freight-local-route")}
 <div class="freight-local-fields"><label>Auxiliar / descargue (COP)<input class="control" type="number" inputmode="numeric" min="0" max="100000000" step="1" name="localUnloadingCost" value="0" disabled></label><label>Desvío o subruta urgente (COP)<input class="control" type="number" inputmode="numeric" min="0" max="100000000" step="1" name="localDiversionCost" value="0" disabled></label></div>
 <label class="freight-local-reason-field">Motivo del costo extraordinario<textarea class="control" name="localExtraReason" rows="2" maxlength="500" disabled placeholder="Ej. auxiliar contratado para descargue o subruta urgente"></textarea></label>
 <p class="freight-local-help">Rutas desde Tuluá. Tarifa base hasta 1.000 kg; kilo adicional del 1.001 al 2.500. Valores de la matriz interna de Luis Ibarra. El costo de descargue y las subrutas se registran aparte.</p>
