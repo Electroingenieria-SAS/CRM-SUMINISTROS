@@ -1,4 +1,6 @@
 import "./platform-observability.js";
+import {installCRMVisualSystem} from "./shared/motion/crm-visual-system.js";
+installCRMVisualSystem();
 /* CRM Suministros V11.34.5 · Runtime auditado
    Canonical composition root: cross-cutting runtime enhancements load once,
    then the application core boots through main.js. */
