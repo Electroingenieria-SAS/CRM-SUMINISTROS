@@ -1,6 +1,6 @@
 import {referenceCardHtml} from "./quote-reference-view.js";
 import {localFreightCardHtml} from './local-freight-card.js';
-import {LOCAL_DISPATCH_TARIFFS,currencyCOP} from '../logistics/local-dispatch/tariffs.js';
+import {localRoutePickerHtml} from '../logistics/local-dispatch/local-route-picker.js';
 // Preserve the existing Orders freight module graph without rendering the
 // redundant historical comparison section on the quote page.
 import {freightPredictionsHtml} from "../orders/freight/freight-display.js";
@@ -14,6 +14,12 @@ export function quoteView(){return `<section class="freight-quotes">
 <nav class="freight-view-nav freight-premium-nav" role="tablist" aria-label="Vistas de cotización"><button class="freight-view-tab" type="button" role="tab" id="freight-tab-new" aria-controls="freight-panel-new" aria-selected="true" data-view-tab="quote">Nueva cotización</button><button class="freight-view-tab" type="button" role="tab" id="freight-tab-history" aria-controls="freight-panel-history" aria-selected="false" data-view-tab="history">Historial <span data-history-tab-count aria-hidden="true">0</span></button></nav><div data-quote-workspace role="tabpanel" id="freight-panel-new" aria-labelledby="freight-tab-new">
 <div class="freight-notice" role="note"><strong>Precios orientativos.</strong> Las transportadoras conservan sus propios datos. El valor se confirma al despachar.</div>
 <form data-quote-form class="freight-quote-form">
+<section class="freight-scope-picker" aria-labelledby="freight-scope-heading">
+<div class="freight-scope-heading"><span class="freight-scope-eyebrow">TIPO DE ENVÍO</span><h2 id="freight-scope-heading">¿Tu envío es local o nacional?</h2><p>Selecciona primero la modalidad y verás únicamente los campos que necesitas.</p></div>
+<div class="freight-scope-actions" role="group" aria-label="Tipo de envío">
+<button type="button" class="freight-scope-option" data-quote-scope="NATIONAL" aria-pressed="true"><span class="freight-scope-icon" aria-hidden="true">↗</span><span><strong>Envío nacional</strong><small>Cotizar con TCC o ENVÍA</small></span><span class="freight-scope-check" aria-hidden="true">✓</span></button>
+<button type="button" class="freight-scope-option" data-quote-scope="LOCAL" aria-pressed="false"><span class="freight-scope-icon" aria-hidden="true">▣</span><span><strong>Cotizar flete local</strong><small>54 rutas desde Tuluá · tarifa fija por destino</small></span><span class="freight-scope-check" aria-hidden="true">✓</span></button>
+</div></section>
 <section class="freight-panel freight-step-panel"><div class="freight-step-heading"><span class="freight-step-number" aria-hidden="true">1</span><div><h2>¿A dónde enviaremos?</h2><p>Selecciona el recorrido real del envío.</p></div><span class="freight-step-tag">Ruta</span></div>
 <div class="freight-route-grid"><label>Origen<select class="control" name="origin" aria-label="Origen efectivo" required></select></label><label data-national-route>Departamento<select class="control" name="department" aria-label="Departamento" required><option value="">Selecciona</option></select></label>
 <div class="freight-destination-field" data-national-route><label for="freight-destination-search">Municipio de destino</label>
@@ -21,9 +27,7 @@ export function quoteView(){return `<section class="freight-quotes">
 <span class="freight-city-magnifier" aria-hidden="true">⌕</span><div id="freight-city-options" class="freight-city-results" data-destination-options role="listbox" hidden></div></div>
 <select id="freight-destination-select" class="freight-native-select" name="destinationKey" aria-label="Municipio / localidad y centro operativo" tabindex="-1" disabled><option value="">Selecciona</option></select>
 <small class="freight-field-note" data-destination-feedback>Selecciona un departamento para comenzar.</small></div><div class="freight-local-route-panel" data-local-controls hidden>
-<label class="freight-local-route-field"><span>Ruta local · matriz interna</span>
-<select class="control" name="localDestinationCode" aria-label="Destino de transporte local" disabled>
-<option value="">Selecciona una ruta local</option>${[...new Set(LOCAL_DISPATCH_TARIFFS.map(row=>row.category))].map(group=>'<optgroup label="'+esc(group)+'">'+LOCAL_DISPATCH_TARIFFS.filter(x=>x.category===group).map(row=>'<option value="'+esc(row.code)+'">'+esc(row.code)+' · '+currencyCOP(row.base)+'</option>').join('')+'</optgroup>').join('')}</select></label>
+${localRoutePickerHtml("", "localDestinationCode", "freight-local-route")}
 <div class="freight-local-fields"><label>Auxiliar / descargue (COP)<input class="control" type="number" inputmode="numeric" min="0" max="100000000" step="1" name="localUnloadingCost" value="0" disabled></label><label>Desvío o subruta urgente (COP)<input class="control" type="number" inputmode="numeric" min="0" max="100000000" step="1" name="localDiversionCost" value="0" disabled></label></div>
 <label class="freight-local-reason-field">Motivo del costo extraordinario<textarea class="control" name="localExtraReason" rows="2" maxlength="500" disabled placeholder="Ej. auxiliar contratado para descargue o subruta urgente"></textarea></label>
 <p class="freight-local-help">Rutas desde Tuluá. Tarifa base hasta 1.000 kg; kilo adicional del 1.001 al 2.500. Valores de la matriz interna de Luis Ibarra. El costo de descargue y las subrutas se registran aparte.</p>

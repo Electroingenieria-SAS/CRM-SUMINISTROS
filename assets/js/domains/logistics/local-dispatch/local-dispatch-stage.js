@@ -6,19 +6,14 @@ import { workflowHeader } from "../shipping/ui/workflow-header.js";
 import { workspace, destinationCard } from "../shipping/ui/workspace.js";
 import { latestDelivery } from "../shipping/shared/shipping-status.js";
 import { destination } from "../shipping/routes/shipping-routes.js";
-import { LOCAL_DISPATCH_TARIFFS,LOCAL_DISPATCH_BRANCHES,calculateLocalDispatch,currencyCOP,latestInvoiceDefaults,suggestedDestination } from "./tariffs.js";
+import { LOCAL_DISPATCH_BRANCHES,calculateLocalDispatch,currencyCOP,latestInvoiceDefaults,suggestedDestination,tariffFor } from "./tariffs.js";
+import {localRoutePickerHtml,bindLocalRoutePicker} from "./local-route-picker.js";
 
 function bogotaDate(){
   return new Intl.DateTimeFormat("en-CA",{timeZone:"America/Bogota",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
 }
 function localTrip(delivery){return delivery?.metadata?.localDispatch||null}
 function option(value,label,current){return `<option value="${fmt.escape(value)}" ${value===current?"selected":""}>${fmt.escape(label)}</option>`}
-function tariffOptions(current){
-  const groups=new Map();
-  LOCAL_DISPATCH_TARIFFS.forEach(row=>{if(!groups.has(row.zone))groups.set(row.zone,[]);groups.get(row.zone).push(row)});
-  const labels={TULUA_CERCANAS:'Tuluá y poblaciones cercanas',NORTE_VALLE_IBARRA:'Ruta norte del Valle',SUR_VALLE_IBARRA:'Ruta sur del Valle'};
-  return [...groups].map(([zone,rows])=>`<optgroup label="${fmt.escape(labels[zone]||zone)}">${rows.map(row=>option(row.code,`${row.code} · ${currencyCOP(row.base)}`,current)).join("")}</optgroup>`).join("");
-}
 function initialValues(data){
   const delivery=latestDelivery(data),stored=localTrip(delivery)||{},invoice=latestInvoiceDefaults(data.invoices||[]);
   const city=stored.cityDestination||suggestedDestination(data.order.client_city||data.order.metadata?.clientCity)||"";
@@ -37,7 +32,11 @@ function initialValues(data){
   };
 }
 function formHtml(data,values,place){
-  return `<div class="shipping-core-task-head-v11107"><div><span class="shipping-core-task-kicker-v11107">PASO 2 · DESPACHO LOCAL</span><h4>Cargue y liquidación del flete</h4><p>Selecciona la ruta, registra el peso y revisa el costo calculado con la matriz interna de 54 destinos. Los cambios posteriores se registran con trazabilidad.</p></div><span class="shipping-core-step-badge-v11107">Paso 2 de 3</span></div>
+  return `<div class="shipping-core-task-head-v11107"><div><span class="shipping-core-task-kicker-v11107">PASO 2 · DESPACHO LOCAL</span><h4>Cargue y liquidación</h4><p>Primero registra el viaje; abre el cotizador solo cuando necesites seleccionar la ruta o revisar recargos.</p></div><span class="shipping-core-step-badge-v11107">Paso 2 de 3</span></div>
+    <div class="local-dispatch-quote-entry" aria-label="Cotizador de transporte local">
+      <div><span class="local-dispatch-mode-tag">TIPO DE ENVÍO · LOCAL</span><h5>Precio por ruta y peso</h5><p>Tarifas internas desde Tuluá. Los envíos nacionales se cotizan aparte en TCC o ENVÍA.</p><small data-local-quote-status>Elige un destino para calcular.</small></div>
+      <div class="local-dispatch-quote-action"><strong data-local-quote-price>Por cotizar</strong><button type="button" class="btn btn-primary" data-local-quote-toggle aria-expanded="false" aria-controls="local-dispatch-quote-details">Cotizar flete local <span aria-hidden="true">↗</span></button></div>
+    </div>
     ${destinationCard(place,"Destino registrado por Ventas")}
     <section class="local-dispatch-form-v1145" data-local-dispatch-form>
       <section class="local-dispatch-block-v1146">
@@ -46,16 +45,17 @@ function formHtml(data,values,place){
           <label><span>Fecha de salida *</span><input class="control" type="date" name="tripDate" value="${fmt.escape(values.date)}" required></label>
           <label><span>Factura *</span><input class="control" name="invoiceNumber" value="${fmt.escape(values.invoiceNumber)}" required><small>Precargada desde Facturación cuando está disponible.</small></label>
           <label><span>Sucursal / asesor *</span><select class="control" name="branch" required>${LOCAL_DISPATCH_BRANCHES.map(code=>option(code,code,values.branch)).join("")}</select></label>
-          <label><span>Destino tarifario *</span><select class="control" name="cityDestination" required><option value="">Selecciona destino</option>${tariffOptions(values.city)}</select></label>
           <label><span>Peso total (kg) *</span><input class="control" type="number" min="0.001" step="0.001" name="weightKg" value="${values.weightKg||""}" required><small>Se precarga desde Facturación. Al cambiar el peso, el precio se actualiza automáticamente.</small></label>
           <label><span>Placa del vehículo *</span><input class="control" name="vehiclePlate" maxlength="20" value="${fmt.escape(values.vehiclePlate)}" placeholder="Ej. ABC123" required></label>
           <label><span>Conductor *</span><input class="control" name="driverName" maxlength="120" value="${fmt.escape(values.driverName)}" placeholder="Nombre del conductor" required></label>
           <label class="local-dispatch-wide-v1145"><span>Observaciones de salida</span><textarea class="control" name="observations" rows="2" maxlength="1000">${fmt.escape(values.observations)}</textarea></label>
         </div>
       </section>
-      <section class="local-dispatch-block-v1146 cost">
-        <header><div><small>COSTOS INICIALES DEL VIAJE</small><h5>Liquidación antes del despacho</h5></div><span>Estos valores forman el costo original</span></header>
-        <div class="local-dispatch-initial-costs-v1146">
+      <section class="local-dispatch-block-v1146 cost local-dispatch-quote-panel" data-local-quote-panel id="local-dispatch-quote-details" hidden>
+        <header><div><small>COTIZACIÓN DE FLETE LOCAL</small><h5>Selecciona una ruta</h5></div><span>Hasta 2.500 kg · origen Tuluá</span></header>
+        ${localRoutePickerHtml(values.city)}
+        <div class="local-dispatch-extra-heading"><div><strong>Recargos opcionales</strong><small>Auxiliar, descargue y subrutas especiales</small></div><button type="button" class="btn" data-local-extra-toggle aria-expanded="${values.unloadingCost+values.diversionCost>0}" aria-controls="local-dispatch-extra-fields">+ Agregar recargo</button></div>
+        <div class="local-dispatch-initial-costs-v1146" id="local-dispatch-extra-fields" data-local-extra-panel ${values.unloadingCost+values.diversionCost>0?"":"hidden"}>
           <label><span>Auxiliar / descargue inicial</span><input class="control" type="number" min="0" step="1" name="unloadingCost" value="${values.unloadingCost}"><small>Regístralo aquí solo si ya se conoce antes de despachar.</small></label>
           <label><span>Desvío / subruta urgente</span><input class="control" type="number" min="0" step="1" name="diversionCost" value="${values.diversionCost}"><small>Los costos posteriores se agregan desde Gestión de costos.</small></label>
         </div>
@@ -88,6 +88,10 @@ function preview(root){
   root.querySelector("[data-trip-extra-kg]").textContent=`${new Intl.NumberFormat("es-CO",{maximumFractionDigits:3}).format(calc.extraKg)} kg`;
   root.querySelector("[data-trip-extra-cost]").textContent=currencyCOP(calc.extraCost);
   root.querySelector("[data-trip-total]").textContent=calc.available?currencyCOP(calc.total):"Sin tarifa";
+  const route=tariffFor(payload.ciudadDestino);
+  const summary=root.closest('.shipping-core-v11107');
+  if(summary?.querySelector('[data-local-quote-price]'))summary.querySelector('[data-local-quote-price]').textContent=calc.available?currencyCOP(calc.total):'Por cotizar';
+  if(summary?.querySelector('[data-local-quote-status]'))summary.querySelector('[data-local-quote-status]').textContent=route?route.code+' · '+fmt.number(payload.pesoKg,3)+' kg':'Selecciona un destino para calcular.';
   const warning=root.querySelector('[data-local-matrix-warning]');
   const reason=calc.reason==='PESO_FUERA_DE_RANGO'
    ?'Esta ruta solo tiene tarifa documentada hasta 2.500 kg. Solicita una liquidación especial.'
@@ -115,14 +119,30 @@ export function renderLocalDispatchStage(host,data,{reload,refreshLists}={}){
   const delivery=latestDelivery(data),place=destination(delivery,data.order),values=initialValues(data);
   shell(host,data,`${workflowHeader(data,"GUIDE",delivery)}${workspace(data,"GUIDE",formHtml(data,values,place),place)}`,{nextLabel:values.persisted?"Enviar a cierre":"Guardar y enviar a cierre"});
   const form=host.querySelector("[data-local-dispatch-form]");
+  const quotePanel=form.querySelector('[data-local-quote-panel]');
+  const quoteButton=host.querySelector('[data-local-quote-toggle]');
+  const openQuote=open=>{
+   quotePanel.hidden=!open;
+   quoteButton.setAttribute('aria-expanded',String(open));
+   if(open)quotePanel.scrollIntoView?.({block:'nearest',behavior:'smooth'});
+  };
+  quoteButton.addEventListener('click',()=>openQuote(quotePanel.hidden));
+  const extraButton=form.querySelector('[data-local-extra-toggle]');
+  const extraPanel=form.querySelector('[data-local-extra-panel]');
+  extraButton.addEventListener('click',()=>{
+   extraPanel.hidden=!extraPanel.hidden;
+   extraButton.setAttribute('aria-expanded',String(!extraPanel.hidden));
+   extraButton.textContent=extraPanel.hidden?'+ Agregar recargo':'Ocultar recargos';
+  });
+  bindLocalRoutePicker(form);
   let dirty=!values.persisted;
   const mark=()=>{dirty=true;preview(form);const state=form.querySelector("[data-local-save-state]");if(state)state.textContent="Cambios pendientes de guardar."};
-  form?.querySelectorAll("input,select,textarea").forEach(control=>control.addEventListener("input",mark));
+  form?.querySelectorAll("input,select,textarea").forEach(control=>control.addEventListener("input",event=>{if(!event.target.matches("[data-local-route-query]"))mark();}));
   preview(form);
   const save=async()=>{
     const payload=readPayload(form);
     const tariff=calculateLocalDispatch(payload.ciudadDestino,payload.pesoKg,payload.costoDescargue,payload.costoDesvio);
-    if(!tariff.available)throw new Error("La matriz local no permite liquidar este peso o destino.");
+    if(!tariff.available){openQuote(true);throw new Error("Selecciona una ruta y registra un peso válido en Cotizar flete local.");}
     if(payload.costoDescargue+payload.costoDesvio>0&&payload.observaciones.trim().length<8)throw new Error("Describe el motivo del auxiliar o subruta en Observaciones.");
     if(!payload.fecha||!payload.numeroFactura||!payload.sucursal||!payload.ciudadDestino||!(payload.pesoKg>0)||!payload.vehiculoPlaca||!payload.conductor)throw new Error("Completa fecha, factura, sucursal, destino, peso, placa y conductor.");
     const result=await api.localDispatchSave(data.order.id,payload);

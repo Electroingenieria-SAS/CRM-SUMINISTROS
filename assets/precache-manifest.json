@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": "6f01a615895d9834",
-  "sourceBytes": 2821942,
+  "revision": "d31c21b2b92f669e",
+  "sourceBytes": 2842944,
   "assets": [
     "./assets/css/analytics.css",
     "./assets/css/base/accessibility.css",
@@ -341,6 +341,7 @@
     "./assets/js/domains/logistics/local-dispatch/cost-adjustments.js",
     "./assets/js/domains/logistics/local-dispatch/local-dispatch-ledger.js",
     "./assets/js/domains/logistics/local-dispatch/local-dispatch-stage.js",
+    "./assets/js/domains/logistics/local-dispatch/local-route-picker.js",
     "./assets/js/domains/logistics/local-dispatch/local-tariff-data.js",
     "./assets/js/domains/logistics/local-dispatch/tariffs.js",
     "./assets/js/domains/logistics/operational/carrier-guide-dialog.js",

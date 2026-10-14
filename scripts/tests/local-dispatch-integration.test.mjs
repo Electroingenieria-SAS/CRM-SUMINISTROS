@@ -68,3 +68,22 @@ test("API expone únicamente RPC autenticados del nuevo dominio",async()=>{
   const api=await source("assets/js/services/api.js");
   for(const token of ["erp_x_local_dispatch_save","erp_x_local_dispatch_trips","erp_x_local_dispatch_return"])assert.match(api,new RegExp(token));
 });
+
+
+test("selector local muestra las 54 rutas en buscador agrupado y cotizador contraíble",async()=>{
+ const {localRoutePickerHtml}=await import("../../assets/js/domains/logistics/local-dispatch/local-route-picker.js");
+ const html=localRoutePickerHtml("SAN PEDRO");
+ const stage=await source("assets/js/domains/logistics/local-dispatch/local-dispatch-stage.js");
+ const css=await source("assets/css/modules/logistics/local-dispatch.css");
+ assert.match(html,/data-local-route-query/);
+ assert.match(html,/data-local-route-menu/);
+ assert.match(html,/data-local-route-trigger/);
+ assert.match(html,/SAN PEDRO/);
+ assert.equal((html.match(/<option value=/g)||[]).length,55);
+ assert.match(stage,/data-local-quote-toggle/);
+ assert.match(stage,/bindLocalRoutePicker/);
+ assert.match(stage,/data-local-extra-toggle/);
+ assert.match(stage,/latestInvoiceDefaults/);
+ assert.match(css,/local-route-menu/);
+ assert.match(css,/local-dispatch-quote-entry/);
+});

@@ -6,7 +6,7 @@ export function mountFreightQuoteOrderEntry(host,data){
  const button=document.createElement('button');
  button.type='button';button.className='btn order-freight-action';
  button.dataset.orderFreightQuote='';button.textContent='Cotización de fletes';
- button.onclick=()=>{host.replaceChildren();navigate('freight_quotes',{orderId:data.order.id});};
+ button.onclick=()=>{const local=data.order.current_step_code==='LOCAL_DISPATCH'||data.order.delivery_route_code==='LOCAL_DISPATCH';host.replaceChildren();navigate('freight_quotes',{orderId:data.order.id,shippingScope:local?'LOCAL':'NATIONAL'});};
  // Keep the existing close control in its dedicated, rightmost header position.
  const close=target.querySelector(':scope > [data-close]');
  target.classList.add('order-freight-action-head');
