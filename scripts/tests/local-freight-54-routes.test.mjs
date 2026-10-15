@@ -70,7 +70,7 @@ test('no overwrite TCC/ENVIA data, local save bound to server and cost changes r
  assert.match(two,/v_tariff\.source_version/);
  assert.match(two,/tariffVersion/);
  assert.match(stage,/calculateLocalDispatch/);
- assert.match(stage,/data-local-matrix-warning/);
+ assert.match(text("assets/js/domains/logistics/local-dispatch/local-quote-drawer.js"),/data-local-matrix-warning/);
  assert.match(audit,/AYUDANTE/);
  assert.match(audit,/DESVIO/);
  assert.match(audit,/Justificación del cambio/);
