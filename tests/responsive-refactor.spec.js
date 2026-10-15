@@ -78,3 +78,52 @@ test('despacho local mantiene controles alineados en filas iguales y sin desbord
   expect(overflow).toBeLessThanOrEqual(2);
  }
 });
+
+
+test('cotizador local se abre en drawer, conserva tarifa y devuelve foco al despacho',async({page})=>{
+ await page.goto('/');
+ await page.evaluate(async()=>{
+  const {renderLocalDispatchStage}=await import('/assets/js/domains/logistics/local-dispatch/local-dispatch-stage.js');
+  const host=document.createElement('div');host.id='local-drawer-fixture';document.body.append(host);
+  renderLocalDispatchStage(host,{
+   order:{id:'drawer-test',order_number:'PRUEBA LOCAL',client_name:'PRUEBA',delivery_route_code:'LOCAL_DISPATCH',current_step_code:'LOCAL_DISPATCH',client_city:'SAN PEDRO',metadata:{clientDepartment:'VALLE DEL CAUCA',clientCity:'SAN PEDRO',clientAddress:'PRUEBA'}},
+   invoices:[{invoice_number:'FV-PRUEBA',package_weight_kg:20}],deliveries:[],tasks:[],actions:{}
+  },{});
+ });
+ const modal=page.locator('#local-drawer-fixture .local-dispatch-modal-aligned');
+ const trigger=modal.locator('[data-local-quote-toggle]');
+ const drawer=modal.locator('[data-local-quote-panel]');
+ const overlay=modal.locator('[data-local-quote-overlay]');
+ await expect(modal.locator('.shipping-core-summary-v11107')).toHaveCount(0);
+ await expect(modal.locator('.local-dispatch-quote-entry')).toHaveCount(0);
+ await expect(trigger).toBeVisible();
+ await expect(overlay).toBeHidden();
+ await expect(modal.locator('[name="weightKg"]')).toHaveValue('20');
+ await trigger.click();
+ await expect(drawer).toBeVisible();
+ await expect(trigger).toHaveAttribute('aria-expanded','true');
+ await expect(modal.locator('.shipping-process-body')).toHaveAttribute('inert','');
+ await expect(drawer.locator('[data-local-route-category]')).toHaveValue('TULUA_CERCANAS');
+ await expect(drawer.locator('[name="cityDestination"]')).toHaveValue('SAN PEDRO');
+ const price=drawer.locator('[data-trip-total]');
+ await expect(price).not.toHaveText('$0');
+ await drawer.locator('[data-local-extra-toggle]').click();
+ await drawer.locator('[name="unloadingCost"]').fill('12000');
+ await expect(modal.locator('[data-local-quote-price]')).toContainText('$');
+ await drawer.locator('[data-local-route-category]').selectOption('NORTE_VALLE_IBARRA');
+ await expect(drawer.locator('[name="cityDestination"]')).toHaveValue('');
+ await expect(modal.locator('[data-save-local-dispatch]')).toBeDisabled();
+ await page.keyboard.press('Escape');
+ await expect(overlay).toBeHidden();
+ await expect(trigger).toBeFocused();
+ await expect(modal.locator('.shipping-process-body')).not.toHaveAttribute('inert','');
+ for(const width of [1440,1024,430]){
+  await page.setViewportSize({width,height:840});
+  await trigger.click();
+  const bounds=await drawer.boundingBox();
+  expect(bounds.width).toBeLessThanOrEqual(width);
+  expect(bounds.x).toBeGreaterThanOrEqual(0);
+  await drawer.locator('[data-local-quote-dismiss]').first().click();
+  await expect(overlay).toBeHidden();
+ }
+});
