@@ -1,4 +1,3 @@
-import {fmt} from '../../../core/format.js';
 import {localRoutePickerHtml} from './local-route-picker.js';
 
 export function localQuoteDrawerHtml(values){
