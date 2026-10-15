@@ -60,8 +60,10 @@ test("historial conserva retorno, cierre, Excel y PDF dentro de Despachos",async
   assert.match(ledger,/window\.XLSX/);
   assert.match(ledger,/window\.jspdf/);
   assert.match(queue,/renderLocalDispatchLedger/);
-  assert.match(index,/jspdf\/2\.5\.1/);
-  assert.match(index,/jspdf-autotable\/3\.5\.31/);
+  const vendors=await source("assets/js/integrations/documents/optional-vendors.js");
+  assert.match(vendors,/jspdf\/2\.5\.1/);
+  assert.match(vendors,/jspdf-autotable\/3\.5\.31/);
+  assert.doesNotMatch(index,/<script[^>]+jspdf/i);
 });
 
 test("API expone únicamente RPC autenticados del nuevo dominio",async()=>{
