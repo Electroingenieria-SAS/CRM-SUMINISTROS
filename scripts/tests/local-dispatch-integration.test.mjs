@@ -71,7 +71,7 @@ test("API expone únicamente RPC autenticados del nuevo dominio",async()=>{
 
 
 test("selector local muestra las 54 rutas en buscador agrupado y cotizador contraíble",async()=>{
- const {localRoutePickerHtml}=await import("../../assets/js/domains/logistics/local-dispatch/local-route-picker.js");
+ const {localRoutePickerHtml,LOCAL_ROUTE_CATEGORIES}=await import("../../assets/js/domains/logistics/local-dispatch/local-route-picker.js");
  const html=localRoutePickerHtml("SAN PEDRO");
  const stage=await source("assets/js/domains/logistics/local-dispatch/local-dispatch-stage.js");
  const css=await source("assets/css/modules/logistics/local-dispatch.css");
@@ -79,7 +79,20 @@ test("selector local muestra las 54 rutas en buscador agrupado y cotizador contr
  assert.match(html,/data-local-route-menu/);
  assert.match(html,/data-local-route-trigger/);
  assert.match(html,/SAN PEDRO/);
- assert.equal((html.match(/<option value=/g)||[]).length,55);
+ assert.equal(LOCAL_ROUTE_CATEGORIES.length,3);
+ assert.match(html,/1\. Categoría de ruta/);
+ assert.match(html,/2\. Destino tarifario/);
+ assert.match(html,/data-local-route-category/);
+ assert.match(html,/value="TULUA_CERCANAS" selected/);
+ assert.equal((html.match(/<option value=/g)||[]).length,LOCAL_DISPATCH_TARIFFS.filter(row=>row.zone==='TULUA_CERCANAS').length+LOCAL_ROUTE_CATEGORIES.length+2);
+ assert.doesNotMatch(html,/value="ARMENIA"/);
+ const empty=localRoutePickerHtml();
+ assert.match(empty,/Selecciona primero la categoría/);
+ assert.doesNotMatch(empty,/value="SAN PEDRO"/);
+ const northern=localRoutePickerHtml('ARMENIA');
+ assert.match(northern,/value="NORTE_VALLE_IBARRA" selected/);
+ assert.match(northern,/value="ARMENIA" selected/);
+ assert.doesNotMatch(northern,/value="SAN PEDRO"/);
  assert.match(stage,/data-local-quote-toggle/);
  assert.match(stage,/bindLocalRoutePicker/);
  assert.match(stage,/data-local-extra-toggle/);
