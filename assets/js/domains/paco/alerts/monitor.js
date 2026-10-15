@@ -1,6 +1,6 @@
 import { state } from "../../../core/state.js";
 import { fmt } from "../../../core/format.js";
-import { MONITOR_MS, SHIPPING_STEPS } from "../paco-config.js";
+import { MONITOR_MS, SHIPPING_STEPS, IDLE_ALERT_COOLDOWN_MS } from "../paco-config.js";
 import { paco } from "../paco-state.js";
 import { readLastDigest } from "./digest-storage.js";
 import { isManager, profileId, timeLabel, duration } from "../context/profile-context.js";
@@ -45,14 +45,15 @@ export function monitorThresholds(snapshot,initial=false){
   });
 
   if(isManager()){
-    idleAuxiliaries(snapshot).slice(0,initial?2:6).forEach(person=>{
+    idleAuxiliaries(snapshot).slice(0,initial?2:6).forEach((person,index)=>{
       const key=`idle:${person.id}`;
-      if(!alertAllowed(key))return;
+      if(!alertAllowed(key,IDLE_ALERT_COOLDOWN_MS))return;
       showProactive({
         title:"20 min sin actividad",
         text:`${person.name} lleva ${duration(person.idleSeconds)} sin actividad registrada. Está disponible para nueva asignación.`,
         tone:"info",
-        voice:!initial,
+        voice:false,
+        showToast:index===0,
         actions:[{label:"Ver estado del equipo",action:"team",icon:"◷"},{label:"Abrir Jornada",action:"navigate",module:"workforce"}]
       });
     });
