@@ -16,6 +16,10 @@ export const LONG_ACTIVITY_SECONDS=5400;
 
 export const ALERT_COOLDOWN_MS=30*60*1000;
 
+// Short, non-stacking hints. Repeated idle events are low urgency.
+export const PACO_TOAST_DURATION_MS=6000;
+export const IDLE_ALERT_COOLDOWN_MS=2*60*60*1000;
+
 export const DIGEST_ORDER_LIMIT=12;
 
 export const MANAGER_ROLES=new Set(["super_admin","gerencia","jefe_logistica","lider_logistica","coordinador_logistico"]);
