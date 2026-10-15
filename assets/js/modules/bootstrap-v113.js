@@ -47,7 +47,13 @@ function installGlobalGuideV1197(){
   ensure();
   const app=document.querySelector("#app");
   if(!app)return;
-  const observer=new MutationObserver(()=>ensure());
+  // Coalesce DOM mutation bursts into one guide-toolbar lookup per frame.
+  let scheduled=false;
+  const observer=new MutationObserver(()=>{
+    if(scheduled)return;
+    scheduled=true;
+    requestAnimationFrame(()=>{scheduled=false;ensure()});
+  });
   observer.observe(app,{childList:true,subtree:true});
 }
 
