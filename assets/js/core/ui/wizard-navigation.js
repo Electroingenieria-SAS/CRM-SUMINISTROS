@@ -39,8 +39,13 @@ wizardState.next.onclick=async()=>{
       if(valid===false)return;
       if(wizardState.index<wizardState.steps.length-1){await wizardState.show(wizardState.index+1);return;}
       wizardState.next.disabled=true;wizardState.prev.disabled=true;
-      await wizardState.onFinish?.({root:wizardState.root,form:wizardState.form,data,index:wizardState.index});
-      wizardState.close();
+      const outcome=await wizardState.onFinish?.({root:wizardState.root,form:wizardState.form,data,index:wizardState.index});
+      // Only close the same wizard after successful completion; false means stay on this step.
+      if(outcome!==false&&wizardState.form.isConnected&&wizardState.root.contains(wizardState.form))wizardState.close();
+      else if(outcome===false&&wizardState.next.isConnected){
+        wizardState.next.disabled=false;
+        wizardState.prev.disabled=wizardState.index===0;
+      }
     }catch(error){
       toast(error.message||String(error),"error",6500);
       wizardState.next.disabled=false;wizardState.prev.disabled=wizardState.index===0;
