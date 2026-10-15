@@ -1,3 +1,4 @@
+import {loadSheetJs} from "../../../integrations/documents/spreadsheet-runtime.js";
 import { toast } from "../../../core/ui.js";
 import { fmt } from "../../../core/format.js";
 import { rpc } from "../data/history-rpc.js";
@@ -9,7 +10,7 @@ export async function exportHistory(format){
     const data=await rpc("erp_x_history_export",{p_payload:filtersPayload({limit:5000})});
     const rows=data?.rows||[];if(!rows.length){toast("No hay registros para exportar.","error");return}
     if(format==="xlsx"){
-      if(!window.XLSX){toast("El motor Excel no está disponible.","error");return}
+      await loadSheetJs();
       const wb=window.XLSX.utils.book_new();window.XLSX.utils.book_append_sheet(wb,window.XLSX.utils.json_to_sheet(rows),"Historico");window.XLSX.writeFile(wb,`CRM_Historico_${new Date().toISOString().slice(0,10)}.xlsx`,{compression:true});
     }else downloadCsv(rows,`CRM_Historico_${new Date().toISOString().slice(0,10)}.csv`);
     toast(`${fmt.number(rows.length)} registro(s) exportados.`);

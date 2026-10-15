@@ -1,3 +1,4 @@
+import {loadInventoryLabels,loadScannerFallback} from "../integrations/documents/optional-vendors.js";
 import {state} from "../core/state.js";
 import {modal,toast,closeDialog,loading,empty} from "../core/ui.js";
 import {fmt} from "../core/format.js";
@@ -7,6 +8,7 @@ import {navigate} from "../core/router.js";
 let installed=false;
 let deepLinkHandled="";
 let receiptEnhanceTimer=null;
+let inventoryEnhanceTimer=null;
 
 async function rpc(name,params={}){
   const {data,error}=await getSupabase().rpc(name,params);
@@ -51,7 +53,10 @@ export function installInventoryScanV116(){
   scheduleReceiptEnhance();
 }
 
-function scheduleEnhance(){setTimeout(enhanceInventoryPage,0)}
+function scheduleEnhance(){
+  if(inventoryEnhanceTimer!==null)return;
+  inventoryEnhanceTimer=setTimeout(()=>{inventoryEnhanceTimer=null;enhanceInventoryPage()},70);
+}
 function scheduleReceiptEnhance(){
   clearTimeout(receiptEnhanceTimer);
   receiptEnhanceTimer=setTimeout(enhanceReceiptDetail,40);
@@ -143,6 +148,9 @@ export async function openInventoryScanner(){
       raf=requestAnimationFrame(detect);
       return;
     }
+    if(!window.ZXingBrowser?.BrowserMultiFormatReader){
+      try{await loadScannerFallback()}catch(error){console.warn("[CRM SCANNER] Fallback no disponible",error)}
+    }
     if(window.ZXingBrowser?.BrowserMultiFormatReader){
       status.textContent="Cámara activa · lector compatible";
       const reader=new window.ZXingBrowser.BrowserMultiFormatReader();
@@ -204,7 +212,7 @@ async function openItemLabels(itemId){
     });
     const section=view.root.querySelector(".v116-label-head")?.parentElement||view.root;
     section.setAttribute("data-v116-label-section","");section._v116LabelData=scannable.map(normalizeLotForLabel);
-    renderInlineCodes(view.root);
+    await renderInlineCodes(view.root);
   }catch(error){toast(error.message,"error",7500)}
 }
 
@@ -233,12 +241,13 @@ async function enhanceReceiptDetail(){
     section.innerHTML=`<header><div><span>ETIQUETAS GENERADAS AUTOMÁTICAMENTE</span><strong>QR + código de barras por lote ingresado</strong><p>El QR abre directamente este lote en Inventario desde la cámara del celular.</p></div><button type="button" class="btn btn-primary" data-v116-print-all>Imprimir todas</button></header><div class="v116-label-grid">${lines.map(labelCardHtml).join("")}</div>`;
     const detail=root.querySelector(".v115-detail-lines");
     (detail||hero).insertAdjacentElement("afterend",section);
-    renderInlineCodes(section);
+    await renderInlineCodes(section);
     hero.dataset.v116Labels="ready";
   }catch(error){hero.dataset.v116Labels="";console.warn("[CRM RECEIPT LABELS]",error)}
 }
 
-function renderInlineCodes(scope){
+async function renderInlineCodes(scope){
+  await loadInventoryLabels();
   scope.querySelectorAll("[data-v116-code]").forEach(card=>{
     const code=card.dataset.v116Code;
     const svg=card.querySelector("[data-v116-barcode]");
@@ -249,11 +258,11 @@ function renderInlineCodes(scope){
 }
 
 function printLotLabel(lot){printAllLabels([lot])}
-function printAllLabels(lots){
+async function printAllLabels(lots){
   const rows=(lots||[]).filter(lot=>lot?.scanCode);
   if(!rows.length)return toast("No hay etiquetas disponibles para imprimir.","error");
   try{
-    if(!window.JsBarcode||!window.qrcode)throw new Error("Los componentes de códigos aún no están disponibles.");
+    await loadInventoryLabels();
     const labels=rows.map(lot=>{
       const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
       window.JsBarcode(svg,lot.scanCode,{format:"CODE128",displayValue:true,height:50,margin:3,fontSize:12});

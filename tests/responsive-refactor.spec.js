@@ -127,3 +127,29 @@ test('cotizador local se abre en drawer, conserva tarifa y devuelve foco al desp
   await expect(overlay).toBeHidden();
  }
 });
+
+
+test('proveedores opcionales no bloquean login y se descargan una sola vez al solicitarlos',async({page})=>{
+ const optional=[];
+ page.on('request',request=>{
+  if(/xlsx\.full\.min|jspdf|jsbarcode|qrcode\.min|@zxing\/browser/i.test(request.url()))optional.push(request.url());
+ });
+ await page.goto('/');
+ await expect(page.getByRole('heading',{name:'Ingresa a CRM Suministros'})).toBeVisible();
+ expect(optional).toHaveLength(0);
+ await page.route('**/jsbarcode@3.11.6/**',route=>route.fulfill({
+  status:200,contentType:'application/javascript',body:'window.JsBarcode=function(){};'
+ }));
+ await page.route('**/qrcode-generator@1.4.4/**',route=>route.fulfill({
+  status:200,contentType:'application/javascript',body:'window.qrcode=function(){};'
+ }));
+ const result=await page.evaluate(async()=>{
+  const {loadInventoryLabels}=await import('/assets/js/integrations/documents/optional-vendors.js');
+  await Promise.all([loadInventoryLabels(),loadInventoryLabels()]);
+  return {barcode:typeof window.JsBarcode,qr:typeof window.qrcode,
+   scripts:document.querySelectorAll('script[data-crm-optional-vendor]').length};
+ });
+ expect(result).toEqual({barcode:'function',qr:'function',scripts:2});
+ expect(optional.filter(url=>/jsbarcode/i.test(url))).toHaveLength(1);
+ expect(optional.filter(url=>/qrcode-generator/i.test(url))).toHaveLength(1);
+});

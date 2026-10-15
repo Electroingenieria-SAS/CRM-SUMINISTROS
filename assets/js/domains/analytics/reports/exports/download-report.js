@@ -1,7 +1,7 @@
-import { toast } from "../../../../core/ui.js";
+import {loadSheetJs} from "../../../../integrations/documents/spreadsheet-runtime.js";
 
-export function downloadXlsx(sheets,name){
-  if(!window.XLSX){toast("El motor Excel aún no está disponible.","error");return}
+export async function downloadXlsx(sheets,name){
+  await loadSheetJs();
   const workbook=window.XLSX.utils.book_new();
   Object.entries(sheets).forEach(([sheetName,rows])=>window.XLSX.utils.book_append_sheet(workbook,window.XLSX.utils.json_to_sheet(rows||[]),sheetName.slice(0,31)));
   window.XLSX.writeFile(workbook,name,{compression:true});

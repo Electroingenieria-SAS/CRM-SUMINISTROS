@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": "aaa72041c3af7a5b",
-  "sourceBytes": 2872428,
+  "revision": "6c0d56c84c3bbd13",
+  "sourceBytes": 2875107,
   "assets": [
     "./assets/css/analytics.css",
     "./assets/css/base/accessibility.css",
@@ -611,6 +611,7 @@
     "./assets/js/domains/workforce/workforce-controller.js",
     "./assets/js/domains/workforce/workforce-state.js",
     "./assets/js/integrations/auditoria-erp/receiving-sync.js",
+    "./assets/js/integrations/documents/optional-vendors.js",
     "./assets/js/integrations/documents/spreadsheet-runtime.js",
     "./assets/js/integrations/drive/auth/crm-session.js",
     "./assets/js/integrations/drive/auth/google-download-token.js",

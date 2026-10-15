@@ -12,13 +12,13 @@ export async function exportDetail(format){
     const data=await rpc("erp_x_reports_export",{p_payload:{dataset:explorer.dataset,from:state.from,to:state.to,limit:5000}});
     const rows=data?.rows||[];
     if(!rows.length){toast("No hay filas para exportar.","error");return}
-    if(format==="xlsx")downloadXlsx({[DATASETS[explorer.dataset].label]:rows},`CRM_${explorer.dataset}_${state.from}_${state.to}.xlsx`);
+    if(format==="xlsx")await downloadXlsx({[DATASETS[explorer.dataset].label]:rows},`CRM_${explorer.dataset}_${state.from}_${state.to}.xlsx`);
     else downloadCsv(rows,`CRM_${explorer.dataset}_${state.from}_${state.to}.csv`);
     toast(`${fmt.number(rows.length)} fila(s) exportadas.`);
   }catch(error){toast(error.message,"error",7000)}
 }
 
-export function exportWorkbook(){
+export async function exportWorkbook(){
   if(!state.data)return;
   const data=state.data,summary=data.summary||{};
   const sheets={
@@ -35,7 +35,8 @@ export function exportWorkbook(){
     Asesores:data.dimensions?.sellers||[],
     Clientes:data.dimensions?.clients||[]
   };
-  downloadXlsx(sheets,`CRM_Analitica_${state.from}_${state.to}.xlsx`);
+  try{await downloadXlsx(sheets,`CRM_Analitica_${state.from}_${state.to}.xlsx`)}
+  catch(error){toast(error.message,"error",7000)}
 }
 
 export function exportJson(){
