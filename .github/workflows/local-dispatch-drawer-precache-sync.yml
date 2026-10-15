@@ -1,0 +1,25 @@
+name: Local dispatch drawer precache sync
+on:
+  push:
+    branches: [refactor/local-dispatch-drawer-workspace-20261015]
+permissions:
+  contents: write
+jobs:
+  sync:
+    if: "!contains(github.event.head_commit.message, '[precache-sync]')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Generate offline asset manifest and service-worker revision
+        run: npm run pwa:generate
+      - name: Commit and push generated assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/precache-manifest.json service-worker.js
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "chore(pwa): sync local drawer offline assets [precache-sync]"
+          git push origin HEAD:refactor/local-dispatch-drawer-workspace-20261015
