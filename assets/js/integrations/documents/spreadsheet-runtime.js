@@ -15,5 +15,6 @@ export async function loadSheetJs(){
     script.onerror=()=>reject(new Error("No fue posible cargar el lector de Excel. Revisa la conexión e inténtalo nuevamente."));
     document.head.append(script);
   });
+  sheetPromise=sheetPromise.catch(error=>{sheetPromise=null;throw error});
   return sheetPromise;
 }
