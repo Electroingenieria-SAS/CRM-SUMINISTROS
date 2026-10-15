@@ -1,3 +1,5 @@
+import {loadSheetJs} from "../../../integrations/documents/spreadsheet-runtime.js";
+import {loadPdfExporter} from "../../../integrations/documents/optional-vendors.js";
 import { api } from "../../../services/api.js";
 import { fmt } from "../../../core/format.js";
 import { loading,empty,modal,toast } from "../../../core/ui.js";
@@ -83,15 +85,16 @@ function exportMatrix(rows){
   }));
 }
 async function exportExcel(){
-  if(!window.XLSX)throw new Error("El exportador Excel no está disponible.");
   const rows=await exportRows();if(!rows.length)throw new Error("No hay viajes para exportar.");
+  await loadSheetJs();
   const wb=window.XLSX.utils.book_new(),ws=window.XLSX.utils.json_to_sheet(exportMatrix(rows));
   window.XLSX.utils.book_append_sheet(wb,ws,"Despachos locales");
   window.XLSX.writeFile(wb,`despachos-locales-${state.date||"historico"}.xlsx`);
 }
 async function exportPdf(){
   const rows=await exportRows();if(!rows.length)throw new Error("No hay viajes para exportar.");
-  const JsPDF=window.jspdf?.jsPDF;if(!JsPDF)throw new Error("El exportador PDF no está disponible.");
+  await loadPdfExporter();
+  const JsPDF=window.jspdf.jsPDF;
   const doc=new JsPDF({orientation:"landscape",unit:"mm",format:"a4"});
   doc.setFontSize(14);doc.text("CRM Suministros · Cierre de despachos locales",14,14);
   doc.setFontSize(9);doc.text(`Fecha: ${state.date||"Todas"} · Destino: ${state.destination||"Todos"}`,14,20);
