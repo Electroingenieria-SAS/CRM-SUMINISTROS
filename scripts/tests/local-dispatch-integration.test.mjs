@@ -95,10 +95,15 @@ test("selector local muestra las 54 rutas en buscador agrupado y cotizador contr
  assert.doesNotMatch(northern,/value="SAN PEDRO"/);
  assert.match(stage,/data-local-quote-toggle/);
  assert.match(stage,/bindLocalRoutePicker/);
- assert.match(stage,/data-local-extra-toggle/);
+ const drawer=await source("assets/js/domains/logistics/local-dispatch/local-quote-drawer.js");
+ assert.match(drawer,/data-local-extra-toggle/);
+ assert.match(drawer,/data-local-quote-overlay/);
+ assert.match(drawer,/localRoutePickerHtml/);
  assert.match(stage,/latestInvoiceDefaults/);
  assert.match(css,/local-route-menu/);
- assert.match(css,/local-dispatch-quote-entry/);
+ const workspace=await source("assets/css/modules/logistics/local-dispatch-workspace.css");
+ assert.match(workspace,/local-quote-drawer/);
+ assert.doesNotMatch(stage,/class="local-dispatch-quote-entry"/);
 });
 
 
@@ -121,4 +126,22 @@ test("modal de despacho local distribuye seis campos en dos filas rectas",async(
  assert.match(css,/grid-template-columns: repeat\(3,minmax\(0,1fr\)\)/);
  assert.match(css,/@media\(max-width:540px\)/);
  assert.match(operations,/local-dispatch-modal-alignment\.css/);
+});
+
+test("cotizador local abre un drawer fuera del scroll principal y sin CTA duplicada",async()=>{
+ const stage=await source("assets/js/domains/logistics/local-dispatch/local-dispatch-stage.js");
+ const drawer=await source("assets/js/domains/logistics/local-dispatch/local-quote-drawer.js");
+ const entry=await source("assets/js/domains/freight-quotes/quote-order-entry.js");
+ const style=await source("assets/css/modules/logistics/local-dispatch-workspace.css");
+ assert.match(stage,/insertAdjacentHTML\('beforeend',localQuoteDrawerHtml\(values\)\)/);
+ assert.match(stage,/dataset\.localQuoteToggle/);
+ assert.match(stage,/preview\(modal\)/);
+ assert.match(drawer,/role="dialog" aria-modal="true"/);
+ assert.match(drawer,/data-local-quote-dismiss/);
+ assert.match(drawer,/localRoutePickerHtml\(values\.city\)/);
+ assert.match(drawer,/name="unloadingCost"/);
+ assert.match(drawer,/name="diversionCost"/);
+ assert.match(entry,/querySelector\('\.local-dispatch-modal-aligned'\)/);
+ assert.match(style,/local-quote-overlay\[hidden\]/);
+ assert.match(style,/\[data-paco-toast-stack\]/);
 });
