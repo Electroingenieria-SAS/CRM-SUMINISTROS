@@ -65,8 +65,9 @@ test("historial de despachos separa original, ajustes y total definitivo",async(
 test("registro inicial del flete diferencia datos operativos y liquidación",async()=>{
   const stage=await source("assets/js/domains/logistics/local-dispatch/local-dispatch-stage.js");
   assert.match(stage,/DATOS DEL VIAJE/i);
-  assert.match(stage,/COTIZACIÓN DE FLETE LOCAL/i);
-  assert.match(stage,/data-local-quote-toggle/);
-  assert.match(stage,/Total inicial del flete/);
-  assert.match(stage,/posteriores al despacho/);
+  const drawer=await source("assets/js/domains/logistics/local-dispatch/local-quote-drawer.js");
+ assert.match(drawer,/Cotizar flete local/i);
+  assert.match(stage,/dataset\.localQuoteToggle/);
+  assert.match(drawer,/Total del flete/);
+  assert.match(drawer,/posteriores se gestionan/);
 });

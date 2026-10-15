@@ -2,12 +2,12 @@ import { api } from "../../../services/api.js";
 import { fmt } from "../../../core/format.js";
 import { toast } from "../../../core/ui.js";
 import { shell, bindFooter } from "../shipping/ui/shipping-shell.js";
-import { workflowHeader } from "../shipping/ui/workflow-header.js";
-import { workspace, destinationCard } from "../shipping/ui/workspace.js";
+import { workspace } from "../shipping/ui/workspace.js";
 import { latestDelivery } from "../shipping/shared/shipping-status.js";
 import { destination } from "../shipping/routes/shipping-routes.js";
 import { LOCAL_DISPATCH_BRANCHES,calculateLocalDispatch,currencyCOP,latestInvoiceDefaults,suggestedDestination,tariffFor } from "./tariffs.js";
-import {localRoutePickerHtml,bindLocalRoutePicker} from "./local-route-picker.js";
+import {bindLocalRoutePicker} from "./local-route-picker.js";
+import {localQuoteDrawerHtml,bindLocalQuoteDrawer} from "./local-quote-drawer.js";
 
 function bogotaDate(){
   return new Intl.DateTimeFormat("en-CA",{timeZone:"America/Bogota",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
@@ -33,11 +33,13 @@ function initialValues(data){
 }
 function formHtml(data,values,place){
   return `<div class="shipping-core-task-head-v11107"><div><span class="shipping-core-task-kicker-v11107">PASO 2 · DESPACHO LOCAL</span><h4>Cargue y liquidación</h4><p>Primero registra el viaje; abre el cotizador solo cuando necesites seleccionar la ruta o revisar recargos.</p></div><span class="shipping-core-step-badge-v11107">Paso 2 de 3</span></div>
-    <div class="local-dispatch-quote-entry" aria-label="Cotizador de transporte local">
-      <div><span class="local-dispatch-mode-tag">TIPO DE ENVÍO · LOCAL</span><h5>Precio por ruta y peso</h5><p>Tarifas internas desde Tuluá. Los envíos nacionales se cotizan aparte en TCC o ENVÍA.</p><small data-local-quote-status>Elige un destino para calcular.</small></div>
-      <div class="local-dispatch-quote-action"><strong data-local-quote-price>Por cotizar</strong><button type="button" class="btn btn-primary" data-local-quote-toggle aria-expanded="false" aria-controls="local-dispatch-quote-details">Cotizar flete local <span aria-hidden="true">↗</span></button></div>
-    </div>
-    ${destinationCard(place,"Destino registrado por Ventas")}
+    <section class="local-dispatch-route-strip" aria-label="Resumen de entrega y flete">
+      <div class="local-dispatch-route-address"><small>DESTINO REGISTRADO POR VENTAS</small>
+        <strong>${fmt.escape(place.municipality||"Municipio no registrado")}${place.department?", "+fmt.escape(place.department):""}</strong>
+        <span>${fmt.escape(place.address||"Dirección no registrada")}</span></div>
+      <div class="local-dispatch-route-quote"><small>FLETE LOCAL · ORIGEN TULUÁ</small>
+        <strong data-local-quote-price>Por cotizar</strong><span data-local-quote-status>Selecciona la ruta desde el cotizador.</span></div>
+    </section>
     <section class="local-dispatch-form-v1145" data-local-dispatch-form>
       <section class="local-dispatch-block-v1146">
         <header><div><small>DATOS DEL VIAJE</small><h5>Salida y vehículo</h5></div><span>Información operativa</span></header>
@@ -55,22 +57,6 @@ function formHtml(data,values,place){
           <p class="local-dispatch-prefill-help" id="local-dispatch-prefill-help"><span aria-hidden="true">✓</span> Factura y peso se precargan desde Facturación cuando están disponibles. Al cambiar el peso, el flete se recalcula automáticamente.</p>
           <label class="local-dispatch-wide-v1145 local-dispatch-observation-field"><span>Observaciones de salida</span><textarea class="control" name="observations" rows="2" maxlength="1000" placeholder="Información relevante del vehículo o del despacho">${fmt.escape(values.observations)}</textarea></label>
         </div>
-      </section>
-      <section class="local-dispatch-block-v1146 cost local-dispatch-quote-panel" data-local-quote-panel id="local-dispatch-quote-details" hidden>
-        <header><div><small>COTIZACIÓN DE FLETE LOCAL</small><h5>Selecciona una ruta</h5></div><span>Hasta 2.500 kg · origen Tuluá</span></header>
-        ${localRoutePickerHtml(values.city)}
-        <div class="local-dispatch-extra-heading"><div><strong>Recargos opcionales</strong><small>Auxiliar, descargue y subrutas especiales</small></div><button type="button" class="btn" data-local-extra-toggle aria-expanded="${values.unloadingCost+values.diversionCost>0}" aria-controls="local-dispatch-extra-fields">+ Agregar recargo</button></div>
-        <div class="local-dispatch-initial-costs-v1146" id="local-dispatch-extra-fields" data-local-extra-panel ${values.unloadingCost+values.diversionCost>0?"":"hidden"}>
-          <label><span>Auxiliar / descargue inicial</span><input class="control" type="number" min="0" step="1" name="unloadingCost" value="${values.unloadingCost}"><small>Regístralo aquí solo si ya se conoce antes de despachar.</small></label>
-          <label><span>Desvío / subruta urgente</span><input class="control" type="number" min="0" step="1" name="diversionCost" value="${values.diversionCost}"><small>Los costos posteriores se agregan desde Gestión de costos.</small></label>
-        </div>
-        <div class="local-dispatch-matrix-source">Precios de la matriz interna de Luis Ibarra · Base hasta 1.000 kg · Adicional de 1.001 a 2.500 kg</div><div class="local-dispatch-liquidation-v1145" aria-live="polite">
-          <article><small>Tarifa base</small><strong data-trip-base>$0</strong></article>
-          <article><small>Kilos extra (&gt; 1.000 kg)</small><strong data-trip-extra-kg>0 kg</strong></article>
-          <article><small>Costo kilos extra</small><strong data-trip-extra-cost>$0</strong></article>
-          <article class="total"><small>Total inicial del flete</small><strong data-trip-total>$0</strong></article>
-        </div>
-        <p data-local-matrix-warning class="local-dispatch-matrix-warning" role="status" hidden></p><div class="local-dispatch-post-cost-note-v1146"><strong>¿Apareció un costo después de enviar?</strong><span>Ayudantes, paradas, peajes, descargues, desvíos, parqueadero o esperas posteriores al despacho se registran como ajustes auditados, con justificación y máximo 3 revisiones.</span></div>
       </section>
       <div class="local-dispatch-form-actions-v1145">
         <span data-local-save-state>${values.persisted?"Cargue guardado · puedes ajustar los datos mientras el pedido permanezca en esta etapa.":"Aún no se ha registrado el cargue."}</span>
@@ -93,6 +79,7 @@ function preview(root){
   root.querySelector("[data-trip-extra-kg]").textContent=`${new Intl.NumberFormat("es-CO",{maximumFractionDigits:3}).format(calc.extraKg)} kg`;
   root.querySelector("[data-trip-extra-cost]").textContent=currencyCOP(calc.extraCost);
   root.querySelector("[data-trip-total]").textContent=calc.available?currencyCOP(calc.total):"Sin tarifa";
+  root.querySelector("[data-local-quote-weight]").textContent=`${fmt.number(payload.pesoKg,3)} kg`;
   const route=tariffFor(payload.ciudadDestino);
   const summary=root.closest('.shipping-core-v11107');
   if(summary?.querySelector('[data-local-quote-price]'))summary.querySelector('[data-local-quote-price]').textContent=calc.available?currencyCOP(calc.total):'Por cotizar';
@@ -122,33 +109,41 @@ export function localDispatchSummary(delivery){
 }
 export function renderLocalDispatchStage(host,data,{reload,refreshLists}={}){
   const delivery=latestDelivery(data),place=destination(delivery,data.order),values=initialValues(data);
-  shell(host,data,`${workflowHeader(data,"GUIDE",delivery)}${workspace(data,"GUIDE",formHtml(data,values,place),place)}`,{nextLabel:values.persisted?"Enviar a cierre":"Guardar y enviar a cierre"});
+  shell(host,data,workspace(data,"GUIDE",formHtml(data,values,place),place),{nextLabel:values.persisted?"Enviar a cierre":"Guardar y enviar a cierre"});
   host.querySelector(".shipping-core-v11107")?.classList.add("local-dispatch-modal-aligned");
-  const form=host.querySelector("[data-local-dispatch-form]");
-  const quotePanel=form.querySelector('[data-local-quote-panel]');
-  const quoteButton=host.querySelector('[data-local-quote-toggle]');
-  const openQuote=open=>{
-   quotePanel.hidden=!open;
-   quoteButton.setAttribute('aria-expanded',String(open));
-   if(open)quotePanel.scrollIntoView?.({block:'nearest',behavior:'smooth'});
-  };
-  quoteButton.addEventListener('click',()=>openQuote(quotePanel.hidden));
-  const extraButton=form.querySelector('[data-local-extra-toggle]');
-  const extraPanel=form.querySelector('[data-local-extra-panel]');
-  extraButton.addEventListener('click',()=>{
-   extraPanel.hidden=!extraPanel.hidden;
-   extraButton.setAttribute('aria-expanded',String(!extraPanel.hidden));
-   extraButton.textContent=extraPanel.hidden?'+ Agregar recargo':'Ocultar recargos';
-  });
-  bindLocalRoutePicker(form);
+  const modal=host.querySelector('.shipping-core-v11107');
+  modal.setAttribute('role','dialog');
+  modal.setAttribute('aria-modal','true');
+  modal.setAttribute('aria-label','Despacho local · Cargue y liquidación');
+  const form=modal.querySelector('[data-local-dispatch-form]');
+  modal.insertAdjacentHTML('beforeend',localQuoteDrawerHtml(values));
+  const top=modal.querySelector('.shipping-process-head');
+  const close=top.querySelector(':scope > [data-close]');
+  const quoteButton=document.createElement('button');
+  quoteButton.type='button';
+  quoteButton.className='btn btn-primary local-dispatch-header-quote';
+  quoteButton.dataset.localQuoteToggle='';
+  quoteButton.setAttribute('aria-controls','local-dispatch-quote-details');
+  quoteButton.setAttribute('aria-expanded','false');
+  quoteButton.textContent='Cotizar flete local ↗';
+  top.insertBefore(quoteButton,close);
+  const quoteDrawer=bindLocalQuoteDrawer(modal);
+  bindLocalRoutePicker(modal);
   let dirty=!values.persisted;
-  const mark=()=>{dirty=true;preview(form);const state=form.querySelector("[data-local-save-state]");if(state)state.textContent="Cambios pendientes de guardar."};
-  form?.querySelectorAll("input,select,textarea").forEach(control=>control.addEventListener("input",event=>{if(!event.target.matches("[data-local-route-query]"))mark();}));
-  preview(form);
+  const mark=()=>{
+   dirty=true;preview(modal);
+   const state=form.querySelector('[data-local-save-state]');
+   if(state)state.textContent='Cambios pendientes de guardar.';
+  };
+  modal.querySelectorAll('[data-local-dispatch-form] input,[data-local-dispatch-form] select,[data-local-dispatch-form] textarea,[data-local-quote-panel] input,[data-local-quote-panel] select')
+    .forEach(control=>control.addEventListener('input',event=>{
+     if(!event.target.matches('[data-local-route-query]'))mark();
+    }));
+  preview(modal);
   const save=async()=>{
-    const payload=readPayload(form);
+    const payload=readPayload(modal);
     const tariff=calculateLocalDispatch(payload.ciudadDestino,payload.pesoKg,payload.costoDescargue,payload.costoDesvio);
-    if(!tariff.available){openQuote(true);throw new Error("Selecciona una ruta y registra un peso válido en Cotizar flete local.");}
+    if(!tariff.available){quoteDrawer.open();throw new Error("Selecciona una ruta y registra un peso válido en Cotizar flete local.");}
     if(payload.costoDescargue+payload.costoDesvio>0&&payload.observaciones.trim().length<8)throw new Error("Describe el motivo del auxiliar o subruta en Observaciones.");
     if(!payload.fecha||!payload.numeroFactura||!payload.sucursal||!payload.ciudadDestino||!(payload.pesoKg>0)||!payload.vehiculoPlaca||!payload.conductor)throw new Error("Completa fecha, factura, sucursal, destino, peso, placa y conductor.");
     const result=await api.localDispatchSave(data.order.id,payload);

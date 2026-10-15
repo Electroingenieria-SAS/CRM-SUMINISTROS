@@ -2,6 +2,8 @@ import {can} from '../../core/state.js';
 import {navigate} from '../../core/router.js';
 export function mountFreightQuoteOrderEntry(host,data){
  if(!can('freight_quotes')||!data.order?.id)return;
+ // The local dispatch stage owns its quotation drawer. Do not inject a competing navigation CTA.
+ if(host.querySelector('.local-dispatch-modal-aligned'))return;
  const target=host.querySelector('.modal-head');if(!target||target.querySelector('[data-order-freight-quote]'))return;
  const button=document.createElement('button');
  button.type='button';button.className='btn order-freight-action';
