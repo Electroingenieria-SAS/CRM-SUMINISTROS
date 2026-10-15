@@ -1,5 +1,4 @@
 import {loadSheetJs} from "../../../../integrations/documents/spreadsheet-runtime.js";
-import { toast } from "../../../../core/ui.js";
 
 export async function downloadXlsx(sheets,name){
   await loadSheetJs();
