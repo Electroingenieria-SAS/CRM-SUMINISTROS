@@ -55,7 +55,7 @@ test('ventanas de repetición para inactividad y protección de avisos críticos
  assert.equal(alertAllowed('order:two'),false);
  const monitor=await source('assets/js/domains/paco/alerts/monitor.js');
  assert.match(monitor,/alertAllowed\(key,IDLE_ALERT_COOLDOWN_MS\)/);
- assert.match(monitor,/showToast:!initial&&index===0/);
+ assert.match(monitor,/showToast:index===0/);
  assert.match(monitor,/title:"Pedido demorado"/);
  const config=await source('assets/js/domains/paco/paco-config.js');
  assert.match(config,/PACO_TOAST_DURATION_MS=6000/);
