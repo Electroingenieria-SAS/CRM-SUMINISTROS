@@ -93,7 +93,7 @@ test("selector local muestra las 54 rutas en buscador agrupado y cotizador contr
  assert.match(northern,/value="NORTE_VALLE_IBARRA" selected/);
  assert.match(northern,/value="ARMENIA" selected/);
  assert.doesNotMatch(northern,/value="SAN PEDRO"/);
- assert.match(stage,/data-local-quote-toggle/);
+ assert.match(stage,/dataset\.localQuoteToggle/);
  assert.match(stage,/bindLocalRoutePicker/);
  const drawer=await source("assets/js/domains/logistics/local-dispatch/local-quote-drawer.js");
  assert.match(drawer,/data-local-extra-toggle/);
