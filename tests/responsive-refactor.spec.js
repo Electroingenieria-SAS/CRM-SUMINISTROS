@@ -37,3 +37,44 @@ test('shell and dialogs retain horizontal bounds, labels and keyboard focus',asy
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.getByLabel('Correo corporativo')).toBeFocused();
 });
+
+
+test('despacho local mantiene controles alineados en filas iguales y sin desbordes',async({page})=>{
+ await page.goto('/');
+ await page.evaluate(async()=>{
+  const {renderLocalDispatchStage}=await import('/assets/js/domains/logistics/local-dispatch/local-dispatch-stage.js');
+  const host=document.createElement('div');host.id='local-alignment-fixture';document.body.append(host);
+  renderLocalDispatchStage(host,{
+   order:{id:'layout-test',order_number:'PRUEBA NÚMERO 001',client_name:'PRUEBA',delivery_route_code:'LOCAL_DISPATCH',current_step_code:'LOCAL_DISPATCH',client_city:'SAN PEDRO',metadata:{clientDepartment:'VALLE DEL CAUCA',clientCity:'SAN PEDRO',clientAddress:'PRUEBA'}},
+   invoices:[{invoice_number:'FACTURA-1',package_weight_kg:20}],deliveries:[],tasks:[],actions:{}
+  },{});
+ });
+ const modal=page.locator('.shipping-core-v11107.local-dispatch-modal-aligned');
+ await expect(modal).toBeVisible();
+ const fields=['tripDate','invoiceNumber','branch','weightKg','vehiclePlate','driverName'];
+ for(const name of fields)await expect(modal.locator('[name="'+name+'"]')).toHaveCount(1);
+ for(const width of [1440,1024,430]){
+  await page.setViewportSize({width,height:900});
+  const boxes=await modal.locator('.local-dispatch-field-row').evaluateAll(rows=>rows.map(row=>
+   [...row.querySelectorAll('.control')].map(control=>{
+    const {x,y,width,height}=control.getBoundingClientRect();return {x,y,width,height};
+   })));
+  expect(boxes).toHaveLength(2);
+  expect(boxes[0]).toHaveLength(3);
+  expect(boxes[1]).toHaveLength(3);
+  for(const row of boxes)for(const field of row)expect(field.width).toBeGreaterThan(0);
+  if(width>=1024){
+   for(const row of boxes){
+    expect(Math.max(...row.map(field=>field.y))-Math.min(...row.map(field=>field.y))).toBeLessThan(2);
+    expect(Math.max(...row.map(field=>field.height))-Math.min(...row.map(field=>field.height))).toBeLessThan(2);
+   }
+   for(let i=0;i<3;i++)expect(Math.abs(boxes[0][i].x-boxes[1][i].x)).toBeLessThan(2);
+  }else{
+   expect(boxes[0][0].x).toBeCloseTo(boxes[0][1].x,0);
+   expect(boxes[0][1].y).toBeGreaterThan(boxes[0][0].y);
+   expect(boxes[1][0].y).toBeGreaterThan(boxes[0][2].y);
+  }
+  const overflow=await modal.evaluate(node=>node.scrollWidth-node.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(2);
+ }
+});
