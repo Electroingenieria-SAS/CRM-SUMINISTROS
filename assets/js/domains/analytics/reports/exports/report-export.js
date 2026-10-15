@@ -35,7 +35,8 @@ export async function exportWorkbook(){
     Asesores:data.dimensions?.sellers||[],
     Clientes:data.dimensions?.clients||[]
   };
-  await downloadXlsx(sheets,`CRM_Analitica_${state.from}_${state.to}.xlsx`);
+  try{await downloadXlsx(sheets,`CRM_Analitica_${state.from}_${state.to}.xlsx`)}
+  catch(error){toast(error.message,"error",7000)}
 }
 
 export function exportJson(){
