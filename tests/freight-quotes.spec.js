@@ -437,6 +437,12 @@ test('cotizador local: ruta Tuluá, peso, auxiliar y desvío sin contaminar TCC/
  await expect(page.locator('[data-local-controls]')).toBeVisible();
  await expect(page.locator('[data-national-route]').first()).toBeHidden();
  await expect(page.getByLabel('Origen efectivo')).toHaveValue('TULUA');
+ const zone=page.locator('[data-local-controls] [data-local-route-category]');
+ await expect(zone).toHaveValue('');
+ await expect(page.locator('[data-local-controls] [data-local-route-trigger]')).toBeDisabled();
+ await zone.selectOption('TULUA_CERCANAS');
+ await expect(page.locator('[data-local-controls] [data-local-route-trigger]')).toBeEnabled();
+ await expect(page.locator('[data-local-controls] .local-route-native option[value="ARMENIA"]')).toHaveCount(0);
  await page.locator('[data-local-controls] [data-local-route-trigger]').click();
  await expect(page.locator('[data-local-controls] [data-local-route-menu]')).toBeVisible();
  await page.locator('[data-local-controls] [data-local-route-query]').fill('San Pedro');
@@ -478,4 +484,26 @@ test('selector de modalidad distingue local y nacional sin perder TCC ni ENVÍA'
  await expect(page.locator('[data-local-controls]')).toBeHidden();
  await expect(page.locator('[data-carrier-choice="LOCAL"]')).toBeHidden();
  await expect(page.locator('[data-carrier-choice="ENVIA"]')).toHaveAttribute('aria-pressed','true');
+});
+
+
+test('categoría restringe destinos y limpia rutas anteriores al cambiar de zona',async({page})=>{
+ await mountQuotes(page);
+ await page.locator('button[data-quote-scope="LOCAL"]').click();
+ const zone=page.locator('[data-local-controls] [data-local-route-category]');
+ const picker=page.locator('[data-local-controls] [data-local-route-trigger]');
+ const destination=page.getByLabel('Destino de transporte local');
+ await zone.selectOption('NORTE_VALLE_IBARRA');
+ await picker.click();
+ await expect(page.locator('[data-local-controls] [data-local-route-choice="ARMENIA"]')).toBeVisible();
+ await expect(page.locator('[data-local-controls] [data-local-route-choice="SAN PEDRO"]')).toHaveCount(0);
+ await page.locator('[data-local-controls] [data-local-route-choice="ARMENIA"]').click();
+ await expect(destination).toHaveValue('ARMENIA');
+ await zone.selectOption('SUR_VALLE_IBARRA');
+ await expect(destination).toHaveValue('');
+ await expect(page.locator('[data-local-controls] .local-route-native option[value="ARMENIA"]')).toHaveCount(0);
+ await expect(page.locator('[data-local-controls] [data-local-route-selected]')).toContainText('Busca y selecciona');
+ await zone.selectOption('TULUA_CERCANAS');
+ await picker.click();
+ await expect(page.locator('[data-local-controls] [data-local-route-choice="SAN PEDRO"]')).toBeVisible();
 });

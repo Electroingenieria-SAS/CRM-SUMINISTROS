@@ -215,3 +215,23 @@
 @media(max-width:1050px){.local-dispatch-quote-entry{grid-template-columns:1fr}.local-dispatch-quote-action{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap}.shipping-core-v11107 .shipping-core-task-v11107{padding:15px}}
 @media(max-width:640px){.local-dispatch-quote-entry{padding:14px}.local-dispatch-quote-action{display:grid;justify-items:stretch}.local-dispatch-quote-action button{white-space:normal}.local-route-menu{left:-3px;right:-3px}.local-route-picker-title{display:grid}.local-dispatch-quote-panel{padding:12px!important}.local-route-item{font-size:.79rem}.local-dispatch-travel-block .local-dispatch-form-grid-v1145{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.local-dispatch-quote-panel *{scroll-behavior:auto!important}}
+
+
+/* Categoría → destino: dos campos independientes y dependientes (mismo UI en Despacho y Cotización). */
+.local-route-cascade{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+.local-route-category-field,.local-route-destination-field{display:grid;gap:8px;min-width:0}
+.local-route-destination-field{position:relative}
+.local-route-category-field>label,.local-route-destination-field>label{color:#244d74;font-size:.8rem;font-weight:850}
+.local-route-category-field>.control{width:100%;height:56px;min-width:0;padding:11px 37px 11px 14px;border:1px solid #aec9e6;border-radius:12px;background:#fff;color:#244d74;font-size:.87rem;font-weight:730}
+.local-route-category-field>.control:focus-visible{outline:3px solid #c9e4ff;outline-offset:2px;border-color:#187ac7}
+.local-route-category-field>.control:disabled{background:#f3f6fa;color:#8a99a8;cursor:not-allowed}
+.local-route-category-field>small{color:#6d849c;font-size:.72rem}
+.local-route-trigger:disabled{background:#f2f6fb;color:#8195a9;border-color:#d5e1ec;cursor:not-allowed;box-shadow:none;opacity:1}
+.local-route-trigger:disabled [data-local-route-selected]{font-weight:650;color:#8195a9}
+.local-route-feedback{margin:0;font-size:.74rem;line-height:1.45;color:#547590}
+.local-route-destination-field .local-route-menu{top:calc(100% + 6px)}
+.freight-quotes .local-route-cascade{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:690px){
+ .local-route-cascade,.freight-quotes .local-route-cascade{grid-template-columns:minmax(0,1fr)}
+ .local-route-destination-field .local-route-menu{left:0;right:0}
+}
