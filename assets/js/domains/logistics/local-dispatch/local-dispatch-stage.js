@@ -2,7 +2,6 @@ import { api } from "../../../services/api.js";
 import { fmt } from "../../../core/format.js";
 import { toast } from "../../../core/ui.js";
 import { shell, bindFooter } from "../shipping/ui/shipping-shell.js";
-import { workflowHeader } from "../shipping/ui/workflow-header.js";
 import { workspace } from "../shipping/ui/workspace.js";
 import { latestDelivery } from "../shipping/shared/shipping-status.js";
 import { destination } from "../shipping/routes/shipping-routes.js";
@@ -110,9 +109,12 @@ export function localDispatchSummary(delivery){
 }
 export function renderLocalDispatchStage(host,data,{reload,refreshLists}={}){
   const delivery=latestDelivery(data),place=destination(delivery,data.order),values=initialValues(data);
-  shell(host,data,`${workflowHeader(data,"GUIDE",delivery)}${workspace(data,"GUIDE",formHtml(data,values,place),place)}`,{nextLabel:values.persisted?"Enviar a cierre":"Guardar y enviar a cierre"});
+  shell(host,data,workspace(data,"GUIDE",formHtml(data,values,place),place),{nextLabel:values.persisted?"Enviar a cierre":"Guardar y enviar a cierre"});
   host.querySelector(".shipping-core-v11107")?.classList.add("local-dispatch-modal-aligned");
   const modal=host.querySelector('.shipping-core-v11107');
+  modal.setAttribute('role','dialog');
+  modal.setAttribute('aria-modal','true');
+  modal.setAttribute('aria-label','Despacho local · Cargue y liquidación');
   const form=modal.querySelector('[data-local-dispatch-form]');
   modal.insertAdjacentHTML('beforeend',localQuoteDrawerHtml(values));
   const top=modal.querySelector('.shipping-process-head');
