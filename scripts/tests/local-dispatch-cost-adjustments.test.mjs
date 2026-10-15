@@ -67,7 +67,7 @@ test("registro inicial del flete diferencia datos operativos y liquidación",asy
   assert.match(stage,/DATOS DEL VIAJE/i);
   const drawer=await source("assets/js/domains/logistics/local-dispatch/local-quote-drawer.js");
  assert.match(drawer,/Cotizar flete local/i);
-  assert.match(stage,/data-local-quote-toggle/);
+  assert.match(stage,/dataset\.localQuoteToggle/);
   assert.match(drawer,/Total del flete/);
   assert.match(drawer,/posteriores se gestionan/);
 });
