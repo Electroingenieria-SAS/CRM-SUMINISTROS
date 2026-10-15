@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": "674666a6830895e0",
-  "sourceBytes": 2875464,
+  "revision": "ce009ed52e78b7f8",
+  "sourceBytes": 2877081,
   "assets": [
     "./assets/css/analytics.css",
     "./assets/css/base/accessibility.css",
@@ -668,6 +668,8 @@
     "./assets/js/modules/order-cancellation.js",
     "./assets/js/modules/orders.js",
     "./assets/js/modules/picking-flow.js",
+    "./assets/js/modules/popup-explicit-action-policy.js",
+    "./assets/js/modules/popup-ux-field-behavior.js",
     "./assets/js/modules/popup-ux-v1190.js",
     "./assets/js/modules/queue.js",
     "./assets/js/modules/receiving-guide-v115.js",
