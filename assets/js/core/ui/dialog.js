@@ -59,11 +59,13 @@ export function modal({title,body,confirmLabel="Guardar",cancelLabel="Cancelar",
       confirm.disabled=true;
       const dialog=root.querySelector(".modal");
       if(!validatePanel(dialog)){confirm.disabled=false;return;}
-      await onConfirm?.(dialog);
-      close();
+      const outcome=await onConfirm?.(dialog);
+      // A validation can explicitly stop the flow; a callback can also open a new dialog.
+      if(outcome!==false&&dialog.isConnected&&root.contains(dialog))close();
     }catch(error){
       toast(error.message||String(error),"error",6500);
-      confirm.disabled=false;
+    }finally{
+      if(confirm.isConnected)confirm.disabled=false;
     }
   };
   return {root,close};

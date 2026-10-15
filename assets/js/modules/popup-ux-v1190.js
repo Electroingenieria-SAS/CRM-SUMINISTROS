@@ -1,4 +1,6 @@
 import {icon} from "../core/icons.js";
+import {decorateFields,bindValidation} from "./popup-ux-field-behavior.js";
+import {bindIntentionalConfirmation} from "./popup-explicit-action-policy.js";
 
 let observer=null;
 let scheduled=false;
@@ -69,8 +71,7 @@ function enhanceModal(modal){
     modal.dataset.popupUxV1190="1";
     installGuide(modal);
     bindValidation(modal);
-    bindAutomation(modal);
-    modal.querySelector(".commercial-wizard-assist")?.remove();
+    bindIntentionalConfirmation(modal);
   }
   decorateFields(modal);
   decorateButtons(modal);
@@ -81,6 +82,8 @@ function enhanceModal(modal){
 function installGuide(modal){
   const context=modalContext(modal);
   if(/gu[ií]a|ayuda|c[oó]mo gestionar|c[oó]mo usar/i.test(context)||modal.querySelector(".popup-process-guide-v1190"))return;
+  // Existing wizard introductions and operational guides already explain the task.
+  if(modal.querySelector(".wizard-step-intro,.shipping-core-task-head-v11107,.commercial-wizard-assist"))return;
   const head=modal.querySelector(".modal-head,[class*='process-head']");
   if(!head)return;
   const rule=ruleFor(modal);
@@ -92,94 +95,9 @@ function installGuide(modal){
   if(progress)progress.before(guide);else head.after(guide);
 }
 
-function decorateFields(modal){
-  modal.querySelectorAll(".field").forEach(field=>{
-    field.classList.add("popup-field-v1190");
-    const control=[...field.querySelectorAll("input,select,textarea")].find(item=>item.type!=="hidden");
-    if(!control)return;
-    const label=field.querySelector("label");
-    if(control.required&&label&&!/\*/.test(label.textContent||""))label.append(" *");
-    if(control.readOnly&&label&&!field.querySelector(".popup-auto-badge-v1190")){
-      const badge=document.createElement("span");badge.className="popup-auto-badge-v1190";badge.textContent="Automático";label.append(badge);
-    }
-    setInputHints(control);
-  });
-}
-
-function setInputHints(control){
-  if(control.dataset.popupInputHints)return;
-  control.dataset.popupInputHints="1";
-  const name=String(control.name||control.id||"").toLowerCase();
-  if(control.tagName!=="INPUT")return;
-  const type=String(control.type||"text").toLowerCase();
-  if(/phone|telefono|tel[eé]fono/.test(name)){control.inputMode="tel";if(!control.autocomplete)control.autocomplete="tel"}
-  else if(type==="number"||/amount|monto|valor|quantity|cantidad|qty|medida|peso/.test(name))control.inputMode="decimal";
-  if(/address|direcci[oó]n/.test(name)&&!control.autocomplete)control.autocomplete="street-address";
-  if(/city|municipio|ciudad/.test(name)&&!control.autocomplete)control.autocomplete="address-level2";
-  if(/department|departamento/.test(name)&&!control.autocomplete)control.autocomplete="address-level1";
-  if(/country|pa[ií]s/.test(name)&&!control.autocomplete)control.autocomplete="country-name";
-  if(["text","search","tel","email","url"].includes(type)&&!control.readOnly)control.addEventListener("blur",()=>{control.value=control.value.trim()});
-}
-
 function decorateButtons(modal){
   modal.querySelectorAll("[data-next],[data-confirm],[data-task-panel-confirm]").forEach(button=>button.classList.add("popup-primary-action-v1190"));
   modal.querySelectorAll("[data-prev]").forEach(button=>button.classList.add("popup-secondary-action-v1190"));
-}
-
-function bindValidation(modal){
-  if(modal.dataset.popupValidationBound)return;
-  modal.dataset.popupValidationBound="1";
-  modal.addEventListener("invalid",event=>{
-    const control=event.target;
-    if(!(control instanceof HTMLInputElement||control instanceof HTMLSelectElement||control instanceof HTMLTextAreaElement))return;
-    event.preventDefault();showValidation(modal,control);
-  },true);
-  modal.addEventListener("input",event=>clearValidation(event.target),true);
-  modal.addEventListener("change",event=>clearValidation(event.target),true);
-}
-
-function validationMessage(control){
-  if(control.validity.valueMissing)return"Completa este dato para continuar.";
-  if(control.validity.typeMismatch)return"Revisa el formato de este dato.";
-  if(control.validity.rangeUnderflow)return`El valor debe ser igual o mayor a ${control.min}.`;
-  if(control.validity.rangeOverflow)return`El valor debe ser igual o menor a ${control.max}.`;
-  if(control.validity.stepMismatch)return"Revisa el valor ingresado.";
-  if(control.validity.patternMismatch)return"El formato ingresado no es válido.";
-  return"Revisa este dato antes de continuar.";
-}
-
-function fieldName(control){
-  const label=control.closest(".field")?.querySelector("label")?.textContent?.replace(/Automático/g,"").replace(/\*/g,"").trim();
-  return label||control.getAttribute("aria-label")||control.name||"Dato requerido";
-}
-
-function showValidation(modal,control){
-  modal.querySelectorAll(".popup-validation-v1190").forEach(node=>node.remove());
-  modal.querySelectorAll(".popup-invalid-v1190").forEach(node=>{node.classList.remove("popup-invalid-v1190");node.removeAttribute("aria-invalid")});
-  control.classList.add("popup-invalid-v1190");control.setAttribute("aria-invalid","true");
-  const container=control.closest(".wizard-panel.active")?.querySelector(".wizard-step-content")||control.closest(".modal-task-panel-body,.modal-body")||modal;
-  const alert=document.createElement("div");alert.className="popup-validation-v1190";alert.setAttribute("role","alert");
-  alert.innerHTML=`<strong>Falta revisar un dato</strong><span>${fieldName(control)}: ${validationMessage(control)}</span>`;container.prepend(alert);
-  requestAnimationFrame(()=>{alert.scrollIntoView({block:"nearest",behavior:"smooth"});control.focus({preventScroll:true})});
-}
-
-function clearValidation(target){
-  if(!(target instanceof HTMLElement)||!target.classList.contains("popup-invalid-v1190"))return;
-  if(target.validity?.valid){target.classList.remove("popup-invalid-v1190");target.removeAttribute("aria-invalid");target.closest(".wizard-panel,.modal-body,.modal-task-panel-body")?.querySelector(".popup-validation-v1190")?.remove()}
-}
-
-function bindAutomation(modal){
-  if(modal.dataset.popupAutomationBound)return;
-  modal.dataset.popupAutomationBound="1";
-  modal.addEventListener("keydown",event=>{
-    if(event.key!=="Enter"||event.shiftKey||event.ctrlKey||event.altKey)return;
-    const target=event.target;
-    if(target instanceof HTMLTextAreaElement)return;
-    if(target instanceof HTMLInputElement&&["checkbox","radio","file","button","submit"].includes(target.type))return;
-    if(modal.classList.contains("wizard-modal"))return;
-    const confirm=modal.querySelector("[data-confirm]:not(:disabled),[data-task-panel-confirm]:not(:disabled)");
-    if(confirm){event.preventDefault();confirm.click()}
-  });
 }
 
 function syncWizard(modal){

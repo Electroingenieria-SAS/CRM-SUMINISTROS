@@ -39,7 +39,8 @@ export function taskPanel(host,{title,body,confirmLabel="Confirmar",cancelLabel=
     try{
       const outcome=await onConfirm?.(panel,button);
       if(outcome!==false&&wrapper.isConnected)close();
-    }catch(error){toast(error.message||String(error),"error",7000);button.disabled=false}
+    }catch(error){toast(error.message||String(error),"error",7000)}
+    finally{if(wrapper.isConnected)button.disabled=false}
   });
   requestAnimationFrame(()=>{const first=visibleFocusable(panel)[0];(first||panel).focus?.({preventScroll:true});});
   return {panel,close};
