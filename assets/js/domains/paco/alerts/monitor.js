@@ -53,7 +53,7 @@ export function monitorThresholds(snapshot,initial=false){
         text:`${person.name} lleva ${duration(person.idleSeconds)} sin actividad registrada. Está disponible para nueva asignación.`,
         tone:"info",
         voice:false,
-        showToast:!initial&&index===0,
+        showToast:index===0,
         actions:[{label:"Ver estado del equipo",action:"team",icon:"◷"},{label:"Abrir Jornada",action:"navigate",module:"workforce"}]
       });
     });
