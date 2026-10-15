@@ -100,3 +100,25 @@ test("selector local muestra las 54 rutas en buscador agrupado y cotizador contr
  assert.match(css,/local-route-menu/);
  assert.match(css,/local-dispatch-quote-entry/);
 });
+
+
+test("modal de despacho local distribuye seis campos en dos filas rectas",async()=>{
+ const stage=await source("assets/js/domains/logistics/local-dispatch/local-dispatch-stage.js");
+ const css=await source("assets/css/modules/logistics/local-dispatch-modal-alignment.css");
+ const operations=await source("assets/css/operations.css");
+ assert.match(stage,/local-dispatch-modal-aligned/);
+ assert.equal((stage.match(/data-trip-field-row=/g)||[]).length,2);
+ const first=stage.split('data-trip-field-row="primary"')[1].split('</div>')[0];
+ const second=stage.split('data-trip-field-row="vehicle"')[1].split('</div>')[0];
+ for(const name of ['tripDate','invoiceNumber','branch'])assert.match(first,new RegExp('name="'+name+'"'));
+ for(const name of ['weightKg','vehiclePlate','driverName'])assert.match(second,new RegExp('name="'+name+'"'));
+ assert.equal((first.match(/<label>/g)||[]).length,3);
+ assert.equal((second.match(/<label>/g)||[]).length,3);
+ assert.match(stage,/id="local-dispatch-prefill-help"/);
+ assert.match(stage,/aria-describedby="local-dispatch-prefill-help"/);
+ assert.match(stage,/name="observations"/);
+ assert.match(css,/local-dispatch-field-row/);
+ assert.match(css,/grid-template-columns: repeat\(3,minmax\(0,1fr\)\)/);
+ assert.match(css,/@media\(max-width:540px\)/);
+ assert.match(operations,/local-dispatch-modal-alignment\.css/);
+});

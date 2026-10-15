@@ -41,14 +41,19 @@ function formHtml(data,values,place){
     <section class="local-dispatch-form-v1145" data-local-dispatch-form>
       <section class="local-dispatch-block-v1146">
         <header><div><small>DATOS DEL VIAJE</small><h5>Salida y vehículo</h5></div><span>Información operativa</span></header>
-        <div class="local-dispatch-form-grid-v1145">
-          <label><span>Fecha de salida *</span><input class="control" type="date" name="tripDate" value="${fmt.escape(values.date)}" required></label>
-          <label><span>Factura *</span><input class="control" name="invoiceNumber" value="${fmt.escape(values.invoiceNumber)}" required><small>Precargada desde Facturación cuando está disponible.</small></label>
-          <label><span>Sucursal / asesor *</span><select class="control" name="branch" required>${LOCAL_DISPATCH_BRANCHES.map(code=>option(code,code,values.branch)).join("")}</select></label>
-          <label><span>Peso total (kg) *</span><input class="control" type="number" min="0.001" step="0.001" name="weightKg" value="${values.weightKg||""}" required><small>Se precarga desde Facturación. Al cambiar el peso, el precio se actualiza automáticamente.</small></label>
-          <label><span>Placa del vehículo *</span><input class="control" name="vehiclePlate" maxlength="20" value="${fmt.escape(values.vehiclePlate)}" placeholder="Ej. ABC123" required></label>
-          <label><span>Conductor *</span><input class="control" name="driverName" maxlength="120" value="${fmt.escape(values.driverName)}" placeholder="Nombre del conductor" required></label>
-          <label class="local-dispatch-wide-v1145"><span>Observaciones de salida</span><textarea class="control" name="observations" rows="2" maxlength="1000">${fmt.escape(values.observations)}</textarea></label>
+        <div class="local-dispatch-form-grid-v1145 local-dispatch-trip-grid">
+          <div class="local-dispatch-field-row" data-trip-field-row="primary">
+            <label><span>Fecha de salida *</span><input class="control" type="date" name="tripDate" value="${fmt.escape(values.date)}" required></label>
+            <label><span>Factura *</span><input class="control" name="invoiceNumber" value="${fmt.escape(values.invoiceNumber)}" aria-describedby="local-dispatch-prefill-help" required></label>
+            <label><span>Sucursal / asesor *</span><select class="control" name="branch" required>${LOCAL_DISPATCH_BRANCHES.map(code=>option(code,code,values.branch)).join("")}</select></label>
+          </div>
+          <div class="local-dispatch-field-row" data-trip-field-row="vehicle">
+            <label><span>Peso total (kg) *</span><input class="control" type="number" min="0.001" step="0.001" name="weightKg" value="${values.weightKg||""}" aria-describedby="local-dispatch-prefill-help" required></label>
+            <label><span>Placa del vehículo *</span><input class="control" name="vehiclePlate" maxlength="20" value="${fmt.escape(values.vehiclePlate)}" placeholder="Ej. ABC123" required></label>
+            <label><span>Conductor *</span><input class="control" name="driverName" maxlength="120" value="${fmt.escape(values.driverName)}" placeholder="Nombre del conductor" required></label>
+          </div>
+          <p class="local-dispatch-prefill-help" id="local-dispatch-prefill-help"><span aria-hidden="true">✓</span> Factura y peso se precargan desde Facturación cuando están disponibles. Al cambiar el peso, el flete se recalcula automáticamente.</p>
+          <label class="local-dispatch-wide-v1145 local-dispatch-observation-field"><span>Observaciones de salida</span><textarea class="control" name="observations" rows="2" maxlength="1000" placeholder="Información relevante del vehículo o del despacho">${fmt.escape(values.observations)}</textarea></label>
         </div>
       </section>
       <section class="local-dispatch-block-v1146 cost local-dispatch-quote-panel" data-local-quote-panel id="local-dispatch-quote-details" hidden>
@@ -118,6 +123,7 @@ export function localDispatchSummary(delivery){
 export function renderLocalDispatchStage(host,data,{reload,refreshLists}={}){
   const delivery=latestDelivery(data),place=destination(delivery,data.order),values=initialValues(data);
   shell(host,data,`${workflowHeader(data,"GUIDE",delivery)}${workspace(data,"GUIDE",formHtml(data,values,place),place)}`,{nextLabel:values.persisted?"Enviar a cierre":"Guardar y enviar a cierre"});
+  host.querySelector(".shipping-core-v11107")?.classList.add("local-dispatch-modal-aligned");
   const form=host.querySelector("[data-local-dispatch-form]");
   const quotePanel=form.querySelector('[data-local-quote-panel]');
   const quoteButton=host.querySelector('[data-local-quote-toggle]');
