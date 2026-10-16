@@ -536,14 +536,14 @@ test('historial premium aplica botones azules con texto blanco sin alterar contr
  }
  await expect(page.locator('[data-view-tab="history"]')).toHaveAttribute('aria-selected','true');
  await expect(page.locator('.freight-history-status')).toContainText('Calculada');
- await page.locator('[data-history-search]').fill('Prueba');
- await page.locator('[data-history-clear]').click();
- await expect(page.locator('[data-history-search]')).toHaveValue('');
  for(const width of [1440,390]){
   await page.setViewportSize({width,height:850});
   expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+1);
   await page.screenshot({path:testInfo.outputPath('freight-blue-history-'+width+'.png'),fullPage:true});
  }
+ await page.locator('[data-history-search]').fill('Prueba');
+ await page.locator('[data-history-clear]').click();
+ await expect(page.locator('[data-history-search]')).toHaveValue('');
  await page.getByRole('tab',{name:'Nueva cotización'}).click();
  await expect(page.locator('[data-quote-workspace]')).toBeVisible();
 });
