@@ -17,6 +17,8 @@ test('four canonical CSS families preserved; freight theme loaded last in experi
  ]);
  assert.match(experience,/@import "modules\/freight\/quote-action-system\.css";/);
  assert.equal(experience.split('quote-action-system.css').length,2,'freight imported once');
+ assert.match(experience,/@import "modules\\/freight\\/quote-interactive-states\\.css";/);
+ assert.ok(experience.indexOf('quote-interactive-states.css')<experience.indexOf('quote-action-system.css'));
  assert.match(experience.trimEnd(),/quote-action-system\.css";$/);
  assert.doesNotMatch(operations,/quote-action-system\.css/);
  assert.match(quoteView(),/GESTIÓN DE FLETES · HISTORIAL/);
