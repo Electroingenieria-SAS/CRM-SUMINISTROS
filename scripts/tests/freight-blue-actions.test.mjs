@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 import {quoteView,quoteHistoryHtml} from '../../assets/js/domains/freight-quotes/quote-view.js';
 
 const css=readFileSync(new URL('../../assets/css/modules/freight/quote-action-system.css',import.meta.url),'utf8');
+const states=readFileSync(new URL('../../assets/css/modules/freight/quote-interactive-states.css',import.meta.url),'utf8');
 const operations=readFileSync(new URL('../../assets/css/operations.css',import.meta.url),'utf8');
 const index=readFileSync(new URL('../../index.html',import.meta.url),'utf8');
 const experience=readFileSync(new URL('../../assets/css/experience.css',import.meta.url),'utf8');
@@ -20,8 +21,8 @@ test('four canonical CSS families preserved; freight theme loaded last in experi
  assert.doesNotMatch(operations,/quote-action-system\.css/);
  assert.match(quoteView(),/GESTIÓN DE FLETES · HISTORIAL/);
  assert.match(css,/\.freight-quotes/);
- assert.match(css,/--freight-action-blue: #1167b4/);
- assert.match(css,/--freight-action-hover: #094e91/);
+ assert.match(states,/--freight-action-blue: #1167b4/);
+ assert.match(states,/--freight-action-hover: #094e91/);
  assert.match(css,/color: #fff/);
  assert.match(css,/:focus-visible/);
  assert.match(css,/:disabled/);
@@ -50,11 +51,12 @@ test('supports mobile filters and actions without deleting native states',()=>{
  assert.match(css,/@media \(max-width: 900px\)/);
  assert.match(css,/@media \(max-width: 760px\)/);
  assert.match(css,/@media \(max-width: 440px\)/);
- assert.match(css,/aria-selected="true"/);
- assert.match(css,/aria-pressed="true"/);
+ assert.match(states,/aria-selected="true"/);
+ assert.match(states,/aria-pressed="true"/);
  assert.match(css,/not\(\[data-remove-line\]\)/);
- assert.ok(css.trimEnd().split('\n').length<=410);
-  assert.match(css,/aria-pressed="false"/);
-  assert.match(css,/--freight-action-idle: #ffffff/);
+ assert.ok(css.trimEnd().split('\n').length<=300);
+  assert.ok(states.trimEnd().split('\n').length<=300);
+  assert.match(states,/aria-pressed="false"/);
+  assert.match(states,/--freight-action-idle: #ffffff/);
   assert.match(css,/data-history-stat="visible"/);
 });
