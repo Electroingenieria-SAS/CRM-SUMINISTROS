@@ -20,7 +20,7 @@
 @media(max-width:1050px){.freight-comparison-grid{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:600px){.freight-reference-values{grid-template-columns:minmax(0,1fr)}}
 .freight-material-heading{display:flex;justify-content:space-between;gap:16px;align-items:start}.freight-unit-badge{background:#e8f1ff;color:#1855a3;border-radius:20px;padding:8px 16px;font-weight:700;white-space:nowrap}
-.freight-line{padding:20px;border:1px solid #dce3ed;border-radius:14px;background:#f8faff;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) auto}.freight-line>small{grid-column:1/-1;color:#61718a}.freight-mode{border:0;margin:0;padding:0;min-width:0}.freight-mode legend{font-size:.9rem;margin-bottom:8px}.freight-mode>div{display:flex;padding:4px;background:#e5ebf4;border-radius:10px;gap:4px}.freight-mode button{flex:1;border:0;background:transparent;border-radius:8px;padding:10px 12px;min-height:44px;cursor:pointer;color:#42526b;font-weight:600}.freight-mode button[aria-pressed=true]{background:#fff;color:#075ab2;box-shadow:0 2px 6px #183b6520}.freight-mode button:focus-visible{outline:2px solid #0965c3;outline-offset:2px}
+.freight-line{padding:20px;border:1px solid #dce3ed;border-radius:14px;background:#f8faff;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) auto}.freight-line>small{grid-column:1/-1;color:#61718a}.freight-mode{border:0;margin:0;padding:0;min-width:0}.freight-mode legend{font-size:.9rem;margin-bottom:8px}.freight-mode>div{display:flex;padding:4px;background:#e5ebf4;border-radius:10px;gap:4px}
 .freight-scenarios{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.freight-scenario{padding:16px;border:1px solid #dce3ed;border-radius:12px}.freight-scenario strong{display:block;font-size:1.2rem;margin:10px 0}.freight-scenario[data-greater=true]{border-color:#2373c8;background:#f0f6ff}.freight-scenario small{display:block;color:#5c6c85}
 @media(max-width:1050px){.freight-line{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.freight-line,.freight-scenarios{grid-template-columns:minmax(0,1fr)}.freight-line{padding:14px}.freight-material-heading{flex-direction:column}}
@@ -84,10 +84,8 @@
 .freight-line-tools [data-remove-line]{color:#a53b42}
 .freight-line-name,.freight-measure-field{min-width:0}
 .freight-mode legend{color:#36506a;font-weight:650;font-size:.84rem}
-.freight-mode button{transition:background .18s,color .18s}
-.freight-mode button[aria-pressed=true]{box-shadow:0 2px 8px rgba(17,65,121,.12)}
 .freight-line .freight-measure-hint{grid-column:1/-1;margin-top:-3px;font-size:.76rem;color:#617992;line-height:1.35}
-.freight-add-material{border:1px dashed #8fb6e0!important;background:#f5f9ff!important;color:#185a9d!important;min-height:44px;font-weight:700}
+
 .freight-action-bar{display:flex;align-items:center;justify-content:space-between;gap:18px;background:linear-gradient(110deg,#f0f6ff,#fff);border:1px solid #cbdff4;border-radius:18px;padding:17px 20px;margin-bottom:10px}
 .freight-action-caption{display:flex;flex-direction:column;gap:3px;min-width:0}
 .freight-action-caption strong{color:#1e456d;font-size:1rem}.freight-action-caption small{font-size:.77rem;color:#617891}
