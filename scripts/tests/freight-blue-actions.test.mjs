@@ -6,14 +6,18 @@ import {quoteView,quoteHistoryHtml} from '../../assets/js/domains/freight-quotes
 const css=readFileSync(new URL('../../assets/css/modules/freight/quote-action-system.css',import.meta.url),'utf8');
 const operations=readFileSync(new URL('../../assets/css/operations.css',import.meta.url),'utf8');
 const index=readFileSync(new URL('../../index.html',import.meta.url),'utf8');
+const experience=readFileSync(new URL('../../assets/css/experience.css',import.meta.url),'utf8');
 
-test('freight CSS has one cache-busted direct link after all other CRM sheets',()=>{
- const url='assets/css/modules/freight/quote-action-system.css?v=20261016-2';
- assert.ok(index.includes(url),'direct freight stylesheet link');
- assert.ok(index.indexOf(url)>index.indexOf('assets/css/experience.css'),'freight link must be last');
- assert.ok(index.includes('operations.css?v=20261016-1'),'operations import cache gets a new version');
+test('four canonical CSS families preserved; freight theme loaded last in experience',()=>{
+ const links=[...index.matchAll(/href="\.\/assets\/css\/([^"?]+)\?v=([^"]+)"/g)].map(m=>[m[1],m[2]]);
+ assert.deepEqual(links,[
+  ['core-shell.css','11.46.0'],['operations.css','11.46.0'],
+  ['analytics.css','11.46.0'],['experience.css','11.46.0']
+ ]);
+ assert.match(experience,/@import "modules\/freight\/quote-action-system\.css";/);
+ assert.equal(experience.split('quote-action-system.css').length,2,'freight imported once');
+ assert.match(experience.trimEnd(),/quote-action-system\.css";$/);
  assert.doesNotMatch(operations,/quote-action-system\.css/);
- assert.equal(index.split(url).length,2,'only one freight stylesheet');
  assert.match(quoteView(),/GESTIÓN DE FLETES · HISTORIAL/);
  assert.match(css,/\.freight-quotes/);
  assert.match(css,/--freight-action-blue: #1167b4/);
