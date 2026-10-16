@@ -63,4 +63,9 @@ test('supports mobile filters and actions without deleting native states',()=>{
   assert.match(css,/data-history-stat="visible"/);
   assert.ok(css.includes('background-image:none'));
   assert.ok(states.includes('.freight-carrier-segment > button[aria-pressed="false"]'));
+  // Regression: selection styles have a single owner instead of appended overrides.
+  assert.doesNotMatch(states,/Estados explícitos de los cuatro selectores/);
+  assert.match(states,/background-image: none/);
+  assert.doesNotMatch(readFileSync(new URL('../../assets/css/modules/freight/quote-motion.css',import.meta.url),'utf8'),/\.freight-view-tab\[aria-selected=true\]/);
+  assert.doesNotMatch(readFileSync(new URL('../../assets/css/modules/freight/quotes-enterprise.css',import.meta.url),'utf8'),/\.freight-offer-selected \.freight-offer-select/);
 });

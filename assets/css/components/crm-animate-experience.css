@@ -13,7 +13,6 @@
 @keyframes crm-toast-in{from{opacity:0;transform:translateY(-9px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
 :is(#app,#modal-root) button.btn-primary:not(:disabled){overflow:hidden}
 .crm-ui-ripple{position:absolute;display:block;left:0;top:0;border-radius:50%;background:currentColor;pointer-events:none;opacity:0;z-index:1}
-.freight-quotes .freight-preference-panel .freight-carrier-segment [aria-pressed=true]{box-shadow:0 8px 20px rgba(17,95,167,.13)}
 .freight-quotes .freight-results-heading>.freight-results-count{background:#e8f2fc;border:1px solid #cadff0}
 .freight-quotes .freight-calculate{position:relative;overflow:hidden}
 .freight-quotes .freight-calculate::after{content:"";position:absolute;inset:-120% -60%;background:linear-gradient(105deg,transparent 43%,rgba(255,255,255,.22) 50%,transparent 57%);transform:translateX(-75%);pointer-events:none}

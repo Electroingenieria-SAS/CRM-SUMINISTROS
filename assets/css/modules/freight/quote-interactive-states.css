@@ -17,7 +17,8 @@
 .freight-quotes .freight-premium-nav .freight-view-tab,
 .freight-quotes :is(.freight-scope-option, .freight-carrier-segment button, .freight-mode button),
 .freight-quotes .freight-offer .freight-offer-select {
-  background: var(--freight-action-idle);
+  background-color: var(--freight-action-idle);
+  background-image: none;
   color: var(--freight-action-idle-text);
   border: 1px solid var(--freight-action-idle-border);
   box-shadow: 0 2px 8px rgba(15,69,121,.04);
@@ -26,6 +27,7 @@
   cursor: pointer;
 }
 .freight-quotes .freight-premium-nav .freight-view-tab {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -71,10 +73,20 @@
 .freight-quotes .freight-premium-nav .freight-view-tab[aria-selected="true"],
 .freight-quotes :is(.freight-scope-option, .freight-carrier-segment button, .freight-mode button)[aria-pressed="true"],
 .freight-quotes .freight-offer .freight-offer-select[aria-pressed="true"] {
-  background: var(--freight-action-selected);
+  background-color: var(--freight-action-selected);
+  background-image: none;
   border-color: var(--freight-action-selected);
   color: #fff;
   box-shadow: 0 6px 16px rgba(8,59,112,.16);
+}
+.freight-quotes .freight-carrier-segment > button[aria-pressed="false"],
+.freight-quotes .freight-mode > div > button[aria-pressed="false"],
+.freight-quotes .freight-scope-actions > button[aria-pressed="false"],
+.freight-quotes .freight-view-nav > button[aria-selected="false"],
+.freight-quotes .freight-offer .freight-offer-select[aria-pressed="false"]:not(:disabled) {
+  background-color: var(--freight-action-idle);
+  background-image: none;
+  color: var(--freight-action-idle-text);
 }
 .freight-quotes .freight-premium-nav .freight-view-tab[aria-selected="false"]:hover,
 .freight-quotes :is(.freight-scope-option, .freight-carrier-segment button, .freight-mode button)[aria-pressed="false"]:hover,
@@ -132,34 +144,3 @@
   font-weight: 800;
   line-height: 1.2;
 }
-
-/* Estados explícitos de los cuatro selectores: ninguna alternativa se pinta azul. */
-.freight-quotes .freight-carrier-segment > button[aria-pressed="false"],
-.freight-quotes .freight-mode > div > button[aria-pressed="false"],
-.freight-quotes .freight-scope-actions > button[aria-pressed="false"],
-.freight-quotes .freight-view-nav > button[aria-selected="false"],
-.freight-quotes .freight-offer .freight-offer-select[aria-pressed="false"]:not(:disabled) {
-  background-color: #fff;
-  background-image: none;
-  color: #104b80;
-  border-color: #b8d0e7;
-  box-shadow: 0 2px 6px rgba(14,62,108,.055);
-}
-.freight-quotes .freight-carrier-segment > button[aria-pressed="true"],
-.freight-quotes .freight-mode > div > button[aria-pressed="true"],
-.freight-quotes .freight-scope-actions > button[aria-pressed="true"],
-.freight-quotes .freight-view-nav > button[aria-selected="true"],
-.freight-quotes .freight-offer .freight-offer-select[aria-pressed="true"]:not(:disabled) {
-  background-color: #083b70;
-  background-image: none;
-  color: #fff;
-  border-color: #083b70;
-  box-shadow: 0 7px 18px rgba(8,59,112,.18);
-}
-.freight-quotes .freight-carrier-segment > button[aria-pressed="false"] > span,
-.freight-quotes .freight-carrier-segment > button[aria-pressed="false"] > small,
-.freight-quotes .freight-scope-actions > button[aria-pressed="false"] :is(span,strong,small) {color:#104b80;}
-.freight-quotes .freight-carrier-segment > button[aria-pressed="true"] > span,
-.freight-quotes .freight-carrier-segment > button[aria-pressed="true"] > small,
-.freight-quotes .freight-scope-actions > button[aria-pressed="true"] :is(span,strong,small) {color:#fff;}
-.freight-quotes .freight-mode > div,.freight-quotes .freight-carrier-segment {background-color:#f0f5fc;border-color:#d6e5f3;}
