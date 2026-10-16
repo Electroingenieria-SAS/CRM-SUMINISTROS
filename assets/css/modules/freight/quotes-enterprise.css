@@ -59,9 +59,6 @@
 .freight-history-heading{margin-bottom:19px}
 .freight-history-heading h2{font-size:1.35rem;font-weight:800}
 .freight-history-overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin:0 0 22px}
-.freight-history-overview>div{background:#f9fbfd;border:1px solid #e2eaf2;border-radius:12px;padding:15px 17px}
-.freight-history-overview span{display:block;font-size:.73rem;font-weight:650;color:#61788d;line-height:1.5;margin-bottom:5px}
-.freight-history-overview strong{display:block;font-size:1.5rem;font-weight:800;letter-spacing:-.05em;color:#1c3b5a;font-variant-numeric:tabular-nums}
 .freight-history-toolbar{border:1px solid #e2eaf1;border-radius:13px;background:#fafcff;padding:15px 16px;margin-bottom:18px}
 .freight-history-toolbar-top{display:flex;justify-content:space-between;align-items:flex-end;gap:13px;margin-bottom:12px}
 .freight-history-toolbar-top>label{min-width:0;flex:1;max-width:500px}

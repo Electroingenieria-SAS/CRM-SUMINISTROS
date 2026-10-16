@@ -10,4 +10,5 @@
 @import "components/crm-animate-experience.css";
 @import "components/cards-enterprise-refinement.css";
 /* Freight controls override general experience rules while retaining four canonical CSS families. */
+@import "modules/freight/quote-interactive-states.css";
 @import "modules/freight/quote-action-system.css";

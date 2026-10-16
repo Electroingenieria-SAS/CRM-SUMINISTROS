@@ -531,7 +531,7 @@ test('historial premium aplica botones azules con texto blanco sin alterar contr
     commercialEstimate:{available:true,totalCop:27286}}
   }]);
  });
- const selectors=['[data-view-tab="quote"]','[data-view-tab="history"]',
+ const selectors=[
   '[data-history-clear]','[data-history-export]','[data-quote-view]',
   '[data-quote-duplicate]','[data-quote-link]','[data-history-prev]','[data-history-next]'];
  for(const selector of selectors){
@@ -545,6 +545,12 @@ test('historial premium aplica botones azules con texto blanco sin alterar contr
   expect(colors.background,selector).not.toBe('rgba(0, 0, 0, 0)');
  }
  await expect(page.locator('[data-view-tab="history"]')).toHaveAttribute('aria-selected','true');
+ await expect(page.locator('[data-view-tab="history"]')).toHaveCSS('color','rgb(255, 255, 255)');
+ await expect(page.locator('[data-view-tab="quote"]')).toHaveCSS('color','rgb(16, 75, 128)');
+ await expect(page.locator('[data-history-stat="estimated"]')).toHaveCSS('background-color','rgb(255, 255, 255)');
+ await expect(page.locator('[data-history-stat="actual"]')).toHaveCSS('background-color','rgb(255, 255, 255)');
+ await expect(page.locator('[data-history-stat="estimated"]')).toHaveCSS('background-image','none');
+ await expect(page.locator('[data-history-stat="actual"]')).toHaveCSS('background-image','none');
  await expect(page.locator('.freight-history-status')).toContainText('Calculada');
  await expect(page.locator('.freight-history-kicker')).toHaveText('GESTIÓN DE FLETES · HISTORIAL');
  const primaryMetric=await page.locator('.freight-history-metric').first().evaluate(el=>getComputedStyle(el).backgroundImage);
@@ -559,4 +565,43 @@ test('historial premium aplica botones azules con texto blanco sin alterar contr
  await expect(page.locator('[data-history-search]')).toHaveValue('');
  await page.getByRole('tab',{name:'Nueva cotización'}).click();
  await expect(page.locator('[data-quote-workspace]')).toBeVisible();
+});
+
+test('controles excluyentes: activo azul oscuro e inactivo blanco en transportadora, medida, modalidad y pestañas',async({page})=>{
+ await mountQuotes(page);
+ const active='rgb(255, 255, 255)', idle='rgb(16, 75, 128)';
+ const activeBg='rgb(8, 59, 112)', idleBg='rgb(255, 255, 255)';
+ const expectPair=async(left,right)=>{
+  await expect(left).toHaveAttribute('aria-pressed','true');
+  await expect(left).toHaveCSS('background-color',activeBg);
+  await expect(left).toHaveCSS('color',active);
+  await expect(right).toHaveAttribute('aria-pressed','false');
+  await expect(right).toHaveCSS('background-color',idleBg);
+  await expect(right).toHaveCSS('color',idle);
+ };
+ const tcc=page.locator('[data-carrier-choice="TCC"]');
+ const envia=page.locator('[data-carrier-choice="ENVIA"]');
+ await expectPair(tcc,envia);
+ await envia.click();
+ await expectPair(envia,tcc);
+ await tcc.click();
+ await expectPair(tcc,envia);
+ const weight=page.locator('.freight-line [data-mode="WEIGHT"]').first();
+ const volume=page.locator('.freight-line [data-mode="VOLUME"]').first();
+ await expectPair(weight,volume);
+ await volume.click();
+ await expectPair(volume,weight);
+ const national=page.locator('button[data-quote-scope="NATIONAL"]');
+ const local=page.locator('button[data-quote-scope="LOCAL"]');
+ await expectPair(national,local);
+ await local.click();
+ await expectPair(local,national);
+ await national.click();
+ await expectPair(national,local);
+ await page.getByRole('tab',{name:/Historial/}).click();
+ await expect(page.locator('[data-view-tab="history"]')).toHaveCSS('background-color',activeBg);
+ await expect(page.locator('[data-view-tab="quote"]')).toHaveCSS('background-color',idleBg);
+ await page.getByRole('tab',{name:'Nueva cotización'}).click();
+ await expect(page.locator('[data-view-tab="quote"]')).toHaveCSS('background-color',activeBg);
+ await expect(page.locator('[data-view-tab="history"]')).toHaveCSS('background-color',idleBg);
 });

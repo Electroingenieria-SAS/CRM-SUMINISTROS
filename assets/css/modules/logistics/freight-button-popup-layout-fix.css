@@ -1,43 +1,4 @@
-/* Freight contrast and order-modal header repairs; scoped to affected surfaces. */
-
-/* Prior ENVIA specificity overrode the selected background but not selected text. */
-.freight-quotes .freight-offer[data-offer-carrier="TCC"] .freight-offer-select[aria-pressed="true"]{
-  background:linear-gradient(130deg,#155f9c,#103b6b)!important;
-  border:1px solid #15548a!important;
-  color:#fff!important;
-  box-shadow:0 5px 15px rgba(14,61,108,.18)!important;
-}
-.freight-quotes .freight-offer[data-offer-carrier="ENVIA"] .freight-offer-select[aria-pressed="true"]{
-  background:linear-gradient(130deg,#126e79,#0b4e59)!important;
-  border:1px solid #11606b!important;
-  color:#fff!important;
-  box-shadow:0 5px 15px rgba(10,74,83,.17)!important;
-}
-.freight-quotes .freight-offer .freight-offer-select[aria-pressed="true"]{
-  cursor:default;
-  font-weight:850;
-  text-shadow:none!important;
-}
-.freight-quotes .freight-offer .freight-offer-select[aria-pressed="true"] *{
-  color:inherit!important;
-}
-.freight-quotes .freight-offer[data-offer-carrier="ENVIA"] .freight-offer-select[aria-pressed="false"]{
-  background:linear-gradient(125deg,#f0faf9,#e1f4f2)!important;
-  border:1px solid #9dd6d2!important;
-  color:#0c5d68!important;
-  box-shadow:0 4px 11px rgba(12,87,98,.07)!important;
-}
-.freight-quotes .freight-offer .freight-offer-select:disabled{
-  background:#f1f5f9!important;
-  border-color:#d7e1eb!important;
-  color:#526a7f!important;
-  box-shadow:none!important;
-  opacity:1;
-}
-.freight-quotes .freight-offer .freight-offer-select:focus-visible{
-  outline:3px solid #e9b83a!important;
-  outline-offset:3px;
-}
+/* Order-modal header layout only; cotizador control colors are owned by quote-action-system.css. */
 
 /* The freight CTA is injected before [data-close] and the X occupies its own column. */
 #modal-root .simple-process-modal .modal-head.order-freight-action-head{
