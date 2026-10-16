@@ -24,7 +24,6 @@
 :is(#app,#modal-root) :is(button,a,[role=tab]):focus-visible{outline:3px solid #efbd3e;outline-offset:2px}
 #toast-root>:is(div,article){animation:crm-toast-in 230ms var(--crm-interact-spring) both}
 @keyframes crm-toast-in{from{opacity:0;transform:translateY(-9px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
-:is(#app,#modal-root) button.btn-primary:not(:disabled){overflow:hidden}
 .freight-quotes .freight-view-tab[aria-selected=true]::after{content:"";position:absolute;bottom:-2px;left:18px;right:18px;height:3px;background:linear-gradient(90deg,#145fa9,#489cdd);border-radius:99px}
 .freight-quotes .freight-detail-sheet [data-sheet-copy]{display:inline-flex;align-items:center;gap:6px}
 .freight-quotes .freight-detail-sheet [data-sheet-copy][data-copied=true]{border-color:#9ed8c0;color:#176f54;background:#eaf8f1}
