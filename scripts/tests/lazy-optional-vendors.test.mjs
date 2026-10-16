@@ -14,7 +14,7 @@ test('inicio del CRM carga solo dependencias esenciales, no exportadores ni esc√
  ];
  for(const marker of startVendors)assert.doesNotMatch(index,marker);
  assert.match(index,/@supabase\/supabase-js@2\.111\.0/);
- assert.match(index,/app-entry\.js\?v=11\.46\.0/);
+ assert.match(index,/app-entry\.js\?v=11\.46\.1/);
  assert.equal((index.match(/<script defer/g)||[]).length,2);
 });
 
