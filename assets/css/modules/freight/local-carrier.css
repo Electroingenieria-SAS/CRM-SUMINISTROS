@@ -11,15 +11,11 @@
 .freight-local-fields input,.freight-local-reason-field textarea{background:#fff}
 .freight-local-help{margin:0;color:#567968;line-height:1.55;font-size:.77rem}
 .freight-quotes .freight-hero-local{background:#eaf7ec;border:1px solid #b8debc;color:#246b39}
-.freight-quotes .freight-carrier-segment button[data-carrier-choice=LOCAL][aria-pressed=true]{border-color:#a8d6b6;color:#175b36}
-.freight-quotes .freight-carrier-segment button[data-carrier-choice=LOCAL][aria-pressed=true] .freight-carrier-symbol{background:linear-gradient(135deg,#267646,#114e34)}
 .freight-quotes .freight-offer[data-offer-carrier=LOCAL]{border-color:#b4d8c2}
 .freight-quotes .freight-offer[data-offer-carrier=LOCAL]::before{background:linear-gradient(90deg,#1b7452,#52ac71,#b1d6b7)}
 .freight-quotes .freight-offer[data-offer-carrier=LOCAL] .freight-company-symbol{background:linear-gradient(145deg,#258351,#135337)}
 .freight-quotes .freight-offer[data-offer-carrier=LOCAL] .freight-price-hero{background:linear-gradient(145deg,#175638,#0c3227)!important;border-color:#277b50}
 .freight-quotes .freight-offer[data-offer-carrier=LOCAL] .freight-company-meta{background:#e7f6ec;color:#26724a}
-.freight-quotes .freight-offer[data-offer-carrier=LOCAL] .freight-offer-select{background:linear-gradient(125deg,#247b4b,#175936)!important;color:#fff!important;border-color:#1b6842!important}
-.freight-quotes .freight-offer[data-offer-carrier=LOCAL] .freight-offer-select[aria-pressed=true]{background:#e5f5e9!important;color:#155437!important;border-color:#a7d5b8!important}
 .freight-quotes .freight-local-card-note{margin:13px 0 0;font-size:.77rem;color:#587265;line-height:1.55}
 .freight-quotes .freight-local-card .freight-market-breakdown{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:15px}
 .freight-quotes .freight-local-card .freight-market-breakdown span{display:grid;gap:4px;min-height:58px}
@@ -38,10 +34,10 @@
 .freight-quotes .freight-scope-heading h2{margin:0 0 5px;color:#143c67;font-size:1.28rem;letter-spacing:-.025em}
 .freight-scope-heading p{margin:0;color:#627b92;font-size:.84rem;line-height:1.5}
 .freight-scope-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.freight-quotes .freight-scope-option{position:relative;display:flex;align-items:center;gap:13px;min-width:0;min-height:94px;padding:18px;border:1px solid #d4e2ed;border-radius:14px;text-align:left;background:#fff;color:#1d456a;cursor:pointer;transition:border-color .2s,background .2s,box-shadow .2s,transform .2s}
-.freight-quotes .freight-scope-option:hover{border-color:#629bd6;transform:translateY(-1px);box-shadow:0 6px 19px rgba(16,88,159,.095)}
-.freight-quotes .freight-scope-option[aria-pressed=true]{background:#edf5ff;border-color:#2478d5;box-shadow:0 0 0 2px rgba(36,120,213,.08)}
-.freight-scope-option .freight-scope-icon{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;background:#eaf3fc;border-radius:12px;color:#1269bb;font-weight:900;font-size:1.25rem}
+.freight-quotes .freight-scope-option{position:relative;display:flex;align-items:center;gap:13px;min-width:0;min-height:94px;padding:18px;border-radius:14px;text-align:left}
+
+
+.freight-scope-option .freight-scope-icon{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;border-radius:12px;font-weight:900;font-size:1.25rem}
 .freight-scope-option>span:nth-child(2){display:grid;min-width:0;gap:5px}
 .freight-scope-option strong{font-weight:860;font-size:1rem}
 .freight-scope-option small{font-size:.78rem;color:#668099;line-height:1.4}
