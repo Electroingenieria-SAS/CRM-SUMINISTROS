@@ -413,6 +413,42 @@ test('Gestión rápida mantiene cerrar a la derecha de Cotización de fletes en 
 });
 
 
+test('Despacho mantiene acceso a fletes y cierre visibles en PC y móvil',async({page})=>{
+ await mountQuotes(page);
+ await page.evaluate(async()=>{
+  const root=document.createElement('div');
+  root.id='modal-root';
+  root.innerHTML='<div class="modal-overlay"><section class="modal shipping-core-v11107 wide"><header class="modal-head"><div><h3>Despacho</h3></div><button type="button" class="icon-btn" data-close aria-label="Cerrar">×</button></header></section></div>';
+  document.body.append(root);
+  const {mountFreightQuoteOrderEntry}=await import('/assets/js/domains/freight-quotes/quote-order-entry.js');
+  mountFreightQuoteOrderEntry(root,{order:{id:'dispatch-test-1'}});
+ });
+ const header=page.locator('#modal-root .order-freight-action-head');
+ const action=header.locator('[data-order-freight-quote]');
+ const close=header.locator(':scope > [data-close]');
+ await expect(action).toHaveCount(1);
+ await expect(close).toHaveCount(1);
+ await expect(action).toHaveCSS('color','rgb(255, 255, 255)');
+ for(const width of [1280,375]){
+  await page.setViewportSize({width,height:800});
+  const g=await page.evaluate(()=>{
+   const h=document.querySelector('#modal-root .order-freight-action-head');
+   const a=h.querySelector('[data-order-freight-quote]').getBoundingClientRect();
+   const c=h.querySelector('[data-close]').getBoundingClientRect();
+   const r=h.getBoundingClientRect();
+   return {left:r.left,right:r.right,actionRight:a.right,actionTop:a.top,closeLeft:c.left,closeTop:c.top};
+  });
+  expect(g.closeLeft).toBeGreaterThan(g.left+40);
+  expect(g.closeLeft).toBeLessThanOrEqual(g.right);
+  if(width===1280){
+   expect(g.closeLeft).toBeGreaterThanOrEqual(g.actionRight-1);
+   expect(Math.abs(g.closeTop-g.actionTop)).toBeLessThan(6);
+  }else{
+   expect(g.actionTop).toBeGreaterThan(g.closeTop);
+  }
+ }
+});
+
 test('cotizador local: ruta Tuluá, peso, auxiliar y desvío sin contaminar TCC/ENVÍA',async({page})=>{
  await mountQuotes(page);
  await page.evaluate(async()=>{
@@ -514,7 +550,7 @@ test('historial premium aplica botones azules con texto blanco sin alterar contr
  // Dynamic CRM modules add runtime stylesheets; only the four static families are canonical.
  const canonical=page.locator('head link[rel="stylesheet"][href^="./assets/css/"]');
  await expect(canonical).toHaveCount(4);
- await expect(canonical.last()).toHaveAttribute('href',/experience\.css\?v=11\.46\.2/);
+ await expect(canonical.last()).toHaveAttribute('href',/experience\.css\?v=11\.46\.3/);
  const cssReady=await canonical.last().evaluate(link=>{
   const rules=[...link.sheet.cssRules];
   return rules.some(rule=>rule.href?.includes('quote-action-system.css')&&Boolean(rule.styleSheet));
