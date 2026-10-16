@@ -511,11 +511,15 @@ test('categoría restringe destinos y limpia rutas anteriores al cambiar de zona
 
 test('historial premium aplica botones azules con texto blanco sin alterar controles ni estados',async({page},testInfo)=>{
  await mountQuotes(page);
- const link=page.locator('head link[rel="stylesheet"][href*="quote-action-system.css"]');
- await expect(link).toHaveCount(1);
- await expect(link).toHaveAttribute('href',/v=20261016-2/);
- const sheet=await link.evaluate(el=>({last:el===document.querySelector('head link[rel="stylesheet"]:last-of-type'),loaded:!!el.sheet}));
- expect(sheet).toEqual({last:true,loaded:true});
+ const canonical=page.locator('head link[rel="stylesheet"]');
+ await expect(canonical).toHaveCount(4);
+ await expect(canonical.last()).toHaveAttribute('href',/experience\.css\?v=11\.46\.0/);
+ const cssReady=await canonical.last().evaluate(link=>{
+  const rules=[...link.sheet.cssRules];
+  return rules.some(rule=>rule.href?.includes('quote-action-system.css')&&Boolean(rule.styleSheet));
+ });
+ expect(cssReady).toBe(true);
+
  await page.getByRole('tab',{name:/Historial/}).click();
  await page.evaluate(async()=>{
   const {quoteHistoryHtml}=await import('/assets/js/domains/freight-quotes/quote-history-view.js');
