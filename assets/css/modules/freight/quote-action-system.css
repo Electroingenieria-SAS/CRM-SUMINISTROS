@@ -1,164 +1,202 @@
-/* Cotización de fletes: unified interactive controls, isolated from the rest of CRM. */
+/* Cotizador: una sola fuente para estados de controles y resumen del historial.
+   Azul oscuro = selección, blanco + azul = alternativa. No modifica la lógica JS. */
 .freight-quotes {
   --freight-action-blue: #1167b4;
   --freight-action-hover: #094e91;
   --freight-action-selected: #083b70;
   --freight-action-border: #125eaa;
   --freight-action-focus: #f0bd4c;
+  --freight-action-idle: #ffffff;
+  --freight-action-idle-border: #b8d0e7;
+  --freight-action-idle-text: #104b80;
+  --freight-action-idle-hover: #edf5ff;
 }
 
-/* Native action buttons, not carrier badges, field controls or destructive actions. */
+/* Acciones operativas: siempre se distinguen de las opciones de selección. */
 .freight-quotes :is(
-  .freight-history-toolbar-actions,
-  .freight-history-buttons,
-  .freight-pagination,
-  .freight-actions,
-  .freight-line-tools,
-  .freight-service-banner
+  .freight-history-toolbar-actions, .freight-history-buttons, .freight-pagination,
+  .freight-actions, .freight-line-tools, .freight-service-banner
 ) .btn:not([data-remove-line]),
-.freight-quotes .freight-add-material,
-.freight-quotes .freight-offer-select {
+.freight-quotes .freight-add-material {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 7px;
   min-height: 40px;
   padding: 9px 15px;
-  background: var(--freight-action-blue);
   border: 1px solid var(--freight-action-border);
   border-radius: 10px;
+  background: var(--freight-action-blue);
   color: #fff;
   font: inherit;
   font-size: .82rem;
   font-weight: 780;
   line-height: 1.2;
-  text-align: center;
-  text-decoration: none;
-  box-shadow: 0 5px 13px rgba(12,77,144,.15);
+  box-shadow: 0 5px 13px rgba(12,77,144,.14);
   cursor: pointer;
-  transition: background-color .17s ease, border-color .17s ease, box-shadow .17s ease;
+  transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
 }
 
-/* Maintain explicit selection and allow quick recognition across modalities. */
+/* Un patrón de estado para las 4 familias interactivas.
+   Se selecciona usando aria-selected/aria-pressed, no por transportadora. */
+.freight-quotes .freight-premium-nav .freight-view-tab,
+.freight-quotes :is(.freight-scope-option, .freight-carrier-segment button, .freight-mode button),
+.freight-quotes .freight-offer .freight-offer-select {
+  background: var(--freight-action-idle);
+  color: var(--freight-action-idle-text);
+  border: 1px solid var(--freight-action-idle-border);
+  box-shadow: 0 2px 8px rgba(15,69,121,.04);
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease,
+              box-shadow .2s ease, transform .2s ease;
+  cursor: pointer;
+}
 .freight-quotes .freight-premium-nav .freight-view-tab {
   display: inline-flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  min-height: 44px;
+  min-height: 45px;
   padding: 10px 21px;
-  background: var(--freight-action-blue);
-  border: 1px solid var(--freight-action-border);
   border-radius: 10px;
-  color: #fff;
-  font-size: .83rem;
-  font-weight: 780;
-  box-shadow: 0 3px 10px rgba(12,77,144,.13);
-  cursor: pointer;
+  font-size: .85rem;
+  font-weight: 800;
 }
-.freight-quotes .freight-premium-nav .freight-view-tab[aria-selected="true"] {
-  background: var(--freight-action-selected);
-  border-color: var(--freight-action-selected);
-  color: #fff;
-  box-shadow: inset 0 -3px 0 #91caff, 0 5px 14px rgba(8,59,112,.19);
+.freight-quotes .freight-carrier-segment button {
+  justify-content: center;
+  font-weight: 800;
 }
-.freight-quotes .freight-premium-nav [data-history-tab-count],
-.freight-quotes .freight-premium-nav .freight-view-tab[aria-selected="true"] [data-history-tab-count] {
-  background: rgba(255,255,255,.18);
-  color: #fff;
-}
-
-/* Scope/carrier options are intentional blue buttons, with a dark selected state. */
-.freight-quotes :is(.freight-scope-option, .freight-carrier-segment button, .freight-mode button) {
-  background: var(--freight-action-blue);
-  border-color: var(--freight-action-border);
-  color: #fff;
-}
+.freight-quotes .freight-premium-nav .freight-view-tab[aria-selected="true"],
 .freight-quotes :is(.freight-scope-option, .freight-carrier-segment button, .freight-mode button)[aria-pressed="true"],
-.freight-quotes .freight-offer-selected .freight-offer-select {
+.freight-quotes .freight-offer .freight-offer-select[aria-pressed="true"] {
   background: var(--freight-action-selected);
   border-color: var(--freight-action-selected);
   color: #fff;
+  box-shadow: 0 6px 16px rgba(8,59,112,.16);
 }
-.freight-quotes :is(.freight-scope-option, .freight-carrier-segment button) :is(strong,small,span),
-.freight-quotes .freight-carrier-segment button[aria-pressed="true"] :is(strong,small,span) {
+.freight-quotes .freight-premium-nav .freight-view-tab[aria-selected="false"]:hover,
+.freight-quotes :is(.freight-scope-option, .freight-carrier-segment button, .freight-mode button)[aria-pressed="false"]:hover,
+.freight-quotes .freight-offer .freight-offer-select[aria-pressed="false"]:hover {
+  background: var(--freight-action-idle-hover);
+  color: var(--freight-action-idle-text);
+  border-color: #6fa9da;
+  box-shadow: 0 5px 13px rgba(17,103,180,.12);
+}
+.freight-quotes .freight-premium-nav .freight-view-tab[aria-selected="true"]:hover,
+.freight-quotes :is(.freight-scope-option, .freight-carrier-segment button, .freight-mode button)[aria-pressed="true"]:hover {
+  background: var(--freight-action-selected);
+  color: #fff;
+  border-color: var(--freight-action-selected);
+}
+/* Hijos: colores específicos para ícono/textos según estado, sin herencia blanca global. */
+.freight-quotes :is(.freight-scope-option, .freight-carrier-segment button)[aria-pressed="false"] :is(strong,small,span) {
+  color: var(--freight-action-idle-text);
+}
+.freight-quotes :is(.freight-scope-option, .freight-carrier-segment button)[aria-pressed="true"] :is(strong,small,span) {
   color: #fff;
 }
-.freight-quotes .freight-carrier-segment button[aria-pressed="true"] {
-  box-shadow: inset 0 -3px 0 #91caff, 0 4px 12px rgba(11,76,135,.2);
+.freight-quotes .freight-scope-option[aria-pressed="false"] .freight-scope-icon,
+.freight-quotes .freight-carrier-segment button[aria-pressed="false"] .freight-carrier-symbol {
+  background: #e8f2fc;
+  color: var(--freight-action-idle-text);
+}
+.freight-quotes .freight-scope-option[aria-pressed="true"] .freight-scope-icon,
+.freight-quotes .freight-carrier-segment button[aria-pressed="true"] .freight-carrier-symbol {
+  background: rgba(255,255,255,.17);
+  color: #fff;
+}
+.freight-quotes .freight-scope-option[aria-pressed="true"] .freight-scope-check {
+  background: rgba(255,255,255,.19);
+  color: #fff;
+}
+.freight-quotes .freight-premium-nav [data-history-tab-count] {
+  background: #e8f2fc;
+  color: var(--freight-action-idle-text);
+}
+.freight-quotes .freight-premium-nav .freight-view-tab[aria-selected="true"] [data-history-tab-count] {
+  background: rgba(255,255,255,.19);
+  color: #fff;
+}
+.freight-quotes .freight-offer .freight-offer-select {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 45px;
+  padding: 9px 15px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: .85rem;
+  font-weight: 800;
+  line-height: 1.2;
 }
 .freight-quotes :is(
-  .freight-premium-nav .freight-view-tab,
-  .freight-history-toolbar-actions .btn,
-  .freight-history-buttons .btn,
-  .freight-pagination .btn,
-  .freight-actions .btn:not([data-remove-line]),
-  .freight-scope-option,
-  .freight-carrier-segment button,
-  .freight-mode button,
-  .freight-add-material,
-  .freight-offer-select
+  .freight-history-toolbar-actions .btn, .freight-history-buttons .btn,
+  .freight-pagination .btn, .freight-actions .btn:not([data-remove-line]),
+  .freight-line-tools .btn:not([data-remove-line]), .freight-add-material
 ):not(:disabled):hover {
   background: var(--freight-action-hover);
-  border-color: var(--freight-action-hover);
   color: #fff;
+  border-color: var(--freight-action-hover);
   box-shadow: 0 6px 14px rgba(9,78,145,.2);
 }
 .freight-quotes :is(
-  .freight-premium-nav button,
-  .freight-history-toolbar-actions .btn,
-  .freight-history-buttons .btn,
-  .freight-pagination .btn,
-  .freight-actions .btn,
-  .freight-scope-option,
-  .freight-carrier-segment button,
-  .freight-mode button,
-  .freight-add-material,
-  .freight-offer-select
+  .freight-premium-nav button, .freight-history-toolbar-actions .btn,
+  .freight-history-buttons .btn, .freight-pagination .btn, .freight-actions .btn,
+  .freight-scope-option, .freight-carrier-segment button, .freight-mode button,
+  .freight-add-material, .freight-offer-select
 ):focus-visible {
   outline: 3px solid var(--freight-action-focus);
   outline-offset: 3px;
 }
 .freight-quotes :is(
-  .freight-history-toolbar-actions .btn,
-  .freight-history-buttons .btn,
-  .freight-pagination .btn,
-  .freight-actions .btn,
-  .freight-carrier-segment button,
-  .freight-offer-select
+  .freight-history-toolbar-actions .btn, .freight-history-buttons .btn,
+  .freight-pagination .btn, .freight-actions .btn, .freight-offer-select
 ):disabled {
-  background: #8aaaca;
-  border-color: #8aaaca;
-  color: #fff;
+  background: #f1f5f9;
+  border-color: #d7e1eb;
+  color: #526a7f;
+  opacity: 1;
   box-shadow: none;
-  opacity: .75;
   cursor: not-allowed;
 }
 
-/* Existing local-carrier and material styles must not restore pale or grey controls. */
-.freight-quotes .freight-scope-option .freight-scope-icon,
-.freight-quotes .freight-carrier-segment button .freight-carrier-symbol {
+/* Resumen de historial: una tarjeta líder y dos complementarias neutrales. */
+.freight-quotes .freight-history-kicker {
+  display: block;
+  margin-bottom: 5px;
+  color: #1167b4;
+  font-size: .68rem;
+  font-weight: 850;
+  letter-spacing: .12em;
+}
+.freight-quotes .freight-history-metric {
+  min-height: 108px;
+  padding: 18px 20px;
+  border: 1px solid #d0e1f1;
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: 0 6px 17px rgba(19,75,128,.055);
+}
+.freight-quotes .freight-history-metric[data-history-stat="visible"] {
+  background: linear-gradient(130deg,#0d5797,#083b70);
+  border-color: #0b4c86;
+}
+.freight-quotes .freight-history-metric:not([data-history-stat="visible"]) {
+  border-top: 3px solid #2776b8;
+}
+.freight-quotes .freight-history-metric :is(span,strong) {color:#163f65;}
+.freight-quotes .freight-history-metric[data-history-stat="visible"] :is(span,strong) {color:#fff;}
+.freight-quotes .freight-history-metric .freight-metric-symbol {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  border-radius: 12px;
+  background: #e8f2fc;
+  color: #1762a2;
+}
+.freight-quotes .freight-history-metric[data-history-stat="visible"] .freight-metric-symbol {
   background: rgba(255,255,255,.16);
   color: #fff;
-}
-.freight-quotes .freight-carrier-segment button[data-carrier-choice="LOCAL"][aria-pressed="true"] {
-  background: var(--freight-action-selected);
-  border-color: var(--freight-action-selected);
-  color: #fff;
-}
-.freight-quotes .freight-add-material {
-  background: var(--freight-action-blue) !important;
-  border-color: var(--freight-action-border) !important;
-  color: #fff !important;
-}
-.freight-quotes .freight-offer[data-offer-carrier="LOCAL"] .freight-offer-select,
-.freight-quotes .freight-offer[data-offer-carrier="LOCAL"] .freight-offer-select[aria-pressed="true"] {
-  background: var(--freight-action-blue) !important;
-  border-color: var(--freight-action-border) !important;
-  color: #fff !important;
-}
-.freight-quotes .freight-offer[data-offer-carrier="LOCAL"] .freight-offer-select[aria-pressed="true"] {
-  background: var(--freight-action-selected) !important;
 }
 
 /* History: practical filter/search layout with aligned controls. */
