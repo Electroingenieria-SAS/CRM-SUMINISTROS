@@ -1,0 +1,134 @@
+/* Cotizador: una sola fuente para estados de controles y resumen del historial.
+   Azul oscuro = selección, blanco + azul = alternativa. No modifica la lógica JS. */
+.freight-quotes {
+  --freight-action-blue: #1167b4;
+  --freight-action-hover: #094e91;
+  --freight-action-selected: #083b70;
+  --freight-action-border: #125eaa;
+  --freight-action-focus: #f0bd4c;
+  --freight-action-idle: #ffffff;
+  --freight-action-idle-border: #b8d0e7;
+  --freight-action-idle-text: #104b80;
+  --freight-action-idle-hover: #edf5ff;
+}
+
+/* Un patrón de estado para las 4 familias interactivas.
+   Se selecciona usando aria-selected/aria-pressed, no por transportadora. */
+.freight-quotes .freight-premium-nav .freight-view-tab,
+.freight-quotes :is(.freight-scope-option, .freight-carrier-segment button, .freight-mode button),
+.freight-quotes .freight-offer .freight-offer-select {
+  background: var(--freight-action-idle);
+  color: var(--freight-action-idle-text);
+  border: 1px solid var(--freight-action-idle-border);
+  box-shadow: 0 2px 8px rgba(15,69,121,.04);
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease,
+              box-shadow .2s ease, transform .2s ease;
+  cursor: pointer;
+}
+.freight-quotes .freight-premium-nav .freight-view-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 45px;
+  padding: 10px 21px;
+  border-radius: 10px;
+  font-size: .85rem;
+  font-weight: 800;
+}
+.freight-quotes .freight-carrier-segment button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-width: 0;
+  min-height: 66px;
+  padding: 9px 12px;
+  border-radius: 11px;
+  font-family: inherit;
+  font-size: .95rem;
+  font-weight: 800;
+}
+.freight-quotes .freight-carrier-symbol {
+  width: 34px;
+  height: 35px;
+  flex: 0 0 34px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  font-size: .98rem;
+  font-weight: 850;
+}
+.freight-quotes .freight-mode button {
+  flex: 1;
+  min-height: 44px;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 760;
+}
+.freight-quotes .freight-premium-nav .freight-view-tab[aria-selected="true"],
+.freight-quotes :is(.freight-scope-option, .freight-carrier-segment button, .freight-mode button)[aria-pressed="true"],
+.freight-quotes .freight-offer .freight-offer-select[aria-pressed="true"] {
+  background: var(--freight-action-selected);
+  border-color: var(--freight-action-selected);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(8,59,112,.16);
+}
+.freight-quotes .freight-premium-nav .freight-view-tab[aria-selected="false"]:hover,
+.freight-quotes :is(.freight-scope-option, .freight-carrier-segment button, .freight-mode button)[aria-pressed="false"]:hover,
+.freight-quotes .freight-offer .freight-offer-select[aria-pressed="false"]:hover {
+  background: var(--freight-action-idle-hover);
+  color: var(--freight-action-idle-text);
+  border-color: #6fa9da;
+  box-shadow: 0 5px 13px rgba(17,103,180,.12);
+}
+.freight-quotes .freight-premium-nav .freight-view-tab[aria-selected="true"]:hover,
+.freight-quotes :is(.freight-scope-option, .freight-carrier-segment button, .freight-mode button)[aria-pressed="true"]:hover {
+  background: var(--freight-action-selected);
+  color: #fff;
+  border-color: var(--freight-action-selected);
+}
+/* Hijos: colores específicos para ícono/textos según estado, sin herencia blanca global. */
+.freight-quotes :is(.freight-scope-option, .freight-carrier-segment button)[aria-pressed="false"] :is(strong,small,span) {
+  color: var(--freight-action-idle-text);
+}
+.freight-quotes :is(.freight-scope-option, .freight-carrier-segment button)[aria-pressed="true"] :is(strong,small,span) {
+  color: #fff;
+}
+.freight-quotes .freight-scope-option[aria-pressed="false"] .freight-scope-icon,
+.freight-quotes .freight-carrier-segment button[aria-pressed="false"] .freight-carrier-symbol {
+  background: #e8f2fc;
+  color: var(--freight-action-idle-text);
+}
+.freight-quotes .freight-scope-option[aria-pressed="true"] .freight-scope-icon,
+.freight-quotes .freight-carrier-segment button[aria-pressed="true"] .freight-carrier-symbol {
+  background: rgba(255,255,255,.17);
+  color: #fff;
+}
+.freight-quotes .freight-scope-option[aria-pressed="true"] .freight-scope-check {
+  background: rgba(255,255,255,.19);
+  color: #fff;
+}
+.freight-quotes .freight-premium-nav [data-history-tab-count] {
+  background: #e8f2fc;
+  color: var(--freight-action-idle-text);
+}
+.freight-quotes .freight-premium-nav .freight-view-tab[aria-selected="true"] [data-history-tab-count] {
+  background: rgba(255,255,255,.19);
+  color: #fff;
+}
+.freight-quotes .freight-offer .freight-offer-select {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 45px;
+  padding: 9px 15px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: .85rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
