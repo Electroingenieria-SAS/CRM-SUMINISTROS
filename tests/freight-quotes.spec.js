@@ -549,6 +549,8 @@ test('historial premium aplica botones azules con texto blanco sin alterar contr
  await expect(page.locator('[data-view-tab="quote"]')).toHaveCSS('color','rgb(16, 75, 128)');
  await expect(page.locator('[data-history-stat="estimated"]')).toHaveCSS('background-color','rgb(255, 255, 255)');
  await expect(page.locator('[data-history-stat="actual"]')).toHaveCSS('background-color','rgb(255, 255, 255)');
+ await expect(page.locator('[data-history-stat="estimated"]')).toHaveCSS('background-image','none');
+ await expect(page.locator('[data-history-stat="actual"]')).toHaveCSS('background-image','none');
  await expect(page.locator('.freight-history-status')).toContainText('Calculada');
  await expect(page.locator('.freight-history-kicker')).toHaveText('GESTIÓN DE FLETES · HISTORIAL');
  const primaryMetric=await page.locator('.freight-history-metric').first().evaluate(el=>getComputedStyle(el).backgroundImage);
