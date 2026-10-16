@@ -4,6 +4,7 @@
 @import "modules/freight/freight-design-v2.css";
 @import "modules/freight/freight-premium-v3.css";
 @import "modules/freight/local-carrier.css";
+@import "modules/freight/quote-action-system.css";
 /* Ordered composition: preserve the existing production cascade. */
 @import "modules/receiving/goods-receipt-receiving-head.css";
 @import "modules/receiving/goods-receipt-form-section.css";
