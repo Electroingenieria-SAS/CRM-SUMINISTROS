@@ -20,7 +20,8 @@ test('TCC, ENVÍA y LOCAL comparten estados exclusivos sin CSS heredado de emerg
  assert.match(css,/--freight-action-selected: #083b70/);
  assert.match(css,/--freight-action-idle-text: #104b80/);
  assert.doesNotMatch(old,/\.freight-offer-select\[aria-pressed/);
- assert.match(css,/prefers-reduced-motion: reduce/);
+ const actions=fs.readFileSync(new URL('../../assets/css/modules/freight/quote-action-system.css',import.meta.url),'utf8');
+ assert.match(actions,/prefers-reduced-motion: reduce/);
 });
 test('quick-order modal inserts freight action before close and aligns a dedicated X',()=>{
  const source=fs.readFileSync(new URL('../../assets/js/domains/freight-quotes/quote-order-entry.js',import.meta.url),'utf8');
