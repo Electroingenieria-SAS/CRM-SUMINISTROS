@@ -178,8 +178,16 @@
 }
 .freight-quotes :is(
   .freight-history-toolbar-actions .btn, .freight-history-buttons .btn,
-  .freight-pagination .btn, .freight-actions .btn, .freight-offer-select
+  .freight-pagination .btn, .freight-actions .btn
 ):disabled {
+  background: #4e7296;
+  border-color: #4e7296;
+  color: #fff;
+  opacity: 1;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.freight-quotes .freight-offer .freight-offer-select:disabled {
   background: #f1f5f9;
   border-color: #d7e1eb;
   color: #526a7f;
