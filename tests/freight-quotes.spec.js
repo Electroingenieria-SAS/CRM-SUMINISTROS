@@ -514,7 +514,7 @@ test('historial premium aplica botones azules con texto blanco sin alterar contr
  // Dynamic CRM modules add runtime stylesheets; only the four static families are canonical.
  const canonical=page.locator('head link[rel="stylesheet"][href^="./assets/css/"]');
  await expect(canonical).toHaveCount(4);
- await expect(canonical.last()).toHaveAttribute('href',/experience\.css\?v=11\.46\.1/);
+ await expect(canonical.last()).toHaveAttribute('href',/experience\.css\?v=11\.46\.2/);
  const cssReady=await canonical.last().evaluate(link=>{
   const rules=[...link.sheet.cssRules];
   return rules.some(rule=>rule.href?.includes('quote-action-system.css')&&Boolean(rule.styleSheet));
