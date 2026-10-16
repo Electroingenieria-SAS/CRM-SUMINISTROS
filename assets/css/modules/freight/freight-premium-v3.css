@@ -32,17 +32,6 @@
  display:flex;align-items:center;gap:7px;padding:7px;margin:10px 0 22px;
  border:1px solid #d4e2f0;border-radius:13px;background:#f3f7fc;box-shadow:0 3px 9px rgba(10,65,113,.035)
 }
-.freight-quotes .freight-premium-nav .freight-view-tab{
- border:1px solid transparent;border-radius:9px;min-height:45px;padding:10px 21px;
- justify-content:center;color:#617c96;font-size:.86rem;font-weight:760;background:transparent
-}
-.freight-quotes .freight-premium-nav .freight-view-tab[aria-selected=true]{
- background:#fff;border-color:#c1d7eb;color:#155d9c;box-shadow:0 3px 13px rgba(33,99,160,.1)
-}
-.freight-quotes .freight-premium-nav .freight-view-tab[aria-selected=true]::after{display:none}
-.freight-quotes .freight-premium-nav [data-history-tab-count]{
- background:#e4f0fb;color:#1d6196;padding:2px 7px;border-radius:8px;font-weight:800
-}
 .freight-quotes .freight-step-panel,.freight-quotes .freight-preference-panel{
  background:linear-gradient(140deg,#fff 55%,#f8fbff);
  border:1px solid #d6e5f3;border-radius:18px;
@@ -119,17 +108,6 @@
  padding:7px 12px;border-radius:8px;font-weight:850
 }
 .freight-quotes .freight-offer-choice{padding:15px 22px 20px;background:#f8fbff}
-.freight-quotes .freight-offer .freight-offer-select{
- background:linear-gradient(125deg,#176fb7,#104f8b);color:#fff;border:1px solid #1666a7;
- border-radius:11px;min-height:47px;box-shadow:0 5px 13px rgba(20,95,162,.15);
- font-size:.87rem;font-weight:850
-}
-.freight-quotes .freight-offer[data-offer-carrier=ENVIA] .freight-offer-select{
- background:linear-gradient(120deg,#12818d,#0b596c);border-color:#107280
-}
-.freight-quotes .freight-offer-selected .freight-offer-select{
- background:#e5f2fc;color:#165a8f;border:1px solid #b3d2e9;box-shadow:none
-}
 .freight-quotes .freight-price-unavailable{
  display:flex;gap:12px;align-items:flex-start;background:#fff9ec;border-color:#edd9a6;color:#765b25
 }
@@ -137,18 +115,6 @@
 .freight-quotes .freight-price-unavailable p{margin:0;font-size:.8rem;line-height:1.55}
 .freight-unavailable-symbol{width:31px;height:31px;flex:none;display:grid;place-items:center;background:#f9e9b9;border-radius:9px;font-size:1rem;font-weight:900}
 .freight-quotes .freight-history-overview{gap:15px}
-.freight-quotes .freight-history-metric{
- display:flex;gap:14px;align-items:center;min-height:112px;padding:20px;
- border:1px solid #d1e3f3;background:linear-gradient(135deg,#edf6ff,#fff);
- box-shadow:0 9px 23px rgba(20,78,125,.07);border-radius:16px
-}
-.freight-quotes .freight-history-metric:nth-child(2){background:linear-gradient(135deg,#f0f8fd,#fff)}
-.freight-quotes .freight-history-metric:nth-child(3){background:linear-gradient(135deg,#f0faf7,#fff)}
-.freight-metric-symbol{
- width:44px;height:44px;flex:none;display:grid;place-items:center;
- border-radius:12px;background:#d8eafd;color:#1a65a0;font-size:1.45rem;font-weight:850
-}
-.freight-history-metric:nth-child(3) .freight-metric-symbol{background:#dbf4e9;color:#187a55}
 .freight-history-metric>div{min-width:0}
 .freight-quotes .freight-history-metric strong{font-size:1.75rem;line-height:1.1;color:#10385b}
 .freight-quotes .freight-history-table tbody tr:nth-child(even){background:#fafcff}
