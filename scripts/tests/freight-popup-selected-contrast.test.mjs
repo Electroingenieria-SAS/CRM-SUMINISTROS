@@ -13,7 +13,7 @@ test('TCC and ENVÍA retain text and selection state without altering tariff cal
  assert.match(html,/>Seleccionada<\/button>/);
 });
 test('TCC, ENVÍA y LOCAL comparten estados exclusivos sin CSS heredado de emergencias',()=>{
- const css=fs.readFileSync(new URL('../../assets/css/modules/freight/quote-action-system.css',import.meta.url),'utf8');
+ const css=fs.readFileSync(new URL('../../assets/css/modules/freight/quote-interactive-states.css',import.meta.url),'utf8');
  const old=fs.readFileSync(new URL('../../assets/css/modules/logistics/freight-button-popup-layout-fix.css',import.meta.url),'utf8');
  assert.match(css,/aria-pressed="true"/);
  assert.match(css,/aria-pressed="false"/);
