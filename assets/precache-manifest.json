@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": "ce009ed52e78b7f8",
-  "sourceBytes": 2877081,
+  "revision": "23f7facc240fb179",
+  "sourceBytes": 2886938,
   "assets": [
     "./assets/css/analytics.css",
     "./assets/css/base/accessibility.css",
@@ -76,6 +76,7 @@
     "./assets/css/modules/freight/freight-design-v2.css",
     "./assets/css/modules/freight/freight-premium-v3.css",
     "./assets/css/modules/freight/local-carrier.css",
+    "./assets/css/modules/freight/quote-action-system.css",
     "./assets/css/modules/freight/quote-motion.css",
     "./assets/css/modules/freight/quotes-enterprise.css",
     "./assets/css/modules/freight/quotes.css",
