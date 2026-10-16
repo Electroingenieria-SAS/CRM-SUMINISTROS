@@ -135,6 +135,32 @@
   cursor: not-allowed;
 }
 
+/* Existing local-carrier and material styles must not restore pale or grey controls. */
+.freight-quotes .freight-scope-option .freight-scope-icon,
+.freight-quotes .freight-carrier-segment button .freight-carrier-symbol {
+  background: rgba(255,255,255,.16);
+  color: #fff;
+}
+.freight-quotes .freight-carrier-segment button[data-carrier-choice="LOCAL"][aria-pressed="true"] {
+  background: var(--freight-action-selected);
+  border-color: var(--freight-action-selected);
+  color: #fff;
+}
+.freight-quotes .freight-add-material {
+  background: var(--freight-action-blue) !important;
+  border-color: var(--freight-action-border) !important;
+  color: #fff !important;
+}
+.freight-quotes .freight-offer[data-offer-carrier="LOCAL"] .freight-offer-select,
+.freight-quotes .freight-offer[data-offer-carrier="LOCAL"] .freight-offer-select[aria-pressed="true"] {
+  background: var(--freight-action-blue) !important;
+  border-color: var(--freight-action-border) !important;
+  color: #fff !important;
+}
+.freight-quotes .freight-offer[data-offer-carrier="LOCAL"] .freight-offer-select[aria-pressed="true"] {
+  background: var(--freight-action-selected) !important;
+}
+
 /* History: practical filter/search layout with aligned controls. */
 .freight-quotes .freight-history-panel {
   background: #fff;
