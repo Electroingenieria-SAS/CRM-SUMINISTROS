@@ -511,6 +511,16 @@ test('categoría restringe destinos y limpia rutas anteriores al cambiar de zona
 
 test('historial premium aplica botones azules con texto blanco sin alterar controles ni estados',async({page},testInfo)=>{
  await mountQuotes(page);
+ // Dynamic CRM modules add runtime stylesheets; only the four static families are canonical.
+ const canonical=page.locator('head link[rel="stylesheet"][href^="./assets/css/"]');
+ await expect(canonical).toHaveCount(4);
+ await expect(canonical.last()).toHaveAttribute('href',/experience\.css\?v=11\.46\.0/);
+ const cssReady=await canonical.last().evaluate(link=>{
+  const rules=[...link.sheet.cssRules];
+  return rules.some(rule=>rule.href?.includes('quote-action-system.css')&&Boolean(rule.styleSheet));
+ });
+ expect(cssReady).toBe(true);
+
  await page.getByRole('tab',{name:/Historial/}).click();
  await page.evaluate(async()=>{
   const {quoteHistoryHtml}=await import('/assets/js/domains/freight-quotes/quote-history-view.js');
@@ -536,6 +546,9 @@ test('historial premium aplica botones azules con texto blanco sin alterar contr
  }
  await expect(page.locator('[data-view-tab="history"]')).toHaveAttribute('aria-selected','true');
  await expect(page.locator('.freight-history-status')).toContainText('Calculada');
+ await expect(page.locator('.freight-history-kicker')).toHaveText('GESTIÓN DE FLETES · HISTORIAL');
+ const primaryMetric=await page.locator('.freight-history-metric').first().evaluate(el=>getComputedStyle(el).backgroundImage);
+ expect(primaryMetric).toContain('linear-gradient');
  for(const width of [1440,390]){
   await page.setViewportSize({width,height:850});
   expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+1);

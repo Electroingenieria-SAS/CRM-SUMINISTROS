@@ -5,11 +5,20 @@ import {quoteView,quoteHistoryHtml} from '../../assets/js/domains/freight-quotes
 
 const css=readFileSync(new URL('../../assets/css/modules/freight/quote-action-system.css',import.meta.url),'utf8');
 const operations=readFileSync(new URL('../../assets/css/operations.css',import.meta.url),'utf8');
+const index=readFileSync(new URL('../../index.html',import.meta.url),'utf8');
+const experience=readFileSync(new URL('../../assets/css/experience.css',import.meta.url),'utf8');
 
-test('freight UI uses one isolated blue action stylesheet, loaded after older themes',()=>{
- assert.match(operations,/modules\/freight\/quote-action-system\.css/);
- assert.ok(operations.indexOf('quote-action-system.css')>operations.indexOf('freight-premium-v3.css'));
- assert.ok(operations.indexOf('quote-action-system.css')>operations.indexOf('local-carrier.css'));
+test('four canonical CSS families preserved; freight theme loaded last in experience',()=>{
+ const links=[...index.matchAll(/href="\.\/assets\/css\/([^"?]+)\?v=([^"]+)"/g)].map(m=>[m[1],m[2]]);
+ assert.deepEqual(links,[
+  ['core-shell.css','11.46.0'],['operations.css','11.46.0'],
+  ['analytics.css','11.46.0'],['experience.css','11.46.0']
+ ]);
+ assert.match(experience,/@import "modules\/freight\/quote-action-system\.css";/);
+ assert.equal(experience.split('quote-action-system.css').length,2,'freight imported once');
+ assert.match(experience.trimEnd(),/quote-action-system\.css";$/);
+ assert.doesNotMatch(operations,/quote-action-system\.css/);
+ assert.match(quoteView(),/GESTIÓN DE FLETES · HISTORIAL/);
  assert.match(css,/\.freight-quotes/);
  assert.match(css,/--freight-action-blue: #1167b4/);
  assert.match(css,/--freight-action-hover: #094e91/);
