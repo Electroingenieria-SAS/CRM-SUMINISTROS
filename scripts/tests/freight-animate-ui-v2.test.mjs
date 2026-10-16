@@ -31,13 +31,13 @@ test('Anime.js stays local while shared button microinteractions use CSS-only co
  const freightCSS=fs.readFileSync(new URL('../css/modules/freight/freight-design-v2.css',root),'utf8');
  assert.match(runtime,/vendor-anime\.js/);
  assert.match(runtime,/animeAnimate\(/);
- assert.doesNotMatch(runtime,/addEventListener\\('pointerdown'/);
+ assert.ok(!runtime.includes("addEventListener('pointerdown'"));
  assert.doesNotMatch(css,/crm-ui-ripple|crm-shine/);
  assert.match(css,/prefers-reduced-motion/);
- assert.match(css,/translate3d\\(-125%,0,0\\)/);
- assert.match(css,/\\.freight-carrier-segment button\\[aria-pressed="true"\\]/);
- assert.match(css,/\\.freight-mode button\\[aria-pressed="true"\\]/);
- assert.match(css,/\\.btn-primary/);
+ assert.ok(css.includes('translate3d(-125%,0,0)'));
+ assert.ok(css.includes('.freight-carrier-segment button[aria-pressed="true"]'));
+ assert.ok(css.includes('.freight-mode button[aria-pressed="true"]'));
+ assert.ok(css.includes('.btn-primary'));
  assert.match(freightCSS,/freight-city-results|freight-carrier-segment|freight-money-input/);
  const vendor=new URL('shared/motion/vendor-anime.js',root);
  assert.ok(fs.existsSync(vendor),'local Anime.js ESM required by global entry');
