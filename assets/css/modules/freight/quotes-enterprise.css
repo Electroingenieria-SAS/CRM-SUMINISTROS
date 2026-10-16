@@ -12,7 +12,7 @@
 .freight-head-detail{display:flex;align-items:center;gap:10px;color:#62788d;font-weight:760;font-size:.67rem;letter-spacing:.1em;line-height:1.5}
 .freight-head-icon{width:46px;height:46px;font-size:1.25rem;border-radius:13px;color:#1d568e;background:#eff5fc;border:1px solid #d8e5f2}
 .freight-view-nav{display:flex;align-items:center;gap:5px;border-bottom:1px solid #dce6f0;margin-bottom:24px;overflow-x:auto;scrollbar-width:thin}
-.freight-view-tab{display:flex;align-items:center;gap:9px;border:0;border-bottom:3px solid transparent;color:#64788d;background:transparent;padding:14px 18px 13px;font-size:.91rem;font-family:inherit;font-weight:700;white-space:nowrap;cursor:pointer;transition:color .15s,border-color .15s}
+.freight-view-tab{display:flex;align-items:center;gap:9px;border:0;border-bottom:3px solid transparent;color:#64788d;background:transparent;padding:14px 18px 13px;font-size:.91rem;font-family:inherit;font-weight:700;white-space:nowrap;cursor:pointer}
 .freight-view-tab [data-history-tab-count]{display:inline-grid;place-items:center;min-width:25px;height:23px;background:#edf3fa;border-radius:8px;padding:0 6px;font-size:.74rem;color:#476987}
 .freight-quotes .freight-notice{background:#fafcff;border:1px solid #dee8f1;border-left:3px solid #377cb7;border-radius:10px;padding:12px 17px;font-size:.82rem}
 .freight-quotes .freight-panel{border:1px solid #e0e7f0;border-radius:17px;box-shadow:0 5px 22px rgba(20,51,83,.035)}

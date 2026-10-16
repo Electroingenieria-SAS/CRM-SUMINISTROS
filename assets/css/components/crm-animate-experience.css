@@ -1,13 +1,13 @@
 /* Canonical CRM button motion. No JS listeners, timers or per-click DOM nodes. */
 :root{--crm-interact-spring:cubic-bezier(.22,1,.36,1);--crm-interact-fast:170ms;--crm-interact-slow:300ms;--crm-highlight-blue:#176db6;--crm-highlight-amber:#e9b735}
 /* These are existing action and segmented button families: colors still come from their owners. */
-:is(#app,#modal-root) :is(.btn,.icon-btn,.segment-control button,.freight-view-tab,.freight-scope-option,.freight-carrier-segment button,.freight-mode button,.freight-offer-select,[data-ui-motion="button"]){
+:is(#app,#modal-root) :is(.btn,.icon-btn,.segment-control button,.freight-view-tab,.freight-scope-option,.freight-carrier-segment button,.freight-mode button,.freight-offer-select,.freight-add-material,.freight-calculate,[data-ui-motion="button"]){
  transition:transform var(--crm-interact-fast) var(--crm-interact-spring),box-shadow var(--crm-interact-slow) ease,background-color var(--crm-interact-fast) ease,border-color var(--crm-interact-fast) ease,color var(--crm-interact-fast) ease;
 }
 @media(hover:hover) and (pointer:fine){
- :is(#app,#modal-root) :is(.btn,.segment-control button,.freight-view-tab,.freight-scope-option,.freight-carrier-segment button,.freight-mode button,.freight-offer-select,[data-ui-motion="button"]):not(:disabled):not([aria-disabled="true"]):not([data-close]):not([data-remove-line]):not([data-ui-motion="off"]):hover{transform:translate3d(0,-2px,0)}
+ :is(#app,#modal-root) :is(.btn,.segment-control button,.freight-view-tab,.freight-scope-option,.freight-carrier-segment button,.freight-mode button,.freight-offer-select,.freight-add-material,.freight-calculate,[data-ui-motion="button"]):not(:disabled):not([aria-disabled="true"]):not([data-close]):not([data-remove-line]):not([data-ui-motion="off"]):hover{transform:translate3d(0,-2px,0)}
 }
-:is(#app,#modal-root) :is(.btn,.segment-control button,.freight-view-tab,.freight-scope-option,.freight-carrier-segment button,.freight-mode button,.freight-offer-select,[data-ui-motion="button"]):not(:disabled):not([aria-disabled="true"]):not([data-close]):not([data-remove-line]):not([data-ui-motion="off"]):active{transform:translate3d(0,0,0) scale(.976)}
+:is(#app,#modal-root) :is(.btn,.segment-control button,.freight-view-tab,.freight-scope-option,.freight-carrier-segment button,.freight-mode button,.freight-offer-select,.freight-add-material,.freight-calculate,[data-ui-motion="button"]):not(:disabled):not([aria-disabled="true"]):not([data-close]):not([data-remove-line]):not([data-ui-motion="off"]):active{transform:translate3d(0,0,0) scale(.976)}
 /* A single non-looping sweep for primary actions and pressed options. */
 :is(#app,#modal-root) :is(.btn-primary,.btn-create,.freight-calculate,.freight-carrier-segment button[aria-pressed="true"],.freight-mode button[aria-pressed="true"],.freight-scope-option[aria-pressed="true"],.freight-offer-select[aria-pressed="true"]):not(:disabled):not([aria-disabled="true"]):not([data-ui-motion="off"]){position:relative;isolation:isolate;overflow:hidden}
 :is(#app,#modal-root) :is(.btn-primary,.btn-create,.freight-calculate,.freight-carrier-segment button[aria-pressed="true"],.freight-mode button[aria-pressed="true"],.freight-scope-option[aria-pressed="true"],.freight-offer-select[aria-pressed="true"]):not(:disabled):not([aria-disabled="true"]):not([data-ui-motion="off"])::after{
@@ -31,8 +31,8 @@
 .freight-quotes .freight-history-table tbody tr{transition:background-color 180ms ease}
 .freight-quotes .freight-history-table tbody tr:hover{background:#edf6ff}
 @media(prefers-reduced-motion:reduce){
- :is(#app,#modal-root) :is(.btn,.icon-btn,.segment-control button,.freight-view-tab,.freight-scope-option,.freight-carrier-segment button,.freight-mode button,.freight-offer-select,[data-ui-motion="button"],.card,.panel,.stat-card,.kpi-card){transition:none}
- :is(#app,#modal-root) :is(.btn,.segment-control button,.freight-view-tab,.freight-scope-option,.freight-carrier-segment button,.freight-mode button,.freight-offer-select):is(:hover,:active){transform:none}
+ :is(#app,#modal-root) :is(.btn,.icon-btn,.segment-control button,.freight-view-tab,.freight-scope-option,.freight-carrier-segment button,.freight-mode button,.freight-offer-select,.freight-add-material,.freight-calculate,[data-ui-motion="button"],.card,.panel,.stat-card,.kpi-card){transition:none}
+ :is(#app,#modal-root) :is(.btn,.icon-btn,.segment-control button,.freight-view-tab,.freight-scope-option,.freight-carrier-segment button,.freight-mode button,.freight-offer-select,.freight-add-material,.freight-calculate):is(:hover,:active){transform:none}
  :is(#app,#modal-root) :is(.btn-primary,.btn-create,.freight-calculate,.freight-carrier-segment button,.freight-mode button,.freight-scope-option,.freight-offer-select)::after{display:none;transition:none}
  #toast-root>:is(div,article){animation:none}
 }

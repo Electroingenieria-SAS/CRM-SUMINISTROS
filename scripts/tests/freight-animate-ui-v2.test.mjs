@@ -38,6 +38,11 @@ test('Anime.js stays local while shared button microinteractions use CSS-only co
  assert.ok(css.includes('.freight-carrier-segment button[aria-pressed="true"]'));
  assert.ok(css.includes('.freight-mode button[aria-pressed="true"]'));
  assert.ok(css.includes('.btn-primary'));
+ assert.ok(css.includes('.freight-add-material'));
+ assert.ok(css.includes('.freight-calculate'));
+ assert.ok(!css.includes('setInterval'));
+ const base=fs.readFileSync(new URL('../css/components/buttons.css',root),'utf8');
+ assert.doesNotMatch(base,/\.btn:hover:not\(:disabled\) \{ transform:/);
  assert.match(freightCSS,/freight-city-results|freight-carrier-segment|freight-money-input/);
  const vendor=new URL('shared/motion/vendor-anime.js',root);
  assert.ok(fs.existsSync(vendor),'local Anime.js ESM required by global entry');
