@@ -12,8 +12,8 @@ const experience=readFileSync(new URL('../../assets/css/experience.css',import.m
 test('four canonical CSS families preserved; freight theme loaded last in experience',()=>{
  const links=[...index.matchAll(/href="\.\/assets\/css\/([^"?]+)\?v=([^"]+)"/g)].map(m=>[m[1],m[2]]);
  assert.deepEqual(links,[
-  ['core-shell.css','11.46.2'],['operations.css','11.46.2'],
-  ['analytics.css','11.46.2'],['experience.css','11.46.2']
+  ['core-shell.css','11.46.3'],['operations.css','11.46.3'],
+  ['analytics.css','11.46.3'],['experience.css','11.46.3']
  ]);
  assert.match(experience,/@import "modules\/freight\/quote-action-system\.css";/);
  assert.equal(experience.split('quote-action-system.css').length,2,'freight imported once');

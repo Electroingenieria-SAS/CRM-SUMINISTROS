@@ -2,7 +2,7 @@
 
 export function validatePwaRouting({ check, index, sw, vercel }){
   check(sw.includes('// previous-cache: crm-suministros-v11-46-1-20261016-41'),"previous-cache PWA debe apuntar a V11.46.1.");
-  check(sw.includes('const CACHE="crm-suministros-v11-46-1-20261016-41";'),"CACHE activo PWA no corresponde a V11.46.2.");
+  check(sw.includes('const CACHE="crm-suministros-v11-46-3-20261016-43";'),"CACHE activo PWA no corresponde a V11.46.3.");
   check(sw.includes('caches.match(event.request,{ignoreSearch:true})'),"PWA debe resolver assets versionados.");
   check(index.includes('<link rel="manifest" href="./manifest.webmanifest">'),"index.html debe declarar el manifest PWA.");
   check(vercel.includes('manifest\\\\.webmanifest')||vercel.includes('/manifest.webmanifest'),"Vercel debe excluir o tratar explícitamente el manifest real.");
