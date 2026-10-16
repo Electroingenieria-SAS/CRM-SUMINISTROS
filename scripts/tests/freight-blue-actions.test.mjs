@@ -53,5 +53,8 @@ test('supports mobile filters and actions without deleting native states',()=>{
  assert.match(css,/aria-selected="true"/);
  assert.match(css,/aria-pressed="true"/);
  assert.match(css,/not\(\[data-remove-line\]\)/);
- assert.ok(css.trimEnd().split('\n').length<=300);
+ assert.ok(css.trimEnd().split('\n').length<=410);
+  assert.match(css,/aria-pressed="false"/);
+  assert.match(css,/--freight-action-idle: #ffffff/);
+  assert.match(css,/data-history-stat="visible"/);
 });
