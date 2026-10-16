@@ -589,8 +589,8 @@ test('controles excluyentes: activo azul oscuro e inactivo blanco en transportad
  await expectPair(weight,volume);
  await volume.click();
  await expectPair(volume,weight);
- const national=page.locator('[data-quote-scope="NATIONAL"]');
- const local=page.locator('[data-quote-scope="LOCAL"]');
+ const national=page.locator('button[data-quote-scope="NATIONAL"]');
+ const local=page.locator('button[data-quote-scope="LOCAL"]');
  await expectPair(national,local);
  await local.click();
  await expectPair(local,national);
