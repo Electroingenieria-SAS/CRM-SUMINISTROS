@@ -507,3 +507,43 @@ test('categoría restringe destinos y limpia rutas anteriores al cambiar de zona
  await picker.click();
  await expect(page.locator('[data-local-controls] [data-local-route-choice="SAN PEDRO"]')).toBeVisible();
 });
+
+
+test('historial premium aplica botones azules con texto blanco sin alterar controles ni estados',async({page},testInfo)=>{
+ await mountQuotes(page);
+ await page.getByRole('tab',{name:/Historial/}).click();
+ await page.evaluate(async()=>{
+  const {quoteHistoryHtml}=await import('/assets/js/domains/freight-quotes/quote-history-view.js');
+  document.querySelector('[data-quote-history]').innerHTML=quoteHistoryHtml([{
+   id:'visual-history',folio:23,created_at:'2026-10-15T13:00:00Z',
+   carrier:'ENVIA',status:'CALCULATED',order_number:'PRUEBA NUMERO 001',
+   actual_cost_cop:null,snapshot:{origin:'TULUA',destination:'CALI (VALLE DEL CAUCA)',
+    commercialEstimate:{available:true,totalCop:27286}}
+  }]);
+ });
+ const selectors=['[data-view-tab="quote"]','[data-view-tab="history"]',
+  '[data-history-clear]','[data-history-export]','[data-quote-view]',
+  '[data-quote-duplicate]','[data-quote-link]','[data-history-prev]','[data-history-next]'];
+ for(const selector of selectors){
+  const button=page.locator(selector).first();
+  await expect(button).toBeVisible();
+  const colors=await button.evaluate(node=>{
+   const style=getComputedStyle(node);
+   return {background:style.backgroundColor,color:style.color};
+  });
+  expect(colors.color,selector).toBe('rgb(255, 255, 255)');
+  expect(colors.background,selector).not.toBe('rgba(0, 0, 0, 0)');
+ }
+ await expect(page.locator('[data-view-tab="history"]')).toHaveAttribute('aria-selected','true');
+ await expect(page.locator('.freight-history-status')).toContainText('Calculada');
+ await page.locator('[data-history-search]').fill('Prueba');
+ await page.locator('[data-history-clear]').click();
+ await expect(page.locator('[data-history-search]')).toHaveValue('');
+ for(const width of [1440,390]){
+  await page.setViewportSize({width,height:850});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+1);
+  await page.screenshot({path:testInfo.outputPath('freight-blue-history-'+width+'.png'),fullPage:true});
+ }
+ await page.getByRole('tab',{name:'Nueva cotización'}).click();
+ await expect(page.locator('[data-quote-workspace]')).toBeVisible();
+});
