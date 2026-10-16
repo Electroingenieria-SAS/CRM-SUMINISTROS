@@ -12,12 +12,15 @@ test('TCC and ENVÍA retain text and selection state without altering tariff cal
  assert.match(html,/data-quote-select-carrier="TCC" aria-pressed="false"/);
  assert.match(html,/>Seleccionada<\/button>/);
 });
-test('selected carrier uses explicit white contrast for both companies',()=>{
- const css=fs.readFileSync(new URL('../../assets/css/modules/logistics/freight-button-popup-layout-fix.css',import.meta.url),'utf8');
- assert.match(css,/\[data-offer-carrier="ENVIA"\] \.freight-offer-select\[aria-pressed="true"\]/);
- assert.match(css,/\[data-offer-carrier="TCC"\] \.freight-offer-select\[aria-pressed="true"\]/);
- assert.ok((css.match(/color:#fff!important/g)||[]).length>=3);
- assert.match(css,/prefers-reduced-motion:reduce/);
+test('TCC, ENVÍA y LOCAL comparten estados exclusivos sin CSS heredado de emergencias',()=>{
+ const css=fs.readFileSync(new URL('../../assets/css/modules/freight/quote-action-system.css',import.meta.url),'utf8');
+ const old=fs.readFileSync(new URL('../../assets/css/modules/logistics/freight-button-popup-layout-fix.css',import.meta.url),'utf8');
+ assert.match(css,/aria-pressed="true"/);
+ assert.match(css,/aria-pressed="false"/);
+ assert.match(css,/--freight-action-selected: #083b70/);
+ assert.match(css,/--freight-action-idle-text: #104b80/);
+ assert.doesNotMatch(old,/\.freight-offer-select\[aria-pressed/);
+ assert.match(css,/prefers-reduced-motion: reduce/);
 });
 test('quick-order modal inserts freight action before close and aligns a dedicated X',()=>{
  const source=fs.readFileSync(new URL('../../assets/js/domains/freight-quotes/quote-order-entry.js',import.meta.url),'utf8');
