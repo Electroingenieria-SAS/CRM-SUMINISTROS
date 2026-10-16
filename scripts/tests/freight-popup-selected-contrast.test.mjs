@@ -14,7 +14,7 @@ test('TCC and ENVÍA retain text and selection state without altering tariff cal
 });
 test('TCC, ENVÍA y LOCAL comparten estados exclusivos sin CSS heredado de emergencias',()=>{
  const css=fs.readFileSync(new URL('../../assets/css/modules/freight/quote-interactive-states.css',import.meta.url),'utf8');
- const old=fs.readFileSync(new URL('../../assets/css/modules/logistics/freight-button-popup-layout-fix.css',import.meta.url),'utf8');
+ const old=fs.readFileSync(new URL('../../assets/css/modules/logistics/order-freight-action-header.css',import.meta.url),'utf8');
  assert.match(css,/aria-pressed="true"/);
  assert.match(css,/aria-pressed="false"/);
  assert.match(css,/--freight-action-selected: #083b70/);
@@ -25,13 +25,15 @@ test('TCC, ENVÍA y LOCAL comparten estados exclusivos sin CSS heredado de emerg
 });
 test('quick-order modal inserts freight action before close and aligns a dedicated X',()=>{
  const source=fs.readFileSync(new URL('../../assets/js/domains/freight-quotes/quote-order-entry.js',import.meta.url),'utf8');
- const css=fs.readFileSync(new URL('../../assets/css/modules/logistics/freight-button-popup-layout-fix.css',import.meta.url),'utf8');
+ const css=fs.readFileSync(new URL('../../assets/css/modules/logistics/order-freight-action-header.css',import.meta.url),'utf8');
  assert.match(source,/target\.insertBefore\(button,close\)/);
  assert.match(source,/target\.classList\.add\('order-freight-action-head'\)/);
  assert.match(source,/className='btn order-freight-action'/);
- assert.match(css,/grid-template-columns:minmax\(0,1fr\) auto 42px/);
- assert.match(css,/grid-column:3!important/);
+ assert.match(css,/grid-template-columns:minmax\(0,1fr\) auto 44px/);
+ assert.match(css,/grid-column:3/);
+ assert.doesNotMatch(css,/!important/);
+ assert.doesNotMatch(css,/freight-offer-select/);
  assert.match(css,/@media\(max-width:700px\)/);
  const ops=fs.readFileSync(new URL('../../assets/css/operations.css',import.meta.url),'utf8');
- assert.match(ops,/modules\/logistics\/freight-button-popup-layout-fix\.css/);
+ assert.match(ops,/modules\/logistics\/order-freight-action-header\.css/);
 });
