@@ -22,8 +22,6 @@
   color: var(--freight-action-idle-text);
   border: 1px solid var(--freight-action-idle-border);
   box-shadow: 0 2px 8px rgba(15,69,121,.04);
-  transition: background-color .2s ease, color .2s ease, border-color .2s ease,
-              box-shadow .2s ease, transform .2s ease;
   cursor: pointer;
 }
 .freight-quotes .freight-premium-nav .freight-view-tab {

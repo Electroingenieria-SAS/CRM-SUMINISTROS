@@ -63,6 +63,10 @@ test('supports mobile filters and actions without deleting native states',()=>{
   assert.match(css,/data-history-stat="visible"/);
   assert.ok(css.includes('background-image:none'));
   assert.ok(states.includes('.freight-carrier-segment > button[aria-pressed="false"]'));
+  assert.doesNotMatch(states,/transition: background-color/);
+  const motion=readFileSync(new URL('../../assets/css/components/crm-animate-experience.css',import.meta.url),'utf8');
+  assert.match(motion,/prefers-reduced-motion:reduce/);
+  assert.match(motion,/segment-control button/);
   // Regression: selection styles have a single owner instead of appended overrides.
   assert.doesNotMatch(states,/Estados explícitos de los cuatro selectores/);
   assert.match(states,/background-image: none/);
