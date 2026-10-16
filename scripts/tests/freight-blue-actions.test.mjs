@@ -12,8 +12,8 @@ const experience=readFileSync(new URL('../../assets/css/experience.css',import.m
 test('four canonical CSS families preserved; freight theme loaded last in experience',()=>{
  const links=[...index.matchAll(/href="\.\/assets\/css\/([^"?]+)\?v=([^"]+)"/g)].map(m=>[m[1],m[2]]);
  assert.deepEqual(links,[
-  ['core-shell.css','11.46.1'],['operations.css','11.46.1'],
-  ['analytics.css','11.46.1'],['experience.css','11.46.1']
+  ['core-shell.css','11.46.2'],['operations.css','11.46.2'],
+  ['analytics.css','11.46.2'],['experience.css','11.46.2']
  ]);
  assert.match(experience,/@import "modules\/freight\/quote-action-system\.css";/);
  assert.equal(experience.split('quote-action-system.css').length,2,'freight imported once');
@@ -63,4 +63,13 @@ test('supports mobile filters and actions without deleting native states',()=>{
   assert.match(css,/data-history-stat="visible"/);
   assert.ok(css.includes('background-image:none'));
   assert.ok(states.includes('.freight-carrier-segment > button[aria-pressed="false"]'));
+  assert.doesNotMatch(states,/transition: background-color/);
+  const motion=readFileSync(new URL('../../assets/css/components/crm-animate-experience.css',import.meta.url),'utf8');
+  assert.match(motion,/prefers-reduced-motion:reduce/);
+  assert.match(motion,/segment-control button/);
+  // Regression: selection styles have a single owner instead of appended overrides.
+  assert.doesNotMatch(states,/Estados explícitos de los cuatro selectores/);
+  assert.match(states,/background-image: none/);
+  assert.doesNotMatch(readFileSync(new URL('../../assets/css/modules/freight/quote-motion.css',import.meta.url),'utf8'),/\.freight-view-tab\[aria-selected=true\]/);
+  assert.doesNotMatch(readFileSync(new URL('../../assets/css/modules/freight/quotes-enterprise.css',import.meta.url),'utf8'),/\.freight-offer-selected \.freight-offer-select/);
 });

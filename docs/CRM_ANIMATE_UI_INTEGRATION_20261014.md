@@ -16,7 +16,7 @@ Century Gothic, PWA y compatibilidad con el código existente.
 | AutoAnimate | @formkit/auto-animate 0.10.0 | Inserción y duplicado de materiales |
 | Floating UI | @floating-ui/dom 1.8.0 | Ayuda contextual de precios, flip/shift |
 | Animated Tabs / Fade / Auto Height | Pestañas nativas, fade de contenido y detalles desplegables | Cotizador e interacciones compartidas |
-| Ripple / Liquid Button / Shine | Sistema compartido en crm-visual-system.js y crm-animate-experience.css | Botones del CRM sin introducir componentes React |
+| Ripple / Liquid Button / Shine | Microinteracciones CSS compartidas, sin nodos Ripple por clic | Botones compatibles, segmentados y pestañas existentes |
 | Sliding / Counting Number | Transición de indicadores ya calculados, sin animar el valor contable | Resumen de mercancía e historial |
 | Radix Sheet | dialog nativo con panel lateral y bloqueo de foco | Detalles de cotizaciones |
 | Copy Button | Botón de copiar folio con respuesta de éxito | Detalle del historial |
@@ -49,3 +49,6 @@ de ese módulo, revisión de CSP y accesibilidad y pruebas de rendimiento.
 - Pruebas de contrato y E2E sobre 375, 768, 1024 y 1440 px, además de gates de seguridad.
 - La interfaz debe comunicar el valor final de las transportadoras, sin inventar cifras
   ni alterar el cálculo al animar.
+
+## Consolidación de animaciones 2026-10-16
+Movimiento corto (hover 2 px, press scale .976) y reflejo no repetitivo de 550 ms. Contrato CSS en crm-animate-experience.css; sin bibliotecas ni listeners extra, evita controles de cierre/eliminación y respeta prefers-reduced-motion. Las variantes mantienen sus estilos de color originales.

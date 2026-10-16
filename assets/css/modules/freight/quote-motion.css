@@ -1,9 +1,5 @@
 /* CRM Suministros · Motion tokens / premium modal + freight interactions */
 :root{--crm-motion-hover:130ms;--crm-motion-button:170ms;--crm-motion-tab:210ms;--crm-motion-panel:260ms;--crm-motion-ease:cubic-bezier(.2,.8,.2,1)}
-.freight-view-tab{position:relative;transition:color var(--crm-motion-tab) ease,background-color var(--crm-motion-tab) ease}
-.freight-view-tab[aria-selected=true]{background:linear-gradient(180deg,#f9fcff,#eff6fd)}
-.freight-offer-select,.freight-add-material,.freight-calculate{transition:transform var(--crm-motion-button) ease,box-shadow var(--crm-motion-button) ease,background-color var(--crm-motion-button) ease}
-.freight-offer-select:not(:disabled):active,.freight-add-material:not(:disabled):active,.freight-calculate:not(:disabled):active{transform:scale(.985)}
 .freight-offer-select:focus-visible,.freight-view-tab:focus-visible,.freight-help-button:focus-visible{outline:3px solid #efc344;outline-offset:3px}
 .freight-offer:hover{box-shadow:0 12px 30px rgba(19,70,116,.1);border-color:#b4d1e8}
 .freight-help-button{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border:1px solid #9fbfda;border-radius:50%;color:#285980;background:#fff;font-weight:800;font-size:.8rem;cursor:pointer;margin-inline-start:8px}

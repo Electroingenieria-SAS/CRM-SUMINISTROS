@@ -1,24 +1,29 @@
-/* Enterprise motion layer. Progressive implementation of Animate UI design patterns. */
-:root{--crm-interact-spring:cubic-bezier(.2,.8,.2,1);--crm-interact-fast:150ms;--crm-interact-slow:260ms;--crm-highlight-blue:#176db6;--crm-highlight-amber:#e9b735}
-:is(#app,#modal-root) .btn:not(:disabled){position:relative;isolation:isolate;transition:box-shadow var(--crm-interact-slow) var(--crm-interact-spring),transform var(--crm-interact-fast) var(--crm-interact-spring),background-color var(--crm-interact-fast) ease}
-:is(#app,#modal-root) .btn:not(:disabled):active{transform:scale(.985)}
-:is(#app,#modal-root) .btn-primary:not(:disabled){background-image:linear-gradient(130deg,#0c5298,#227fca 66%,#0c5298);background-size:180% 100%;transition:background-position 360ms ease,box-shadow 260ms ease,transform 150ms ease}
-:is(#app,#modal-root) .btn-primary:not(:disabled):hover{background-position:100% 0;box-shadow:0 6px 18px rgba(15,99,167,.21)}
-:is(#app,#modal-root) .btn-primary:not(:disabled):active{transform:translateY(1px) scale(.984)}
+/* Canonical CRM button motion. No JS listeners, timers or per-click DOM nodes. */
+:root{--crm-interact-spring:cubic-bezier(.22,1,.36,1);--crm-interact-fast:170ms;--crm-interact-slow:300ms;--crm-highlight-blue:#176db6;--crm-highlight-amber:#e9b735}
+/* These are existing action and segmented button families: colors still come from their owners. */
+:is(#app,#modal-root) :is(.btn,.icon-btn,.segment-control button,.freight-view-tab,.freight-scope-option,.freight-carrier-segment button,.freight-mode button,.freight-offer-select,.freight-add-material,.freight-calculate,[data-ui-motion="button"]){
+ transition:transform var(--crm-interact-fast) var(--crm-interact-spring),box-shadow var(--crm-interact-slow) ease,background-color var(--crm-interact-fast) ease,border-color var(--crm-interact-fast) ease,color var(--crm-interact-fast) ease;
+}
+@media(hover:hover) and (pointer:fine){
+ :is(#app,#modal-root) :is(.btn,.segment-control button,.freight-view-tab,.freight-scope-option,.freight-carrier-segment button,.freight-mode button,.freight-offer-select,.freight-add-material,.freight-calculate,[data-ui-motion="button"]):not(:disabled):not([aria-disabled="true"]):not([data-close]):not([data-remove-line]):not([data-ui-motion="off"]):hover{transform:translate3d(0,-2px,0)}
+}
+:is(#app,#modal-root) :is(.btn,.segment-control button,.freight-view-tab,.freight-scope-option,.freight-carrier-segment button,.freight-mode button,.freight-offer-select,.freight-add-material,.freight-calculate,[data-ui-motion="button"]):not(:disabled):not([aria-disabled="true"]):not([data-close]):not([data-remove-line]):not([data-ui-motion="off"]):active{transform:translate3d(0,0,0) scale(.976)}
+/* A single non-looping sweep for primary actions and pressed options. */
+:is(#app,#modal-root) :is(.btn-primary,.btn-create,.freight-calculate,.freight-carrier-segment button[aria-pressed="true"],.freight-mode button[aria-pressed="true"],.freight-scope-option[aria-pressed="true"],.freight-offer-select[aria-pressed="true"]):not(:disabled):not([aria-disabled="true"]):not([data-ui-motion="off"]){position:relative;isolation:isolate;overflow:hidden}
+:is(#app,#modal-root) :is(.btn-primary,.btn-create,.freight-calculate,.freight-carrier-segment button[aria-pressed="true"],.freight-mode button[aria-pressed="true"],.freight-scope-option[aria-pressed="true"],.freight-offer-select[aria-pressed="true"]):not(:disabled):not([aria-disabled="true"]):not([data-ui-motion="off"])::after{
+ content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+ background:linear-gradient(105deg,transparent 28%,rgba(255,255,255,.22) 48%,transparent 68%);
+ transform:translate3d(-125%,0,0);transition:transform 550ms cubic-bezier(.16,1,.3,1);
+}
+@media(hover:hover) and (pointer:fine){
+ :is(#app,#modal-root) :is(.btn-primary,.btn-create,.freight-calculate,.freight-carrier-segment button[aria-pressed="true"],.freight-mode button[aria-pressed="true"],.freight-scope-option[aria-pressed="true"],.freight-offer-select[aria-pressed="true"]):not(:disabled):not([aria-disabled="true"]):not([data-ui-motion="off"]):hover::after{transform:translate3d(125%,0,0)}
+}
 :is(#app,#modal-root) :is(.card,.panel,.stat-card,.kpi-card){transition:border-color 210ms ease,box-shadow 230ms ease}
 :is(#app,#modal-root) :is(.card,.panel,.stat-card,.kpi-card):hover{box-shadow:0 9px 25px rgba(18,53,88,.075)}
 :is(#app,#modal-root) :is(input,select,textarea,.control):focus-visible{outline-color:#367fca;outline-offset:2px}
 :is(#app,#modal-root) :is(button,a,[role=tab]):focus-visible{outline:3px solid #efbd3e;outline-offset:2px}
 #toast-root>:is(div,article){animation:crm-toast-in 230ms var(--crm-interact-spring) both}
 @keyframes crm-toast-in{from{opacity:0;transform:translateY(-9px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
-:is(#app,#modal-root) button.btn-primary:not(:disabled){overflow:hidden}
-.crm-ui-ripple{position:absolute;display:block;left:0;top:0;border-radius:50%;background:currentColor;pointer-events:none;opacity:0;z-index:1}
-.freight-quotes .freight-preference-panel .freight-carrier-segment [aria-pressed=true]{box-shadow:0 8px 20px rgba(17,95,167,.13)}
-.freight-quotes .freight-results-heading>.freight-results-count{background:#e8f2fc;border:1px solid #cadff0}
-.freight-quotes .freight-calculate{position:relative;overflow:hidden}
-.freight-quotes .freight-calculate::after{content:"";position:absolute;inset:-120% -60%;background:linear-gradient(105deg,transparent 43%,rgba(255,255,255,.22) 50%,transparent 57%);transform:translateX(-75%);pointer-events:none}
-.freight-quotes .freight-calculate:hover::after{animation:crm-shine 850ms ease-out}
-@keyframes crm-shine{to{transform:translateX(85%)}}
 .freight-quotes .freight-view-tab[aria-selected=true]::after{content:"";position:absolute;bottom:-2px;left:18px;right:18px;height:3px;background:linear-gradient(90deg,#145fa9,#489cdd);border-radius:99px}
 .freight-quotes .freight-detail-sheet [data-sheet-copy]{display:inline-flex;align-items:center;gap:6px}
 .freight-quotes .freight-detail-sheet [data-sheet-copy][data-copied=true]{border-color:#9ed8c0;color:#176f54;background:#eaf8f1}
@@ -26,7 +31,8 @@
 .freight-quotes .freight-history-table tbody tr{transition:background-color 180ms ease}
 .freight-quotes .freight-history-table tbody tr:hover{background:#edf6ff}
 @media(prefers-reduced-motion:reduce){
- :is(#app,#modal-root) :is(.btn,.btn-primary,.card,.panel,.stat-card,.kpi-card),.freight-quotes .freight-history-table tbody tr{transition:none!important}
- :is(#app,#modal-root) :is(.btn,.btn-primary):active{transform:none!important}
- #toast-root>:is(div,article),.freight-quotes .freight-calculate:hover::after{animation:none!important}
+ :is(#app,#modal-root) :is(.btn,.icon-btn,.segment-control button,.freight-view-tab,.freight-scope-option,.freight-carrier-segment button,.freight-mode button,.freight-offer-select,.freight-add-material,.freight-calculate,[data-ui-motion="button"],.card,.panel,.stat-card,.kpi-card){transition:none}
+ :is(#app,#modal-root) :is(.btn,.icon-btn,.segment-control button,.freight-view-tab,.freight-scope-option,.freight-carrier-segment button,.freight-mode button,.freight-offer-select,.freight-add-material,.freight-calculate):is(:hover,:active){transform:none}
+ :is(#app,#modal-root) :is(.btn-primary,.btn-create,.freight-calculate,.freight-carrier-segment button,.freight-mode button,.freight-scope-option,.freight-offer-select)::after{display:none;transition:none}
+ #toast-root>:is(div,article){animation:none}
 }

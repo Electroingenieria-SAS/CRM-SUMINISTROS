@@ -1,6 +1,6 @@
 // Progressive enhancements for every CRM screen; no React migration or global DOM rewrites.
 import {animate as animeAnimate} from './vendor-anime.js';
-// Visual patterns correspond to Ripple, Liquid, Shine, Fade, Tabs and Copy interactions.
+// Page-level reveals only; button interactions are implemented in the shared CSS layer.
 const prefersReduced=()=>globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches??false;
 let installed=false;
 export function installCRMVisualSystem(){
@@ -17,25 +17,10 @@ export function installCRMVisualSystem(){
    requestAnimationFrame(()=>{
     if(tab.dataset.viewTab==='quote')reveal(document.querySelector('[data-quote-workspace]'));
     else if(tab.dataset.viewTab==='history')reveal(document.querySelector('[data-history-workspace]'));
-    else reveal(tab);
+    // Other selection feedback belongs to the shared CSS motion component.
    });
   }
  });
- document.addEventListener('pointerdown',event=>{
-  const button=event.target.closest?.('button.btn, .btn-primary, [data-ui-ripple]');
-  if(!button||button.disabled||prefersReduced()||event.button!==0)return;
-  const rect=button.getBoundingClientRect();
-  if(rect.width<12||rect.height<12)return;
-  const ripple=document.createElement('span');
-  ripple.className='crm-ui-ripple';
-  ripple.style.left=event.clientX-rect.left+'px';
-  ripple.style.top=event.clientY-rect.top+'px';
-  const size=Math.max(rect.width,rect.height)*2.5;
-  ripple.style.width=size+'px';ripple.style.height=size+'px';
-  button.append(ripple);
-  const animation=ripple.animate([{opacity:.28,transform:'translate(-50%,-50%) scale(.05)'},{opacity:0,transform:'translate(-50%,-50%) scale(1)'}],{duration:470,easing:'cubic-bezier(.2,.8,.2,1)'});
-  animation.finished.catch(()=>{}).finally(()=>ripple.remove());
- },{passive:true});
  // Run only on actual opening of operational dialogs, not all DOM nodes.
  document.addEventListener('toggle',event=>{
   const item=event.target;

@@ -24,15 +24,25 @@ test('carrier selection and COP are prominent and accessible',()=>{
  assert.match(ui,/TRANSPORTADORA PREFERIDA/);
  assert.equal((ui.match(/name="carrier"/g)||[]).length,1);
 });
-test('Anime.js with local vendors and globally scoped interactions',()=>{
+test('Anime.js stays local while shared button microinteractions use CSS-only composited transforms',()=>{
  const root=new URL('../../assets/js/',import.meta.url);
  const runtime=fs.readFileSync(new URL('shared/motion/crm-visual-system.js',root),'utf8');
  const css=fs.readFileSync(new URL('../css/components/crm-animate-experience.css',root),'utf8');
  const freightCSS=fs.readFileSync(new URL('../css/modules/freight/freight-design-v2.css',root),'utf8');
  assert.match(runtime,/vendor-anime\.js/);
  assert.match(runtime,/animeAnimate\(/);
- assert.match(runtime,/pointerdown/);
- assert.match(css,/crm-ui-ripple|crm-shine|prefers-reduced-motion/);
+ assert.ok(!runtime.includes("addEventListener('pointerdown'"));
+ assert.doesNotMatch(css,/crm-ui-ripple|crm-shine/);
+ assert.match(css,/prefers-reduced-motion/);
+ assert.ok(css.includes('translate3d(-125%,0,0)'));
+ assert.ok(css.includes('.freight-carrier-segment button[aria-pressed="true"]'));
+ assert.ok(css.includes('.freight-mode button[aria-pressed="true"]'));
+ assert.ok(css.includes('.btn-primary'));
+ assert.ok(css.includes('.freight-add-material'));
+ assert.ok(css.includes('.freight-calculate'));
+ assert.ok(!css.includes('setInterval'));
+ const base=fs.readFileSync(new URL('../css/components/buttons.css',root),'utf8');
+ assert.doesNotMatch(base,/\.btn:hover:not\(:disabled\) \{ transform:/);
  assert.match(freightCSS,/freight-city-results|freight-carrier-segment|freight-money-input/);
  const vendor=new URL('shared/motion/vendor-anime.js',root);
  assert.ok(fs.existsSync(vendor),'local Anime.js ESM required by global entry');

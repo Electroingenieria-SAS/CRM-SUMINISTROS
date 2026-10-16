@@ -25,7 +25,6 @@
 .freight-quotes .freight-main-label{display:block;color:#456780;font-size:.7rem;letter-spacing:.075em;font-weight:850;margin-bottom:10px}
 .freight-quotes .freight-carrier-choice{position:relative;min-width:0}
 .freight-quotes .freight-carrier-segment{padding:5px;background:#edf4fc;border:1px solid #d6e4f3;border-radius:15px;display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.freight-quotes .freight-carrier-segment button:active{transform:scale(.986)}
 .freight-quotes .freight-declared-field{display:flex;flex-direction:column;min-width:0}
 .freight-quotes .freight-money-input{display:flex;align-items:center;min-height:77px;padding:0 17px;gap:9px;border:1px solid #c9dced;border-radius:13px;background:#fff;box-shadow:0 2px 8px rgba(18,58,93,.035)}
 .freight-quotes .freight-money-input:focus-within{outline:2px solid #76aae1;outline-offset:1px}
