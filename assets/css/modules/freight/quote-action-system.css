@@ -63,52 +63,26 @@
   cursor: not-allowed;
 }
 
-/* Resumen de historial: una tarjeta líder y dos complementarias neutrales. */
-.freight-quotes .freight-history-kicker {
-  display: block;
-  margin-bottom: 5px;
-  color: #1167b4;
-  font-size: .68rem;
-  font-weight: 850;
-  letter-spacing: .12em;
+/* Estadísticas: tres superficies blancas, no seleccionables y con jerarquía azul. */
+.freight-quotes .freight-history-kicker{display:block;margin-bottom:5px;color:#1167b4;font-size:.68rem;font-weight:850;letter-spacing:.12em}
+.freight-quotes .freight-history-metric{
+  display:flex;align-items:center;gap:15px;min-height:112px;padding:21px;
+  border:1px solid #d6e3f1;border-top:4px solid #b7cde2;
+  border-radius:16px;background:#fff;background-image:none;
+  box-shadow:0 6px 20px rgba(13,57,102,.055)
 }
-.freight-quotes .freight-history-metric {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  min-height: 108px;
-  padding: 18px 20px;
-  border: 1px solid #d0e1f1;
-  border-radius: 15px;
-  background: #fff;
-  box-shadow: 0 6px 17px rgba(19,75,128,.055);
+.freight-quotes .freight-history-metric[data-history-stat="visible"]{border-top-color:#083b70}
+.freight-quotes .freight-history-metric[data-history-stat="estimated"]{border-top-color:#176ab4}
+.freight-quotes .freight-history-metric[data-history-stat="actual"]{border-top-color:#4293cf}
+.freight-quotes .freight-history-metric :is(span,strong){color:#163f65}
+.freight-quotes .freight-history-metric strong{color:#083b70;font-size:1.85rem;font-weight:880;letter-spacing:-.04em}
+.freight-quotes .freight-history-metric > div > span{color:#58728b;font-weight:730;font-size:.78rem}
+.freight-quotes .freight-history-metric .freight-metric-symbol{
+  display:grid;place-items:center;flex:0 0 48px;width:48px;height:48px;
+  border-radius:14px;background:#e9f2fb;color:#115b9f;font-size:1.35rem
 }
-.freight-quotes .freight-history-metric[data-history-stat="visible"] {
-  background: linear-gradient(130deg,#0d5797,#083b70);
-  border-color: #0b4c86;
-}
-.freight-quotes .freight-history-metric:is(
-  [data-history-stat="estimated"], [data-history-stat="actual"]
-) {
-  background-color: #fff;
-  background-image: none;
-  border-top: 3px solid #2776b8;
-}
-.freight-quotes .freight-history-metric :is(span,strong) {color:#163f65;}
-.freight-quotes .freight-history-metric[data-history-stat="visible"] :is(span,strong) {color:#fff;}
-.freight-quotes .freight-history-metric .freight-metric-symbol {
-  width: 44px;
-  height: 44px;
-  flex: 0 0 44px;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  background: #e8f2fc;
-  color: #1762a2;
-}
-.freight-quotes .freight-history-metric[data-history-stat="visible"] .freight-metric-symbol {
-  background: rgba(255,255,255,.16);
-  color: #fff;
+.freight-quotes .freight-history-metric[data-history-stat="visible"] .freight-metric-symbol{
+  background:#d9eafd;color:#083b70
 }
 
 /* History: practical filter/search layout with aligned controls. */

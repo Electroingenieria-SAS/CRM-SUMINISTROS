@@ -514,7 +514,7 @@ test('historial premium aplica botones azules con texto blanco sin alterar contr
  // Dynamic CRM modules add runtime stylesheets; only the four static families are canonical.
  const canonical=page.locator('head link[rel="stylesheet"][href^="./assets/css/"]');
  await expect(canonical).toHaveCount(4);
- await expect(canonical.last()).toHaveAttribute('href',/experience\.css\?v=11\.46\.0/);
+ await expect(canonical.last()).toHaveAttribute('href',/experience\.css\?v=11\.46\.1/);
  const cssReady=await canonical.last().evaluate(link=>{
   const rules=[...link.sheet.cssRules];
   return rules.some(rule=>rule.href?.includes('quote-action-system.css')&&Boolean(rule.styleSheet));
@@ -554,7 +554,8 @@ test('historial premium aplica botones azules con texto blanco sin alterar contr
  await expect(page.locator('.freight-history-status')).toContainText('Calculada');
  await expect(page.locator('.freight-history-kicker')).toHaveText('GESTIÓN DE FLETES · HISTORIAL');
  const primaryMetric=await page.locator('.freight-history-metric').first().evaluate(el=>getComputedStyle(el).backgroundImage);
- expect(primaryMetric).toContain('linear-gradient');
+ expect(primaryMetric).toBe('none');
+ for(const stat of ['visible','estimated','actual'])await expect(page.locator(`[data-history-stat="${stat}"]`)).toHaveCSS('background-color','rgb(255, 255, 255)');
  for(const width of [1440,390]){
   await page.setViewportSize({width,height:850});
   expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+1);

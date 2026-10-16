@@ -40,8 +40,6 @@
 .freight-quotes .freight-action-bar{border:1px solid #bdd6ec;background:linear-gradient(115deg,#eaf4ff,#fff);box-shadow:0 12px 23px rgba(15,70,121,.08)}
 .freight-quotes .freight-calculate{background:linear-gradient(130deg,#1669b8,#114e91);border-color:#135a9c;box-shadow:0 6px 16px rgba(22,93,159,.2)}
 .freight-quotes .freight-view-nav{gap:9px}
-.freight-quotes .freight-view-tab[aria-selected=true]{background:linear-gradient(180deg,#fff,#eaf4ff)}
-.freight-quotes .freight-history-overview>div{background:linear-gradient(150deg,#f7fbff,#fff);border:1px solid #d7e7f5}
 .freight-quotes :is(.freight-carrier-segment button,[data-destination-search],.freight-city-option):focus-visible{outline:3px solid #efba34;outline-offset:3px}
 @media(max-width:1050px){.freight-quotes .freight-route-grid{grid-template-columns:1fr 1fr}.freight-quotes .freight-destination-field{grid-column:1/-1}}
 @media(max-width:750px){.freight-quotes .freight-route-grid,.freight-quotes .freight-preferences-grid{grid-template-columns:1fr}.freight-quotes .freight-destination-field{grid-column:auto}.freight-quotes .freight-preference-panel,.freight-quotes .freight-step-panel{padding:19px 17px}}
