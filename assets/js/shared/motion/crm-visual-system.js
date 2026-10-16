@@ -1,6 +1,6 @@
 // Progressive enhancements for every CRM screen; no React migration or global DOM rewrites.
 import {animate as animeAnimate} from './vendor-anime.js';
-// Visual patterns correspond to Ripple, Liquid, Shine, Fade, Tabs and Copy interactions.
+// Page-level reveals only; button interactions are implemented in the shared CSS layer.
 const prefersReduced=()=>globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches??false;
 let installed=false;
 export function installCRMVisualSystem(){
