@@ -511,7 +511,8 @@ test('categoría restringe destinos y limpia rutas anteriores al cambiar de zona
 
 test('historial premium aplica botones azules con texto blanco sin alterar controles ni estados',async({page},testInfo)=>{
  await mountQuotes(page);
- const canonical=page.locator('head link[rel="stylesheet"]');
+ // Dynamic CRM modules add runtime stylesheets; only the four static families are canonical.
+ const canonical=page.locator('head link[rel="stylesheet"][href^="./assets/css/"]');
  await expect(canonical).toHaveCount(4);
  await expect(canonical.last()).toHaveAttribute('href',/experience\.css\?v=11\.46\.0/);
  const cssReady=await canonical.last().evaluate(link=>{
