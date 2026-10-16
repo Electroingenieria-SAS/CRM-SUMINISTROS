@@ -87,7 +87,11 @@
   background: linear-gradient(130deg,#0d5797,#083b70);
   border-color: #0b4c86;
 }
-.freight-quotes .freight-history-metric:not([data-history-stat="visible"]) {
+.freight-quotes .freight-history-metric:is(
+  [data-history-stat="estimated"], [data-history-stat="actual"]
+) {
+  background-color: #fff;
+  background-image: none;
   border-top: 3px solid #2776b8;
 }
 .freight-quotes .freight-history-metric :is(span,strong) {color:#163f65;}
@@ -115,20 +119,9 @@
   box-shadow: 0 12px 26px rgba(21,57,94,.055);
 }
 .freight-quotes .freight-history-heading {margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #e0eaf5;}
-.freight-quotes .freight-history-kicker {display:block;color:#1167b4;font-size:.68rem;font-weight:850;letter-spacing:.12em;margin-bottom:5px;}
-.freight-quotes .freight-history-metric:first-child {background:linear-gradient(135deg,#0c5da7,#083c70);border-color:#0a518f;}
-.freight-quotes .freight-history-metric:first-child :is(span,strong) {color:#fff;}
-.freight-quotes .freight-history-metric:first-child .freight-metric-symbol {background:rgba(255,255,255,.16);}
 .freight-quotes .freight-history-overview {
   gap: 14px;
   margin-bottom: 18px;
-}
-.freight-quotes .freight-history-metric {
-  min-height: 100px;
-  padding: 17px 19px;
-  border: 1px solid #d4e4f3;
-  border-radius: 14px;
-  box-shadow: 0 6px 16px rgba(19,75,128,.055);
 }
 .freight-quotes .freight-history-toolbar {
   padding: 18px;
