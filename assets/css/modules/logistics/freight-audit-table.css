@@ -1,0 +1,44 @@
+/* Componente autónomo: tabla de auditoría de inteligencia logística V11.41. */
+.freight-intel-v1141 .freight-table-wrap-v1141 {
+  width:100%;
+  max-width:100%;
+  overflow-x:auto;
+  overscroll-behavior-inline:contain;
+  -webkit-overflow-scrolling:touch;
+  border:1px solid #dbe6f0;
+  border-radius:14px;
+  background:#fff;
+  box-sizing:border-box;
+}
+.freight-intel-v1141 .freight-table-wrap-v1141:focus-visible {
+  outline:3px solid #65a8d7;
+  outline-offset:3px;
+}
+.freight-intel-v1141 .freight-table-v1141 {
+  width:100%;
+  min-width:920px;
+  margin:0;
+  table-layout:fixed;
+  border-collapse:separate;
+  border-spacing:0;
+}
+.freight-intel-v1141 .freight-table-v1141 th {
+  padding:14px 15px;
+  color:#fff;
+  background:#10497d;
+  border-bottom:1px solid #0a3c6a;
+  font-size:11px;
+  font-weight:800;
+  line-height:1.3;
+  letter-spacing:.045em;
+  text-align:left;
+  text-transform:uppercase;
+  white-space:normal;
+}
+.freight-intel-v1141 .freight-table-v1141 th:first-child {width:20%}
+.freight-intel-v1141 .freight-table-v1141 th:nth-child(2) {width:15%}
+.freight-intel-v1141 .freight-table-v1141 th:nth-child(3) {width:13%}
+.freight-intel-v1141 .freight-table-v1141 th:nth-child(4) {width:12%}
+.freight-intel-v1141 .freight-table-v1141 th:nth-child(5) {width:15%}
+.freight-intel-v1141 .freight-table-v1141 th:nth-child(6) {width:13%}
+.freight-intel-v1141 .freight-table-v1141 th:nth-child(7) {w
