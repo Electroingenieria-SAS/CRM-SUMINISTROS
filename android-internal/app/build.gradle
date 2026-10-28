@@ -2,7 +2,7 @@ plugins { id 'com.android.application' }
 
 android {
     namespace 'co.com.electroingenieria.crmsuministros'
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId 'co.com.electroingenieria.crmsuministros'
