@@ -4,7 +4,8 @@ import { loadOriginPlan } from "../origins/origin-plan.js";
 export function restoreOriginSelections(verification){
 verification.host.querySelectorAll("[data-picking-item]").forEach(row=>{
     const item=verification.itemMap.get(row.dataset.itemId);
-    row.__savedOrigins=verification.draft[row.dataset.itemId]?.origins||[];
+    const worked=verification.draft[row.dataset.itemId]?.origins||[];
+    row.__savedOrigins=worked.length?worked:(item?.metadata?.receptionOrigins||[]);
     if(row.dataset.result==="FOUND"&&!item?.requires_cut)loadOriginPlan(row,item,row.__savedOrigins).then(verification.sync).catch(error=>{row.dataset.originError=error.message;verification.sync()});
   });
 }
