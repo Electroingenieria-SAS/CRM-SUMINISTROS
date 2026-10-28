@@ -1,12 +1,11 @@
 import {api} from "../services/api.js";
 import {fmt} from "../core/format.js";
 import {loading} from "../core/ui.js";
+import {renderFreightAuditRows,riskLabel} from "../domains/freight-intelligence/audit-table.js";
 
 const money=value=>{try{return new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}).format(Number(value||0))}catch{return fmt.number(value||0)}};
 const num=value=>Number.isFinite(Number(value))?Number(value):0;
 const pct=value=>value==null?"—":`${fmt.number(value,1)}%`;
-const riskLabel=value=>({LATE:"Tarde",AT_RISK:"En riesgo",ON_TIME:"A tiempo",ON_TRACK:"En seguimiento",NO_DATE:"Sin fecha"})[String(value||"").toUpperCase()]||"—";
-const anomalyLabel=value=>({CRITICAL:"Crítica",HIGH:"Alta",FAVORABLE:"Favorable",NORMAL:"Normal",NONE:"Sin evaluación"})[String(value||"").toUpperCase()]||"—";
 
 export async function enhanceFreightIntelligenceDashboard(root){
   if(!root||document.body.dataset.freightIntelLoading==="1")return;
@@ -66,7 +65,7 @@ function renderFreightIntelligence(host,data){
       <section class="freight-intel-panel-v1141 wide"><header><div><span>PRECISIÓN MENSUAL</span><h4>Cómo aprende el modelo con datos reales</h4></div></header>${monthlyHtml(data.monthly||[])}</section>
       <section class="freight-intel-panel-v1141"><header><div><span>DESTINOS</span><h4>Costo por kg y participación logística</h4></div></header>${destinationsHtml(data.destinations||[])}</section>
       <section class="freight-intel-panel-v1141"><header><div><span>CLIENTES</span><h4>Costo logístico y ahorro potencial</h4></div></header>${clientsHtml(data.clients||[])}</section>
-      <section class="freight-intel-panel-v1141 wide"><header><div><span>ENVÍOS</span><h4>Auditoría predicho vs real</h4></div></header>${rowsHtml(rows)}</section>
+      <section class="freight-intel-panel-v1141 wide"><header><div><span>ENVÍOS</span><h4>Auditoría predicho vs real</h4></div></header>${renderFreightAuditRows(rows,money)}</section>
     </div>`;
   host.querySelectorAll("[data-fi-order]").forEach(button=>button.onclick=()=>window.dispatchEvent(new CustomEvent("erp:open-order",{detail:button.dataset.fiOrder})));
 }
@@ -96,9 +95,5 @@ function destinationsHtml(rows){
 function clientsHtml(rows){
   if(!rows.length)return empty("Sin costo logístico por cliente","Aparecerá al vincular fletes reales con facturación.");
   return `<div class="freight-simple-list-v1141">${rows.slice(0,10).map(row=>`<article><div><strong>${fmt.escape(row.clientName||"Cliente")}</strong><small>${fmt.number(row.shipments||0)} envíos · ${row.logisticsPct!=null?pct(row.logisticsPct)+" del valor facturado":"sin ratio"}</small></div><aside><b>${money(row.logisticsCost)}</b><em>Ahorro ${money(row.potentialSavings)}</em></aside></article>`).join("")}</div>`;
-}
-function rowsHtml(rows){
-  if(!rows.length)return empty("Sin envíos nacionales en el rango","El histórico de evaluación comenzará con los pedidos creados desde V11.40.");
-  return `<div class="freight-table-wrap-v1141"><table class="data-table freight-table-v1141"><thead><tr><th>Pedido</th><th>Transportadora</th><th>Predicho</th><th>Real</th><th>Desviación</th><th>Ahorro potencial</th><th>Riesgo</th></tr></thead><tbody>${rows.map(row=>`<tr><td><button class="link-btn" data-fi-order="${fmt.escape(row.orderId||"")}">${fmt.escape(row.orderNumber||"—")}</button><small>${fmt.escape(row.clientName||"")}</small></td><td>${fmt.escape(row.carrier||"—")}</td><td>${row.predictedMid!=null?money(row.predictedMid):"—"}</td><td>${row.actualCost!=null?money(row.actualCost):"Pendiente"}</td><td><span class="fi-badge-v1141 tone-${String(row.anomalyLevel||"none").toLowerCase()}">${fmt.escape(anomalyLabel(row.anomalyLevel))}</span>${row.deviationPct!=null?`<small>${pct(row.deviationPct)}</small>`:""}</td><td>${row.potentialSavings!=null?money(row.potentialSavings):"—"}</td><td><span class="fi-badge-v1141 tone-${String(row.deliveryRisk||"").toLowerCase()}">${fmt.escape(riskLabel(row.deliveryRisk))}</span></td></tr>`).join("")}</tbody></table></div>`;
 }
 function empty(title,detail){return `<div class="freight-empty-v1141"><span>◇</span><div><strong>${fmt.escape(title)}</strong><p>${fmt.escape(detail)}</p></div></div>`}

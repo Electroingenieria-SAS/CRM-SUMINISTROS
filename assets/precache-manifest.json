@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": "61059019fdbe7e11",
-  "sourceBytes": 2910052,
+  "revision": "0f89fc300bccf2b6",
+  "sourceBytes": 2919235,
   "assets": [
     "./assets/css/analytics.css",
     "./assets/css/base/accessibility.css",
@@ -98,6 +98,7 @@
     "./assets/css/modules/logistics/delivered-orders-sent-orders-panel.css",
     "./assets/css/modules/logistics/dispatch-shipping-core-summary.css",
     "./assets/css/modules/logistics/dispatch-shipping-process-modal.css",
+    "./assets/css/modules/logistics/freight-audit-table.css",
     "./assets/css/modules/logistics/guide-reader.css",
     "./assets/css/modules/logistics/local-dispatch-modal-alignment.css",
     "./assets/css/modules/logistics/local-dispatch-workspace.css",
@@ -307,6 +308,7 @@
     "./assets/js/domains/finance/ui/order-financial-details.js",
     "./assets/js/domains/finance/ui/release-management.js",
     "./assets/js/domains/finance/ui/status-dialog.js",
+    "./assets/js/domains/freight-intelligence/audit-table.js",
     "./assets/js/domains/freight-quotes/carrier-adapters.js",
     "./assets/js/domains/freight-quotes/decimal-ratio.js",
     "./assets/js/domains/freight-quotes/destination-picker.js",

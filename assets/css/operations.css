@@ -54,6 +54,7 @@
 @import "modules/logistics/delivered-orders-sent-orders-panel.css";
 @import "modules/logistics/delivered-orders-sent-order-actions.css";
 @import "modules/logistics/delivered-orders-invoice-browser.css";
+@import "modules/logistics/freight-audit-table.css";
 @import "modules/logistics/delivered-orders-sales-freight-carriers.css";
 @import "modules/logistics/local-dispatch.css";
 @import "modules/logistics/order-freight-action-header.css";

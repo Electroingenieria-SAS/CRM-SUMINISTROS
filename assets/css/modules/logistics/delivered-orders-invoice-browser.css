@@ -186,19 +186,6 @@
 
 .freight-bar-v1141 span { display:block; width:var(--fi-size); height:100%; background:linear-gradient(90deg,#1f6eb1,#55a0dc); }
 
-.freight-table-wrap-v1141 { overflow:auto; }
-
-.freight-table-v1141 td small { display:block; color:#74869a; font-size:9px; }
-
-.fi-badge-v1141 { display:inline-block; padding:4px 7px; border-radius:999px; background:#eef4f8; font-size:9px; font-weight:800; }
-
-.fi-badge-v1141.tone-critical,.fi-badge-v1141.tone-high,.fi-badge-v1141.tone-late,.fi-badge-v1141.tone-at_risk {
-  background:#ffeaea;
-  color:#a72f2f;
-}
-
-.fi-badge-v1141.tone-favorable,.fi-badge-v1141.tone-on_time { background:#e8f8ef; color:#257a50; }
-
 .freight-empty-v1141 { padding:20px; display:flex; gap:10px; align-items:center; color:#718399; }
 
 .freight-empty-v1141 strong { display:block; color:#3c5772; }

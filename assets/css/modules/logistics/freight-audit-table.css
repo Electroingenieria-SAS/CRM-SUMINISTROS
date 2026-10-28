@@ -1,0 +1,227 @@
+/* Componente autónomo: tabla de auditoría de inteligencia logística V11.41. */
+.freight-intel-v1141 .freight-table-wrap-v1141 {
+  width:100%;
+  max-width:100%;
+  overflow-x:auto;
+  overscroll-behavior-inline:contain;
+  -webkit-overflow-scrolling:touch;
+  border:1px solid #dbe6f0;
+  border-radius:14px;
+  background:#fff;
+  box-sizing:border-box;
+}
+.freight-intel-v1141 .freight-table-wrap-v1141:focus-visible {
+  outline:3px solid #65a8d7;
+  outline-offset:3px;
+}
+.freight-intel-v1141 .freight-table-v1141 {
+  width:100%;
+  min-width:920px;
+  margin:0;
+  table-layout:fixed;
+  border-collapse:separate;
+  border-spacing:0;
+}
+.freight-intel-v1141 .freight-table-v1141 th {
+  padding:14px 15px;
+  color:#fff;
+  background:#10497d;
+  border-bottom:1px solid #0a3c6a;
+  font-size:11px;
+  font-weight:800;
+  line-height:1.3;
+  letter-spacing:.045em;
+  text-align:left;
+  text-transform:uppercase;
+  white-space:normal;
+}
+.freight-intel-v1141 .freight-table-v1141 th:first-child {width:20%}
+.freight-intel-v1141 .freight-table-v1141 th:nth-child(2) {width:15%}
+.freight-intel-v1141 .freight-table-v1141 th:nth-child(3) {width:13%}
+.freight-intel-v1141 .freight-table-v1141 th:nth-child(4) {width:12%}
+.freight-intel-v1141 .freight-table-v1141 th:nth-child(5) {width:15%}
+.freight-intel-v1141 .freight-table-v1141 th:nth-child(6) {width:13%}
+.freight-intel-v1141 .freight-table-v1141 th:nth-child(7) {width:12%}
+.freight-intel-v1141 .freight-table-v1141 td {
+  padding:15px;
+  min-width:0;
+  vertical-align:middle;
+  border-bottom:1px solid #e5edf3;
+  background:#fff;
+  color:#29485f;
+  font-size:12.5px;
+  line-height:1.45;
+  overflow-wrap:anywhere;
+}
+.freight-intel-v1141 .freight-table-v1141 tbody tr:nth-child(even) td {background:#f9fbfe}
+.freight-intel-v1141 .freight-table-v1141 tbody tr:hover td {background:#eef7fd}
+.freight-intel-v1141 .freight-table-v1141 tbody tr:last-child td {border-bottom:0}
+.freight-intel-v1141 .freight-table-caption-v1141 {
+  position:absolute;
+  width:1px;height:1px;
+  padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);
+  white-space:nowrap;border:0;
+}
+.freight-intel-v1141 .freight-order-action-v1141 {
+  display:inline-flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:9px;
+  max-width:100%;
+  min-height:38px;
+  padding:8px 12px;
+  border:1px solid #bed9ed;
+  border-radius:10px;
+  background:linear-gradient(180deg,#f5faff,#eaf4fd);
+  color:#0b5688;
+  box-shadow:0 2px 5px rgba(14,77,132,.06);
+  font:inherit;
+  font-size:12px;
+  font-weight:800;
+  line-height:1.25;
+  text-align:left;
+  cursor:pointer;
+  transition:background .16s ease,border-color .16s ease,box-shadow .16s ease,transform .16s ease;
+}
+.freight-intel-v1141 .freight-order-action-v1141 span {
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.freight-intel-v1141 .freight-order-action-v1141 svg {
+  flex:0 0 15px;
+  opacity:.75;
+  transition:transform .16s ease;
+}
+.freight-intel-v1141 .freight-order-action-v1141:hover {
+  background:#dceeff;
+  border-color:#77b2da;
+  box-shadow:0 4px 12px rgba(20,94,155,.14);
+  transform:translateY(-1px);
+}
+.freight-intel-v1141 .freight-order-action-v1141:hover svg {transform:translate(2px,-2px)}
+.freight-intel-v1141 .freight-order-action-v1141:active {transform:translateY(0)}
+.freight-intel-v1141 .freight-order-action-v1141:focus-visible {
+  outline:3px solid #6ab0df;
+  outline-offset:2px;
+}
+.freight-intel-v1141 .freight-order-unlinked-v1141 {
+  display:inline-block;
+  color:#4f6578;
+  font-size:12px;
+  font-weight:800;
+}
+.freight-intel-v1141 .freight-audit-client-v1141,
+.freight-intel-v1141 .freight-audit-detail-v1141 {
+  display:block;
+  margin-top:6px;
+  color:#657e92;
+  font-size:11px;
+  font-weight:600;
+  line-height:1.4;
+}
+.freight-intel-v1141 .freight-audit-carrier-v1141 {font-weight:700;color:#294c69}
+.freight-intel-v1141 .freight-audit-money-v1141 {
+  color:#1f435f;
+  font-size:12.5px;
+  font-weight:750;
+  white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+.freight-intel-v1141 .freight-audit-pending-v1141 {
+  display:inline-flex;
+  align-items:center;
+  color:#7a677d;
+  font-size:11px;
+  font-weight:750;
+}
+.freight-intel-v1141 .fi-badge-v1141 {
+  display:inline-flex;
+  max-width:100%;
+  align-items:center;
+  min-height:29px;
+  padding:5px 10px;
+  border:1px solid #d6e2eb;
+  border-radius:999px;
+  background:#f1f5f9;
+  color:#50677c;
+  font-size:10.5px;
+  font-weight:750;
+  line-height:1.2;
+  white-space:normal;
+  text-align:center;
+}
+.freight-intel-v1141 .fi-badge-v1141.tone-critical,
+.freight-intel-v1141 .fi-badge-v1141.tone-high,
+.freight-intel-v1141 .fi-badge-v1141.tone-late,
+.freight-intel-v1141 .fi-badge-v1141.tone-at_risk {
+  border-color:#efc4c4;background:#fff0ef;color:#a32e31;
+}
+.freight-intel-v1141 .fi-badge-v1141.tone-favorable,
+.freight-intel-v1141 .fi-badge-v1141.tone-on_time {
+  border-color:#bee2cb;background:#e9f7ee;color:#23734d;
+}
+.freight-intel-v1141 .fi-badge-v1141.tone-normal,
+.freight-intel-v1141 .fi-badge-v1141.tone-on_track {
+  border-color:#c5dff0;background:#ebf6fc;color:#17628b;
+}
+@media (max-width:760px) {
+  .freight-intel-v1141 .freight-table-wrap-v1141 {border:0;background:transparent;overflow:visible}
+  .freight-intel-v1141 .freight-table-v1141,
+  .freight-intel-v1141 .freight-table-v1141 tbody {display:block;min-width:0;width:100%}
+  .freight-intel-v1141 .freight-table-v1141 thead {display:none}
+  .freight-intel-v1141 .freight-table-v1141 tbody {display:grid;gap:11px}
+  .freight-intel-v1141 .freight-table-v1141 tbody tr {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:0;
+    overflow:hidden;
+    border:1px solid #d8e4ef;
+    border-radius:14px;
+    box-shadow:0 3px 10px rgba(20,73,111,.05);
+  }
+  .freight-intel-v1141 .freight-table-v1141 td,
+  .freight-intel-v1141 .freight-table-v1141 tbody tr:nth-child(even) td,
+  .freight-intel-v1141 .freight-table-v1141 tbody tr:hover td {
+    display:grid;
+    justify-items:start;
+    align-content:start;
+    gap:4px;
+    min-width:0;
+    margin:0;
+    padding:11px 12px;
+    background:#fff;
+    border:0;
+    border-top:1px solid #e8eff5;
+    font-size:12px;
+  }
+  .freight-intel-v1141 .freight-table-v1141 td:nth-child(even) {border-right:1px solid #edf2f6}
+  .freight-intel-v1141 .freight-table-v1141 td:first-child {
+    grid-column:1/-1;
+    border:0;
+    border-bottom:1px solid #dbe8f2;
+    background:#f4f9fd!important;
+    padding:13px;
+  }
+  .freight-intel-v1141 .freight-table-v1141 td:first-child::before {display:none}
+  .freight-intel-v1141 .freight-table-v1141 td[data-label]::before {
+    content:attr(data-label);
+    font-size:9.5px;
+    color:#698397;
+    font-weight:800;
+    letter-spacing:.055em;
+    text-transform:uppercase;
+  }
+  .freight-intel-v1141 .freight-table-v1141 .freight-order-action-v1141 {min-height:42px}
+  .freight-intel-v1141 .freight-table-v1141 .fi-badge-v1141 {font-size:10px}
+  .freight-intel-v1141 .freight-table-v1141 .freight-audit-client-v1141 {margin:0}
+}
+@media (max-width:370px) {
+  .freight-intel-v1141 .freight-table-v1141 tbody tr {grid-template-columns:1fr}
+  .freight-intel-v1141 .freight-table-v1141 td {grid-column:1/-1;border-right:0!important}
+}
+@media (prefers-reduced-motion:reduce) {
+  .freight-intel-v1141 .freight-order-action-v1141,
+  .freight-intel-v1141 .freight-order-action-v1141 svg {transition:none}
+}
+
