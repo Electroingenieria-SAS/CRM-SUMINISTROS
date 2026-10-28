@@ -67,3 +67,5 @@
 @import "modules/workforce/taxonomy-work-assignment-card.css";
 @import "modules/workforce/taxonomy-work-detail-hero-copy.css";
 @import "modules/workforce/taxonomy-work-time-review-dialog.css";
+
+@import "./modules/core/app-version-update.css";

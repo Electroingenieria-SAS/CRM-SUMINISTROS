@@ -1,3 +1,4 @@
+import {parseIsoDate} from "../calendar/calendar-dates.js";
 import { api } from "../../../services/api.js";
 import { toast } from "../../../core/ui.js";
 import { renderWorkforceCalendarBoard, bindWorkforceCalendar } from "../calendar/index.js";
@@ -29,6 +30,16 @@ planner.bindCalendar=()=>{
       }
     });
   };
+planner.bindMobileDayNavigation=()=>{
+  planner.calendarHost?.querySelectorAll("[data-work-mobile-day]").forEach(button=>{
+    button.addEventListener("click",()=>{
+      workforceState.plannerMode="day";
+      workforceState.plannerAnchor=parseIsoDate(button.dataset.workMobileDay);
+      renderPlanner(planner.root,planner.content);
+    });
+  });
+};
+planner.bindMobileDayNavigation();
 planner.repaintCalendar=()=>{
     if(!planner.calendarHost)return;
     planner.calendarHost.innerHTML=renderWorkforceCalendarBoard({
@@ -39,6 +50,7 @@ planner.repaintCalendar=()=>{
       filters:workforceState.plannerFilters
     });
     planner.bindCalendar();
+    planner.bindMobileDayNavigation();
     planner.renderCapacityPanel();
     planner.syncFilterSummary();
   };

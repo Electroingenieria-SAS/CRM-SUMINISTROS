@@ -33,7 +33,7 @@ export function plannerCalendarContentHtml(planner){return `
     <section class="work-planner-context-strip">
       <span><b>Horario</b> 07:00–12:00 · 13:40–17:30</span>
       <span><b>Calendario</b> ${planner.canViewTeam?"equipo visible según permisos":"solo tus actividades"}</span>
-      <span><b>Interacción</b> toca o pasa el mouse para resumen · doble clic para detalle</span>
+      <span><b>Interacción</b> toca una actividad para ver su resumen · presiona Enter para detalle</span>
     </section>
 
     <div data-planner-calendar-host>${renderWorkforceCalendarBoard({mode:workforceState.plannerMode,anchor:workforceState.plannerAnchor,data:planner.plannerData,calendar:planner.calendar,filters:workforceState.plannerFilters})}</div>
