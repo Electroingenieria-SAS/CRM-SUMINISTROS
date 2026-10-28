@@ -15,12 +15,15 @@ export async function loadOriginPlan(row,item,savedOrigins=[]){
   const savedMap=new Map((savedOrigins||[]).map(origin=>[origin.lotId,Number(origin.quantity||0)]));
   const suggestedMap=new Map((plan.suggestedPlan||[]).map(origin=>[origin.lotId,Number(origin.quantity||0)]));
   const selection=savedMap.size?savedMap:suggestedMap;
+  const instructions=item.metadata?.receptionOrigins||[];
+  const unavailableAssignments=instructions.filter(origin=>!candidates.some(candidate=>candidate.lotId===origin.lotId&&Number(candidate.available)>=Number(origin.quantity)));
   if(!candidates.length){
     wrap.innerHTML=`<div class="picking-origin-empty"><strong>Sin existencia física disponible</strong><span>Marca No encontrado o registra una Novedad si el inventario físico no coincide.</span></div>`;
     row.dataset.originLoaded="true";return;
   }
-  wrap.innerHTML=`<div class="picking-origin-head"><div><strong>Origen físico</strong><p>El ERP propone de dónde tomar la mercancía. Puedes cambiarlo si físicamente la encuentras en otra ubicación.</p></div><span>${fmt.number(plan.required,3)} ${fmt.escape(plan.unit)}</span></div>
+  wrap.innerHTML=`<div class="picking-origin-head"><div><strong>Origen físico</strong><p>${instructions.length?"Logística definió estos lotes para el pedido. Confirma la ubicación física y ajusta si el inventario cambió.":"El ERP propone de dónde tomar la mercancía. Puedes cambiarlo si físicamente la encuentras en otra ubicación."}</p></div><span>${fmt.number(plan.required,3)} ${fmt.escape(plan.unit)}</span></div>
     ${Number(plan.shortage||0)>0?`<div class="picking-origin-shortage">El inventario actual no alcanza: faltan ${fmt.number(plan.shortage,3)} ${fmt.escape(plan.unit)}.</div>`:""}
+    ${unavailableAssignments.length?'<div class="picking-origin-shortage">Un lote asignado por Logística cambió o ya no tiene existencias suficientes. Revisa el origen físico y registra una novedad si corresponde.</div>':""}
     <div class="picking-origin-options">${candidates.map(candidate=>{const qty=selection.get(candidate.lotId)||0;const originLabel=[candidate.warehouseCode,candidate.location].filter(Boolean).join(" · ")||"Ubicación";return `<div class="picking-origin-option ${qty>0?"selected":""}" data-origin-option>
       <input type="checkbox" data-origin-check value="${fmt.escape(candidate.lotId)}" aria-label="${fmt.escape(`Seleccionar origen ${originLabel}`)}" ${qty>0?"checked":""}>
       <span class="picking-origin-loc"><strong>${fmt.escape(originLabel)}</strong><small>${fmt.escape([candidate.locationName,candidate.lotNumber&&`Lote ${candidate.lotNumber}`,candidate.serialNumber].filter(Boolean).join(" · ")||"Sin detalle adicional")}</small></span>

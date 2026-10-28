@@ -234,3 +234,27 @@
   .receiving-order .reception-order-summary { grid-template-columns:1fr; }
   .receiving-order .reception-advisor-summary { grid-template-columns:1fr; }
 }
+
+/* Selección canónica del lote de origen desde Recepción de pedidos. */
+.receiving-order .reception-origin-section { margin-top:14px; padding:12px; border:1px solid #dce6ee; border-radius:12px; background:#fff; }
+.receiving-order .reception-origin-list { display:grid; gap:10px; }
+.receiving-order .reception-origin-card { padding:12px; border:1px solid #dce6ee; border-radius:10px; background:#f9fbfd; }
+.receiving-order .reception-origin-card>header { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; margin-bottom:9px; }
+.receiving-order .reception-origin-card>header>div { display:grid; gap:3px; }
+.receiving-order .reception-origin-card>header strong { font-size:12px; color:#173d61; }
+.receiving-order .reception-origin-card>header small,
+.receiving-order .reception-origin-card>header>span { font-size:10px; color:#54728d; }
+.receiving-order .reception-origin-options { display:grid; gap:7px; }
+.receiving-order .reception-origin-option { display:grid; grid-template-columns:minmax(0,1fr) 110px; gap:10px; align-items:center; padding:8px 10px; border:1px solid #dce6ee; border-radius:9px; background:#fff; }
+.receiving-order .reception-origin-option label { display:flex; align-items:center; gap:9px; min-width:0; cursor:pointer; }
+.receiving-order .reception-origin-option input[type="checkbox"] { width:18px; height:18px; flex:0 0 auto; accent-color:#1769aa; }
+.receiving-order .reception-origin-option label span { display:grid; gap:3px; min-width:0; }
+.receiving-order .reception-origin-option label strong { font-size:11px; color:#254765; overflow-wrap:anywhere; }
+.receiving-order .reception-origin-option label small { font-size:10px; color:#688172; }
+.receiving-order .reception-origin-option .control { width:100%; min-width:0; min-height:40px; }
+.receiving-order .reception-origin-total { display:block; margin-top:8px; color:#36536d; font-size:10px; font-weight:700; }
+.receiving-order .reception-origin-shortage { padding:10px; border:1px solid #efd8a7; border-radius:8px; background:#fff9e9; color:#805b22; font-size:11px; line-height:1.5; }
+@media (max-width:430px) {
+  .receiving-order .reception-origin-option { grid-template-columns:1fr; gap:7px; }
+  .receiving-order .reception-origin-option .control { width:100%; }
+}

@@ -30,7 +30,7 @@ export function confirmReception(host,data,draft,{reload,refreshLists}={}){
             warehouseLocation:line.warehouseLocation||null,
             requiresCut:Boolean(line.requiresCut),
             requestedCutLength:line.requiresCut?Number(line.requestedCutLength||line.quantity):null,
-            metadata:{readerConfidence:line.readerConfidence||null,sourceLine:line.sourceLine||null,materialMasterId:line.materialMasterId||null,materialVariantId:line.materialVariantId||null,variantLabel:line.variantLabel||null,source:"RECEPTION_SIESA_MASTER"}
+            metadata:{readerConfidence:line.readerConfidence||null,sourceLine:line.sourceLine||null,materialMasterId:line.materialMasterId||null,materialVariantId:line.materialVariantId||null,variantLabel:line.variantLabel||null,receptionOrigins:line.requiresCut?[]:(line.receptionOrigins||[]),source:"RECEPTION_SIESA_MASTER"}
           }))
         });
         clearDraft(data.order.id);
