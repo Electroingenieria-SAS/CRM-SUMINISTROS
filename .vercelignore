@@ -1,6 +1,7 @@
 # CRM Suministros · deploy only the static production runtime.
 .github/
 docs/
+android-internal/
 google-apps-script/
 scripts/
 sql/

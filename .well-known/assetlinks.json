@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "co.com.electroingenieria.crmsuministros",
+      "sha256_cert_fingerprints": [
+        "9C:B1:B3:93:A8:49:78:E1:FC:B8:6C:B8:9F:17:1F:DA:19:ED:0D:85:B5:96:66:32:A8:F7:13:EC:49:95:FA:15"
+      ]
+    }
+  }
+]
