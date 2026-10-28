@@ -27,8 +27,15 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Android SDK already on runner
-        run: sdkmanager --version
+      - name: Discover Android SDK on runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          sdk_root="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          sdk_bin="$(find "$sdk_root/cmdline-tools" -type f -name sdkmanager -print -quit)"
+          test -n "$sdk_bin"
+          echo "$(dirname "$sdk_bin")" >> "$GITHUB_PATH"
+          "$sdk_bin" --version
       - name: Install Android platform
         run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
       - name: Gradle
