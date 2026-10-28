@@ -23,6 +23,10 @@ for(const element of binding.openNodes){
     const clickHandler=event=>{
       if(event.target.closest("[data-assignment-cancel]"))return;
       event.stopPropagation();
+      if(element.closest(".work-calendar-mobile")){
+        if(item)binding.openItem(id);
+        return;
+      }
       if(item)showCalendarCloud(item,element,binding.openItem);
     };
     const doubleClickHandler=event=>{

@@ -1,0 +1,109 @@
+/* Calendario móvil · lectura vertical y acciones táctiles, sin desplazar la tabla de escritorio. */
+.work-calendar-mobile {display:none}
+
+@media (max-width:760px) {
+  #workforce-content, #workforce-content>*,
+  [data-planner-calendar-host], .work-planner-toolbar,
+  .work-planner-nav, .work-planner-actions {min-width:0;max-width:100%;box-sizing:border-box}
+  #workforce-content .work-planner-toolbar {padding:12px;gap:11px;border-radius:15px}
+  #workforce-content .work-planner-nav {
+    display:grid;grid-template-columns:46px minmax(0,1fr) 46px;gap:7px;align-items:center
+  }
+  #workforce-content .work-planner-nav>[data-plan-prev] {grid-column:1;grid-row:1}
+  #workforce-content .work-planner-nav>[data-plan-today] {grid-column:2;grid-row:1;width:100%;min-height:44px}
+  #workforce-content .work-planner-nav>[data-plan-next] {grid-column:3;grid-row:1}
+  #workforce-content .work-planner-nav>div:last-child {
+    grid-column:1/-1;grid-row:2;margin:0;padding:2px 0 4px;text-align:center
+  }
+  #workforce-content .work-planner-nav>div strong {font-size:15px;line-height:1.3;white-space:normal}
+  #workforce-content .work-planner-nav>div span {display:block;font-size:11px;margin-top:2px}
+  #workforce-content .work-planner-actions {
+    display:grid;grid-template-columns:minmax(0,1fr);gap:8px;width:100%
+  }
+  #workforce-content .work-planner-mode,
+  #workforce-content .work-planner-actions .segment-control.work-planner-mode {
+    display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:4px;padding:4px!important
+  }
+  #workforce-content .work-planner-mode button {
+    min-width:0;width:100%;min-height:44px;padding:8px 3px 8px 18px!important;font-size:12px!important
+  }
+  #workforce-content .work-planner-mode button::before,
+  #workforce-content .work-planner-mode button::after {left:5px}
+  #workforce-content .work-calendar-filterbox-v11362,
+  #workforce-content .work-calendar-filterbox-v11362>summary {width:100%;min-width:0}
+  #workforce-content .work-planner-context-strip {
+    display:flex!important;flex-wrap:wrap;gap:6px!important;margin:8px 0 12px!important;overflow:visible
+  }
+  #workforce-content .work-planner-context-strip>span {
+    flex:1 1 155px;min-height:40px;padding:8px 10px!important;gap:5px;
+    font-size:10.5px!important;white-space:normal!important
+  }
+  #workforce-content .work-planner-context-strip>span b {font-size:10.5px!important}
+  #workforce-content .work-planner-context-strip>span:nth-child(3) {display:none!important}
+  [data-planner-calendar-host]>.work-calendar-v11360 {display:none!important}
+  .work-calendar-mobile {
+    display:grid;gap:11px;width:100%;min-width:0;overflow:visible;
+  }
+  .work-mobile-board-heading {
+    padding:13px 15px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:5px;
+    border:1px solid #d1e2ee;border-radius:13px;background:#edf7fd;color:#16496d
+  }
+  .work-mobile-board-heading strong {font-size:14px}
+  .work-mobile-board-heading small {font-size:10px;color:#50718a;font-weight:750}
+  .work-mobile-person,.work-mobile-day {
+    min-width:0;overflow:hidden;background:#fff;border:1px solid #d9e6ee;border-radius:14px;
+    box-shadow:0 4px 14px rgba(20,63,95,.06)
+  }
+  .work-mobile-person-head {display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid #e8eff4;background:#f5faff}
+  .work-mobile-avatar {flex:0 0 38px;width:38px;height:38px;display:grid;place-items:center;background:#176a9e;color:white;border-radius:12px;font-size:11px;font-weight:900}
+  .work-mobile-person-head>div {flex:1;display:grid;gap:2px;min-width:0}
+  .work-mobile-person-head>div strong {font-size:13px;color:#174b6e;overflow:hidden;text-overflow:ellipsis}
+  .work-mobile-person-head>div small {font-size:11px;color:#628196}
+  .work-mobile-person-head>b {font-size:10px;color:#386b8c;white-space:nowrap}
+  .work-mobile-day-head {display:flex;align-items:center;justify-content:space-between;gap:9px;padding:11px 12px;border-bottom:1px solid #e5eff6}
+  .work-mobile-day-head.is-today {background:#edf8ff}
+  .work-mobile-day-head>span {display:grid;gap:2px}
+  .work-mobile-day-head strong {font-size:13px;color:#184c70}
+  .work-mobile-day-head small {font-size:10px;color:#688397}
+  .work-mobile-day-head button {
+    min-height:40px;min-width:76px;padding:8px 12px;border:1px solid #b6d5e8;border-radius:10px;
+    background:#f1f9fe;color:#165d87;font:inherit;font-size:11px;font-weight:900;cursor:pointer
+  }
+  .work-mobile-day-head button:disabled {opacity:.5;cursor:default}
+  .work-mobile-event-list {display:grid;gap:8px;padding:9px}
+  .work-mobile-event {
+    display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px;
+    min-width:0;padding:11px 12px;border:1px solid #d4e6f3;border-left:4px solid #247db1;
+    border-radius:11px;background:#f7fbfe;cursor:pointer
+  }
+  .work-mobile-event.tone-success,.work-mobile-event.tone-done {border-left-color:#258b65}
+  .work-mobile-event.tone-warning,.work-mobile-event.tone-paused {border-left-color:#d7a02c}
+  .work-mobile-event-time {grid-column:1;grid-row:1;color:#176490;font-size:11px;font-weight:900;font-variant-numeric:tabular-nums}
+  .work-mobile-event-copy {grid-column:1/-1;grid-row:2;display:grid;min-width:0;gap:3px}
+  .work-mobile-event-copy strong {font-size:12px;color:#193f5e;line-height:1.35;overflow-wrap:anywhere}
+  .work-mobile-event-copy small {font-size:10.5px;color:#657e91}
+  .work-mobile-event-state {grid-column:2;grid-row:1;align-self:center;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#47718c;font-size:10px;font-weight:800}
+  .work-mobile-event:focus-visible,.work-mobile-day-head button:focus-visible,.work-mobile-month-date:focus-visible {outline:3px solid #65b3df;outline-offset:2px}
+  .work-mobile-available,.work-mobile-empty {padding:16px 12px;display:block;color:#738b9b;font-size:12px;line-height:1.5}
+  .work-mobile-empty {border:1px dashed #bdd2e0;border-radius:14px;background:#f8fbfe;text-align:center}
+  .work-mobile-empty strong {color:#245a7f}
+  .work-mobile-month-grid {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;padding:12px 9px;border:1px solid #d6e5ee;border-radius:14px;background:#fff}
+  .work-mobile-month-weekday {text-align:center;font-size:11px;font-weight:850;color:#6b879a;padding-bottom:5px}
+  .work-mobile-month-date {
+    display:grid;place-items:center;gap:2px;min-width:0;min-height:49px;padding:5px 0;
+    border:1px solid #e1ebf1;border-radius:9px;background:#f9fcfe;color:#2a5a7b;font:inherit;cursor:pointer
+  }
+  .work-mobile-month-date b {font-size:12px}
+  .work-mobile-month-date i {width:5px;height:5px;background:transparent;border-radius:50%}
+  .work-mobile-month-date.has-events i {background:#1e82b8}
+  .work-mobile-month-date.is-today {background:#e7f5ff;border-color:#5aa6d1;color:#125783}
+  .work-mobile-month-date:disabled {opacity:.35}
+  .work-mobile-month-agenda {display:grid;gap:9px}
+  .work-mobile-month-agenda>h4 {margin:8px 0 1px;font-size:13px;color:#214f6c}
+}
+@media(max-width:390px) {
+  #workforce-content .work-planner-toolbar {padding:9px}
+  .work-mobile-event-list {padding:7px}
+  .work-mobile-event {padding:10px}
+}
+

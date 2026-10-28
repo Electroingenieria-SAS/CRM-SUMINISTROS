@@ -1,3 +1,4 @@
+import { mobileWorkforceCalendar } from "./mobile-board.js";
 import { dayBoard } from "./day-board.js";
 import { weekBoard } from "./week-board.js";
 import { monthBoard } from "./month-board.js";
@@ -5,9 +6,9 @@ import { minutesToClock, bogotaMinutes, toMinutes, isoWeekday } from "./calendar
 
 export function renderWorkforceCalendarBoard({mode,anchor,data,calendar,filters={}}){
   const safeData=filterCalendarData(data||{},filters,mode);
-  if(mode==="day")return dayBoard(safeData,calendar,anchor,filters);
-  if(mode==="month")return monthBoard(safeData,calendar,anchor);
-  return weekBoard(safeData,calendar,anchor);
+  const desktop=mode==="day"?dayBoard(safeData,calendar,anchor,filters)
+    :mode==="month"?monthBoard(safeData,calendar,anchor):weekBoard(safeData,calendar,anchor);
+  return desktop+mobileWorkforceCalendar({mode,anchor,data:safeData,calendar});
 }
 
 export function filterCalendarData(data,filters={},mode="week"){

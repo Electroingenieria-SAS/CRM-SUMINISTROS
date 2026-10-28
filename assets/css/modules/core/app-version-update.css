@@ -1,0 +1,22 @@
+/* Diálogo de actualización del CRM: Web y APK Android (WebView). */
+.crm-update-dialog {
+  position:fixed;inset:0;margin:auto;padding:24px;box-sizing:border-box;
+  width:min(410px,calc(100vw - 30px));max-height:calc(100dvh - 40px);overflow-y:auto;
+  color:#183d5b;background:#fff;border:1px solid #d6e7f2;border-radius:19px;
+  box-shadow:0 22px 70px rgba(5,31,56,.28);font-family:inherit;text-align:center;
+}
+.crm-update-dialog::backdrop {background:rgba(9,30,51,.55)}
+.crm-update-dialog .crm-update-mark {
+  width:54px;height:54px;margin:0 auto 12px;border-radius:16px;display:grid;place-items:center;
+  background:#e5f3ff;color:#176f9f;font-size:36px;font-weight:800
+}
+.crm-update-dialog h2 {margin:0 0 9px;color:#153d5b;font-size:21px;line-height:1.25}
+.crm-update-dialog p {margin:0 0 20px;color:#577287;font-size:13px;line-height:1.65}
+.crm-update-dialog .crm-update-actions {display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.crm-update-dialog button {min-height:48px;border:1px solid #cbdde8;border-radius:11px;
+  background:#f5f9fc;color:#2c5d7d;font:inherit;font-size:12px;font-weight:850;cursor:pointer}
+.crm-update-dialog button.is-primary {border-color:#176a9e;background:#176a9e;color:#fff}
+.crm-update-dialog button:disabled {opacity:.65}
+.crm-update-dialog button:focus-visible {outline:3px solid #65b3df;outline-offset:2px}
+@media(max-width:360px) {.crm-update-dialog {padding:18px}.crm-update-dialog .crm-update-actions {grid-template-columns:1fr}}
+
