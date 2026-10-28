@@ -1,0 +1,40 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'co.com.electroingenieria.crmsuministros'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'co.com.electroingenieria.crmsuministros'
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName '1.0.0'
+    }
+
+    signingConfigs {
+        internal {
+            storeFile file(System.getenv('CRM_ANDROID_KEYSTORE') ?: 'signing-key.jks')
+            storePassword System.getenv('CRM_ANDROID_STORE_PASSWORD') ?: ''
+            keyAlias 'crm-interno'
+            keyPassword System.getenv('CRM_ANDROID_KEY_PASSWORD') ?: ''
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+            signingConfig signingConfigs.internal
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.7.4'
+}
