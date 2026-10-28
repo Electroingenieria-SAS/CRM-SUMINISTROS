@@ -13,7 +13,7 @@ Se usa **Trusted Web Activity (TWA)** con Android Browser Helper y motor Chromiu
 - Las actualizaciones web se publican en Vercel. Las actualizaciones del contenedor Android exigen APK firmado con **la misma clave** y `versionCode` incrementado.
 
 ## Construcción y custodia de la firma
-La acción `Android APK interno · CRM Suministros` compila el APK y publica el artefacto `crm-suministros-android-apk`.
+La ejecución **manual** (`workflow_dispatch`) de la CI canónica `Validate CRM Suministros` incorpora el job `build-apk`, compila el APK y publica el artefacto `crm-suministros-android-apk`. No se reconstruye automáticamente en cada push para evitar cambios accidentales de firma.
 Si el repositorio tiene los secretos `CRM_ANDROID_KEYSTORE_B64`, `CRM_ANDROID_KEYSTORE_PASSWORD` y `CRM_ANDROID_KEY_PASSWORD`, reutiliza la firma; si no, el primer build genera una **clave nueva** y adjunta `crm-android-signing-admin-backup` para que un administrador la conserve y configure secretos para los builds posteriores. **Nunca envíes el backup de firma a los empleados.** El backup está limitado a quien puede acceder a los artefactos del repositorio y debe migrarse a un almacén seguro.
 
 Tras compilar, el artefacto de APK incluye un `assetlinks.json` con la huella SHA-256. El archivo debe instalarse en la ruta `.well-known/assetlinks.json` del origen antes de asegurar pantalla completa. Si se rota la firma, es necesario actualizar Digital Asset Links y reinstalar la aplicación.
