@@ -393,7 +393,7 @@ jobs:
           PY
           cp "$apk" android-apk-output/CRM-Suministros-Android-Interno-v1.0.0.apk
       - name: Publish signed APK for internal distribution
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: crm-suministros-android-apk
           path: android-apk-output/
@@ -401,7 +401,7 @@ jobs:
           if-no-files-found: error
       - name: Back up newly generated signing certificate (administrators only)
         if: ${{ hashFiles('internal-signing-backup/signing-key.jks') != '' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: crm-android-signing-admin-backup
           path: internal-signing-backup/
