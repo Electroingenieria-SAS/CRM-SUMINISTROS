@@ -34,9 +34,14 @@ test('lector universal conserva los saldos protegidos y la captura por rol',asyn
   assert.match(text,/\$\{stockCards\}/);
   assert.match(text,/canOpenInventory&&state\.currentModule/);
   assert.match(text,/pendingDeepLink/);
+  assert.match(text,/params\.get\("countScan"\)/);
+  assert.match(text,/function showReceiptScanResult/);
+  assert.match(text,/await loadInventoryLabels\(\)/);
   assert.match(migration,/perform erp_supply\.require_profile\(\)/);
   assert.match(migration,/i\.organization_id=v_org/);
   assert.match(migration,/'canViewStock',false/);
+  assert.match(migration,/'kind','WAREHOUSE_RECEIPT'/);
+  assert.match(migration,/w\.barcode_value=v_raw or w\.qr_value=v_raw/);
   assert.doesNotMatch(migration,/'available'|'reserved'|'blocked'|'quantity_available'/);
   assert.match(migration,/revoke all on function public\.erp_x_inventory_scan_identify\(text\) from public, anon/);
   assert.match(migration,/grant execute on function public\.erp_x_inventory_scan_identify\(text\) to authenticated/);
