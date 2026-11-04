@@ -112,7 +112,7 @@ export function parseOrderText(text){
     // El lote puede figurar junto al material o en la línea inmediatamente siguiente;
     // nunca se adjudica un lote de otro material por posición o parecido descriptivo.
     const next=lines[index+consumed+1]||"";
-    const extra=/^(?:LOTE(?:S)?|LOT|BATCH)(?:\\s|[:#-])/i.test(next)?detectPdfLotNumbers(next):[];
+    const extra=/^(?:LOTE(?:S)?|LOT|BATCH)(?:\s|[:#-])/i.test(next)?detectPdfLotNumbers(next):[];
     parsed.lotNumbers=[...new Set([...detectPdfLotNumbers(candidates[consumed]),...extra])];
     parsed.sourceLine=index+1;
     items.push(parsed);
