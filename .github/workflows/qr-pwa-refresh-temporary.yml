@@ -1,0 +1,33 @@
+name: Regenerar activos PWA - corrección lector QR
+
+on:
+  push:
+    branches: [fix/qr-barcode-universal-20261104]
+    paths:
+      - .github/workflows/qr-pwa-refresh-temporary.yml
+
+permissions:
+  contents: write
+
+jobs:
+  update-asset-revision:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/qr-barcode-universal-20261104
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Regenerar manifiesto y revision Service Worker
+        run: node scripts/ci/generate-precache-manifest.mjs
+      - name: Commit del manifiesto
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add assets/precache-manifest.json service-worker.js
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(pwa): actualizar revisión de activos del lector QR"
+          git push origin HEAD:fix/qr-barcode-universal-20261104
