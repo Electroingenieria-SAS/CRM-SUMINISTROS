@@ -26,7 +26,11 @@ export function mountOrderCancellationAction(host,data,{reload=null,refresh=null
   button.textContent=pending?"Cancelación solicitada":"Solicitar cancelación";
   button.disabled=Boolean(pending);
   if(pending)button.title="Jefatura Logística tiene una solicitud pendiente para este pedido.";
-  container.append(button);
+  // En Recepción, el orden visual y de teclado es: continuar con otro,
+  // solicitar cancelación y, al final, avanzar al siguiente paso.
+  const nextStep=container.querySelector("[data-reception-next]");
+  if(nextStep)container.insertBefore(button,nextStep);
+  else container.append(button);
 
   if(pending)return;
   button.addEventListener("click",()=>openCancellationPanel(host,data,{button,reload,refresh}));
