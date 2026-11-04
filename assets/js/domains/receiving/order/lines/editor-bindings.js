@@ -13,7 +13,7 @@ export function bindLineEditor(host,data,draft,callbacks){
   const save=()=>{
     try{draft.lines=collectEditorLines(editor,false);persistDraft(data.order.id,draft)}catch{}
   };
-  editor.addEventListener("input",save);
+  editor.addEventListener("input",event=>{if(event.target.matches('[data-field="lotNumbers"]'))event.target.closest("[data-line-row]").dataset.lotSource="MANUAL";save()});
   editor.addEventListener("material:selected",save);
   editor.addEventListener("change",event=>{if(event.target.matches('[data-field="requiresCut"]'))syncCutRow(event.target.closest("[data-line-row]"));save()});
   editor.addEventListener("click",event=>{
