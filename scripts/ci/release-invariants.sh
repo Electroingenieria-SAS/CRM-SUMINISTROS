@@ -10,7 +10,7 @@ grep -q '"version": "11.47.4"' package.json
 grep -q '"version": "11.47.4"' package-lock.json
 grep -q 'app-entry.js?v=11.47.4' index.html
 grep -Fq 'https://script.google.com/macros/s/AKfycbwjl1JCfE0eV92P6DCn6h8jIVIBlSwLOQj8U7Mz1_7YW2Xan8DPI5tpWJuiG7znSCSs/exec' assets/js/config.js
-grep -Fxq '// previous-cache: crm-suministros-v11-46-1-20261016-41' service-worker.js
+grep -Fxq '// previous-cache: crm-suministros-v11-46-3-20261016-43' service-worker.js
 grep -Fxq 'const CACHE="crm-suministros-v11-47-4-20261104-44";' service-worker.js
 grep -q 'manifest.webmanifest' vercel.json
 test "$(grep -c '<link rel="stylesheet" href="./assets/css/' index.html)" -eq 4
