@@ -80,7 +80,7 @@ export function detectPdfLotNumbers(value){
   for(const match of text.matchAll(pattern)){
     for(const part of match[1].split(/\s*[,;]\s*/)){
       const code=part.trim();
-      if(!code||/^(DE|NO|NUMERO|NÚMERO|LOTE|LOT|BATCH|CANTIDAD|UND)$/i.test(code))continue;
+      if(!code||/^(DE|NO|NUMERO|NÚMERO|LOTE|LOT|BATCH|CANTIDAD|UND|INFORMADO|INFORMADA|PENDIENTE|POR|ASIGNAR|SIN|DESCONOCIDO|NA)$/i.test(code))continue;
       const key=code.toUpperCase();
       if(!seen.has(key)){seen.add(key);results.push(code);}
     }
