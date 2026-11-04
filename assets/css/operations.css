@@ -60,3 +60,6 @@
 @import "modules/logistics/order-freight-action-header.css";
 @import "modules/logistics/local-dispatch-modal-alignment.css";
 @import "modules/logistics/local-dispatch-workspace.css";
+
+/* Capa final: identidad visual unificada de diálogos sin cambiar su lógica. */
+@import "components/enterprise-modal-refresh-v11471.css";
