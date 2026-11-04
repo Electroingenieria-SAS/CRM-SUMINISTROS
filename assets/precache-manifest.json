@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": "66f9b05cb08f5ef7",
-  "sourceBytes": 2965648,
+  "revision": "2b8b4ec23114e307",
+  "sourceBytes": 2965053,
   "assets": [
     "./assets/css/analytics.css",
     "./assets/css/base/accessibility.css",
@@ -141,6 +141,7 @@
     "./assets/css/modules/receiving/confirmation-layout.css",
     "./assets/css/modules/receiving/goods-receipt-form-section.css",
     "./assets/css/modules/receiving/goods-receipt-receiving-head.css",
+    "./assets/css/modules/receiving/order-reception-lot-review.css",
     "./assets/css/modules/receiving/order-task-layout-receiving-focus.css",
     "./assets/css/modules/receiving/order-task-layout-reception-process-modal.css",
     "./assets/css/modules/receiving/order-workspace-receiving-guided.css",
@@ -149,7 +150,6 @@
     "./assets/css/modules/receiving/process-foundation-reception-no-cut.css",
     "./assets/css/modules/receiving/process-foundation-reception-process-overlay.css",
     "./assets/css/modules/receiving/process-guides.css",
-    "./assets/css/modules/receiving/reception-required-lots-v11472.css",
     "./assets/css/modules/reports/flow-times-flow-node-title.css",
     "./assets/css/modules/reports/flow-times-flow-node.css",
     "./assets/css/modules/reports/flow-times-flow-page-head.css",
