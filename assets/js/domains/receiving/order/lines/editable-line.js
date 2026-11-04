@@ -4,7 +4,7 @@ import { materialPickerHtml } from "../../../../services/materials.js";
 
 export function editableLine(line,index){
   const unresolved=line.materialResolution==="NOT_FOUND";
-  return `<article class="reception-line-row official-reception-line ${unresolved?"unresolved":""}" data-line-row data-order-item-id="${fmt.escape(line.orderItemId||"")}">
+  return `<article class="reception-line-row official-reception-line ${unresolved?"unresolved":""}" data-line-row data-order-item-id="${fmt.escape(line.orderItemId||"")}" data-lot-source="${fmt.escape(line.lotSource||"MANUAL")}">
     <div class="reception-line-number">${index+1}</div>
     <div class="reception-line-material">
       ${materialPickerHtml({materialMasterId:line.materialMasterId||line.material_master_id,materialVariantId:line.materialVariantId||line.material_variant_id,variantLabel:line.variantLabel||line.variant_label,reference:line.reference,sku:line.sku,name:line.description,description:line.description,unit:line.unit})}
