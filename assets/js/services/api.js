@@ -166,7 +166,6 @@ export const api={
   pickingOriginPlan:orderItemId=>rpc("erp_x_picking_origin_plan",{p_order_item_id:orderItemId}),
   receptionOriginPlan:(materialMasterId,materialVariantId,quantity)=>rpc("erp_x_reception_origin_plan",{p_material_master_id:materialMasterId,p_material_variant_id:materialVariantId,p_quantity:quantity}),
   savePickingPrecheck:(orderId,items)=>mutationRpc("erp_x_save_picking_precheck",{p_order_id:orderId,p_items:items}),
-  requestCutRemainderApproval:(groupKey,payload)=>mutationRpc("erp_x_request_cut_remainder_approval",{p_group_key:groupKey,p_payload:payload}),
   confirmPickingRound:(orderId,payload)=>mutationRpc("erp_x_confirm_picking_round",{p_order_id:orderId,p_payload:payload}),
   resumePartialPicking:orderId=>mutationRpc("erp_x_resume_partial_picking",{p_order_id:orderId}),
   pickingPending:(search="",page=1,pageSize=50)=>rpc("erp_x_picking_pending",{p_search:search||null,p_page:page,p_page_size:pageSize}),
