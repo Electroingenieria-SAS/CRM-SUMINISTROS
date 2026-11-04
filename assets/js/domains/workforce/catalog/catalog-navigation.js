@@ -14,7 +14,7 @@ browser.setProgress=level=>{
 browser.renderCategories=()=>{
     browser.currentCategory=null;
     browser.currentSubcategory=null;
-    browser.stage.innerHTML=categoryStageHtml(browser.tree,Boolean(browser.data.active));
+    browser.stage.innerHTML=categoryStageHtml(browser.tree,false);
     browser.selected.innerHTML="";
     browser.breadcrumb.innerHTML=catalogBreadcrumbHtml();
     browser.setProgress("category");
