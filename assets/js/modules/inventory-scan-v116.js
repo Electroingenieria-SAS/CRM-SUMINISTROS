@@ -295,6 +295,9 @@ function printLotLabel(lot){printAllLabels([lot])}
 async function printAllLabels(lots){
   const rows=(lots||[]).filter(lot=>lot?.scanCode);
   if(!rows.length)return toast("No hay etiquetas disponibles para imprimir.","error");
+  // La ventana se abre durante el clic, antes de la descarga asíncrona de bibliotecas.
+  const win=window.open("","_blank","width=980,height=760");
+  if(!win)return toast("El navegador bloqueó la ventana de impresión.","error");
   try{
     await loadInventoryLabels();
     const labels=rows.map(lot=>{
@@ -303,9 +306,7 @@ async function printAllLabels(lots){
       const qr=window.qrcode(0,"M");qr.addData(buildInventoryUrl(lot.scanCode));qr.make();
       return `<section class="label"><div class="top"><div><small>CRM SUMINISTROS · INVENTARIO</small><h2>${esc(lot.reference||"")}</h2><strong>${esc(lot.description||"")}</strong></div><img src="${qr.createDataURL(5,1)}" alt="QR"></div><div class="meta"><span><small>Lote</small><b>${esc(lot.lotNumber||"—")}</b></span><span><small>Ubicación</small><b>${esc([lot.warehouseCode,lot.location,lot.locationName].filter(Boolean).join(" · ")||"—")}</b></span><span><small>Cantidad</small><b>${lot.acceptedQuantity==null?"—":fmt.number(lot.acceptedQuantity,3)} ${esc(lot.unit||"")}</b></span></div><div class="barcode">${svg.outerHTML}</div><code>${esc(lot.scanCode)}</code></section>`;
     }).join("");
-    const win=window.open("","_blank","width=980,height=760");
-    if(!win)throw new Error("El navegador bloqueó la ventana de impresión.");
     win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Etiquetas de inventario</title><style>@page{size:auto;margin:5mm}body{font-family:Arial,sans-serif;margin:0;color:#111}.labels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5mm}.label{border:1.5px solid #111;border-radius:10px;padding:5mm;break-inside:avoid}.top{display:grid;grid-template-columns:1fr 35mm;gap:4mm;align-items:start}.top img{width:34mm;height:34mm}.top small,.meta small{display:block;color:#555;font-size:9px}.top h2{margin:2mm 0 1mm;font-size:19px}.top strong{font-size:12px}.meta{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm;margin:4mm 0}.meta span{border:1px solid #ddd;border-radius:6px;padding:2mm}.meta b{font-size:11px}.barcode svg{width:100%;max-height:22mm}code{display:block;text-align:center;font-size:10px;margin-top:1mm}@media print{.labels{gap:3mm}}</style></head><body><main class="labels">${labels}</main><script>window.addEventListener('load',()=>window.print(),{once:true});<\/script></body></html>`);
     win.document.close();
-  }catch(error){toast(error.message,"error",7000)}
+  }catch(error){try{win.close()}catch{}toast(error.message,"error",7000)}
 }
