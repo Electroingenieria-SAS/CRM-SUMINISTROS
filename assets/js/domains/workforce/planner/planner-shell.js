@@ -24,7 +24,7 @@ export function plannerToolbarHtml(planner){return `
         </div>`;}
 
 export function plannerCalendarContentHtml(planner){return `
-        ${planner.canPlanTeam?'<button class="btn btn-create" data-plan-new-custom>Nueva actividad</button><button class="btn btn-primary" data-plan-new>Asignar del catálogo</button>':'<span class="work-timeline-scope-v11350">Mi cronograma</span>'}
+        ${planner.canPlanOwn?`<button class="btn btn-create" data-plan-new-custom>Nueva actividad</button><button class="btn btn-primary" data-plan-new>${planner.canPlanTeam?"Asignar del catálogo":"Programar del catálogo"}</button>`:'<span class="work-timeline-scope-v11350">Mi cronograma</span>'}
       </div>
     </section>
 
