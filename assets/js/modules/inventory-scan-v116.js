@@ -9,6 +9,7 @@ let installed=false;
 let deepLinkHandled="";
 let receiptEnhanceTimer=null;
 let inventoryEnhanceTimer=null;
+let pendingDeepLink=new URLSearchParams(location.hash.split("?")[1]||"").get("scan")||"";
 
 async function rpc(name,params={}){
   const {data,error}=await getSupabase().rpc(name,params);
@@ -22,7 +23,7 @@ async function rpc(name,params={}){
 function esc(value){return fmt.escape(String(value??""))}
 function buildInventoryUrl(scanCode){
   const base=`${location.origin}${location.pathname}`;
-  return `${base}#/inventory?scan=${encodeURIComponent(scanCode)}`;
+  return `${base}#/dashboard?scan=${encodeURIComponent(scanCode)}`;
 }
 
 export function installInventoryScanV116(){
@@ -49,6 +50,11 @@ export function installInventoryScanV116(){
     const modalObserver=new MutationObserver(()=>scheduleReceiptEnhance());
     modalObserver.observe(modalRoot,{childList:true,subtree:true});
   }
+  window.addEventListener("hashchange",()=>{
+    const scan=new URLSearchParams(location.hash.split("?")[1]||"").get("scan");
+    if(scan)pendingDeepLink=scan;
+    scheduleEnhance();
+  });
   scheduleEnhance();
   scheduleReceiptEnhance();
 }
@@ -63,6 +69,7 @@ function scheduleReceiptEnhance(){
 }
 
 function enhanceInventoryPage(){
+  enhanceGlobalScanner();
   if(state.currentModule!=="inventory")return;
   const root=document.querySelector("#page-content");
   if(!root)return;
@@ -78,9 +85,26 @@ function enhanceInventoryPage(){
     if(!itemId)return;
     footer.insertAdjacentHTML("beforeend",`<button type="button" class="btn btn-ghost v116-label-btn" data-v116-item-labels="${esc(itemId)}">QR / etiquetas</button>`);
   });
-  const scanCode=state.currentParams?.scan||new URLSearchParams(location.hash.split("?")[1]||"").get("scan")||"";
+}
+
+function enhanceGlobalScanner(){
+  const actions=document.querySelector(".top-actions");
+  if(!state.profile||!actions)return;
+  if(!actions.querySelector("[data-v116-global-scan]")){
+    const button=document.createElement("button");
+    button.type="button";
+    button.className="icon-btn v116-global-scan-btn";
+    button.dataset.v116Scan="";
+    button.dataset.v116GlobalScan="";
+    button.setAttribute("aria-label","Escanear QR o código de barras");
+    button.title="Escanear QR o código de barras";
+    button.textContent="▣";
+    actions.insertBefore(button,actions.querySelector("#refresh-page"));
+  }
+  const scanCode=pendingDeepLink||state.currentParams?.scan||new URLSearchParams(location.hash.split("?")[1]||"").get("scan")||"";
   if(scanCode&&scanCode!==deepLinkHandled){
     deepLinkHandled=scanCode;
+    pendingDeepLink="";
     setTimeout(()=>resolveAndShow(scanCode,{fromDeepLink:true}),80);
   }
 }
@@ -170,7 +194,14 @@ export async function openInventoryScanner(){
 
 async function resolveAndShow(raw,{fromDeepLink=false}={}){
   try{
-    const data=await rpc("erp_x_inventory_scan_resolve",{p_code:raw});
+    let data;
+    try{
+      data=await rpc("erp_x_inventory_scan_resolve",{p_code:raw});
+    }catch(error){
+      // Conteo ciego y perfiles sin módulo de Inventario solo pueden identificar, nunca ver saldos.
+      if(!/42501|no autorizado|restringid|permission|not authorized/i.test(error.message))throw error;
+      data=await rpc("erp_x_inventory_scan_identify",{p_code:raw});
+    }
     window.dispatchEvent(new CustomEvent("erp:inventory-scan",{detail:data}));
     showScanResult(data,{fromDeepLink});
   }catch(error){
@@ -181,7 +212,10 @@ async function resolveAndShow(raw,{fromDeepLink=false}={}){
 
 function showScanResult(data,{fromDeepLink=false}={}){
   const item=data.item||{},lot=data.lot||{},receipt=data.receipt||null;
-  const payload={scanCode:data.scanCode,reference:item.reference,description:item.description,unit:item.unit,lotNumber:lot.lotNumber,location:lot.location,warehouseCode:lot.warehouseCode,acceptedQuantity:lot.available};
+  const canShowStock=data.canViewStock!==false&&lot.available!=null&&lot.reserved!=null&&lot.blocked!=null;
+  const payload={scanCode:data.scanCode,reference:item.reference,description:item.description,unit:item.unit,lotNumber:lot.lotNumber,location:lot.location,warehouseCode:lot.warehouseCode,acceptedQuantity:canShowStock?lot.available:null};
+  const stockCards=canShowStock?`${stockCards}`:"";
+  const canOpenInventory=state.modules.some(module=>module.code==="inventory"&&module.canRead);
   const view=modal({
     title:"Inventario identificado",
     size:"wide",
@@ -190,7 +224,7 @@ function showScanResult(data,{fromDeepLink=false}={}){
       <section class="v116-found-hero"><span>LECTURA CORRECTA</span><strong>${esc(item.reference)}</strong><h3>${esc(item.description)}</h3><p>${esc(data.scanCode)}</p></section>
       <div class="v116-found-grid"><article><small>Lote</small><strong>${esc(lot.lotNumber||"—")}</strong></article><article><small>Ubicación</small><strong>${esc([lot.warehouseCode,lot.location,lot.locationName].filter(Boolean).join(" · ")||"—")}</strong></article><article><small>Disponible</small><strong>${fmt.number(lot.available,3)} ${esc(item.unit||"")}</strong></article><article><small>Reservado</small><strong>${fmt.number(lot.reserved,3)}</strong></article><article><small>Bloqueado</small><strong>${fmt.number(lot.blocked,3)}</strong></article><article><small>Origen</small><strong>${receipt?esc(receipt.receiptNumber):esc(lot.sourceSystem||"Inventario")}</strong></article></div>
       ${receipt?`<div class="v116-origin-note"><strong>Ingreso por recepción de mercancía</strong><span>${esc(receipt.receiptNumber)} · ${esc(receipt.supplierName||"Proveedor no informado")} · ${fmt.date(receipt.receivedAt)}</span></div>`:""}
-      <section class="v116-result-actions"><button type="button" class="btn btn-primary" data-v116-result-print>Imprimir etiqueta</button>${state.currentModule!=="inventory"?'<button type="button" class="btn btn-create" data-v116-result-inventory>Abrir en Inventario</button>':""}</section>`
+      <section class="v116-result-actions"><button type="button" class="btn btn-primary" data-v116-result-print>Imprimir etiqueta</button>${canOpenInventory&&state.currentModule!=="inventory"?'<button type="button" class="btn btn-create" data-v116-result-inventory>Abrir en Inventario</button>':""}</section>`
   });
   view.root.querySelector("[data-v116-result-print]").onclick=()=>printLotLabel(payload);
   view.root.querySelector("[data-v116-result-inventory]")?.addEventListener("click",()=>{closeDialog();navigate("inventory",{scan:data.scanCode})});
@@ -267,7 +301,7 @@ async function printAllLabels(lots){
       const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
       window.JsBarcode(svg,lot.scanCode,{format:"CODE128",displayValue:true,height:50,margin:3,fontSize:12});
       const qr=window.qrcode(0,"M");qr.addData(buildInventoryUrl(lot.scanCode));qr.make();
-      return `<section class="label"><div class="top"><div><small>CRM SUMINISTROS · INVENTARIO</small><h2>${esc(lot.reference||"")}</h2><strong>${esc(lot.description||"")}</strong></div><img src="${qr.createDataURL(5,1)}" alt="QR"></div><div class="meta"><span><small>Lote</small><b>${esc(lot.lotNumber||"—")}</b></span><span><small>Ubicación</small><b>${esc([lot.warehouseCode,lot.location,lot.locationName].filter(Boolean).join(" · ")||"—")}</b></span><span><small>Cantidad</small><b>${fmt.number(lot.acceptedQuantity??0,3)} ${esc(lot.unit||"")}</b></span></div><div class="barcode">${svg.outerHTML}</div><code>${esc(lot.scanCode)}</code></section>`;
+      return `<section class="label"><div class="top"><div><small>CRM SUMINISTROS · INVENTARIO</small><h2>${esc(lot.reference||"")}</h2><strong>${esc(lot.description||"")}</strong></div><img src="${qr.createDataURL(5,1)}" alt="QR"></div><div class="meta"><span><small>Lote</small><b>${esc(lot.lotNumber||"—")}</b></span><span><small>Ubicación</small><b>${esc([lot.warehouseCode,lot.location,lot.locationName].filter(Boolean).join(" · ")||"—")}</b></span><span><small>Cantidad</small><b>${lot.acceptedQuantity==null?"—":fmt.number(lot.acceptedQuantity,3)} ${esc(lot.unit||"")}</b></span></div><div class="barcode">${svg.outerHTML}</div><code>${esc(lot.scanCode)}</code></section>`;
     }).join("");
     const win=window.open("","_blank","width=980,height=760");
     if(!win)throw new Error("El navegador bloqueó la ventana de impresión.");
