@@ -1,0 +1,233 @@
+/* Trazabilidad: las cuatro acciones siguen disponibles, en una barra tranquila. */
+#modal-root .modal.popup-ux-v1190 .order-support-zone {
+  margin:0 0 18px;
+  padding:15px 17px;
+  border:1px solid #dae6f0;
+  border-radius:17px;
+  background:#fff;
+  box-shadow:0 4px 15px rgba(23,70,112,.035);
+}
+#modal-root .modal.popup-ux-v1190 .order-support-toolbar {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+}
+#modal-root .modal.popup-ux-v1190 .order-support-title { gap:3px; }
+#modal-root .modal.popup-ux-v1190 .order-support-title span {
+  color:#688299;
+  font-size:10px;
+  letter-spacing:.12em;
+}
+#modal-root .modal.popup-ux-v1190 .order-support-title strong {
+  color:#1a4164;
+  font-size:15px;
+  letter-spacing:-.015em;
+}
+#modal-root .modal.popup-ux-v1190 .order-support-actions {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:8px;
+}
+#modal-root .modal.popup-ux-v1190 .support-btn {
+  min-height:40px;
+  padding:9px 13px;
+  border-radius:10px;
+  font-size:12px;
+  font-weight:800;
+  box-shadow:none;
+}
+#modal-root .modal.popup-ux-v1190 .support-btn.note,
+#modal-root .modal.popup-ux-v1190 .support-btn.support-create {
+  background:#edf5fe;
+  color:#135d9d;
+  border:1px solid #bed9ef;
+}
+#modal-root .modal.popup-ux-v1190 .support-btn.novelty {
+  background:#fff7e9;
+  color:#945c15;
+  border:1px solid #ecd2a6;
+}
+#modal-root .modal.popup-ux-v1190 .support-btn.report {
+  background:#fff0f2;
+  color:#a82c46;
+  border:1px solid #efc0c9;
+}
+#modal-root .modal.popup-ux-v1190 .support-btn.approval {
+  background:#f2f0ff;
+  color:#5748a5;
+  border:1px solid #d6cef6;
+}
+#modal-root .modal.popup-ux-v1190 .support-btn.support-create:before {
+  width:20px;
+  height:20px;
+  border-radius:7px;
+  background:#1b68ac;
+  font-size:14px;
+}
+#modal-root .modal.popup-ux-v1190 .support-btn:hover:enabled {
+  transform:translateY(-1px);
+  filter:brightness(.97);
+}
+
+/* Recepción: bloque de inicio compacto, datos en fichas y ruta de tres pasos. */
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus {
+  border-radius:24px;
+  background:#fff;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-process-body {
+  padding:20px 23px 24px;
+  background:#f6f9fc;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-process-head {
+  min-height:84px;
+  padding:17px 24px;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-process-head h3 {
+  font-size:22px;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-focus {
+  grid-template-columns:minmax(0,1.8fr) minmax(275px,.82fr);
+  gap:14px;
+  margin:0 0 14px;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-main,
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-route {
+  border-radius:17px;
+  border:1px solid #dbe6f0;
+  box-shadow:0 4px 16px rgba(16,56,92,.04);
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-main {
+  padding:18px;
+  gap:12px;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-icon {
+  border-radius:15px;
+  background:#eaf4fc;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-copy h4 {
+  font-size:19px;
+  line-height:1.25;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-facts {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+  padding:12px 0 0;
+  margin:2px 0 0;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-facts>span {
+  display:grid;
+  align-content:center;
+  gap:5px;
+  padding:10px 12px;
+  min-width:0;
+  min-height:63px;
+  border:1px solid #e2ebf3;
+  border-radius:11px;
+  background:#f8fbfe;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-facts>span:not(:last-child) {
+  border-right:1px solid #e2ebf3;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-facts small {
+  color:#738b9e;
+  font-size:10px;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-facts strong {
+  color:#1c4263;
+  font-size:12px;
+  line-height:1.3;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-route {
+  padding:17px 19px;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-route ol { gap:13px; }
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-route li>span {
+  border-radius:50%;
+  background:#edf5fd;
+  color:#146bb4;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-route li strong { font-size:12px; }
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-route li p { font-size:11px; }
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-card.reception-take {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  grid-template-areas:"tag action" "title action" "text action";
+  align-content:center;
+  align-items:center;
+  min-height:124px;
+  padding:20px 24px;
+  gap:5px 18px;
+  border:1px solid #bbd8f0;
+  border-radius:17px;
+  background:linear-gradient(115deg,#f1f8ff 0%,#fff 78%);
+  text-align:left;
+  box-shadow:0 4px 20px rgba(28,89,146,.045);
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take .reception-step-tag {
+  display:inline-flex;
+  grid-area:tag;
+  margin-bottom:2px;
+  justify-self:start;
+  background:#dceefe;
+  color:#1769a9;
+  border-radius:7px;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take h4 {
+  grid-area:title;
+  margin:0;
+  color:#14436d;
+  font-size:20px;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take p {
+  grid-area:text;
+  margin:0;
+  color:#5d788e;
+  font-size:12.5px;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take [data-take-order] {
+  grid-area:action;
+  min-width:188px;
+  min-height:49px;
+  padding:12px 20px;
+  border-radius:12px;
+  background:linear-gradient(135deg,#177ccc,#0758a8);
+  box-shadow:0 7px 17px rgba(15,91,164,.18);
+  color:#fff;
+  font-size:13.5px;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take .reception-assigned-warning {
+  grid-area:warning;
+  grid-column:1/-1;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .parallel-work-footer {
+  min-height:74px;
+  padding:12px 22px;
+  gap:14px;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .parallel-work-note {
+  flex:1 1 280px;
+  max-width:440px;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .parallel-work-note>span {
+  border-radius:12px;
+  background:#ecf5ff;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .parallel-work-note strong { font-size:12px; }
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .parallel-work-note small { font-size:10.5px; }
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .parallel-work-actions {
+  flex:0 1 auto;
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+  gap:9px;
+}
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .parallel-work-actions [data-take-another] { min-width:140px; }
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .parallel-work-actions [data-reception-next] { min-width:130px; }
+#modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .parallel-work-actions [data-request-order-cancellation] { min-width:145px; }
+

@@ -29,7 +29,7 @@ test("Receiving renders TAKE REVIEW PDF EDIT ASSIGN STATUS explicitly",()=>{
     assert.ok(value.length>100,`${stage} source missing`);
     assert.doesNotMatch(value,/MutationObserver|stageOf\(/);
   }
-  assert.match(source("stages/take.js"),/PEDIDO A RECIBIR/);
+  assert.match(source("stages/take.js"),/RESUMEN DEL PEDIDO/);
   assert.match(source("stages/review.js"),/Revisa y decide/);
   assert.match(source("stages/pdf.js"),/Selecciona el PDF/);
   assert.match(source("stages/edit-lines.js"),/Corrige solo lo necesario/);

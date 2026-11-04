@@ -1,0 +1,242 @@
+/* CRM Suministros · Renovación transversal de modales (V11.47.1)
+ * Exclusivamente presentacional: no altera elementos, permisos, dataset ni listeners.
+ * Acciones destructivas conservan tratamiento diferencial y foco accesible. */
+#modal-root {
+  --popup-navy:#103758;
+  --popup-blue:#1169bc;
+  --popup-ink:#173b5c;
+  --popup-muted:#63798c;
+  --popup-border:#dae5ef;
+  --popup-surface:#f5f8fc;
+  --popup-radius:20px;
+}
+#modal-root .modal-overlay {
+  padding:clamp(10px,2.8vw,28px);
+  background:rgba(9,26,45,.63);
+  backdrop-filter:blur(9px) saturate(.95);
+  -webkit-backdrop-filter:blur(9px) saturate(.95);
+}
+#modal-root .modal.popup-ux-v1190 {
+  border:1px solid rgba(212,227,239,.96);
+  border-radius:var(--popup-radius);
+  background:#fff;
+  box-shadow:0 30px 90px rgba(3,23,48,.30),0 8px 28px rgba(3,40,79,.12);
+  max-height:calc(100dvh - 32px);
+  overflow:hidden;
+}
+#modal-root .modal.popup-ux-v1190:not(.full):not(.split):not(.wizard-modal):not(.simple-process-modal):not(.shipping-process-modal):not(.picking-process-modal):not(.billing-process-modal) {
+  width:min(720px,100%);
+}
+#modal-root .modal.popup-ux-v1190 .modal-head {
+  gap:16px;
+  min-height:84px;
+  padding:19px 24px;
+  border-bottom:1px solid var(--popup-border);
+  border-top:4px solid #156fc2;
+  background:linear-gradient(115deg,#fff 58%,#f0f7fd 100%);
+  box-shadow:none;
+}
+#modal-root .modal.popup-ux-v1190 .modal-head:before { content:none; }
+#modal-root .modal.popup-ux-v1190 .modal-head>div { min-width:0; flex:1; }
+#modal-root .modal.popup-ux-v1190 .modal-head h3 {
+  margin:5px 0 0;
+  color:var(--popup-navy);
+  font-size:clamp(18px,1.5vw,22px);
+  font-weight:850;
+  line-height:1.24;
+  letter-spacing:-.024em;
+  overflow-wrap:anywhere;
+}
+#modal-root .modal.popup-ux-v1190 .wizard-kicker,
+#modal-root .modal.popup-ux-v1190 .modal-kicker {
+  color:#176cbc;
+  font-size:10px;
+  letter-spacing:.12em;
+  font-weight:850;
+}
+#modal-root .modal.popup-ux-v1190 .modal-head p {
+  margin-top:6px;
+  color:var(--popup-muted);
+  font-size:12px;
+  line-height:1.45;
+}
+#modal-root .modal.popup-ux-v1190 .modal-head .icon-btn[data-close] {
+  flex:0 0 40px;
+  width:40px;
+  height:40px;
+  border:1px solid #d8e5f0;
+  border-radius:12px;
+  background:#fff;
+  color:#49677f;
+  box-shadow:0 2px 8px rgba(25,69,108,.05);
+}
+#modal-root .modal.popup-ux-v1190 .modal-head .icon-btn[data-close]:hover {
+  border-color:#a9c9e5;
+  background:#edf5fd;
+  color:#135e9f;
+}
+#modal-root .modal.popup-ux-v1190 .modal-body,
+#modal-root .modal.popup-ux-v1190 .wizard-body {
+  min-height:0;
+  background:var(--popup-surface);
+}
+#modal-root .modal.popup-ux-v1190 .modal-body { padding:22px 24px; }
+#modal-root .modal.popup-ux-v1190 .wizard-body { padding:22px 24px; }
+#modal-root .modal.popup-ux-v1190 .modal-foot {
+  min-height:74px;
+  padding:12px 22px;
+  gap:10px;
+  flex-wrap:wrap;
+  border-top:1px solid #e1e9f1;
+  background:#fff;
+  box-shadow:0 -7px 22px rgba(20,54,83,.045);
+}
+#modal-root .modal.popup-ux-v1190 .modal-foot .btn,
+#modal-root .modal.popup-ux-v1190 .wizard-foot-actions .btn {
+  min-height:44px;
+  padding:10px 18px;
+  border-radius:12px;
+  font-size:12.5px;
+  font-weight:800;
+  line-height:1.2;
+  letter-spacing:0;
+  transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease,transform .16s ease;
+}
+#modal-root .modal.popup-ux-v1190 .modal-foot .btn:hover:enabled,
+#modal-root .modal.popup-ux-v1190 .wizard-foot-actions .btn:hover:enabled {
+  transform:translateY(-1px);
+}
+#modal-root .modal.popup-ux-v1190 .modal-foot .btn-primary,
+#modal-root .modal.popup-ux-v1190 .wizard-foot-actions .btn-primary,
+#modal-root .modal.popup-ux-v1190 .modal-foot [data-next] {
+  border:1px solid #145fa6;
+  background:linear-gradient(135deg,#177bd0,#0856a5);
+  color:#fff;
+  box-shadow:0 5px 14px rgba(16,100,184,.19);
+}
+#modal-root .modal.popup-ux-v1190 .modal-foot .btn-ghost {
+  border:1px solid #ccdaea;
+  background:#fff;
+  color:#234e70;
+  box-shadow:none;
+}
+#modal-root .modal.popup-ux-v1190 .modal-foot .btn-ghost:hover:enabled {
+  background:#f2f7fd;
+  border-color:#9cbedd;
+}
+#modal-root .modal.popup-ux-v1190 .modal-foot .btn-danger {
+  background:#fff5f5;
+  border:1px solid #edb6bd;
+  color:#aa2940;
+  box-shadow:none;
+}
+#modal-root .modal.popup-ux-v1190 .modal-foot .btn-danger:hover:enabled {
+  background:#ffe7ea;
+  border-color:#df8794;
+}
+#modal-root .modal.popup-ux-v1190 :is(.btn,.support-btn,.icon-btn):focus-visible,
+#modal-root .modal.popup-ux-v1190 :is(summary,.wizard-progress-item):focus-visible {
+  outline:3px solid #65b4f8;
+  outline-offset:3px;
+}
+#modal-root .modal.popup-ux-v1190 button:disabled { cursor:not-allowed; opacity:.55; box-shadow:none; }
+
+/* Guía breve y formularios con buen espacio de lectura */
+#modal-root .modal.popup-ux-v1190 .popup-process-guide-v1190 {
+  min-height:62px;
+  padding:12px 22px;
+  gap:13px;
+  background:#eff5fb;
+  border-bottom:1px solid #dbe7f1;
+}
+#modal-root .modal.popup-ux-v1190 .popup-guide-icon-v1190 {
+  width:37px;
+  height:37px;
+  border-radius:12px;
+  background:#fff;
+  border:1px solid #d9e5ef;
+}
+#modal-root .modal.popup-ux-v1190 .popup-guide-copy-v1190 strong { font-size:12px; }
+#modal-root .modal.popup-ux-v1190 .popup-guide-copy-v1190 p {
+  max-width:940px;
+  color:#58738a;
+  font-size:11px;
+  line-height:1.48;
+}
+#modal-root .modal.popup-ux-v1190 .popup-guide-meta-v1190 {
+  border-radius:99px;
+  padding:5px 10px;
+  background:#fff;
+  border:1px solid #d6e4f1;
+  color:#53728c;
+  font-size:10px;
+}
+#modal-root .modal.popup-ux-v1190 :is(.wizard-step-intro,.wizard-confirm-box,.simple-form-intro) {
+  border:1px solid var(--popup-border);
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 3px 12px rgba(30,77,116,.035);
+}
+#modal-root .modal.popup-ux-v1190 .wizard-step-intro {
+  padding:15px 18px;
+  border-left:4px solid #2481d2;
+}
+#modal-root .modal.popup-ux-v1190 .wizard-step-intro h4 { font-size:17px; }
+#modal-root .modal.popup-ux-v1190 .wizard-step-intro p { font-size:12px; }
+#modal-root .modal.popup-ux-v1190 .wizard-progress {
+  padding:0 16px;
+  gap:2px;
+  background:#fff;
+  border-bottom:1px solid #e1e9f1;
+}
+#modal-root .modal.popup-ux-v1190 .wizard-progress-item {
+  min-height:57px;
+  padding:12px 8px;
+  color:#60778b;
+}
+#modal-root .modal.popup-ux-v1190 .wizard-progress-item strong { font-size:11px; }
+#modal-root .modal.popup-ux-v1190 .wizard-progress-item.active {
+  background:#eff7fe;
+  color:#124c80;
+}
+#modal-root .modal.popup-ux-v1190 .field label { color:#31516e; font-size:12px; }
+#modal-root .modal.popup-ux-v1190 .control {
+  min-height:46px;
+  border-color:#cad9e7;
+  background:#fff;
+  font-size:13px;
+}
+#modal-root .modal.popup-ux-v1190 .field-help { font-size:11px; }
+
+/* Tarjetas de decisiones y resumen homogéneas. */
+#modal-root .modal.popup-ux-v1190 :is(.wizard-choice,.wizard-summary-item,.reception-choice,.billing-entry-card) {
+  border:1px solid #d9e4ee;
+  border-radius:15px;
+  background:#fff;
+  box-shadow:0 4px 14px rgba(18,57,92,.045);
+}
+#modal-root .modal.popup-ux-v1190 :is(.wizard-choice,.reception-choice):hover {
+  border-color:#95bfe3;
+  box-shadow:0 8px 22px rgba(18,78,133,.09);
+}
+#modal-root .modal.popup-ux-v1190 .modal-task-panel {
+  border-color:#d5e3ee;
+  background:#fff;
+}
+#modal-root .modal.popup-ux-v1190 .modal-task-panel>header {
+  background:linear-gradient(135deg,#fff,#f1f7fd);
+  box-shadow:none;
+  border-bottom:1px solid #dce6ef;
+  border-top:3px solid #1572c4;
+}
+#modal-root .modal.popup-ux-v1190 .modal-task-panel>header h4 {
+  color:#173d60;
+  font-size:17px;
+}
+#modal-root .modal.popup-ux-v1190 .modal-task-panel-body { background:#f6f9fc; }
+#modal-root .modal.popup-ux-v1190 .modal-task-panel>footer .btn {
+  min-height:46px;
+  border-radius:11px;
+  font-size:12px;
+}
+

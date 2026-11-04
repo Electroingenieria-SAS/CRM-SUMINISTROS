@@ -1,0 +1,4 @@
+/* CRM Suministros V11.47.1: composición visual de modales (<300 líneas por módulo). */
+@import "enterprise-modal-foundation-v11471.css";
+@import "enterprise-modal-workflows-v11471.css";
+@import "enterprise-modal-responsive-v11471.css";
