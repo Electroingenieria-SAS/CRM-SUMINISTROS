@@ -1,0 +1,89 @@
+/* Recepción de pedidos: revisión documental obligatoria por material. */
+.receiving-order .reception-lot-review-section{
+  display:grid;gap:14px;margin:0 0 18px;padding:18px;
+  border:1px solid #bfd6e9;border-radius:18px;
+  background:linear-gradient(145deg,#f0f7fe 0%,#fff 90%);
+}
+.receiving-order .reception-lot-review-intro{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+  padding-bottom:13px;border-bottom:1px solid #dbe8f2;
+}
+.receiving-order .reception-lot-review-intro>div{min-width:0}
+.receiving-order .reception-lot-review-intro span{
+  color:#1269af;font-size:10px;font-weight:900;letter-spacing:.1em;
+}
+.receiving-order .reception-lot-review-intro h4{
+  margin:5px 0 4px;color:#12446d;font-size:18px;line-height:1.25;
+}
+.receiving-order .reception-lot-review-intro p{
+  margin:0;max-width:740px;color:#546f84;font-size:12px;line-height:1.55;
+}
+.receiving-order .reception-lot-review-intro>strong{
+  flex:0 0 auto;display:inline-flex;align-items:center;min-height:30px;
+  padding:6px 10px;border-radius:999px;background:#e2effa;color:#205e95;
+  font-size:11px;font-weight:900;
+}
+.receiving-order .reception-lot-review-list{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));
+  gap:11px;
+}
+.receiving-order .reception-lot-review-card{
+  display:grid;gap:13px;min-width:0;padding:16px;
+  border:1px solid #d8e5f0;border-radius:15px;background:#fff;
+  box-shadow:0 3px 12px rgba(20,63,100,.045);
+}
+.receiving-order .reception-lot-review-card[data-lot-valid="true"]{
+  border-color:#a7d7b9;background:linear-gradient(160deg,#fff,#f6fcf8);
+}
+.receiving-order .reception-lot-review-heading{
+  display:flex;justify-content:space-between;gap:12px;align-items:flex-start;
+}
+.receiving-order .reception-lot-review-heading>div{display:grid;gap:3px;min-width:0}
+.receiving-order .reception-lot-review-heading span{
+  color:#1e71b3;font-size:9px;font-weight:900;letter-spacing:.08em;
+}
+.receiving-order .reception-lot-review-heading strong{
+  color:#173e62;font-size:14px;line-height:1.35;overflow-wrap:anywhere;
+}
+.receiving-order .reception-lot-review-heading small{
+  color:#71879a;font-size:11px;line-height:1.4;overflow-wrap:anywhere;
+}
+.receiving-order .reception-lot-review-heading em{
+  flex:0 0 auto;padding:5px 8px;border:1px solid #d9e6f1;border-radius:8px;
+  background:#f5f9fd;color:#416b8c;font-size:10px;font-style:normal;
+}
+.receiving-order .reception-lot-review-controls{display:grid;gap:10px}
+.receiving-order .reception-lot-review-controls>label:first-child{
+  display:grid;gap:6px;color:#284d6c;font-size:12px;font-weight:800;
+}
+.receiving-order .reception-lot-review-controls .control{
+  min-height:46px;width:100%;border-radius:11px;font-size:13px;
+}
+.receiving-order .reception-lot-review-controls small{
+  font-size:11px;font-weight:400;color:#708497;line-height:1.45;
+}
+.receiving-order .reception-lot-review-check{
+  display:flex;align-items:flex-start;gap:9px;padding:11px 12px;
+  border:1px solid #dde8f1;border-radius:10px;background:#f7fbfe;
+  color:#34566f;cursor:pointer;font-size:12px;line-height:1.45;
+}
+.receiving-order .reception-lot-review-check input{
+  flex:0 0 auto;min-height:0;width:18px;height:18px;margin:0;
+  accent-color:#1579c2;
+}
+.receiving-order .reception-lot-review-status{
+  margin:0;color:#9e681d;font-size:11px;line-height:1.4;
+}
+.receiving-order .reception-lot-review-card[data-lot-valid="true"] .reception-lot-review-status{color:#227746}
+.receiving-order .reception-line-lot-field{grid-column:1/-1}
+.receiving-order .reception-line-lot-field small{
+  display:block;margin-top:5px;color:#6c8193;font-size:11px;line-height:1.4;
+}
+@media(max-width:650px){
+  .receiving-order .reception-lot-review-section{padding:12px;gap:12px}
+  .receiving-order .reception-lot-review-intro{flex-direction:column;gap:9px}
+  .receiving-order .reception-lot-review-list{grid-template-columns:1fr}
+  .receiving-order .reception-lot-review-heading{flex-wrap:wrap}
+  .receiving-order .reception-lot-review-card{padding:13px}
+  .receiving-order .reception-lot-review-controls .control{font-size:16px}
+}
