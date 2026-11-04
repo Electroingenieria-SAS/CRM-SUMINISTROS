@@ -1,7 +1,7 @@
 import { fmt } from "../../../../core/format.js";
 import { icon } from "../../../../core/icons.js";
 import { editableLine } from "../lines/editable-line.js";
-import { correctionPdfControls } from "../pdf/correction-upload.js";
+import { correctionPdfControls } from "../pdf/correction-pdf-controls.js";
 
 export function editStage(data,draft){
   const rows=(draft.lines||[]).map((line,index)=>editableLine(line,index)).join("");
