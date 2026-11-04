@@ -1,0 +1,39 @@
+name: Preparar PDF en Corregir y actualizar PWA
+on:
+  push:
+    branches: [fix/reception-pdf-upload-in-correct-20261104]
+    paths: [.github/workflows/prepare-reception-correction-temp.yml]
+permissions:
+  contents: write
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/reception-pdf-upload-in-correct-20261104
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Preparar flujo único
+        run: git rm .github/workflows/prepare-reception-correction-temp.yml
+      - name: Generar recursos nuevos de PWA
+        run: npm run pwa:generate
+      - name: Verificar y probar la aplicación
+        run: |
+          node --check assets/js/domains/receiving/order/pdf/correction-upload.js
+          node --check assets/js/domains/receiving/order/pdf/merge-corrections.js
+          node --test scripts/tests/reception-pdf-correction.test.mjs scripts/tests/reception-documentary-lots.test.mjs
+          npm run validate:domains
+          npm run pwa:check
+          bash scripts/ci/release-invariants.sh
+      - name: Guardar revisión sin dejar workflows de preparación
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add -A
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(pwa): precachear carga PDF en Corregir"
+          git push origin HEAD:fix/reception-pdf-upload-in-correct-20261104
