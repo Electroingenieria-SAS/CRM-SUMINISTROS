@@ -1,4 +1,5 @@
 import { fmt } from "../../../../core/format.js";
+import { receptionLotNumbersText } from "./reception-lot-values.js";
 import { materialPickerHtml } from "../../../../services/materials.js";
 
 export function editableLine(line,index){
@@ -11,6 +12,7 @@ export function editableLine(line,index){
     </div>
     <div class="reception-line-fields official-line-quantity">
       <div class="field"><label>Cantidad *</label><input class="control" data-field="quantity" type="number" min="0.0001" step="any" value="${fmt.escape(line.quantity??"")}" placeholder="Cantidad" required></div>
+      <div class="field reception-line-lot-field"><label>Lote(s) del material *</label><input class="control" data-field="lotNumbers" value="${fmt.escape(receptionLotNumbersText(line.lotNumbers))}" placeholder="Ej. LT-1026, LT-1027" autocomplete="off"><small>Ingresa uno o varios lotes separados por coma; puedes corregir los detectados del PDF.</small></div>
       <div class="field"><label>Ubicación operativa</label><input class="control" data-field="warehouseLocation" value="${fmt.escape(line.warehouseLocation||"")}" placeholder="Opcional"></div>
     </div>
     <div class="reception-cut-controls">
