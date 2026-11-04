@@ -41,7 +41,7 @@ export function mergePdfIntoReception(existing,detected){
     }else if(existingLots.length&&pdfLots.length
       &&existingLots.map(value=>value.toUpperCase()).join("|")!==pdfLots.map(value=>value.toUpperCase()).join("|")){
       // El operario conserva lo que escribió; el aviso permite cotejar el PDF.
-      lines[index]={...current,pdfSuggestedLotNumbers:pdfLots,pdfLotDiscrepancy:true};
+      lines[index]={...current,lotReviewed:false,pdfSuggestedLotNumbers:pdfLots,pdfLotDiscrepancy:true};
       conflicts++;
     }
   }
