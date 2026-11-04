@@ -1,5 +1,6 @@
 -- Lector QR/CODE128 universal: identificación mínima para cualquier perfil operativo activo.
 -- No devuelve saldos, reservas, bloqueos, costos ni datos de proveedores.
+-- Reconoce códigos de lotes y comprobantes de recepción por separado.
 -- Se conserva erp_x_inventory_scan_resolve como consulta detallada con sus controles de conteo ciego.
 create or replace function public.erp_x_inventory_scan_identify(p_code text)
 returns jsonb
@@ -52,7 +53,31 @@ begin
     and (upper(l.scan_code)=upper(v_code) or l.id::text=v_code)
   limit 1;
   if v_result is null then
-    raise exception 'Código de inventario no encontrado' using errcode='P0002';
+    -- Los comprobantes de Recepción imprimen un CODE128 y un QR JSON, no un EI-L-.
+    -- Para otros roles solo se identifica el comprobante, sin datos del proveedor.
+    select jsonb_build_object(
+      'kind','WAREHOUSE_RECEIPT',
+      'scanCode',w.barcode_value,
+      'canViewStock',false,
+      'receipt',jsonb_build_object(
+        'receiptNumber',w.receipt_number,
+        'receiptType',w.receipt_type
+      ),
+      'item',jsonb_build_object(
+        'reference',w.receipt_number,
+        'description','Recepción de mercancía'
+      ),
+      'lot',jsonb_build_object(),
+      'version','11.46.4'
+    ) into v_result
+    from erp_supply.warehouse_receipts w
+    where w.organization_id=v_org
+      and (w.barcode_value=v_raw or w.qr_value=v_raw or w.receipt_number=v_code)
+    limit 1;
+  end if;
+
+  if v_result is null then
+    raise exception 'Código QR o de barras no encontrado' using errcode='P0002';
   end if;
   return v_result;
 end;
