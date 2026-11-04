@@ -9,7 +9,8 @@ let installed=false;
 let deepLinkHandled="";
 let receiptEnhanceTimer=null;
 let inventoryEnhanceTimer=null;
-let pendingDeepLink=new URLSearchParams(location.hash.split("?")[1]||"").get("scan")||"";
+const initialScanParams=new URLSearchParams(location.hash.split("?")[1]||"");
+let pendingDeepLink=initialScanParams.get("scan")||initialScanParams.get("countScan")||"";
 
 async function rpc(name,params={}){
   const {data,error}=await getSupabase().rpc(name,params);
@@ -51,7 +52,8 @@ export function installInventoryScanV116(){
     modalObserver.observe(modalRoot,{childList:true,subtree:true});
   }
   window.addEventListener("hashchange",()=>{
-    const scan=new URLSearchParams(location.hash.split("?")[1]||"").get("scan");
+    const params=new URLSearchParams(location.hash.split("?")[1]||"");
+    const scan=params.get("scan")||params.get("countScan");
     if(scan)pendingDeepLink=scan;
     scheduleEnhance();
   });
@@ -101,7 +103,8 @@ function enhanceGlobalScanner(){
     button.textContent="▣";
     actions.insertBefore(button,actions.querySelector("#refresh-page"));
   }
-  const scanCode=pendingDeepLink||state.currentParams?.scan||new URLSearchParams(location.hash.split("?")[1]||"").get("scan")||"";
+  const hashParams=new URLSearchParams(location.hash.split("?")[1]||"");
+  const scanCode=pendingDeepLink||state.currentParams?.scan||state.currentParams?.countScan||hashParams.get("scan")||hashParams.get("countScan")||"";
   if(scanCode&&scanCode!==deepLinkHandled){
     deepLinkHandled=scanCode;
     pendingDeepLink="";
@@ -154,6 +157,7 @@ export async function openInventoryScanner(){
 
   try{
     if("BarcodeDetector" in window&&navigator.mediaDevices?.getUserMedia){
+      try{
       const supported=await window.BarcodeDetector.getSupportedFormats();
       const desired=["qr_code","code_128","code_39","ean_13","ean_8","data_matrix"];
       const formats=desired.filter(x=>supported.includes(x));
@@ -171,6 +175,11 @@ export async function openInventoryScanner(){
       };
       raf=requestAnimationFrame(detect);
       return;
+      }catch(error){
+        try{stream?.getTracks?.().forEach(track=>track.stop())}catch{}
+        stream=null;
+        console.warn("[CRM SCANNER] detector nativo falló; se intentará ZXing",error);
+      }
     }
     if(!window.ZXingBrowser?.BrowserMultiFormatReader){
       try{await loadScannerFallback()}catch(error){console.warn("[CRM SCANNER] Fallback no disponible",error)}
@@ -199,15 +208,33 @@ async function resolveAndShow(raw,{fromDeepLink=false}={}){
       data=await rpc("erp_x_inventory_scan_resolve",{p_code:raw});
     }catch(error){
       // Conteo ciego y perfiles sin módulo de Inventario solo pueden identificar, nunca ver saldos.
-      if(!/42501|no autorizado|restringid|permission|not authorized/i.test(error.message))throw error;
+      if(!/42501|no autorizado|restringid|permission|not authorized|código de inventario no encontrado/i.test(error.message))throw error;
       data=await rpc("erp_x_inventory_scan_identify",{p_code:raw});
     }
     window.dispatchEvent(new CustomEvent("erp:inventory-scan",{detail:data}));
-    showScanResult(data,{fromDeepLink});
+    if(data.kind==="WAREHOUSE_RECEIPT")showReceiptScanResult(data);
+    else showScanResult(data,{fromDeepLink});
   }catch(error){
     if(fromDeepLink)deepLinkHandled="";
     toast(error.message,"error",7500);
   }
+}
+
+function showReceiptScanResult(data){
+  const receipt=data.receipt||{};
+  const canOpenReceiving=state.modules.some(module=>module.code==="receiving"&&module.canRead);
+  const view=modal({
+    title:"Recepción identificada",
+    size:"wide",
+    confirmLabel:"Cerrar",
+    body:`<section class="v116-found-hero"><span>LECTURA CORRECTA</span><strong>${esc(receipt.receiptNumber||"Recepción")}</strong><h3>Comprobante de mercancía</h3><p>QR / código de barras verificado</p></section>
+      <div class="v116-found-grid"><article><small>Documento</small><strong>${esc(receipt.receiptNumber||"—")}</strong></article><article><small>Tipo</small><strong>${receipt.receiptType==="RETURN"?"Devolución":"Recepción"}</strong></article></div>
+      ${canOpenReceiving?'<section class="v116-result-actions"><button type="button" class="btn btn-create" data-v116-open-receiving>Ir a Recepción</button></section>':""}`
+  });
+  view.root.querySelector("[data-v116-open-receiving]")?.addEventListener("click",()=>{
+    closeDialog();
+    navigate("receiving");
+  });
 }
 
 function showScanResult(data,{fromDeepLink=false}={}){
