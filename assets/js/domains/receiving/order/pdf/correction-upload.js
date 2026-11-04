@@ -36,7 +36,13 @@ export function bindCorrectionPdf(host,data,draft,callbacks){
           const task=activeTask(data);
           const response=await uploadOrderFile(data.order.id,file,"EVIDENCE",task?.id,data.order.order_number);
           const registered=response?.file||response;
-          return {sourceFileId:registered?.drive_file_id||registered?.driveFileId||"",savedToDrive:true};
+          const sourceFileId=registered?.drive_file_id||registered?.driveFileId||"";
+          // Refresca el selector del pedido inmediatamente, sin duplicar soportes.
+          if(sourceFileId){
+            data.files ||= [];
+            if(!data.files.some(item=>item.drive_file_id===sourceFileId))data.files.push(registered);
+          }
+          return {sourceFileId,savedToDrive:true};
         }catch(error){
           console.warn("[RECEPTION PDF] No se pudo guardar el documento:",error);
           return {sourceFileId:"",uploadWarning:"El PDF se leyó, pero no pudo guardarse como soporte en Drive. Comprueba la conexión o los permisos de carga."};

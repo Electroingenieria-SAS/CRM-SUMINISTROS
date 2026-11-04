@@ -67,6 +67,7 @@ test("Los archivos locales se leen, se guardan como soporte y no toman identific
   assert.match(reader,/await options\.afterRead\?\.\(file\)/);
   assert.match(upload,/uploadOrderFile\(data.order.id,file,"EVIDENCE"/);
   assert.match(upload,/uploadWarning/);
+  assert.match(upload,/if\(!data\.files\.some\(item=>item\.drive_file_id===sourceFileId\)\)data\.files\.push\(registered\)/);
   const ops=source("assets/css/operations.css");
   assert.match(ops,/order-reception-pdf-correction\.css/);
 });
