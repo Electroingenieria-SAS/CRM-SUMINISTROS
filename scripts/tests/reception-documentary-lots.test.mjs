@@ -84,6 +84,10 @@ test("El guardado incluye los lotes verificados y la migración rechaza confirma
   assert.match(confirmation,/receptionLotReviewed:true/);
   assert.match(migration,/jsonb_array_length\(v_lots\)/);
   assert.match(migration,/trg_reception_required_documentary_lots/);
+  // Un navegador antiguo sin estos dos campos continúa sin caída de recepción;
+  // cualquier carga de la versión nueva queda validada por la base de datos.
+  assert.match(migration,/not \(new\.metadata \? 'receptionLotNumbers'\)/);
+  assert.match(migration,/not \(new\.metadata \? 'receptionLotReviewed'\)/);
   assert.match(migration,/receptionActive/);
   assert.match(migration,/confirmedAt/);
 });

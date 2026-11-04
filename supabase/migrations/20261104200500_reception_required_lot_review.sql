@@ -24,6 +24,14 @@ begin
     return new;
   end if;
 
+  -- Compatibilidad temporal con clientes V11.46.3 aún publicados por el límite
+  -- de despliegues de Vercel. La app 11.47.4 envía ambos campos en cada línea.
+  -- Si aparece cualquiera de los campos nuevos, la verificación es estricta.
+  if not (new.metadata ? 'receptionLotNumbers')
+     and not (new.metadata ? 'receptionLotReviewed') then
+    return new;
+  end if;
+
   v_lots:=new.metadata->'receptionLotNumbers';
   if coalesce(new.metadata->>'receptionLotReviewed','false')<>'true' then
     raise exception 'Debes verificar los lotes del material antes de confirmar Recepción';
@@ -61,4 +69,4 @@ before insert or update of metadata on erp_supply.order_items
 for each row execute function erp_supply.enforce_reception_documentary_lots();
 
 comment on function erp_supply.enforce_reception_documentary_lots()
-is 'Valida lotes documentales obligatorios al confirmar nuevas líneas de Recepción; protege registros históricos sin revalidarlos.';
+is 'Exige lotes verificados para clientes 11.47.4; conserva compatibilidad operativa con clientes anteriores durante el cambio de hosting y expedientes históricos.';
