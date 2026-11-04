@@ -9,6 +9,7 @@ export function editableLine(line,index){
     <div class="reception-line-material">
       ${materialPickerHtml({materialMasterId:line.materialMasterId||line.material_master_id,materialVariantId:line.materialVariantId||line.material_variant_id,variantLabel:line.variantLabel||line.variant_label,reference:line.reference,sku:line.sku,name:line.description,description:line.description,unit:line.unit})}
       ${unresolved?`<div class="material-resolution-warning">No se pudo relacionar automáticamente esta línea. Busca y selecciona el material oficial antes de continuar.</div>`:""}
+      ${line.pdfMatchStatus==="UNMATCHED"?`<div class="material-resolution-warning">Esta referencia del PDF no coincide con ninguna línea del pedido original. Verifica y corrige el material antes de continuar.</div>`:""}
     </div>
     <div class="reception-line-fields official-line-quantity">
       <div class="field"><label>Cantidad *</label><input class="control" data-field="quantity" type="number" min="0.0001" step="any" value="${fmt.escape(line.quantity??"")}" placeholder="Cantidad" required></div>
