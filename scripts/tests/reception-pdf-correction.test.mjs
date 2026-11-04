@@ -32,7 +32,7 @@ test("Un nuevo PDF no sobrescribe lotes ni cantidades corregidas a mano",()=>{
   assert.equal(result.lines.length,2);
   assert.equal(result.lines[0].quantity,4);
   assert.deepEqual(result.lines[0].lotNumbers,["MANUAL-1"]);
-  assert.equal(result.lines[0].lotReviewed,true);
+  assert.equal(result.lines[0].lotReviewed,false); // Lote manual se conserva, pero conflicto requiere nueva verificación.
   assert.deepEqual(result.lines[0].pdfSuggestedLotNumbers,["PDF-1"]);
   assert.equal(result.lines[0].pdfLotDiscrepancy,true);
   assert.equal(result.lines[1].lotReviewed,false);
