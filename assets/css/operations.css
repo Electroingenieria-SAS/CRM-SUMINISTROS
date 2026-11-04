@@ -37,6 +37,7 @@
 @import "modules/receiving/order-task-layout-reception-process-modal.css";
 @import "modules/receiving/order-task-layout-receiving-focus.css";
 @import "modules/receiving/order-reception-lot-review.css";
+@import "modules/receiving/order-reception-pdf-correction.css";
 @import "modules/receiving/confirmation-layout.css";
 @import "modules/picking/task-layout-modal-root.css";
 @import "modules/picking/task-layout-picking-focus.css";
