@@ -1,0 +1,40 @@
+name: Preparar entrega limpia de lotes
+on:
+  push:
+    branches: [release/reception-lots-canonical-20261104]
+    paths: [.github/workflows/prepare-release-lots-temp.yml]
+permissions:
+  contents: write
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: release/reception-lots-canonical-20261104
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Generar nueva caché de versión
+        run: npm run pwa:generate
+      - name: Verificar sin modificaciones
+        run: |
+          bash scripts/ci/release-invariants.sh
+          npm run validate
+          npm run pwa:check
+          node --test scripts/tests/reception-documentary-lots.test.mjs scripts/tests/reception-lot-assignment.test.mjs scripts/tests/popup-design-refresh.test.mjs
+      - name: Verificar navegación del panel y lotes en Chromium
+        run: |
+          npm install --no-save --no-package-lock @playwright/test@1.63.0
+          npx playwright install --with-deps chromium
+          npx playwright test tests/popup-design-refresh.spec.js tests/reception-documentary-lots.spec.js --project=chromium
+      - name: Guardar recursos versionados
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add assets/precache-manifest.json service-worker.js
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(pwa): manifest 11.47.4 y limpieza de recursos antiguos"
+          git push origin HEAD:release/reception-lots-canonical-20261104
