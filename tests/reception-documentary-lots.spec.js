@@ -52,3 +52,25 @@ test("La revisión de múltiples lotes no desborda 390px",async({page})=>{
   expect(data.right).toBeLessThanOrEqual(data.width+1);
   await expect(page.locator("[data-reception-lot-input]")).toHaveCount(2);
 });
+
+test("Corregir incorpora lectura PDF local y del pedido sin abandonar la edición",async({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  await page.goto("/");
+  await page.evaluate(async()=>{
+    const {editStage}=await import("/assets/js/domains/receiving/order/stages/edit-lines.js");
+    const {assignmentStage}=await import("/assets/js/domains/receiving/order/stages/assignment.js");
+    const data={order:{id:"qa",order_number:"PVE-QA"},files:[{drive_file_id:"pdf-qa",file_name:"materiales.pdf",mime_type:"application/pdf"}]};
+    const draft={stage:"EDIT",sourceFileId:"pdf-qa",sourceFileName:"materiales.pdf",lines:[]};
+    const root=document.querySelector("#modal-root");
+    root.innerHTML='<div class="modal-overlay"><section class="modal receiving-order receiving-order-focus reception-process-modal popup-ux-v1190"><div class="modal-body reception-process-body">'+editStage(data,draft)+'</div></section></div>';
+    window.__receptionPdfAssignmentHtml=assignmentStage(data,draft,[],[]);
+  });
+  await expect(page.locator("[data-correction-source-pdf]")).toHaveCount(1);
+  await expect(page.locator("[data-correction-read-drive]")).toHaveCount(1);
+  await expect(page.locator("[data-correction-local-pdf]")).toHaveCount(1);
+  const right=await page.locator("[data-correction-pdf-panel]").evaluate(node=>node.getBoundingClientRect().right);
+  expect(right).toBeLessThanOrEqual(392);
+  const next=await page.evaluate(()=>window.__receptionPdfAssignmentHtml);
+  expect(next).toContain("data-correction-local-pdf");
+  expect(next).toContain("data-correction-read-drive");
+});

@@ -5,6 +5,7 @@ import { renderWorkbench } from "../reception-controller.js";
 import { assignmentStage } from "../stages/assignment.js";
 import { confirmReception } from "../actions/confirm-reception.js";
 import { persistDraft } from "../draft/reception-draft.js";
+import { bindCorrectionPdf } from "../pdf/correction-upload.js";
 import { receptionLotReviewCards, bindReceptionLotReviewCards, assertReceptionLotReview } from "./lot-review.js";
 import { loadReceptionOriginPlans, receptionOriginCards, bindReceptionOriginCards, assertReceptionOriginCards } from "./lot-selection.js";
 
@@ -21,6 +22,7 @@ export async function loadAssignmentStage(host,data,draft,callbacks){
 }
 
 export function bindAssignmentControls(host,data,draft,callbacks,pickingPool,cutPool,originPlans=[]){
+  bindCorrectionPdf(host,data,draft,callbacks);
   bindReceptionLotReviewCards(host,data,draft,persistDraft);
   bindReceptionOriginCards(host,data,draft,originPlans,persistDraft);
   const picking=host.querySelector("[data-picking-profile]");

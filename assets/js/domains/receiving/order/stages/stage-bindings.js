@@ -2,6 +2,7 @@ import { toast } from "../../../../core/ui.js";
 import { downloadDriveFile } from "../../../../services/drive.js";
 import { renderWorkbench } from "../reception-controller.js";
 import { processPdf } from "../pdf/process-pdf.js";
+import { bindCorrectionPdf } from "../pdf/correction-upload.js";
 import { bindLineEditor } from "../lines/editor-bindings.js";
 import { loadAssignmentStage } from "../assignment/assignment-pool.js";
 import { persistDraft } from "../draft/reception-draft.js";
@@ -45,6 +46,9 @@ export function bindStage(host,data,draft,callbacks){
     await processPdf(host,data,draft,callbacks,()=>file);
   });
 
-  if(draft.stage==="EDIT")bindLineEditor(host,data,draft,callbacks);
+  if(draft.stage==="EDIT"){
+    bindLineEditor(host,data,draft,callbacks);
+    bindCorrectionPdf(host,data,draft,callbacks);
+  }
   if(draft.stage==="ASSIGN")loadAssignmentStage(host,data,draft,callbacks);
 }
