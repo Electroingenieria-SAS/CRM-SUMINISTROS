@@ -206,6 +206,7 @@ export const api={
   localDispatchCostDetail:tripId=>rpc("erp_x_local_dispatch_cost_detail",{p_trip_id:tripId}),
   localDispatchCostAdjust:(tripId,payload)=>mutationRpc("erp_x_local_dispatch_cost_adjust",{p_trip_id:tripId,p_payload:payload}),
   reportShippingNoDelivery:(orderId,payload)=>mutationRpc("erp_x_shipping_report_no_delivery",{p_order_id:orderId,p_payload:payload}),
+  shippingDistanceContext:orderId=>rpc("erp_x_shipping_distance_context",{p_order_id:orderId}),
   confirmShippingSatisfaction:(orderId,payload={})=>mutationRpc("erp_x_shipping_confirm_satisfaction",{p_order_id:orderId,p_payload:payload}),
   audit:(entityType=null,search="",page=1,pageSize=100)=>rpc("erp_x_audit",{p_entity_type:entityType,p_search:search||null,p_page:page,p_page_size:pageSize})
 };
