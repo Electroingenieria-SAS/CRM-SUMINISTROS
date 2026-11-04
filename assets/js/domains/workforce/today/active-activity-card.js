@@ -6,7 +6,7 @@ import { clock, timeOnly } from "../shared/local-dates.js";
 export function activeWorkCard(active){
   if(!active)return `<section class="work-active-console idle">
     <div class="work-active-idle-icon">${icon("play")}</div>
-    <div class="work-active-idle-copy"><small>Estado actual</small><strong>Sin actividad en curso</strong><p>Selecciona categoría, subcategoría y actividad. El cronómetro solo inicia después de confirmar.</p></div>
+    <div class="work-active-idle-copy"><small>Estado actual</small><strong>Sin actividad en curso</strong><p>Selecciona cualquier actividad, inicia su cronómetro ahora o prográmala para después.</p></div>
   </section>`;
 
   const metrics=active.metrics||{};
