@@ -8,8 +8,8 @@ export function fromOrderItem(item,index){
 
 export function mergeReaderLine(line,current,index){
   const normalized=String(line.reference||line.sku||"").trim().toUpperCase();
-  const match=current.find(item=>[item.reference,item.sku].some(value=>String(value||"").trim().toUpperCase()===normalized))||current[index];
-  return {...line,orderItemId:match?.id||null,materialMasterId:match?.material_master_id||match?.metadata?.materialMasterId||null,materialVariantId:match?.material_variant_id||match?.metadata?.materialVariantId||null,variantLabel:match?.metadata?.variantLabel||line.variantLabel||line.color||null,warehouseLocation:match?.warehouse_location||"",requestedCutLength:line.requiresCut?(line.requestedCutLength||line.quantity):null,lotNumbers:normalizeReceptionLotNumbers(line.lotNumbers),lotSource:line.lotNumbers?.length?"PDF":"MANUAL",lotReviewed:false};
+  const match=current.find(item=>[item.reference,item.sku].some(value=>String(value||"").trim().toUpperCase()===normalized))||(normalized?null:current[index]);
+  return {...line,orderItemId:match?.id||null,materialMasterId:match?.material_master_id||match?.metadata?.materialMasterId||null,materialVariantId:match?.material_variant_id||match?.metadata?.materialVariantId||null,variantLabel:match?.metadata?.variantLabel||line.variantLabel||line.color||null,warehouseLocation:match?.warehouse_location||"",requestedCutLength:line.requiresCut?(line.requestedCutLength||line.quantity):null,lotNumbers:normalizeReceptionLotNumbers(line.lotNumbers),lotSource:line.lotNumbers?.length?"PDF":"MANUAL",lotReviewed:false,pdfMatchStatus:match?"MATCHED":"UNMATCHED"};
 }
 
 export function blankLine(){return {orderItemId:null,materialMasterId:null,materialVariantId:null,variantLabel:null,sku:null,reference:null,description:"",quantity:1,unit:"UND",warehouseLocation:"",requiresCut:false,requestedCutLength:null,materialResolution:"NOT_FOUND",lotNumbers:[],lotSource:"MANUAL",lotReviewed:false}}
