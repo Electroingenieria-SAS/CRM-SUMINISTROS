@@ -4,14 +4,14 @@ trap 'rm -rf "$validation_dir"' EXIT
 for family in operations analytics; do
   node --input-type=module -e 'import {readCssSource} from "./scripts/tests/read-css-source.mjs"; console.log(readCssSource(process.argv[1]));' "assets/css/$family.css" > "$validation_dir/$family.css"
 done
-grep -q 'version: "11.46.3"' assets/js/config.js
-grep -q 'build: "2026-10-16.43"' assets/js/config.js
-grep -q '"version": "11.46.3"' package.json
-grep -q '"version": "11.46.3"' package-lock.json
-grep -q 'app-entry.js?v=11.46.3' index.html
+grep -q 'version: "11.47.4"' assets/js/config.js
+grep -q 'build: "2026-11-04.44"' assets/js/config.js
+grep -q '"version": "11.47.4"' package.json
+grep -q '"version": "11.47.4"' package-lock.json
+grep -q 'app-entry.js?v=11.47.4' index.html
 grep -Fq 'https://script.google.com/macros/s/AKfycbwjl1JCfE0eV92P6DCn6h8jIVIBlSwLOQj8U7Mz1_7YW2Xan8DPI5tpWJuiG7znSCSs/exec' assets/js/config.js
-grep -Fxq '// previous-cache: crm-suministros-v11-46-1-20261016-41' service-worker.js
-grep -Fxq 'const CACHE="crm-suministros-v11-46-3-20261016-43";' service-worker.js
+grep -Fxq '// previous-cache: crm-suministros-v11-46-3-20261016-43' service-worker.js
+grep -Fxq 'const CACHE="crm-suministros-v11-47-4-20261104-44";' service-worker.js
 grep -q 'manifest.webmanifest' vercel.json
 test "$(grep -c '<link rel="stylesheet" href="./assets/css/' index.html)" -eq 4
 test "$(find assets/css -maxdepth 1 -type f -name '*.css' | wc -l)" -eq 4
