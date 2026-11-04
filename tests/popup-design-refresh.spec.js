@@ -44,7 +44,7 @@ test("Recepción presenta acciones intactas, inicio compacto y orden correcto",a
   await footer.locator("[data-request-order-cancellation]").click();
   await expect(page.locator("[data-modal-task-panel]")).toBeVisible();
   await expect(page.locator("[name='cancellationNote']")).toBeVisible();
-  await page.locator("[data-task-panel-close]").click();
+  await page.locator("[data-modal-task-panel] [data-task-panel-close]").last().click();
   await expect(page.locator("[data-modal-task-panel]")).toHaveCount(0);
   await expect(dialog.locator("[data-take-order]")).toBeVisible();
 });
