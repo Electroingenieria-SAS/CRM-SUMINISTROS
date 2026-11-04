@@ -10,6 +10,7 @@ export function itemRow(item,index,saved={}){
       <div><small>Referencia</small><strong>${fmt.escape(item.reference||item.sku||"—")}</strong></div>
       <div class="description"><small>Mercancía</small><strong>${fmt.escape(item.description)}</strong></div>
       <div><small>Cantidad</small><strong>${fmt.number(item.quantity,3)} ${fmt.escape(item.unit)}</strong></div>
+      ${Array.isArray(item.metadata?.receptionLotNumbers)&&item.metadata.receptionLotNumbers.length?`<div><small>Lotes indicados en Recepción</small><strong>${fmt.escape(item.metadata.receptionLotNumbers.join(", "))}</strong></div>`:""}
       ${item.requires_cut?`<div><small>Origen</small><strong>Corte define el carreto</strong></div><div><small>Corte</small><strong>${item.requested_cut_length?`${fmt.number(item.requested_cut_length,3)} ${fmt.escape(item.unit)}`:"Requiere corte"}</strong></div>`:`<div><small>Origen físico</small><strong>${item.metadata?.receptionOrigins?.length?"Lotes asignados por Logística":"Se confirma al encontrar"}</strong></div>`}
     </div>
     <div class="picking-mini-actions">
