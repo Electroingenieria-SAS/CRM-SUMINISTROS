@@ -1,0 +1,167 @@
+TEST_EXIT=1
+13:✔ application top-level failure renders login and rebinds instead of failing silently (0.553937ms)
+40:✔ service worker registration is safe when unsupported and warns non-fatally on failure (6.378221ms)
+45:✔ credential failure increments the local guard, resets state and renders the error (0.257268ms)
+47:✔ authenticated bootstrap failure returns to a clean login state and rebinds submit (0.343218ms)
+71:✔ TCC conserva referencia documental y diferencia actualización IPC documentada (0.758956ms)
+100:✔ offer tiles show branded identity and preserve all actual estimated values (0.676291ms)
+107:✔ UI guiada: accesible, tres acciones, selectores contractuales intactos (1.091157ms)
+177:✔ Picking FOUND, MISSING and cut-origin DOM expose the expected state (0.633116ms)
+302:✔ Drive rejects broad Google hosts, unexpected ports and forged request IDs (0.434756ms)
+305:✔ an expected URL embedded elsewhere cannot certify a different bridge (0.254304ms)
+309:ℹ fail 1
+319:  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /PEDIDO A RECIBIR/. Input:
+349:    code: 'ERR_ASSERTION',
+350:    actual: 'import { fmt } from "../../../../core/format.js";\nimport { icon } from "../../../../core/icons.js";\n\nfunction fact(label,value){return `<span><small>${fmt.escape(label)}</small><strong>${fmt.escape(value)}</strong></span>`}\n\nexport function takeStage(data,{label="Tomar pedido",blocked=false}={}){\n  const order=data.order;\n  return `<section class="reception-take-focus">\n    <div class="reception-take-main">\n      <span class="reception-take-icon" aria-hidden="true">${icon("receiving")}</span>\n      <div class="reception-take-copy"><small>RESUMEN DEL PEDIDO</small><h4>${fmt.escape(order.order_number||"Pedido")}</h4><p>${fmt.escape(order.client_name)} · ${fmt.escape(fmt.label(order.order_type_code))}</p></div>\n      <div class="reception-take-facts">${fact("Pago",fmt.payment(order.payment_condition_code))}${fact("Entrega",fmt.route(order.delivery_route_code))}${fact("Responsable",data.assigneeLabel||"—")}${fact("Soportes",String((data.files||[]).length))}</div>\n    </div>\n    <aside class="reception-take-route"><small>PRÓXIMOS PASOS</small><ol><li><span>1</span><div><strong>Revisar</strong><p>Confirma que la información coincida.</p></div></li><li><span>2</span><div><strong>Corregir si hace falta</strong><p>Usa el PDF solo cuando sea necesario.</p></div></li><li><span>3</span><div><strong>Asignar</strong><p>Envía el pedido al siguiente responsable.</p></div></li></ol></aside>\n  </section>\n  <section class="reception-take-card reception-take">\n    <span class="reception-step-tag">PASO 1 DE 4 · INICIO</span><h4>Comienza la recepción</h4><p>Al tomarlo quedará asignado a tu usuario; podrás retomarlo sin perder el avance.</p>\n    <button type="button" class="btn btn-primary reception-take-button reception-main-action reception-primary" data-take-order ${blocked?"disabled":""}><span class="reception-button-icon" aria-hidden="true">${icon("play")}</span><span data-button-label>${fmt.escape(label)}</span></button>\n    ${blocked?`<div class="reception-assigned-warning">Este pedido está asignado a <strong>${fmt.escape(data.assigneeLabel||"Sin asignar")}</strong> y tu usuario no tiene permiso para tomarlo.</div>`:""}\n  </section>`;\n}\n',
+351:    expected: /PEDIDO A RECIBIR/,
+--- FINAL OUTPUT ---
+✔ goods receipt hook notifies exactly once per saved receipt and ignores duplicate confirm (1.318952ms)
+✔ goods receipt hook is safe when receipt id is missing (0.253312ms)
+✔ goods receipt hook keeps external rejection fire-and-forget and non-fatal (0.274845ms)
+✔ receipt-form hooks the notifier immediately after successful create RPC (0.164278ms)
+✔ stage matrix renders canonical owner, CTA and footer state for TAKE REVIEW PDF EDIT ASSIGN STATUS (15.305851ms)
+✔ navigation double-bind remains one effective handler and STATUS is inert (0.561067ms)
+✔ close/reopen binding replaces handlers instead of accumulating listeners (0.189246ms)
+✔ ownership distinguishes current profile, missing profile and another assignee (0.251219ms)
+✔ activeTask and actionCodes preserve already-owned workflow state (0.696702ms)
+✔ beginReception executes CLAIM then refreshed START exactly once (0.268345ms)
+✔ beginReception executes START or RESUME once when order is already owned (0.247554ms)
+✔ beginReception propagates backend rejection and does not report a later action (0.49012ms)
+✔ draft restores, survives rerender reads and clears only on explicit clear (0.519905ms)
+✔ editor preserves IDs quantities cuts and validates invalid input before persistence (0.767559ms)
+✔ PDF error, assignment validation and final confirmation retain no-duplicate guards (0.343228ms)
+✔ final confirmation payload preserves order/material identifiers and cutting values (0.182426ms)
+✔ legacy retirement guard covers modules imports observers global clicks and migrated CSS (1.62888ms)
+✔ Receiving ORDER remains isolated from Goods and AuditoriaERP (0.690543ms)
+✔ Receiving confirmation cancel closes without invoking or persisting onConfirm (0.663311ms)
+✔ in-flight confirmation disables the confirm control before side effect (0.234213ms)
+✔ assignment validates required assignees before confirmation side effect (0.192741ms)
+✖ Receiving renders TAKE REVIEW PDF EDIT ASSIGN STATUS explicitly (5.036645ms)
+✔ Next is idempotent and dispatches TAKE PDF EDIT ASSIGN exactly once (0.300794ms)
+✔ Review focuses a decision, PDF falls back local, STATUS disables Next (0.21217ms)
+✔ Ownership and CLAIM START RESUME stay canonical (0.148555ms)
+✔ Canonical Receiving order has no V1192 V1193 V1194 observer or global click runtime (0.723352ms)
+✔ Receiving styles have no V1192 V1193 V1194 selectors (0.757554ms)
+✔ Legacy modules and app-entry imports are retired (0.160853ms)
+✔ PDF draft lines assignment and confirmation contracts remain wired (0.144548ms)
+✔ Logística selecciona varios lotes con suma y stock correctos (0.515017ms)
+✔ Un faltante no inventa lotes y Corte no recibe selección de Recepción (8.518392ms)
+✔ La confirmación no permite cantidades incompletas (0.338521ms)
+✔ El contrato conserva asignación por línea y Alistamiento lee esa instrucción (0.282276ms)
+✔ saved report periods remain text when rendered into HTML (0.674258ms)
+✔ module registry resolves every current module and preserves shared renderers (1.000711ms)
+✔ module registry dispatches only own properties and preserves dashboard fallback (0.298762ms)
+✔ module registry preserves exact queue steps and permission fallback (0.135294ms)
+✔ route dispatcher renders authorized modules with metadata and context (0.288526ms)
+✔ route dispatcher redirects forbidden modules before rendering (0.177287ms)
+✔ route dispatcher preserves order deep-link navigation and exact openOrder id (0.105009ms)
+✔ route dispatcher sends queue modules their exact steps and params (0.098479ms)
+✔ route dispatcher escapes renderer errors, exposes retry and emits the original toast (0.174924ms)
+✔ authenticated runtime installers preserve order and run each exactly once (0.167403ms)
+✔ authenticated runtime installer resumes after a failed installer without duplicating completed work (0.366754ms)
+✔ authenticated bootstrap owns routing/runtime while main stays free of registries (0.200763ms)
+✔ la confirmación de satisfacción no muestra campos editables de kilómetros (2.450881ms)
+✔ una estimación usa distancia vial del proveedor y datos municipales oficiales (11.302295ms)
+✔ un envío de retiro o en el mismo municipio no inventa kilometraje (0.107462ms)
+✔ shipping guide parser detects carrier, tracking, carrier invoice and localized freight cost (1.574438ms)
+✔ shipping payload validates required carrier data, uses COP and preserves existing tracking/carrier (1.280113ms)
+✔ manual values are not overwritten by autoread (0.365602ms)
+✔ explicit save calls api contract once without changing api.saveShippingGuide identity (0.217609ms)
+✔ canonical guide dialog owns picker, drop, keyboard and document reader without a global observer (0.518964ms)
+✔ incomplete payload and non-COP currency reject before persistence (0.236537ms)
+✔ omitted carrier preserves the existing carrier while an explicit empty carrier is rejected (0.178039ms)
+✔ backend rejection propagates and never becomes a false success (0.247313ms)
+✔ canonical modal disables confirm before awaiting Shipping onConfirm (0.266563ms)
+✔ preflight source contract keeps stable RPC signature, hardening and grants (0.971407ms)
+✔ preflight requires canonical columns without schema DDL or destructive operations (0.627167ms)
+✔ later migrations preserve the Shipping RPC and its required repository contracts (3.804659ms)
+✔ ledger provenance remains inside the frozen historical debt budget (0.160953ms)
+✔ INSERT rehearsal persists all five canonical carrier values (0.743092ms)
+✔ single-field UPDATE preserves tracking, invoice, currency, guideFileId and unrelated metadata (0.14538ms)
+✔ five-field UPDATE replaces only the explicit carrier state (0.136136ms)
+✔ omitted carrier fields preserve prior values and audit actor/time (0.101924ms)
+✔ explicit null/empty and non-COP values follow current rejection semantics (0.449869ms)
+✔ migration DDL is re-applicable without destructive schema changes (0.322487ms)
+✔ corrected carrier billing fields persist in columns, not delivery metadata fallback (0.652805ms)
+✔ runbook contains preflight, postflight, rollback, smoke and no destructive down migration (0.221895ms)
+✔ shipping INSERT persists all five carrier fields in canonical delivery columns (1.22525ms)
+✔ shipping UPDATE modifies all five carrier fields explicitly (0.23172ms)
+✔ partial unrelated UPDATE preserves prior carrier values while explicit empty required values reject (0.100993ms)
+✔ guideFileId and carrier audit metadata survive unrelated partial updates (0.132641ms)
+✔ shipping migration is reproducible and does not invent schema (0.209877ms)
+✔ required migration contract recognizes the Shipping carrier persistence migration (0.08652ms)
+✔ INSERT and UPDATE rehearsal preserves canonical carrier state semantics (0.952143ms)
+✔ shipping guide legacy module and app-entry import are retired (0.82172ms)
+✔ runtime never reassigns api.saveShippingGuide (18.604081ms)
+✔ shipping canonical owner remains explicit and reachable (0.334735ms)
+✔ Shipping UI reader opens, reads, remains editable and binds handlers only once (1.735951ms)
+✔ final visible Shipping values build the saved payload and save exactly once (1.071859ms)
+✔ cancel/read interactions do not persist; save exists only in confirm path (0.553716ms)
+✔ requested carrier aliases are not a hidden Shipping Guide contract (0.254555ms)
+✔ El catálogo ordinario pertenece a todos los perfiles activos de su empresa (3.605193ms)
+✔ Crear actividad y asignarla usa una ruta compatible con todos los usuarios (2.422043ms)
+✔ La migración mantiene límites para asignar trabajo ajeno y entregables (1.992453ms)
+✔ La autoprogramación no depende del horario ni se puede fingir para otro usuario (0.603191ms)
+✔ todos los roles pueden registrar su actividad propia sin aprobación (0.550441ms)
+✔ la programación acepta otra semana y cierre manual (0.388026ms)
+✔ una actividad con hora final exige que sea posterior al inicio (0.832647ms)
+✔ la UI programa antes de iniciar y muestra solicitudes (5.054988ms)
+✔ la migración de acceso universal protege propiedad y acceso autenticado (1.197137ms)
+✔ todos los usuarios activos pueden elegir e iniciar cualquier actividad del catálogo (7.23544ms)
+✔ cambio de actividad conserva continuidad sin cronometrar dos ejecuciones simultáneas (1.544893ms)
+✔ autoprogramación no necesita aprobación, sin otorgar programación ajena (2.329547ms)
+✔ Drive accepts the nested Apps Script callback and cleans up (3.266482ms)
+✔ Drive rejects unrelated windows even with the exact origin and request ID (0.468036ms)
+✔ Drive rejects broad Google hosts, unexpected ports and forged request IDs (0.434756ms)
+✔ Drive accepts a direct bridge error and releases the request (0.616752ms)
+✔ release accepts the exact institutional Apps Script endpoint (0.642019ms)
+✔ an expected URL embedded elsewhere cannot certify a different bridge (0.254304ms)
+ℹ tests 301
+ℹ suites 0
+ℹ pass 300
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2290.568524
+
+✖ failing tests:
+
+test at scripts/tests/receiving-order-ownership.test.mjs:25:1
+✖ Receiving renders TAKE REVIEW PDF EDIT ASSIGN STATUS explicitly (5.036645ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /PEDIDO A RECIBIR/. Input:
+  
+  'import { fmt } from "../../../../core/format.js";\n' +
+    'import { icon } from "../../../../core/icons.js";\n' +
+    '\n' +
+    'function fact(label,value){return `<span><small>${fmt.escape(label)}</small><strong>${fmt.escape(value)}</strong></span>`}\n' +
+    '\n' +
+    'export function takeStage(data,{label="Tomar pedido",blocked=false}={}){\n' +
+    '  const order=data.order;\n' +
+    '  return `<section class="reception-take-focus">\n' +
+    '    <div class="reception-take-main">\n' +
+    '      <span class="reception-take-icon" aria-hidden="true">${icon("receiving")}</span>\n' +
+    '      <div class="reception-take-copy"><small>RESUMEN DEL PEDIDO</small><h4>${fmt.escape(order.order_number||"Pedido")}</h4><p>${fmt.escape(order.client_name)} · ${fmt.escape(fmt.label(order.order_type_code))}</p></div>\n' +
+    '      <div class="reception-take-facts">${fact("Pago",fmt.payment(order.payment_condition_code))}${fact("Entrega",fmt.route(order.delivery_route_code))}${fact("Responsable",data.assigneeLabel||"—")}${fact("Soportes",String((data.files||[]).length))}</div>\n' +
+    '    </div>\n' +
+    '    <aside class="reception-take-route"><small>PRÓXIMOS PASOS</small><ol><li><span>1</span><div><strong>Revisar</strong><p>Confirma que la información coincida.</p></div></li><li><span>2</span><div><strong>Corregir si hace falta</strong><p>Usa el PDF solo cuando sea necesario.</p></div></li><li><span>3</span><div><strong>Asignar</strong><p>Envía el pedido al siguiente responsable.</p></div></li></ol></aside>\n' +
+    '  </section>\n' +
+    '  <section class="reception-take-card reception-take">\n' +
+    '    <span class="reception-step-tag">PASO 1 DE 4 · INICIO</span><h4>Comienza la recepción</h4><p>Al tomarlo quedará asignado a tu usuario; podrás retomarlo sin perder el avance.</p>\n' +
+    '    <button type="button" class="btn btn-primary reception-take-button reception-main-action reception-primary" data-take-order ${blocked?"disabled":""}><span class="reception-button-icon" aria-hidden="true">${icon("play")}</span><span data-button-label>${fmt.escape(label)}</span></button>\n' +
+    '    ${blocked?`<div class="reception-assigned-warning">Este pedido está asignado a <strong>${fmt.escape(data.assigneeLabel||"Sin asignar")}</strong> y tu usuario no tiene permiso para tomarlo.</div>`:""}\n' +
+    '  </section>`;\n' +
+    '}\n'
+  
+      at TestContext.<anonymous> (file:///home/runner/work/CRM-SUMINISTROS/CRM-SUMINISTROS/scripts/tests/receiving-order-ownership.test.mjs:32:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'import { fmt } from "../../../../core/format.js";\nimport { icon } from "../../../../core/icons.js";\n\nfunction fact(label,value){return `<span><small>${fmt.escape(label)}</small><strong>${fmt.escape(value)}</strong></span>`}\n\nexport function takeStage(data,{label="Tomar pedido",blocked=false}={}){\n  const order=data.order;\n  return `<section class="reception-take-focus">\n    <div class="reception-take-main">\n      <span class="reception-take-icon" aria-hidden="true">${icon("receiving")}</span>\n      <div class="reception-take-copy"><small>RESUMEN DEL PEDIDO</small><h4>${fmt.escape(order.order_number||"Pedido")}</h4><p>${fmt.escape(order.client_name)} · ${fmt.escape(fmt.label(order.order_type_code))}</p></div>\n      <div class="reception-take-facts">${fact("Pago",fmt.payment(order.payment_condition_code))}${fact("Entrega",fmt.route(order.delivery_route_code))}${fact("Responsable",data.assigneeLabel||"—")}${fact("Soportes",String((data.files||[]).length))}</div>\n    </div>\n    <aside class="reception-take-route"><small>PRÓXIMOS PASOS</small><ol><li><span>1</span><div><strong>Revisar</strong><p>Confirma que la información coincida.</p></div></li><li><span>2</span><div><strong>Corregir si hace falta</strong><p>Usa el PDF solo cuando sea necesario.</p></div></li><li><span>3</span><div><strong>Asignar</strong><p>Envía el pedido al siguiente responsable.</p></div></li></ol></aside>\n  </section>\n  <section class="reception-take-card reception-take">\n    <span class="reception-step-tag">PASO 1 DE 4 · INICIO</span><h4>Comienza la recepción</h4><p>Al tomarlo quedará asignado a tu usuario; podrás retomarlo sin perder el avance.</p>\n    <button type="button" class="btn btn-primary reception-take-button reception-main-action reception-primary" data-take-order ${blocked?"disabled":""}><span class="reception-button-icon" aria-hidden="true">${icon("play")}</span><span data-button-label>${fmt.escape(label)}</span></button>\n    ${blocked?`<div class="reception-assigned-warning">Este pedido está asignado a <strong>${fmt.escape(data.assigneeLabel||"Sin asignar")}</strong> y tu usuario no tiene permiso para tomarlo.</div>`:""}\n  </section>`;\n}\n',
+    expected: /PEDIDO A RECIBIR/,
+    operator: 'match',
+    diff: 'simple'
+  }
