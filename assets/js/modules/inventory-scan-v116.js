@@ -214,7 +214,7 @@ function showScanResult(data,{fromDeepLink=false}={}){
   const item=data.item||{},lot=data.lot||{},receipt=data.receipt||null;
   const canShowStock=data.canViewStock!==false&&lot.available!=null&&lot.reserved!=null&&lot.blocked!=null;
   const payload={scanCode:data.scanCode,reference:item.reference,description:item.description,unit:item.unit,lotNumber:lot.lotNumber,location:lot.location,warehouseCode:lot.warehouseCode,acceptedQuantity:canShowStock?lot.available:null};
-  const stockCards=canShowStock?`${stockCards}`:"";
+  const stockCards=canShowStock?`<article><small>Disponible</small><strong>${fmt.number(lot.available,3)} ${esc(item.unit||"")}</strong></article><article><small>Reservado</small><strong>${fmt.number(lot.reserved,3)}</strong></article><article><small>Bloqueado</small><strong>${fmt.number(lot.blocked,3)}</strong></article>`:"";
   const canOpenInventory=state.modules.some(module=>module.code==="inventory"&&module.canRead);
   const view=modal({
     title:"Inventario identificado",
@@ -222,7 +222,7 @@ function showScanResult(data,{fromDeepLink=false}={}){
     confirmLabel:"Cerrar",
     body:`
       <section class="v116-found-hero"><span>LECTURA CORRECTA</span><strong>${esc(item.reference)}</strong><h3>${esc(item.description)}</h3><p>${esc(data.scanCode)}</p></section>
-      <div class="v116-found-grid"><article><small>Lote</small><strong>${esc(lot.lotNumber||"—")}</strong></article><article><small>Ubicación</small><strong>${esc([lot.warehouseCode,lot.location,lot.locationName].filter(Boolean).join(" · ")||"—")}</strong></article><article><small>Disponible</small><strong>${fmt.number(lot.available,3)} ${esc(item.unit||"")}</strong></article><article><small>Reservado</small><strong>${fmt.number(lot.reserved,3)}</strong></article><article><small>Bloqueado</small><strong>${fmt.number(lot.blocked,3)}</strong></article><article><small>Origen</small><strong>${receipt?esc(receipt.receiptNumber):esc(lot.sourceSystem||"Inventario")}</strong></article></div>
+      <div class="v116-found-grid"><article><small>Lote</small><strong>${esc(lot.lotNumber||"—")}</strong></article><article><small>Ubicación</small><strong>${esc([lot.warehouseCode,lot.location,lot.locationName].filter(Boolean).join(" · ")||"—")}</strong></article>${stockCards}<article><small>Origen</small><strong>${receipt?esc(receipt.receiptNumber):esc(lot.sourceSystem||"Inventario")}</strong></article></div>
       ${receipt?`<div class="v116-origin-note"><strong>Ingreso por recepción de mercancía</strong><span>${esc(receipt.receiptNumber)} · ${esc(receipt.supplierName||"Proveedor no informado")} · ${fmt.date(receipt.receivedAt)}</span></div>`:""}
       <section class="v116-result-actions"><button type="button" class="btn btn-primary" data-v116-result-print>Imprimir etiqueta</button>${canOpenInventory&&state.currentModule!=="inventory"?'<button type="button" class="btn btn-create" data-v116-result-inventory>Abrir en Inventario</button>':""}</section>`
   });
