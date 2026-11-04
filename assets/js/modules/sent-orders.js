@@ -27,7 +27,7 @@ function followupFor(row){
 }
 
 function routeLabel(row){return fmt.route(row.route)||"Modalidad no registrada"}
-function distanceText(row){const km=Number(row.distanceKm);return Number.isFinite(km)?`${new Intl.NumberFormat("es-CO",{maximumFractionDigits:1}).format(km)} km`:"Distancia pendiente"}
+function distanceText(row){if(row.distanceKm==null)return "Distancia pendiente";const km=Number(row.distanceKm);return Number.isFinite(km)&&km>0?`${row.distanceSource==="ROUTE_ESTIMATE"?"~":""}${new Intl.NumberFormat("es-CO",{maximumFractionDigits:1}).format(km)} km${row.distanceSource==="ROUTE_ESTIMATE"?" (estimados)":""}`:"Distancia pendiente"}
 function durationText(seconds){const n=Number(seconds);return Number.isFinite(n)&&n>=0?fmt.hours(n):"—"}
 function deliveryMetricsText(row){
   const parts=[];
@@ -50,7 +50,7 @@ function summary(rows,pagination){
   return `<section class="sent-orders-overview-v11108" aria-label="Resumen de pedidos enviados">
     ${metric("Total enviados",total,"Total encontrado con los filtros actuales","total")}
     ${metric("En seguimiento",transit,"Incluye entregas pendientes de satisfacción","transit")}
-    ${metric("Con satisfacción",satisfied,`${new Intl.NumberFormat("es-CO",{maximumFractionDigits:1}).format(confirmedKm)} km confirmados en esta página`,"success")}
+    ${metric("Con satisfacción",satisfied,`${new Intl.NumberFormat("es-CO",{maximumFractionDigits:1}).format(confirmedKm)} km registrados o estimados en esta página`,"success")}
     ${metric("Con novedad",novelty,"Visibles en esta página","danger")}
   </section>`;
 }
