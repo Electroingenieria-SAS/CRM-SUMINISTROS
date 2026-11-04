@@ -1,0 +1,123 @@
+/* Mantener los procesos largos utilizables en pantallas pequeñas. */
+@media (max-width:1050px) {
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-focus {
+    grid-template-columns:1fr;
+  }
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-route ol {
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+  }
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-facts {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-width:760px) {
+  #modal-root .modal-overlay { padding:8px; }
+  #modal-root .modal.popup-ux-v1190 {
+    max-height:calc(100dvh - 16px);
+    border-radius:17px;
+  }
+  #modal-root .modal.popup-ux-v1190 .modal-head {
+    min-height:72px;
+    padding:15px 16px;
+  }
+  #modal-root .modal.popup-ux-v1190 .modal-head h3 { font-size:18px; }
+  #modal-root .modal.popup-ux-v1190 .modal-head p { font-size:11px; }
+  #modal-root .modal.popup-ux-v1190 .modal-body,
+  #modal-root .modal.popup-ux-v1190 .wizard-body { padding:15px; }
+  #modal-root .modal.popup-ux-v1190 .modal-foot {
+    padding:11px 13px calc(11px + env(safe-area-inset-bottom));
+  }
+  #modal-root .modal.popup-ux-v1190 .modal-foot .btn { min-height:47px; font-size:12px; }
+  #modal-root .modal.popup-ux-v1190 .popup-process-guide-v1190 {
+    grid-template-columns:34px minmax(0,1fr);
+    gap:9px;
+    padding:10px 14px;
+  }
+  #modal-root .modal.popup-ux-v1190 .popup-guide-meta-v1190 { grid-column:2; justify-self:start; }
+  #modal-root .modal.popup-ux-v1190 .popup-guide-copy-v1190 p { font-size:10.5px; }
+  #modal-root .modal.popup-ux-v1190 .order-support-toolbar {
+    display:grid;
+    grid-template-columns:1fr;
+    gap:11px;
+  }
+  #modal-root .modal.popup-ux-v1190 .order-support-actions {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    width:100%;
+    gap:8px;
+  }
+  #modal-root .modal.popup-ux-v1190 .support-btn { justify-content:center; min-width:0; min-height:44px; }
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-process-body {
+    padding:14px;
+  }
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-process-head {
+    min-height:76px;
+    padding:14px 17px;
+  }
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-focus { gap:10px; }
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-main { padding:15px; }
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-route ol {
+    grid-template-columns:1fr;
+    gap:9px;
+  }
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-card.reception-take {
+    grid-template-columns:1fr;
+    grid-template-areas:"tag" "title" "text" "action" "warning";
+    min-height:0;
+    padding:18px;
+    gap:8px;
+  }
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take [data-take-order] {
+    width:100%;
+    min-width:0;
+    margin-top:8px;
+  }
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take .reception-assigned-warning {
+    grid-column:1;
+  }
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .parallel-work-footer {
+    display:grid;
+    grid-template-columns:1fr;
+    gap:8px;
+    padding:11px 14px calc(11px + env(safe-area-inset-bottom));
+  }
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .parallel-work-note { max-width:none; flex:auto; }
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .parallel-work-actions {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+    width:100%;
+    margin:0;
+  }
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .parallel-work-actions [data-reception-next] {
+    grid-column:1/-1;
+    min-height:49px;
+  }
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .parallel-work-actions .btn {
+    min-width:0;
+    width:100%;
+    padding:10px 9px!important;
+    font-size:11.5px!important;
+  }
+}
+@media (max-width:430px) {
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-facts {
+    grid-template-columns:1fr 1fr;
+    gap:7px;
+  }
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-facts>span {
+    padding:10px;
+  }
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take-copy h4 { font-size:16px; }
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .reception-take h4 { font-size:17px; }
+  #modal-root .modal.popup-ux-v1190.reception-process-modal.receiving-order-focus .parallel-work-note small { display:none; }
+}
+@media (prefers-reduced-motion:reduce) {
+  #modal-root .modal.popup-ux-v1190,
+  #modal-root .modal.popup-ux-v1190 :is(.btn,.support-btn,.wizard-panel,.modal-task-panel) {
+    animation:none!important;
+    transition:none!important;
+  }
+}
