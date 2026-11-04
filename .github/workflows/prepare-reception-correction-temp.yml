@@ -22,6 +22,8 @@ jobs:
       - name: Verificar carga PDF, datos manuales y aplicación
         run: |
           node --check assets/js/domains/receiving/order/pdf/correction-upload.js
+          node --check assets/js/domains/receiving/order/pdf/correction-pdf-controls.js
+          node --check assets/js/domains/receiving/order/pdf/process-pdf.js
           node --check assets/js/domains/receiving/order/pdf/merge-corrections.js
           node --test scripts/tests/reception-pdf-correction.test.mjs scripts/tests/reception-documentary-lots.test.mjs
           npm run validate:domains
