@@ -12,19 +12,19 @@ showAssignmentWizard(assignment);
 
 export function prepareAssignmentContext(assignment){
 assignment.permissions=assignment.data.permissions||{};
-assignment.kinds=[];
-if(assignment.permissions.logistics)assignment.kinds.push(["ACTIVITY","Actividad de equipo"]);
+assignment.kinds=[["ACTIVITY",assignment.permissions.canPlanTeam?"Actividad de equipo":"Mi actividad"]];
 if(assignment.permissions.deliverables)assignment.kinds.push(["DELIVERABLE","Entregable de gestión"]);
 assignment.defaultKind=assignment.kinds[0]?.[0]||"ACTIVITY";
 assignment.day=assignment.prefillDay||isoDate(new Date());
 assignment.people=assignment.data.people||[];
+assignment.isPersonal=!Boolean(assignment.permissions.canPlanTeam);
 assignment.initialMode=assignment.options.newCatalog?"NEW":"EXISTING";
 assignment.initialStart=assignment.options.startNow?roundToFiveMinutes(new Date()):new Date(`${assignment.day}T08:00:00`);
 assignment.initialEnd=new Date(assignment.initialStart.getTime()+60*60000);
 }
 
 export function showAssignmentWizard(assignment){
-wizard({title:assignment.options.newCatalog?"Crear y asignar nueva actividad":"Asignar trabajo",subtitle:"Usa el catálogo existente o crea una actividad nueva que quedará disponible para futuras asignaciones.",finishLabel:"Publicar asignación",size:"wide",steps:[assignmentCatalogStep(assignment),assignmentAssigneeStep(assignment),assignmentScheduleStep(assignment),assignmentEvidenceStep(assignment),assignmentConfirmationStep(assignment)],onFinish:async({form})=>{
+wizard({title:assignment.options.newCatalog?"Crear nueva actividad":assignment.isPersonal?"Programar mi actividad":"Asignar trabajo",subtitle:"Elige o crea una actividad del catálogo. Puedes programarla para ti sin depender de tu rol.",finishLabel:assignment.isPersonal?"Guardar en mi agenda":"Publicar asignación",size:"wide",steps:[assignmentCatalogStep(assignment),assignmentAssigneeStep(assignment),assignmentScheduleStep(assignment),assignmentEvidenceStep(assignment),assignmentConfirmationStep(assignment)],onFinish:async({form})=>{
     const mode=form.querySelector('[name="catalogMode"]:checked')?.value||"EXISTING";
     let catalogId=form.catalogId.value||null;
     if(mode==="NEW"){
