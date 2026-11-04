@@ -3,6 +3,7 @@ import { toast } from "../../../../core/ui.js";
 import { openSubdialog } from "./purchase-arrival.js";
 import { clearDraft } from "../draft/reception-draft.js";
 import { summaryChip } from "../ui/order-context.js";
+import { validateReceptionLineLots } from "../lines/reception-lot-values.js";
 
 export function confirmReception(host,data,draft,{reload,refreshLists}={}){
   openSubdialog(host,{
@@ -12,6 +13,7 @@ export function confirmReception(host,data,draft,{reload,refreshLists}={}){
     onConfirm:async button=>{
       button.disabled=true;
       try{
+        const reviewedLots=draft.lines.map((line,index)=>validateReceptionLineLots(line,index));
         await api.confirmOrderReception(data.order.id,{
           sourceMode:draft.mode,
           sourceFileId:draft.sourceFileId||null,
@@ -30,7 +32,7 @@ export function confirmReception(host,data,draft,{reload,refreshLists}={}){
             warehouseLocation:line.warehouseLocation||null,
             requiresCut:Boolean(line.requiresCut),
             requestedCutLength:line.requiresCut?Number(line.requestedCutLength||line.quantity):null,
-            metadata:{readerConfidence:line.readerConfidence||null,sourceLine:line.sourceLine||null,materialMasterId:line.materialMasterId||null,materialVariantId:line.materialVariantId||null,variantLabel:line.variantLabel||null,receptionOrigins:line.requiresCut?[]:(line.receptionOrigins||[]),source:"RECEPTION_SIESA_MASTER"}
+            metadata:{readerConfidence:line.readerConfidence||null,sourceLine:line.sourceLine||null,materialMasterId:line.materialMasterId||null,materialVariantId:line.materialVariantId||null,variantLabel:line.variantLabel||null,receptionLotNumbers:reviewedLots[index],receptionLotReviewed:true,receptionLotSource:line.lotSource||"MANUAL",receptionOrigins:line.requiresCut?[]:(line.receptionOrigins||[]),source:"RECEPTION_SIESA_MASTER"}
           }))
         });
         clearDraft(data.order.id);
