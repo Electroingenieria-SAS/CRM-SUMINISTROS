@@ -19,7 +19,7 @@ jobs:
         run: git rm .github/workflows/prepare-reception-correction-temp.yml
       - name: Generar recursos nuevos de PWA
         run: npm run pwa:generate
-      - name: Verificar y probar la aplicación
+      - name: Verificar carga PDF, datos manuales y aplicación
         run: |
           node --check assets/js/domains/receiving/order/pdf/correction-upload.js
           node --check assets/js/domains/receiving/order/pdf/merge-corrections.js
