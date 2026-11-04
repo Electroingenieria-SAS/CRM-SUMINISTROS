@@ -1,0 +1,44 @@
+name: Preparar lotes obligatorios de Recepcion
+on:
+  push:
+    branches: [feat/reception-required-lots-pdf-review-20261104]
+    paths: [.github/workflows/prepare-reception-lots-temp.yml]
+permissions:
+  contents: write
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/reception-required-lots-pdf-review-20261104
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validar lector y contratos
+        shell: bash
+        run: |
+          set +e
+          node --check assets/js/services/pdf-order-reader.js > reception-test-log.txt 2>&1
+          echo "SYNTAX_EXIT=$?" >> reception-test-log.txt
+          node --test scripts/tests/reception-documentary-lots.test.mjs scripts/tests/reception-lot-assignment.test.mjs scripts/tests/receiving-order-certification.test.mjs >> reception-test-log.txt 2>&1
+          echo "FOCUSED_TEST_EXIT=$?" >> reception-test-log.txt
+          npm run validate:domains >> reception-test-log.txt 2>&1
+          echo "DOMAIN_TEST_EXIT=$?" >> reception-test-log.txt
+          node scripts/architecture/check-domain-boundaries.mjs >> reception-test-log.txt 2>&1
+          echo "ARCHITECTURE_EXIT=$?" >> reception-test-log.txt
+          grep -nE 'not ok|ERR_|AssertionError|✖|fail [1-9]|_EXIT=' reception-test-log.txt | tail -100 || true
+          exit 0
+      - name: Regenerar versión PWA
+        run: npm run pwa:generate
+      - name: Registrar evidencia temporal
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/ux
+          cp reception-test-log.txt docs/ux/reception-lots-qa-temp.txt
+          git add docs/ux/reception-lots-qa-temp.txt assets/precache-manifest.json service-worker.js
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(pwa): precachear nuevo flujo de lotes y diagnóstico temporal" || exit 0
+          git push origin HEAD:feat/reception-required-lots-pdf-review-20261104
