@@ -44,6 +44,7 @@ planner.plannerData={...planner.data,assignments:planner.timeline};
 planner.calendar=await resolvePlannerCalendar(planner.data);
 planner.canViewTeam=Boolean(planner.data.permissions?.canViewTeam);
 planner.canPlanTeam=Boolean(planner.data.permissions?.canPlanTeam);
+planner.canPlanOwn=Boolean((planner.data.people||[]).length);
 planner.subtitle={
     day:"Jornada laboral por horas",
     week:"Semana laboral · lunes a viernes",
