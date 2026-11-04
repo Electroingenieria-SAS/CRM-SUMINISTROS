@@ -71,6 +71,23 @@ function extractPageText(items){
     .join("\n");
 }
 
+// Lee solamente identificadores acompañados de una etiqueta explícita de lote.
+export function detectPdfLotNumbers(value){
+  const text=String(value||"").normalize("NFKC");
+  const pattern=/(?:^|[\s|;])(?:N[º°o.]?\s*(?:DE\s+)?)?(?:LOTES?|LOTS?|BATCH(?:ES)?)\s*(?:N[º°o.]?|NO\.?|N[ÚU]M(?:ERO)?|#)?\s*[:#=\-]?\s*([A-Z0-9][A-Z0-9._/\-]{0,79}(?:\s*[,;]\s*[A-Z0-9][A-Z0-9._/\-]{0,79})*)/gi;
+  const results=[];
+  const seen=new Set();
+  for(const match of text.matchAll(pattern)){
+    for(const part of match[1].split(/\s*[,;]\s*/)){
+      const code=part.trim();
+      if(!code||/^(DE|NO|NUMERO|NÚMERO|LOTE|LOT|BATCH|CANTIDAD|UND|INFORMADO|INFORMADA|PENDIENTE|POR|ASIGNAR|SIN|DESCONOCIDO|NA)$/i.test(code))continue;
+      const key=code.toUpperCase();
+      if(!seen.has(key)){seen.add(key);results.push(code);}
+    }
+  }
+  return results;
+}
+
 export function parseOrderText(text){
   const raw=String(text||"").replace(/\r/g,"\n");
   const lines=raw.split(/\n+/).map(cleanText).filter(Boolean);
@@ -92,6 +109,11 @@ export function parseOrderText(text){
     }
     if(!parsed)continue;
     if(items.some(item=>sameDetectedItem(item,parsed)))continue;
+    // El lote puede figurar junto al material o en la línea inmediatamente siguiente;
+    // nunca se adjudica un lote de otro material por posición o parecido descriptivo.
+    const next=lines[index+consumed+1]||"";
+    const extra=/^(?:LOTE(?:S)?|LOT|BATCH)(?:\s|[:#-])/i.test(next)?detectPdfLotNumbers(next):[];
+    parsed.lotNumbers=[...new Set([...detectPdfLotNumbers(candidates[consumed]),...extra])];
     parsed.sourceLine=index+1;
     items.push(parsed);
     index+=consumed;

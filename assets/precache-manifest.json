@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": "61cd4fa9b34a8ca1",
-  "sourceBytes": 2951295,
+  "revision": "66f9b05cb08f5ef7",
+  "sourceBytes": 2965648,
   "assets": [
     "./assets/css/analytics.css",
     "./assets/css/base/accessibility.css",
@@ -149,6 +149,7 @@
     "./assets/css/modules/receiving/process-foundation-reception-no-cut.css",
     "./assets/css/modules/receiving/process-foundation-reception-process-overlay.css",
     "./assets/css/modules/receiving/process-guides.css",
+    "./assets/css/modules/receiving/reception-required-lots-v11472.css",
     "./assets/css/modules/reports/flow-times-flow-node-title.css",
     "./assets/css/modules/reports/flow-times-flow-node.css",
     "./assets/css/modules/reports/flow-times-flow-page-head.css",
@@ -502,6 +503,7 @@
     "./assets/js/domains/receiving/order/actions/purchase-arrival.js",
     "./assets/js/domains/receiving/order/actions/start-reception.js",
     "./assets/js/domains/receiving/order/assignment/assignment-pool.js",
+    "./assets/js/domains/receiving/order/assignment/lot-review.js",
     "./assets/js/domains/receiving/order/assignment/lot-selection.js",
     "./assets/js/domains/receiving/order/draft/reception-draft.js",
     "./assets/js/domains/receiving/order/index.js",
@@ -509,6 +511,7 @@
     "./assets/js/domains/receiving/order/lines/editor-bindings.js",
     "./assets/js/domains/receiving/order/lines/map-reception-line.js",
     "./assets/js/domains/receiving/order/lines/read-editor-lines.js",
+    "./assets/js/domains/receiving/order/lines/reception-lot-values.js",
     "./assets/js/domains/receiving/order/lines/row-bindings.js",
     "./assets/js/domains/receiving/order/pdf/file-metadata.js",
     "./assets/js/domains/receiving/order/pdf/process-pdf.js",
