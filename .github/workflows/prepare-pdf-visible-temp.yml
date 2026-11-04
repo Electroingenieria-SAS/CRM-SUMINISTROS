@@ -1,0 +1,38 @@
+name: Preparar PDF adjunto visible inmediatamente
+on:
+  push:
+    branches: [fix/reception-pdf-drive-visible-20261104]
+    paths: [.github/workflows/prepare-pdf-visible-temp.yml]
+permissions:
+  contents: write
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: fix/reception-pdf-drive-visible-20261104
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - name: Mantener flujo único
+        run: git rm .github/workflows/prepare-pdf-visible-temp.yml
+      - name: Generar revisión PWA
+        run: npm run pwa:generate
+      - name: Validación funcional y arquitectónica
+        run: |
+          node --check assets/js/domains/receiving/order/pdf/correction-upload.js
+          node --test scripts/tests/reception-pdf-correction.test.mjs scripts/tests/reception-documentary-lots.test.mjs
+          npm run validate:domains
+          npm run pwa:check
+          bash scripts/ci/release-invariants.sh
+      - name: Registrar versión sin workflows temporales
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add -A
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(pwa): refrescar soporte PDF en Corrección"
+          git push origin HEAD:fix/reception-pdf-drive-visible-20261104
