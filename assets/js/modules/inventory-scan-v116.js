@@ -9,6 +9,8 @@ let installed=false;
 let deepLinkHandled="";
 let receiptEnhanceTimer=null;
 let inventoryEnhanceTimer=null;
+const initialScanParams=new URLSearchParams(location.hash.split("?")[1]||"");
+let pendingDeepLink=initialScanParams.get("scan")||initialScanParams.get("countScan")||"";
 
 async function rpc(name,params={}){
   const {data,error}=await getSupabase().rpc(name,params);
@@ -22,7 +24,7 @@ async function rpc(name,params={}){
 function esc(value){return fmt.escape(String(value??""))}
 function buildInventoryUrl(scanCode){
   const base=`${location.origin}${location.pathname}`;
-  return `${base}#/inventory?scan=${encodeURIComponent(scanCode)}`;
+  return `${base}#/dashboard?scan=${encodeURIComponent(scanCode)}`;
 }
 
 export function installInventoryScanV116(){
@@ -49,6 +51,12 @@ export function installInventoryScanV116(){
     const modalObserver=new MutationObserver(()=>scheduleReceiptEnhance());
     modalObserver.observe(modalRoot,{childList:true,subtree:true});
   }
+  window.addEventListener("hashchange",()=>{
+    const params=new URLSearchParams(location.hash.split("?")[1]||"");
+    const scan=params.get("scan")||params.get("countScan");
+    if(scan)pendingDeepLink=scan;
+    scheduleEnhance();
+  });
   scheduleEnhance();
   scheduleReceiptEnhance();
 }
@@ -63,6 +71,7 @@ function scheduleReceiptEnhance(){
 }
 
 function enhanceInventoryPage(){
+  enhanceGlobalScanner();
   if(state.currentModule!=="inventory")return;
   const root=document.querySelector("#page-content");
   if(!root)return;
@@ -78,9 +87,27 @@ function enhanceInventoryPage(){
     if(!itemId)return;
     footer.insertAdjacentHTML("beforeend",`<button type="button" class="btn btn-ghost v116-label-btn" data-v116-item-labels="${esc(itemId)}">QR / etiquetas</button>`);
   });
-  const scanCode=state.currentParams?.scan||new URLSearchParams(location.hash.split("?")[1]||"").get("scan")||"";
+}
+
+function enhanceGlobalScanner(){
+  const actions=document.querySelector(".top-actions");
+  if(!state.profile||!actions)return;
+  if(!actions.querySelector("[data-v116-global-scan]")){
+    const button=document.createElement("button");
+    button.type="button";
+    button.className="icon-btn v116-global-scan-btn";
+    button.dataset.v116Scan="";
+    button.dataset.v116GlobalScan="";
+    button.setAttribute("aria-label","Escanear QR o código de barras");
+    button.title="Escanear QR o código de barras";
+    button.textContent="▣";
+    actions.insertBefore(button,actions.querySelector("#refresh-page"));
+  }
+  const hashParams=new URLSearchParams(location.hash.split("?")[1]||"");
+  const scanCode=pendingDeepLink||state.currentParams?.scan||state.currentParams?.countScan||hashParams.get("scan")||hashParams.get("countScan")||"";
   if(scanCode&&scanCode!==deepLinkHandled){
     deepLinkHandled=scanCode;
+    pendingDeepLink="";
     setTimeout(()=>resolveAndShow(scanCode,{fromDeepLink:true}),80);
   }
 }
@@ -130,6 +157,7 @@ export async function openInventoryScanner(){
 
   try{
     if("BarcodeDetector" in window&&navigator.mediaDevices?.getUserMedia){
+      try{
       const supported=await window.BarcodeDetector.getSupportedFormats();
       const desired=["qr_code","code_128","code_39","ean_13","ean_8","data_matrix"];
       const formats=desired.filter(x=>supported.includes(x));
@@ -147,6 +175,11 @@ export async function openInventoryScanner(){
       };
       raf=requestAnimationFrame(detect);
       return;
+      }catch(error){
+        try{stream?.getTracks?.().forEach(track=>track.stop())}catch{}
+        stream=null;
+        console.warn("[CRM SCANNER] detector nativo falló; se intentará ZXing",error);
+      }
     }
     if(!window.ZXingBrowser?.BrowserMultiFormatReader){
       try{await loadScannerFallback()}catch(error){console.warn("[CRM SCANNER] Fallback no disponible",error)}
@@ -170,27 +203,55 @@ export async function openInventoryScanner(){
 
 async function resolveAndShow(raw,{fromDeepLink=false}={}){
   try{
-    const data=await rpc("erp_x_inventory_scan_resolve",{p_code:raw});
+    let data;
+    try{
+      data=await rpc("erp_x_inventory_scan_resolve",{p_code:raw});
+    }catch(error){
+      // Conteo ciego y perfiles sin módulo de Inventario solo pueden identificar, nunca ver saldos.
+      if(!/42501|no autorizado|restringid|permission|not authorized|código de inventario no encontrado/i.test(error.message))throw error;
+      data=await rpc("erp_x_inventory_scan_identify",{p_code:raw});
+    }
     window.dispatchEvent(new CustomEvent("erp:inventory-scan",{detail:data}));
-    showScanResult(data,{fromDeepLink});
+    if(data.kind==="WAREHOUSE_RECEIPT")showReceiptScanResult(data);
+    else showScanResult(data,{fromDeepLink});
   }catch(error){
     if(fromDeepLink)deepLinkHandled="";
     toast(error.message,"error",7500);
   }
 }
 
+function showReceiptScanResult(data){
+  const receipt=data.receipt||{};
+  const canOpenReceiving=state.modules.some(module=>module.code==="receiving"&&module.canRead);
+  const view=modal({
+    title:"Recepción identificada",
+    size:"wide",
+    confirmLabel:"Cerrar",
+    body:`<section class="v116-found-hero"><span>LECTURA CORRECTA</span><strong>${esc(receipt.receiptNumber||"Recepción")}</strong><h3>Comprobante de mercancía</h3><p>QR / código de barras verificado</p></section>
+      <div class="v116-found-grid"><article><small>Documento</small><strong>${esc(receipt.receiptNumber||"—")}</strong></article><article><small>Tipo</small><strong>${receipt.receiptType==="RETURN"?"Devolución":"Recepción"}</strong></article></div>
+      ${canOpenReceiving?'<section class="v116-result-actions"><button type="button" class="btn btn-create" data-v116-open-receiving>Ir a Recepción</button></section>':""}`
+  });
+  view.root.querySelector("[data-v116-open-receiving]")?.addEventListener("click",()=>{
+    closeDialog();
+    navigate("receiving");
+  });
+}
+
 function showScanResult(data,{fromDeepLink=false}={}){
   const item=data.item||{},lot=data.lot||{},receipt=data.receipt||null;
-  const payload={scanCode:data.scanCode,reference:item.reference,description:item.description,unit:item.unit,lotNumber:lot.lotNumber,location:lot.location,warehouseCode:lot.warehouseCode,acceptedQuantity:lot.available};
+  const canShowStock=data.canViewStock!==false&&lot.available!=null&&lot.reserved!=null&&lot.blocked!=null;
+  const payload={scanCode:data.scanCode,reference:item.reference,description:item.description,unit:item.unit,lotNumber:lot.lotNumber,location:lot.location,warehouseCode:lot.warehouseCode,acceptedQuantity:canShowStock?lot.available:null};
+  const stockCards=canShowStock?`<article><small>Disponible</small><strong>${fmt.number(lot.available,3)} ${esc(item.unit||"")}</strong></article><article><small>Reservado</small><strong>${fmt.number(lot.reserved,3)}</strong></article><article><small>Bloqueado</small><strong>${fmt.number(lot.blocked,3)}</strong></article>`:"";
+  const canOpenInventory=state.modules.some(module=>module.code==="inventory"&&module.canRead);
   const view=modal({
     title:"Inventario identificado",
     size:"wide",
     confirmLabel:"Cerrar",
     body:`
       <section class="v116-found-hero"><span>LECTURA CORRECTA</span><strong>${esc(item.reference)}</strong><h3>${esc(item.description)}</h3><p>${esc(data.scanCode)}</p></section>
-      <div class="v116-found-grid"><article><small>Lote</small><strong>${esc(lot.lotNumber||"—")}</strong></article><article><small>Ubicación</small><strong>${esc([lot.warehouseCode,lot.location,lot.locationName].filter(Boolean).join(" · ")||"—")}</strong></article><article><small>Disponible</small><strong>${fmt.number(lot.available,3)} ${esc(item.unit||"")}</strong></article><article><small>Reservado</small><strong>${fmt.number(lot.reserved,3)}</strong></article><article><small>Bloqueado</small><strong>${fmt.number(lot.blocked,3)}</strong></article><article><small>Origen</small><strong>${receipt?esc(receipt.receiptNumber):esc(lot.sourceSystem||"Inventario")}</strong></article></div>
+      <div class="v116-found-grid"><article><small>Lote</small><strong>${esc(lot.lotNumber||"—")}</strong></article><article><small>Ubicación</small><strong>${esc([lot.warehouseCode,lot.location,lot.locationName].filter(Boolean).join(" · ")||"—")}</strong></article>${stockCards}<article><small>Origen</small><strong>${receipt?esc(receipt.receiptNumber):esc(lot.sourceSystem||"Inventario")}</strong></article></div>
       ${receipt?`<div class="v116-origin-note"><strong>Ingreso por recepción de mercancía</strong><span>${esc(receipt.receiptNumber)} · ${esc(receipt.supplierName||"Proveedor no informado")} · ${fmt.date(receipt.receivedAt)}</span></div>`:""}
-      <section class="v116-result-actions"><button type="button" class="btn btn-primary" data-v116-result-print>Imprimir etiqueta</button>${state.currentModule!=="inventory"?'<button type="button" class="btn btn-create" data-v116-result-inventory>Abrir en Inventario</button>':""}</section>`
+      <section class="v116-result-actions"><button type="button" class="btn btn-primary" data-v116-result-print>Imprimir etiqueta</button>${canOpenInventory&&state.currentModule!=="inventory"?'<button type="button" class="btn btn-create" data-v116-result-inventory>Abrir en Inventario</button>':""}</section>`
   });
   view.root.querySelector("[data-v116-result-print]").onclick=()=>printLotLabel(payload);
   view.root.querySelector("[data-v116-result-inventory]")?.addEventListener("click",()=>{closeDialog();navigate("inventory",{scan:data.scanCode})});
@@ -261,17 +322,18 @@ function printLotLabel(lot){printAllLabels([lot])}
 async function printAllLabels(lots){
   const rows=(lots||[]).filter(lot=>lot?.scanCode);
   if(!rows.length)return toast("No hay etiquetas disponibles para imprimir.","error");
+  // La ventana se abre durante el clic, antes de la descarga asíncrona de bibliotecas.
+  const win=window.open("","_blank","width=980,height=760");
+  if(!win)return toast("El navegador bloqueó la ventana de impresión.","error");
   try{
     await loadInventoryLabels();
     const labels=rows.map(lot=>{
       const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
       window.JsBarcode(svg,lot.scanCode,{format:"CODE128",displayValue:true,height:50,margin:3,fontSize:12});
       const qr=window.qrcode(0,"M");qr.addData(buildInventoryUrl(lot.scanCode));qr.make();
-      return `<section class="label"><div class="top"><div><small>CRM SUMINISTROS · INVENTARIO</small><h2>${esc(lot.reference||"")}</h2><strong>${esc(lot.description||"")}</strong></div><img src="${qr.createDataURL(5,1)}" alt="QR"></div><div class="meta"><span><small>Lote</small><b>${esc(lot.lotNumber||"—")}</b></span><span><small>Ubicación</small><b>${esc([lot.warehouseCode,lot.location,lot.locationName].filter(Boolean).join(" · ")||"—")}</b></span><span><small>Cantidad</small><b>${fmt.number(lot.acceptedQuantity??0,3)} ${esc(lot.unit||"")}</b></span></div><div class="barcode">${svg.outerHTML}</div><code>${esc(lot.scanCode)}</code></section>`;
+      return `<section class="label"><div class="top"><div><small>CRM SUMINISTROS · INVENTARIO</small><h2>${esc(lot.reference||"")}</h2><strong>${esc(lot.description||"")}</strong></div><img src="${qr.createDataURL(5,1)}" alt="QR"></div><div class="meta"><span><small>Lote</small><b>${esc(lot.lotNumber||"—")}</b></span><span><small>Ubicación</small><b>${esc([lot.warehouseCode,lot.location,lot.locationName].filter(Boolean).join(" · ")||"—")}</b></span><span><small>Cantidad</small><b>${lot.acceptedQuantity==null?"—":fmt.number(lot.acceptedQuantity,3)} ${esc(lot.unit||"")}</b></span></div><div class="barcode">${svg.outerHTML}</div><code>${esc(lot.scanCode)}</code></section>`;
     }).join("");
-    const win=window.open("","_blank","width=980,height=760");
-    if(!win)throw new Error("El navegador bloqueó la ventana de impresión.");
     win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Etiquetas de inventario</title><style>@page{size:auto;margin:5mm}body{font-family:Arial,sans-serif;margin:0;color:#111}.labels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5mm}.label{border:1.5px solid #111;border-radius:10px;padding:5mm;break-inside:avoid}.top{display:grid;grid-template-columns:1fr 35mm;gap:4mm;align-items:start}.top img{width:34mm;height:34mm}.top small,.meta small{display:block;color:#555;font-size:9px}.top h2{margin:2mm 0 1mm;font-size:19px}.top strong{font-size:12px}.meta{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm;margin:4mm 0}.meta span{border:1px solid #ddd;border-radius:6px;padding:2mm}.meta b{font-size:11px}.barcode svg{width:100%;max-height:22mm}code{display:block;text-align:center;font-size:10px;margin-top:1mm}@media print{.labels{gap:3mm}}</style></head><body><main class="labels">${labels}</main><script>window.addEventListener('load',()=>window.print(),{once:true});<\/script></body></html>`);
     win.document.close();
-  }catch(error){toast(error.message,"error",7000)}
+  }catch(error){try{win.close()}catch{}toast(error.message,"error",7000)}
 }
