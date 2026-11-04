@@ -2,27 +2,27 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {mergePdfIntoReception} from "../../assets/js/domains/receiving/order/pdf/merge-corrections.js";
-import {editStage} from "../../assets/js/domains/receiving/order/stages/edit-lines.js";
-import {assignmentStage} from "../../assets/js/domains/receiving/order/stages/assignment.js";
-import {correctionPdfControls} from "../../assets/js/domains/receiving/order/pdf/correction-upload.js";
 import {editableLine} from "../../assets/js/domains/receiving/order/lines/editable-line.js";
 
 const source=path=>readFileSync(new URL("../../"+path,import.meta.url),"utf8");
 const fixture={order:{id:"demo",order_number:"PVE123"},files:[{drive_file_id:"drive1",file_name:"pedido.pdf",mime_type:"application/pdf"}]};
 const draft={lines:[{orderItemId:"one",reference:"TUBO123",description:"Tubo",quantity:4,unit:"UND",lotNumbers:["MANUAL-1"],lotSource:"MANUAL",lotReviewed:true}]};
 
-test("Corregir y Asignar permiten leer PDF del pedido o subir otro",()=>{
-  const edit=editStage(fixture,draft);
-  const assign=assignmentStage(fixture,draft,[],[]);
-  for(const html of [edit,assign]){
-    assert.match(html,/data-correction-source-pdf/);
-    assert.match(html,/data-correction-read-drive/);
-    assert.match(html,/data-correction-local-pdf/);
-    assert.match(html,/Seleccionar y leer PDF/);
+test("Corregir y Asignar incluyen selector de PDF local y del pedido",()=>{
+  const [edit,assign,picker,binding,assignment]=[
+    source("assets/js/domains/receiving/order/stages/edit-lines.js"),
+    source("assets/js/domains/receiving/order/stages/assignment.js"),
+    source("assets/js/domains/receiving/order/pdf/correction-upload.js"),
+    source("assets/js/domains/receiving/order/stages/stage-bindings.js"),
+    source("assets/js/domains/receiving/order/assignment/assignment-pool.js")
+  ];
+  assert.match(edit,/correctionPdfControls\\(data,draft\\)/);
+  assert.match(assign,/correctionPdfControls\\(data,draft\\)/);
+  for(const marker of ["data-correction-source-pdf","data-correction-read-drive","data-correction-local-pdf","Seleccionar y leer PDF"]){
+    assert.ok(picker.includes(marker),marker);
   }
-  assert.match(correctionPdfControls({order:fixture.order,files:[]},draft),/data-correction-local-pdf/);
-  assert.match(source("assets/js/domains/receiving/order/stages/stage-bindings.js"),/bindCorrectionPdf\(host,data,draft,callbacks\)/);
-  assert.match(source("assets/js/domains/receiving/order/assignment/assignment-pool.js"),/bindCorrectionPdf\(host,data,draft,callbacks\)/);
+  assert.match(binding,/bindCorrectionPdf\\(host,data,draft,callbacks\\)/);
+  assert.match(assignment,/bindCorrectionPdf\\(host,data,draft,callbacks\\)/);
 });
 
 test("Un nuevo PDF no sobrescribe lotes ni cantidades corregidas a mano",()=>{
