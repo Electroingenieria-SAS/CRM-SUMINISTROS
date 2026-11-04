@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": "2b8b4ec23114e307",
-  "sourceBytes": 2965053,
+  "revision": "f07fa75b1e222d6c",
+  "sourceBytes": 2975248,
   "assets": [
     "./assets/css/analytics.css",
     "./assets/css/base/accessibility.css",
@@ -142,6 +142,7 @@
     "./assets/css/modules/receiving/goods-receipt-form-section.css",
     "./assets/css/modules/receiving/goods-receipt-receiving-head.css",
     "./assets/css/modules/receiving/order-reception-lot-review.css",
+    "./assets/css/modules/receiving/order-reception-pdf-correction.css",
     "./assets/css/modules/receiving/order-task-layout-receiving-focus.css",
     "./assets/css/modules/receiving/order-task-layout-reception-process-modal.css",
     "./assets/css/modules/receiving/order-workspace-receiving-guided.css",
@@ -513,7 +514,10 @@
     "./assets/js/domains/receiving/order/lines/read-editor-lines.js",
     "./assets/js/domains/receiving/order/lines/reception-lot-values.js",
     "./assets/js/domains/receiving/order/lines/row-bindings.js",
+    "./assets/js/domains/receiving/order/pdf/correction-pdf-controls.js",
+    "./assets/js/domains/receiving/order/pdf/correction-upload.js",
     "./assets/js/domains/receiving/order/pdf/file-metadata.js",
+    "./assets/js/domains/receiving/order/pdf/merge-corrections.js",
     "./assets/js/domains/receiving/order/pdf/process-pdf.js",
     "./assets/js/domains/receiving/order/reception-controller.js",
     "./assets/js/domains/receiving/order/stages/assignment.js",
