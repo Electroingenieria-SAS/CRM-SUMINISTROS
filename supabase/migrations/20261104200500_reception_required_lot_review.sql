@@ -28,8 +28,10 @@ begin
   if coalesce(new.metadata->>'receptionLotReviewed','false')<>'true' then
     raise exception 'Debes verificar los lotes del material antes de confirmar Recepción';
   end if;
-  if jsonb_typeof(v_lots) is distinct from 'array'
-     or jsonb_array_length(v_lots) not between 1 and 20 then
+  if jsonb_typeof(v_lots) is distinct from 'array' then
+    raise exception 'Los lotes del material deben enviarse como una lista';
+  end if;
+  if jsonb_array_length(v_lots) not between 1 and 20 then
     raise exception 'Cada material debe tener de 1 a 20 números de lote';
   end if;
   if coalesce(new.metadata->>'receptionLotSource','') not in ('PDF','MANUAL') then
