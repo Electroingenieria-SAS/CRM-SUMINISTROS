@@ -2,13 +2,12 @@ import { api } from "../../../../services/api.js";
 import { fmt } from "../../../../core/format.js";
 import { modal, toast } from "../../../../core/ui.js";
 import { canReportNoDelivery, canConfirmDeliverySatisfaction } from "../permissions/shipping-permissions.js";
+import { estimateShipmentDistance } from "./shipping-distance.js";
 
 export function openNoDeliveryReport(order,{onSaved}={}){
   if(!canReportNoDelivery())return toast("Solo Ventas o Superadministración pueden registrar una no entrega.","error",7000);
   modal({title:"Reportar no entrega a Logística",confirmLabel:"Enviar reporte",size:"wide",body:`<div class="shipping-dialog-intro danger"><strong>${fmt.escape(order.orderNumber||order.order_number||"Pedido")}</strong><p>Se generará un Reporte bloqueante para Logística. El pedido no continuará hasta que Logística lo solucione y cierre.</p></div><div class="field"><label>Motivo de no entrega *</label><textarea class="control" name="reason" required autofocus placeholder="Explica por qué el cliente no recibió el pedido"></textarea></div><div class="field"><label>Acción solicitada</label><select class="control" name="requestedAction"><option value="CONTACT_CLIENT">Contactar al cliente</option><option value="REPROGRAM">Reprogramar entrega</option><option value="RETURN">Retornar mercancía</option><option value="REVIEW">Revisar con Logística</option></select></div>`,onConfirm:async dialog=>{const reason=dialog.querySelector('[name="reason"]').value.trim(),requestedAction=dialog.querySelector('[name="requestedAction"]').value;await api.reportShippingNoDelivery(order.id,{reason,requestedAction});toast("Reporte de no entrega enviado a Logística.","success",6500);onSaved?.();}});
 }
-
-import { estimateShipmentDistance } from "./shipping-distance.js";
 
 export function openSatisfactionConfirmation(order,{onSaved}={}){
   if(!canConfirmDeliverySatisfaction())return toast("No tienes permiso para confirmar la satisfacción de entrega.","error",7000);
