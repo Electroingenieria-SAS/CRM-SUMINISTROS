@@ -3,7 +3,7 @@ import { prepareCatalogNavigation } from "./catalog-navigation.js";
 import { bindCatalogSelection } from "./catalog-selection.js";
 
 export function catalogHtml(catalog,disabled){
-  return catalogBrowserHtml(catalog,disabled);
+  return catalogBrowserHtml(catalog,false);
 }
 
 export function bindCatalogBrowser(content,data,onScheduled=null){

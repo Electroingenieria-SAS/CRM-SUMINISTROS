@@ -19,7 +19,7 @@ for(const token of [
   "work-active-console",
   "workday-status-strip",
   "workday-traffic-legend",
-  "Sin actividades programadas para hoy",
+  "Sin actividades programadas",
   "data-work-finish",
   "Tomar foto",
   "Subir foto",

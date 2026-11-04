@@ -16,15 +16,16 @@ export async function renderToday(root,content,prefetchedData=null){
   const data=prefetchedData||await api.workMyDay();
   const plannerTab=root.querySelector('[data-work-view="planner"]');
   if(plannerTab)plannerTab.hidden=false;
-  const active=Boolean(data.active);
+  const active=Boolean(data.active?.status==="IN_PROGRESS");
+  const paused=(data.pausedActivities||[]).filter(row=>row.id!==data.active?.id);
   const pending=(data.summary?.pendingApproval||0)+(data.summary?.pendingEvidence||0)+(data.summary?.pendingReview||0);
-  const scheduled=[...(data.overdue||[]),...(data.today||[])];
+  const scheduled=[...(data.overdue||[]),...(data.today||[]),...(data.upcoming||[])];
   content.innerHTML=`
     <section class="workday-guide ${active?"is-running":"is-ready"}">
       <div class="workday-guide-copy">
         <span class="workday-eyebrow">MI JORNADA</span>
-        <h2>${active?"Actividad en curso":"Elige con calma. Inicia cuando estés seguro."}</h2>
-        <p>${active?"El CRM registra el tiempo automáticamente y te avisará con el semáforo.":"Navega por categoría, subcategoría y actividad. Primero programas; después inicias manualmente desde tu agenda."}</p>
+        <h2>${active?"Actividad en curso":data.active?.status==="PAUSED"?"Actividad pausada":"Elige y empieza cuando lo necesites."}</h2>
+        <p>${active?"El CRM registra el tiempo automáticamente. Puedes iniciar otra actividad y la actual quedará pausada.":"Elige cualquier actividad activa, iníciala ahora o prográmala. Las pausadas conservan su avance para continuarlas."}</p>
       </div>
       <div class="workday-traffic-legend" aria-label="Semáforo de tiempo de actividad">
         <span class="green"><i></i><b>Verde</b><small>Menos de 45 min</small></span>
@@ -40,6 +41,7 @@ export async function renderToday(root,content,prefetchedData=null){
     </section>
 
     ${activeWorkCard(data.active)}
+    ${paused.length?`<section class="card workforce-agenda-card"><header class="card-head"><div><h3>Mis actividades pausadas</h3><p>Retoma cualquier actividad; el CRM pausará automáticamente la que tengas en curso y conservará los tiempos.</p></div><span class="workforce-count">${paused.length}</span></header><div class="card-body workforce-agenda-list">${paused.map(row=>`<article class="agenda-row compact"><div class="agenda-main"><strong>${fmt.escape(row.title||"Actividad")}</strong><small>${fmt.escape(row.catalogName||"")} · Pausada desde ${fmt.date(row.startedAt)}</small></div><div class="agenda-actions"><button type="button" class="btn btn-primary" data-resume-paused="${fmt.escape(row.id)}">Continuar actividad</button></div></article>`).join("")}</div></section>`:""}
 
     <section class="workday-status-strip">
       <article><span class="workday-status-icon">◷</span><div><small>Tiempo activo hoy</small><strong>${fmt.hours(data.summary?.activeSeconds)}</strong></div></article>
@@ -49,16 +51,16 @@ export async function renderToday(root,content,prefetchedData=null){
 
     <section class="card workday-launch-card">
       <header class="card-head">
-        <div><h3>${active?"Programa tu próxima actividad":"¿Qué vas a hacer ahora?"}</h3><p>${active?"Puedes revisar y programar, pero no podrás iniciar otra hasta cerrar la actual.":"Elige y programa la actividad. El cronómetro solo inicia después, desde la agenda."}</p></div>
+        <div><h3>¿Qué actividad vas a realizar?</h3><p>Elige cualquiera e iníciala ahora o prográmala. Si tienes otra en curso, el sistema la pausará y podrás retomarla.</p></div>
         <span class="workday-safe-chip">Selección segura</span>
       </header>
-      <div class="card-body">${catalogHtml(data.catalog||[],active)}</div>
+      <div class="card-body">${catalogHtml(data.catalog||[],false)}</div>
     </section>
 
     ${scheduled.length?`<section class="card workforce-agenda-card workday-agenda-card">
-      <header class="card-head"><div><h3>Programado para ti</h3><p>Actividades planificadas para hoy. También requieren confirmación antes de iniciar.</p></div><span class="workforce-count">${scheduled.length}</span></header>
+      <header class="card-head"><div><h3>Tu agenda</h3><p>Puedes iniciar cualquiera de tus actividades programadas, incluso antes del horario previsto.</p></div><span class="workforce-count">${scheduled.length}</span></header>
       <div class="card-body workforce-agenda-list">${agendaHtml(data)}</div>
-    </section>`:`<section class="workday-no-schedule"><span>✓</span><div><strong>Sin actividades programadas para hoy</strong><small>Elige una actividad del catálogo y agrégala a tu agenda.</small></div></section>`}
+    </section>`:`<section class="workday-no-schedule"><span>✓</span><div><strong>Sin actividades programadas</strong><small>Elige una actividad del catálogo para iniciarla directamente o añadirla a tu agenda.</small></div></section>`}
 
     ${activityRequestsHtml(data.pendingRequests||[],data.requestHistory||[])}
 
@@ -91,6 +93,18 @@ export function bindTodayActions(content,data){
       }
     });
   });
+
+  content.querySelectorAll("[data-resume-paused]").forEach(button=>button.addEventListener("click",async()=>{
+    button.disabled=true;
+    try{
+      await api.workResume(button.dataset.resumePaused);
+      toast("Actividad retomada. La anterior permanece pausada.");
+      await rerenderWorkforceContent(content);
+    }catch(error){
+      toast(error.message,"error",8000);
+      button.disabled=false;
+    }
+  }));
 
   content.querySelector("[data-work-pause]")?.addEventListener("click",()=>pauseDialog(data.active,content));
   content.querySelector("[data-work-resume]")?.addEventListener("click",async event=>{const button=event.currentTarget;button.disabled=true;try{await api.workResume(data.active.id);toast("Actividad reanudada.");await rerenderWorkforceContent(content)}catch(error){toast(error.message,"error");button.disabled=false}});

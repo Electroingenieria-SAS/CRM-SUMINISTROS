@@ -5,9 +5,9 @@ import { requiresManagerApproval, buildActivitySchedulePayload } from "../../ass
 
 const read=path=>readFile(new URL(`../../${path}`,import.meta.url),"utf8");
 
-test("solo los roles auxiliares requieren aprobación previa",()=>{
-  assert.equal(requiresManagerApproval(["aux_logistica"]),true);
-  assert.equal(requiresManagerApproval(["auxiliar_corte"]),true);
+test("todos los roles pueden registrar su actividad propia sin aprobación",()=>{
+  assert.equal(requiresManagerApproval(["aux_logistica"]),false);
+  assert.equal(requiresManagerApproval(["auxiliar_corte"]),false);
   assert.equal(requiresManagerApproval(["coordinador_logistico"]),false);
   assert.equal(requiresManagerApproval(["jefe_logistica"]),false);
   assert.equal(requiresManagerApproval(["aux_logistica","jefe_logistica"]),false);
@@ -50,7 +50,9 @@ test("la UI programa antes de iniciar y muestra solicitudes",async()=>{
   ]);
   assert.match(selection,/openActivitySchedule/);
   assert.doesNotMatch(selection,/api\.workStart\(confirmButton\.dataset\.workStartConfirmed,null/);
-  assert.match(dialog,/workProposeAssignment/);
+  assert.doesNotMatch(dialog,/workProposeAssignment/);
+  assert.match(selection,/data-work-start-now/);
+  assert.match(selection,/workStart/);
   assert.match(dialog,/workSchedule/);
   assert.match(dialog,/data-open-ended/);
   assert.match(today,/pendingRequests/);
@@ -59,11 +61,14 @@ test("la UI programa antes de iniciar y muestra solicitudes",async()=>{
   assert.match(approvals,/workDecideAssignment/);
 });
 
-test("la base bloquea inicio directo auxiliar y conserva RLS por RPC autenticado",async()=>{
+test("la migración de acceso universal protege propiedad y acceso autenticado",async()=>{
   const sql=await read("supabase/migrations/132_workforce_scheduled_approval_v11_44_0.sql");
   const continuitySql=await read("supabase/migrations/133_workforce_open_ended_continuity_v11_44_0.sql");
-  assert.match(sql,/Auxiliares deben programar y obtener aprobación antes de iniciar/);
-  assert.match(sql,/approval_status<>'APPROVED'/);
+  const universalSql=await read("supabase/migrations/20261104102500_workforce_universal_activity_self_service.sql");
+  assert.match(universalSql,/uq_work_running_execution_per_profile/);
+  assert.match(universalSql,/public.erp_x_work_start/);
+  assert.match(universalSql,/public.erp_x_work_schedule/);
+  assert.match(universalSql,/grant execute on function public.erp_x_work_start/);
   assert.equal((continuitySql.match(/case when v_open_ended then v_start else null end/g)||[]).length>=2,true,"las actividades sin hora final deben conservar una fecha límite para seguir visibles si se vencen");
   assert.match(sql,/revoke all on function public\.erp_x_work_start\(uuid,uuid,jsonb\) from public,anon/);
   assert.match(sql,/grant execute on function public\.erp_x_work_start\(uuid,uuid,jsonb\) to authenticated/);

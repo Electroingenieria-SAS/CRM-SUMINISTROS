@@ -1,10 +1,6 @@
-const AUXILIARY_ROLES=new Set(["aux_logistica","auxiliar_corte"]);
-const DIRECT_ROLES=new Set(["super_admin","gerencia","jefe_logistica","lider_logistica","coordinador_logistico"]);
-
-export function requiresManagerApproval(roles=[]){
-  const normalized=new Set((roles||[]).map(role=>String(role||"").trim().toLowerCase()));
-  if([...DIRECT_ROLES].some(role=>normalized.has(role)))return false;
-  return [...AUXILIARY_ROLES].some(role=>normalized.has(role));
+// Toda cuenta operativa activa puede autoprogramar sus propias actividades.
+export function requiresManagerApproval(_roles=[]){
+  return false;
 }
 export function buildActivitySchedulePayload({catalogId,plannedStart,plannedEnd,openEnded=false,estimatedMinutes=60,priority="MEDIUM",reason=""}={}){
   if(!catalogId)throw new Error("Selecciona una actividad.");

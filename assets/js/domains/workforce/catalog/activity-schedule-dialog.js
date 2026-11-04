@@ -3,17 +3,15 @@ import { state } from "../../../core/state.js";
 import { fmt } from "../../../core/format.js";
 import { modal, toast } from "../../../core/ui.js";
 import { roundToFiveMinutes, localDateTimeInput } from "../shared/local-dates.js";
-import { requiresManagerApproval, buildActivitySchedulePayload } from "./scheduling-policy.js";
+import { buildActivitySchedulePayload } from "./scheduling-policy.js";
 
 export function openActivitySchedule(browser,item){
-  const roles=state.profile?.roles||[];
-  const approvalRequired=requiresManagerApproval(roles);
   const start=roundToFiveMinutes(new Date());
   const minutes=Math.max(1,Number(item.medianMinutes||item.standardMinutes||60));
   const end=new Date(start.getTime()+minutes*60000);
   const view=modal({
     title:`Programar · ${item.name}`,
-    confirmLabel:approvalRequired?"Enviar para aprobación":"Agregar a mi agenda",
+    confirmLabel:"Agregar a mi agenda",
     cancelLabel:"Cancelar",
     size:"wide",
     body:`<section class="work-schedule-dialog-intro"><span>PROGRAMACIÓN DE ACTIVIDAD</span><strong>${fmt.escape(item.name)}</strong><p>Guardar no inicia el cronómetro. La actividad comenzará únicamente cuando pulses Iniciar desde tu agenda.</p></section>
@@ -23,9 +21,9 @@ export function openActivitySchedule(browser,item){
         <label class="work-open-ended full"><input type="checkbox" name="openEnded" data-open-ended><span><strong>Sin hora final estimada</strong><small>La actividad se cerrará manualmente y el CRM conservará la hora real de finalización.</small></span></label>
         <div class="field"><label>Prioridad</label><select class="control" name="priority"><option value="MEDIUM">Media</option><option value="HIGH">Alta</option><option value="URGENT">Urgente</option><option value="LOW">Baja</option></select></div>
         <div class="field"><label>Duración de referencia (min)</label><input class="control" type="number" name="estimatedMinutes" min="1" max="1440" value="${minutes}" required></div>
-        <div class="field full"><label>${approvalRequired?"Justificación para aprobación *":"Nota de planeación"}</label><textarea class="control" name="reason" rows="3" ${approvalRequired?'required minlength="10"':""} placeholder="Describe brevemente el objetivo de la actividad"></textarea></div>
+        <div class="field full"><label>Nota de planeación</label><textarea class="control" name="reason" rows="3"  placeholder="Describe brevemente el objetivo de la actividad"></textarea></div>
       </div>
-      ${approvalRequired?'<div class="work-approval-notice"><strong>Requiere aprobación</strong><p>Como auxiliar, podrás iniciar esta actividad cuando un jefe, líder o coordinador logístico la autorice.</p></div>':""}`,
+`,
     onConfirm:async dialog=>{
       const payload=buildActivitySchedulePayload({
         catalogId:item.id,
@@ -36,15 +34,9 @@ export function openActivitySchedule(browser,item){
         priority:dialog.querySelector('[name="priority"]').value,
         reason:dialog.querySelector('[name="reason"]').value
       });
-      if(approvalRequired){
-        if(payload.reason.length<10)throw new Error("La justificación debe tener al menos 10 caracteres.");
-        await api.workProposeAssignment(payload);
-        toast("Actividad enviada para aprobación. Todavía no puede iniciarse.","success",6500);
-      }else{
-        const result=await api.workSchedule({...payload,title:item.name,description:item.description||null,profileIds:[state.profile.id],evidencePolicy:item.evidencePolicy||"NONE",force:false});
-        if(result?.success===false)throw new Error(result.message||"No fue posible programar la actividad.");
-        toast("Actividad agregada a tu agenda. Iníciala manualmente cuando corresponda.","success",6500);
-      }
+      const result=await api.workSchedule({...payload,title:item.name,description:item.description||null,profileIds:[state.profile.id],evidencePolicy:item.evidencePolicy||"NONE",force:false});
+      if(result?.success===false)throw new Error(result.message||"No fue posible programar la actividad.");
+      toast("Actividad añadida a tu agenda. Puedes iniciarla cuando quieras, sin autorización previa.","success",6500);
       await browser.onScheduled?.();
     }
   });

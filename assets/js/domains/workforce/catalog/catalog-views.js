@@ -3,7 +3,7 @@ import { catalogTaxonomy, categoryInitial } from "./catalog-taxonomy.js";
 
 export function catalogBrowserHtml(catalog,disabled=false){
   const tree=catalogTaxonomy(catalog);
-  if(!tree.length)return `<div class="empty-state work-catalog-empty"><strong>Sin actividades habilitadas</strong><span>Solicita al administrador revisar el catálogo disponible para tu rol.</span></div>`;
+  if(!tree.length)return `<div class="empty-state work-catalog-empty"><strong>Sin actividades disponibles</strong><span>Actualmente no hay actividades activas en el catálogo.</span></div>`;
   return `<div class="work-catalog-browser" data-work-catalog-browser data-level="category">
     <div class="work-catalog-progress" aria-label="Proceso para elegir actividad">
       <span class="active" data-catalog-progress="category"><b>1</b><em>Categoría</em></span>
@@ -57,7 +57,7 @@ export function activityStageHtml(category,subcategory){
   return `<section class="work-catalog-stage-panel" data-stage="activity">
     <header class="work-catalog-stage-head with-back">
       <button type="button" class="work-catalog-back" data-work-level-back="subcategory" aria-label="Volver a subcategorías">‹</button>
-      <div><span>PASO 3 · ${fmt.escape(category.label)}</span><h4>${fmt.escape(subcategory.label)}</h4><p>Selecciona la actividad específica. Después definirás su horario sin iniciar el cronómetro.</p></div>
+      <div><span>PASO 3 · ${fmt.escape(category.label)}</span><h4>${fmt.escape(subcategory.label)}</h4><p>Selecciona una actividad. Puedes iniciarla ahora o programarla para otro momento.</p></div>
     </header>
     <div class="work-catalog-activity-list">${activityListHtml(subcategory)}</div>
   </section>`;
@@ -67,7 +67,7 @@ export function activityListHtml(subcategory){
   return subcategory.activities.map(item=>`
     <button type="button" class="work-catalog-activity" data-work-activity-select="${fmt.escape(item.id)}">
       <span class="work-catalog-activity-dot"></span>
-      <span class="work-catalog-activity-copy"><strong>${fmt.escape(item.name)}</strong><small>Seleccionar para programar fecha y hora</small></span>
+      <span class="work-catalog-activity-copy"><strong>${fmt.escape(item.name)}</strong><small>Iniciar ahora o programar</small></span>
       <b aria-hidden="true">›</b>
     </button>`).join("");
 }
@@ -80,11 +80,12 @@ export function selectedActivityHtml(item){
       <span>ACTIVIDAD SELECCIONADA</span>
       <strong>${fmt.escape(item.name)}</strong>
       <small>${fmt.escape(item.uiCategoryLabel||fmt.label(item.uiCategory||item.activityGroup||""))} · ${fmt.escape(item.uiSubcategory||"Actividad")}</small>
-      <p>Revisa que sea la actividad correcta. El siguiente paso permite definir fecha, hora y si tendrá cierre estimado. El cronómetro no iniciará.</p>
+      <p>Puedes iniciar de inmediato o programarla. Al iniciar otra, cualquier actividad en curso se pausará automáticamente y podrás retomarla después.</p>
     </div>
     <div class="work-start-confirm-actions">
       <button type="button" class="btn btn-ghost" data-work-selection-cancel>Cambiar actividad</button>
-      <button type="button" class="btn btn-primary" data-work-schedule-confirmed="${fmt.escape(item.id)}">Programar actividad</button>
+      <button type="button" class="btn btn-ghost" data-work-schedule-confirmed="${fmt.escape(item.id)}">Programar</button>
+      <button type="button" class="btn btn-primary" data-work-start-now="${fmt.escape(item.id)}">Iniciar ahora</button>
     </div>
   </section>`;
 }
