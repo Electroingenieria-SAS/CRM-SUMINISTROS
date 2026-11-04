@@ -5,6 +5,7 @@ import { renderWorkbench } from "../reception-controller.js";
 import { assignmentStage } from "../stages/assignment.js";
 import { confirmReception } from "../actions/confirm-reception.js";
 import { persistDraft } from "../draft/reception-draft.js";
+import { receptionLotReviewCards, bindReceptionLotReviewCards, assertReceptionLotReview } from "./lot-review.js";
 import { loadReceptionOriginPlans, receptionOriginCards, bindReceptionOriginCards, assertReceptionOriginCards } from "./lot-selection.js";
 
 export async function loadAssignmentStage(host,data,draft,callbacks){
@@ -14,12 +15,13 @@ export async function loadAssignmentStage(host,data,draft,callbacks){
     const [pickingRaw,cutRaw,originPlans]=await Promise.all([api.assignmentPool("ALISTAMIENTO"),api.assignmentPool("CORTE"),loadReceptionOriginPlans(draft.lines)]);
     const pickingPool=(pickingRaw||[]).filter(person=>(person.roles||[]).includes("aux_logistica"));
     const cutPool=(cutRaw||[]).filter(person=>(person.roles||[]).includes("auxiliar_corte"));
-    mount.closest(".reception-stage-card").outerHTML=assignmentStage(data,draft,pickingPool,cutPool,receptionOriginCards(draft.lines,originPlans));
+    mount.closest(".reception-stage-card").outerHTML=assignmentStage(data,draft,pickingPool,cutPool,receptionOriginCards(draft.lines,originPlans),receptionLotReviewCards(draft.lines));
     bindAssignmentControls(host,data,draft,callbacks,pickingPool,cutPool,originPlans);
   }catch(error){mount.innerHTML=`<div class="reception-file-warning"><strong>No fue posible cargar los auxiliares.</strong><p>${fmt.escape(error.message)}</p></div>`}
 }
 
 export function bindAssignmentControls(host,data,draft,callbacks,pickingPool,cutPool,originPlans=[]){
+  bindReceptionLotReviewCards(host,data,draft,persistDraft);
   bindReceptionOriginCards(host,data,draft,originPlans,persistDraft);
   const picking=host.querySelector("[data-picking-profile]");
   const cut=host.querySelector("[data-cut-profile]");
@@ -34,7 +36,7 @@ export function bindAssignmentControls(host,data,draft,callbacks,pickingPool,cut
     if(!pickingPool.some(person=>person.id===draft.pickingProfileId))return toast("El auxiliar de alistamiento seleccionado ya no está disponible.","error");
     if(hasCuts&&!draft.cutProfileId)return toast("Selecciona el auxiliar de corte.","error");
     if(hasCuts&&!cutPool.some(person=>person.id===draft.cutProfileId))return toast("El auxiliar de corte seleccionado ya no está disponible.","error");
-    try{assertReceptionOriginCards(host,draft,originPlans)}catch(error){return toast(error.message,"error",7000)}
+    try{assertReceptionLotReview(draft);assertReceptionOriginCards(host,draft,originPlans)}catch(error){return toast(error.message,"error",7000)}
     persistDraft(data.order.id,draft);
     confirmReception(host,data,draft,callbacks);
   });
