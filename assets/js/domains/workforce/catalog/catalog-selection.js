@@ -1,5 +1,8 @@
 import { selectedActivityHtml } from "./index.js";
 import { openActivitySchedule } from "./activity-schedule-dialog.js";
+import { api } from "../../../services/api.js";
+import { modal, toast } from "../../../core/ui.js";
+import { fmt } from "../../../core/format.js";
 
 export function bindCatalogSelection(browser){
 browser.browser.addEventListener("click",async event=>{
@@ -37,6 +40,25 @@ browser.browser.addEventListener("click",async event=>{
     if(event.target.closest("[data-work-selection-cancel]")){
       browser.selected.innerHTML="";
       browser.stage.querySelectorAll("[data-work-activity-select]").forEach(node=>node.classList.remove("selected"));
+      return;
+    }
+
+    const startButton=event.target.closest("[data-work-start-now]");
+    if(startButton){
+      const item=(browser.data.catalog||[]).find(row=>row.id===startButton.dataset.workStartNow);
+      if(!item)return;
+      modal({
+        title:"Iniciar actividad ahora",
+        confirmLabel:"Iniciar cronómetro",
+        cancelLabel:"Cancelar",
+        body:`<div class="work-start-dialog"><span>Actividad elegida</span><strong>${fmt.escape(item.name)}</strong><p>Se registrará la hora real de inicio. Si tienes otra actividad en curso, quedará pausada para poder retomarla.</p></div>`,
+        onConfirm:async()=>{
+          const result=await api.workStart(item.id,null,{source:"MANUAL_CATALOG"});
+          if(result?.success===false)throw new Error(result.message||"No fue posible iniciar.");
+          toast("Actividad iniciada. El tiempo se registra automáticamente.");
+          await browser.onScheduled?.();
+        }
+      });
       return;
     }
 
