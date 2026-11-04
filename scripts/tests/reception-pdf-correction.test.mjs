@@ -16,13 +16,13 @@ test("Corregir y Asignar incluyen selector de PDF local y del pedido",()=>{
     source("assets/js/domains/receiving/order/stages/stage-bindings.js"),
     source("assets/js/domains/receiving/order/assignment/assignment-pool.js")
   ];
-  assert.match(edit,/correctionPdfControls\\(data,draft\\)/);
-  assert.match(assign,/correctionPdfControls\\(data,draft\\)/);
+  assert.ok(edit.includes("correctionPdfControls(data,draft)"));
+  assert.ok(assign.includes("correctionPdfControls(data,draft)"));
   for(const marker of ["data-correction-source-pdf","data-correction-read-drive","data-correction-local-pdf","Seleccionar y leer PDF"]){
     assert.ok(picker.includes(marker),marker);
   }
-  assert.match(binding,/bindCorrectionPdf\\(host,data,draft,callbacks\\)/);
-  assert.match(assignment,/bindCorrectionPdf\\(host,data,draft,callbacks\\)/);
+  assert.ok(binding.includes("bindCorrectionPdf(host,data,draft,callbacks)"));
+  assert.ok(assignment.includes("bindCorrectionPdf(host,data,draft,callbacks)"));
 });
 
 test("Un nuevo PDF no sobrescribe lotes ni cantidades corregidas a mano",()=>{
