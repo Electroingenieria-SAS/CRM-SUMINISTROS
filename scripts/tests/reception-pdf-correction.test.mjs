@@ -12,7 +12,7 @@ test("Corregir y Asignar incluyen selector de PDF local y del pedido",()=>{
   const [edit,assign,picker,binding,assignment]=[
     source("assets/js/domains/receiving/order/stages/edit-lines.js"),
     source("assets/js/domains/receiving/order/stages/assignment.js"),
-    source("assets/js/domains/receiving/order/pdf/correction-upload.js"),
+    source("assets/js/domains/receiving/order/pdf/correction-pdf-controls.js"),
     source("assets/js/domains/receiving/order/stages/stage-bindings.js"),
     source("assets/js/domains/receiving/order/assignment/assignment-pool.js")
   ];
