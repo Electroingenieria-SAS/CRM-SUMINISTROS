@@ -18,6 +18,8 @@ async function mountReception(page){
     host.innerHTML=baseShell(data,takeStage(data),{stage:"TAKE"});
     mountOrderCancellationAction(host,data);
     await import("/assets/js/modules/popup-ux-v1190.js");
+    const {installSupportFlow}=await import("/assets/js/modules/support-flow.js");
+    installSupportFlow();
   });
   await expect(page.locator(".reception-process-modal.popup-ux-v1190")).toBeVisible();
 }
@@ -83,7 +85,7 @@ test("Dialog estándar mantiene las acciones accesibles con el diseño actualiza
   });
   const dialog=page.getByRole("dialog",{name:"Prueba de estilo corporativo"});
   await expect(dialog).toBeVisible();
-  await expect(dialog.locator(".popup-ux-v1190")).toHaveCount(0);
+  await expect(dialog).toHaveClass(/popup-ux-v1190/);
   await dialog.locator("#popup-fixture").fill("Ejemplo");
   await dialog.getByRole("button",{name:"Guardar cambios"}).click();
   await expect(dialog).toHaveCount(0);
