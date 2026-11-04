@@ -36,6 +36,7 @@
 @import "modules/receiving/order-workspace-receiving-guided.css";
 @import "modules/receiving/order-task-layout-reception-process-modal.css";
 @import "modules/receiving/order-task-layout-receiving-focus.css";
+@import "modules/receiving/order-reception-lot-review.css";
 @import "modules/receiving/confirmation-layout.css";
 @import "modules/picking/task-layout-modal-root.css";
 @import "modules/picking/task-layout-picking-focus.css";
@@ -61,5 +62,5 @@
 @import "modules/logistics/local-dispatch-modal-alignment.css";
 @import "modules/logistics/local-dispatch-workspace.css";
 
-/* Capa final: identidad visual unificada de diálogos sin cambiar su lógica. */
+/* Diálogos corporativos integrados como componentes compartidos. */
 @import "components/enterprise-modal-refresh-v11471.css";
