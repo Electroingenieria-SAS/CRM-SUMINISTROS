@@ -26,7 +26,17 @@ test("La recepción conserva botones y contratos del proceso en todos los estado
 
 test("El rediseño se carga al final del paquete de operaciones",()=>{
   const operations=read("assets/css/operations.css");
-  const css=read("assets/css/components/enterprise-modal-refresh-v11471.css");
+  const parts=[
+    "assets/css/components/enterprise-modal-foundation-v11471.css",
+    "assets/css/components/enterprise-modal-workflows-v11471.css",
+    "assets/css/components/enterprise-modal-responsive-v11471.css"
+  ];
+  for(const path of parts){
+    assert.ok(read(path).trim().split("\n").length<=300,"Cada módulo visual debe respetar la arquitectura");
+  }
+  const css=parts.map(read).join("\n");
+  const composition=read("assets/css/components/enterprise-modal-refresh-v11471.css");
+  for(const filename of parts.map(path=>path.split("/").at(-1)))assert.ok(composition.includes(filename));
   const directive='@import "components/enterprise-modal-refresh-v11471.css";';
   assert.ok(operations.includes(directive));
   assert.equal(operations.trim().endsWith(directive),true);
