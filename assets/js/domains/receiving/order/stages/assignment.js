@@ -7,7 +7,7 @@ export function assignmentStageLoading(){
   return `<section class="reception-stage-card"><div class="reception-stage-heading"><div><span class="reception-step-tag">Paso 4</span><h4>Asigna y finaliza</h4><p>Revisa los lotes de cada material, asigna responsables y confirma la recepción.</p></div></div><div data-assignment-content>${loading("Consultando auxiliares disponibles…")}</div></section>`;
 }
 
-export function assignmentStage(data,draft,pickingPool,cutPool,polyvalentPool,originCards="",lotCards=""){
+export function assignmentStage(data,draft,pickingPool,cutPool,polyvalentPool=[],originCards="",lotCards=""){
   const hasCuts=(draft.lines||[]).some(line=>line.requiresCut);
   const needsGeneral=(draft.lines||[]).some(line=>!line.requiresCut);
   return `<section class="reception-stage-card">
