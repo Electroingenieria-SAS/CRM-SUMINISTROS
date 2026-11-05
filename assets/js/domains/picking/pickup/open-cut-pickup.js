@@ -42,7 +42,7 @@ export function renderStandaloneCutPickup(host,data,{refreshLists}={}){
   bindClose(host);
   bindPickupSelection(host,items,async ids=>{
     const result=await api.confirmCutPickup(order.id,ids);
-    toast(result.allCollected?"Recogida completada.":`Recogida registrada. Quedan ${result.remaining} referencia(s) listas por entregar.`,"success",6500);
+    toast(Number(result.remaining)===0?"Tu recogida de Corte quedó completada.":`Recogida registrada. Quedan ${result.remaining} referencia(s) listas por entregar.`,"success",6500);
     refreshLists?.();
     window.__erpQueueRefresh?.();
     window.__erpCuttingRefresh?.();
