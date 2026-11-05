@@ -1,0 +1,39 @@
+name: Preparar tercera asignación en Recepción
+on:
+  push:
+    branches:
+      - fix/reception-cut-pickup-assignment-20261105
+permissions:
+  contents: write
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/reception-cut-pickup-assignment-20261105
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Sintaxis JS del flujo de Recepción y Corte
+        run: |
+          node --check assets/js/domains/receiving/order/assignment/assignment-pool.js
+          node --check assets/js/domains/receiving/order/stages/assignment.js
+          node --check assets/js/domains/receiving/order/actions/confirm-reception.js
+          node --check assets/js/domains/receiving/order/draft/reception-draft.js
+          node --check assets/js/modules/cutting-flow.js
+          node --check assets/js/services/api.js
+      - name: Regresión de la tercera asignación y ocupación
+        run: node --test scripts/tests/cutting-dual-role-pickup.test.mjs
+      - name: Regenerar caché de recursos de la PWA
+        run: npm run pwa:generate
+      - name: Publicar recursos y retirar workflow temporal
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm .github/workflows/prepare-reception-cut-helper.yml
+          git add -A assets/precache-manifest.json service-worker.js .github/workflows/prepare-reception-cut-helper.yml
+          git diff --cached --quiet && { echo "No hubo cambios PWA"; exit 1; }
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "build(pwa): actualizar tercera asignación de Corte desde Recepción"
+          git push origin HEAD:fix/reception-cut-pickup-assignment-20261105
