@@ -36,11 +36,12 @@ export function bindAssignmentControls(host,data,draft,callbacks,pickingPool,cut
   host.querySelector("[data-back-lines]")?.addEventListener("click",()=>{draft.stage=draft.mode==="PDF"?"EDIT":"REVIEW";persistDraft(data.order.id,draft);renderWorkbench(host,data,draft,callbacks)});
   host.querySelector("[data-confirm-reception]")?.addEventListener("click",()=>{
     const hasCuts=draft.lines.some(line=>line.requiresCut);
-    draft.pickingProfileId=picking?.value||"";
+    const needsGeneral=draft.lines.some(line=>!line.requiresCut);
+    draft.pickingProfileId=needsGeneral?(picking?.value||""):"";
     draft.cutProfileId=cut?.value||"";
     draft.cutPickupProfileId=helper?.value||"";
-    if(!draft.pickingProfileId)return toast("Selecciona el auxiliar de alistamiento.","error");
-    if(!pickingPool.some(person=>person.id===draft.pickingProfileId))return toast("El auxiliar de alistamiento seleccionado ya no está disponible.","error");
+    if(needsGeneral&&!draft.pickingProfileId)return toast("Selecciona el auxiliar de alistamiento general.","error");
+    if(needsGeneral&&!pickingPool.some(person=>person.id===draft.pickingProfileId))return toast("El auxiliar de alistamiento general seleccionado ya no está disponible.","error");
     if(hasCuts&&!draft.cutProfileId)return toast("Selecciona el auxiliar de corte.","error");
     if(hasCuts&&!cutPool.some(person=>person.id===draft.cutProfileId))return toast("El auxiliar de corte seleccionado ya no está disponible.","error");
     if(hasCuts&&!draft.cutPickupProfileId)return toast("Selecciona el auxiliar polivalente de alistamiento de Corte.","error");
