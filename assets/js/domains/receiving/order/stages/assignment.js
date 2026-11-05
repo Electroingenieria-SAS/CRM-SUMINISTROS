@@ -14,7 +14,7 @@ export function assignmentStage(data,draft,pickingPool,cutPool,originCards="",lo
     ${correctionPdfControls(data,draft)}
     ${lotCards}
     <div class="reception-assignment-grid">
-      <div class="field"><label>Auxiliar de alistamiento *</label><select class="control" data-picking-profile required><option value="">Seleccione…</option>${pickingPool.map(person=>`<option value="${person.id}" ${person.id===draft.pickingProfileId?"selected":""}>${fmt.escape(person.name)}</option>`).join("")}</select><small>Solo usuarios activos con rol Auxiliar de logística.</small></div>
+      <div class="field"><label>Auxiliar de alistamiento general *</label><select class="control" data-picking-profile required><option value="">Seleccione…</option>${pickingPool.map(person=>`<option value="${person.id}" ${person.id===draft.pickingProfileId?"selected":""}>${fmt.escape(person.name)}</option>`).join("")}</select><small>Gestiona el alistamiento general. La recogida desde Corte se asigna por separado al iniciar Corte.</small></div>
       ${hasCuts?`<div class="field"><label>Auxiliar de corte *</label><select class="control" data-cut-profile required><option value="">Seleccione…</option>${cutPool.map(person=>`<option value="${person.id}" ${person.id===draft.cutProfileId?"selected":""}>${fmt.escape(person.name)}</option>`).join("")}</select><small>Se mostrará únicamente porque existen líneas marcadas para corte.</small></div>`:`<article class="reception-no-cut"><span aria-hidden="true">${icon("check")}</span><div><strong>Este pedido no requiere corte</strong><p>No se generará tarea para auxiliares de corte.</p></div></article>`}
     </div>
     ${originCards}

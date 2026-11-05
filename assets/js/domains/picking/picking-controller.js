@@ -1,4 +1,5 @@
 import { fmt } from "../../core/format.js";
+import { state, hasRole } from "../../core/state.js";
 import { toast } from "../../core/ui.js";
 import { renderCutPickup } from "./pickup/cut-pickup-stage.js";
 import { renderVerification } from "./verification/verification-controller.js";
@@ -13,6 +14,10 @@ export function isPickingFlow(data){
 }
 
 export function renderPickingFlow(host,data,{reload,refreshLists}={}){
+  const actorId=state.profile?.id||state.profile?.profileId||state.profile?.profile_id||"";
+  const canOverride=hasRole("super_admin")||hasRole("jefe_logistica");
+  const cutPending=pendingCutPickups(data);
+  const mine= cutPending.filter(item=>canOverride||!item.metadata?.cutPickupProfileId||item.metadata.cutPickupProfileId===actorId);
   if(data.order.current_step_code!=="ALISTAMIENTO"){
     renderPartialResume(host,data,{reload,refreshLists});
     enhancePickingExperience(host);
@@ -30,7 +35,7 @@ export function renderPickingFlow(host,data,{reload,refreshLists}={}){
   const actions=actionCodes(data);
   if(task.status!=="IN_PROGRESS"){
     const resumed=rounds(data).length>0;
-    const hasPickup=pendingCutPickups(data).length>0;
+    const hasPickup=mine.length>0;
     const label=hasPickup?"Tomar pedido para recoger cortes":resumed?"Retomar pedido":"Tomar pedido";
     const canStart=actions.has("CLAIM")||actions.has("START")||actions.has("RESUME");
     host.innerHTML=shell(data,`
@@ -65,8 +70,15 @@ export function renderPickingFlow(host,data,{reload,refreshLists}={}){
     return;
   }
 
-  if(pendingCutPickups(data).length){
-    renderCutPickup(host,data,{reload,refreshLists});
+  if(cutPending.length){
+    if(mine.length){
+      renderCutPickup(host,data,{reload,refreshLists});
+    }else{
+      const assignedNames=[...new Set(cutPending.map(item=>item.metadata?.cutPickupProfileName).filter(Boolean))];
+      host.innerHTML=shell(data,`<section class="picking-empty"><strong>Recogida de Corte a cargo del auxiliar polivalente</strong><p>El alistamiento general conserva su responsable. Las referencias terminadas desde Corte las recogerá ${fmt.escape(assignedNames.join(", ")||"el auxiliar asignado a Corte")}.</p><button type="button" class="btn btn-primary" data-refresh-cut-pickup>Actualizar estado de recogida</button></section>`);
+      bindClose(host);
+      host.querySelector("[data-refresh-cut-pickup]")?.addEventListener("click",()=>reload?.());
+    }
     enhancePickingExperience(host);
     return;
   }

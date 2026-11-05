@@ -1,4 +1,5 @@
 import { api } from "../../../services/api.js";
+import { state, hasRole } from "../../../core/state.js";
 import { fmt } from "../../../core/format.js";
 import { toast } from "../../../core/ui.js";
 import { bindPickupSelection } from "./pickup-selection.js";
@@ -7,7 +8,9 @@ import { pendingCutPickups } from "../shared/picking-status.js";
 import { pickingProgress } from "../ui/picking-progress.js";
 
 export function renderCutPickup(host,data,{reload,refreshLists}){
-  const items=pendingCutPickups(data);
+  const actorId=state.profile?.id||state.profile?.profileId||state.profile?.profile_id||"";
+  const canOverride=hasRole("super_admin")||hasRole("jefe_logistica");
+  const items=pendingCutPickups(data).filter(item=>canOverride||!item.metadata?.cutPickupProfileId||item.metadata.cutPickupProfileId===actorId);
   host.innerHTML=shell(data,`
     ${pickingProgress(data,"PICKUP")}
     <section class="cut-pickup-workbench">
@@ -30,7 +33,7 @@ export function renderCutPickup(host,data,{reload,refreshLists}){
 
   bindPickupSelection(host,items,async ids=>{
     const result=await api.confirmCutPickup(data.order.id,ids);
-    toast(result.allCollected?"Todos los cortes fueron recogidos. Continúa con la verificación de mercancía.":`Recogida registrada. Quedan ${result.remaining} corte(s) pendientes.`,"success",7000);
+    toast(Number(result.remaining)===0?"Los cortes asignados quedaron recogidos. Continúa con la verificación de mercancía.":`Recogida registrada. Quedan ${result.remaining} corte(s) pendientes.`,"success",7000);
     refreshLists?.();
     await reload?.();
   });
