@@ -11,16 +11,41 @@ const core=read("supabase/migrations/20261105150000_cutting_polivalent_occupatio
 const scope=read("supabase/migrations/20261105150500_cutting_polivalent_pickup_scope.sql");
 const timeline=read("supabase/migrations/20261105151000_cutting_polivalent_workforce_timeline.sql");
 
-test("Recepción mantiene alistamiento general, Corte exige un polivalente independiente",()=>{
+const receptionPool=read("assets/js/domains/receiving/order/assignment/assignment-pool.js");
+const confirm=read("assets/js/domains/receiving/order/actions/confirm-reception.js");
+const draft=read("assets/js/domains/receiving/order/draft/reception-draft.js");
+const received=read("supabase/migrations/20261105180000_reception_cut_pickup_polivalent.sql");
+
+test("La tercera asignación aparece obligatoriamente en Recepción, no en el inicio habitual de Corte",()=>{
  assert.match(rec,/Auxiliar de alistamiento general/);
  assert.match(rec,/Auxiliar de corte/);
- assert.match(cut,/Alistamiento de Corte · Auxiliar polivalente/);
- assert.match(cut,/data-cut-helper-profile required/);
- assert.match(cut,/eligible=helpers.filter\(person=>!person.busy\)/);
- assert.match(cut,/api.cuttingStart\(group.groupKey,helperId\)/);
- assert.match(api,/erp_x_cutting_pickup_pool/);
+ assert.match(rec,/Auxiliar de alistamiento de Corte \(polivalente\) \*/);
+ assert.match(rec,/data-cut-pickup-profile required/);
+ assert.match(receptionPool,/logisticIds=new Set/);
+ assert.match(receptionPool,/polyvalentPool=cutPool.filter/);
+ assert.match(receptionPool,/cutPickupProfileId=helper\.value/);
+ assert.match(receptionPool,/draft\.cutPickupProfileId===draft\.pickingProfileId/);
+ assert.match(draft,/cutPickupProfileId:""/);
+ assert.match(confirm,/cutPickupProfileId:draft\.lines\.some/);
+ assert.match(api,/erp_x_confirm_order_reception_with_cut_pickup/);
+ assert.match(api,/erp_x_cutting_assigned_pickup/);
+ assert.match(cut,/const isAssigned=assignment\.status==="ASSIGNED"/);
+ assert.match(cut,/No necesitas volver a asignarlo/);
+ assert.match(cut,/api\.cuttingStart\(group\.groupKey,helperId\)/);
  assert.match(api,/erp_x_cutting_start_with_helper/);
- assert.doesNotMatch(api,/cuttingStart:groupKey=>mutationRpc\("erp_x_cutting_start"/);
+});
+
+test("La validación en Supabase guarda el tercer perfil sin reasignar los otros dos",()=>{
+ assert.match(received,/role_code='aux_logistica'/);
+ assert.match(received,/role_code='auxiliar_corte'/);
+ assert.match(received,/v_helper=v_picking/);
+ assert.match(received,/v_helper=v_cutter/);
+ assert.match(received,/public\.erp_x_confirm_order_reception\(p_order_id,p_payload\)/);
+ assert.match(received,/receptionAssignment,cutPickupProfileId/);
+ assert.match(received,/update erp_supply\.cut_requirements/);
+ assert.match(received,/REVOKE EXECUTE ON FUNCTION public\.erp_x_confirm_order_reception/);
+ assert.match(received,/Los cortes de esta referencia tienen un ayudante diferente/);
+ assert.match(received,/status','CONFLICT/);
 });
 
 test("El servidor exige los dos roles, bloqueo concurrente y asignación por referencia",()=>{
