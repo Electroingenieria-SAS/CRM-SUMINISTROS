@@ -9,7 +9,7 @@ export function confirmReception(host,data,draft,{reload,refreshLists}={}){
   openSubdialog(host,{
     title:"Confirmar recepción y asignación",
     confirmLabel:"Sí, confirmar y enviar",
-    body:`<div class="reception-confirm-dialog"><strong>Esta acción cerrará Recepción de pedidos.</strong><p>Se guardarán las líneas definitivas. Alistamiento quedará activo inmediatamente y, si existen cortes, únicamente esas líneas se enviarán a Corte en paralelo.</p><div>${summaryChip("Líneas",draft.lines.length)}${summaryChip("Con corte",draft.lines.filter(line=>line.requiresCut).length)}</div></div>`,
+    body:`<div class="reception-confirm-dialog"><strong>Esta acción cerrará Recepción de pedidos.</strong><p>${draft.lines.every(line=>line.requiresCut)?"Todas las líneas requieren Corte: no se asignará Alistamiento general. El pedido avanzará automáticamente después de completar y recoger los cortes.":"Se guardarán las líneas definitivas. Alistamiento quedará activo inmediatamente y, si existen cortes, únicamente esas líneas se enviarán a Corte en paralelo."}</p><div>${summaryChip("Líneas",draft.lines.length)}${summaryChip("Con corte",draft.lines.filter(line=>line.requiresCut).length)}</div></div>`,
     onConfirm:async button=>{
       button.disabled=true;
       try{
@@ -19,7 +19,7 @@ export function confirmReception(host,data,draft,{reload,refreshLists}={}){
           sourceFileId:draft.sourceFileId||null,
           sourceFileName:draft.sourceFileName||null,
           readerVersion:draft.readerVersion||null,
-          pickingProfileId:draft.pickingProfileId,
+          pickingProfileId:draft.lines.some(line=>!line.requiresCut)?draft.pickingProfileId:null,
           cutProfileId:draft.lines.some(line=>line.requiresCut)?draft.cutProfileId:null,
           cutPickupProfileId:draft.lines.some(line=>line.requiresCut)?draft.cutPickupProfileId:null,
           lines:draft.lines.map((line,index)=>({
@@ -39,7 +39,7 @@ export function confirmReception(host,data,draft,{reload,refreshLists}={}){
         clearDraft(data.order.id);
         host.replaceChildren();
         refreshLists?.();
-        toast(draft.lines.some(line=>line.requiresCut)?"Recepción confirmada. Alistamiento quedó activo y los cortes fueron enviados a Corte en paralelo.":"Recepción confirmada. El pedido fue asignado a Alistamiento.","success",7000);
+        toast(draft.lines.every(line=>line.requiresCut)?"Recepción confirmada. Alistamiento general no aplica: el pedido avanzará tras la recogida de Corte.":draft.lines.some(line=>line.requiresCut)?"Recepción confirmada. Alistamiento quedó activo y los cortes fueron enviados a Corte en paralelo.":"Recepción confirmada. El pedido fue asignado a Alistamiento.","success",7000);
       }catch(error){toast(error.message,"error",7500);button.disabled=false}
     }
   });
