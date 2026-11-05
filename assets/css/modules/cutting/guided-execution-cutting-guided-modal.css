@@ -285,3 +285,7 @@
 .cut-helper-assignment select{width:100%;min-height:46px;max-width:100%}
 .cut-helper-unavailable{font-size:12px;color:#9f332d;font-weight:700}
 @media(max-width:390px){.cut-helper-assignment{padding:12px}.cut-helper-assignment label strong{font-size:13px}}
+
+.cut-helper-assignment>strong{color:#123e69;font-size:14px}
+.cut-helper-assignment>span{font-weight:700;color:#0c5a83}
+.cut-helper-assignment>small{color:#576a7d;line-height:1.5}
