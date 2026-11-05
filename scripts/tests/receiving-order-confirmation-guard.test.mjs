@@ -28,8 +28,9 @@ test("in-flight confirmation disables the confirm control before side effect",()
 test("assignment validates required assignees before confirmation side effect",()=>{
   const assignment=read("assets/js/domains/receiving/order/assignment/assignment-pool.js");
   const confirmAt=assignment.indexOf("confirmReception(host,data,draft,callbacks)");
-  const pickingAt=assignment.indexOf("if(!draft.pickingProfileId)return toast");
+  const pickingAt=assignment.indexOf("if(needsGeneral&&!draft.pickingProfileId)return toast");
   const cutAt=assignment.indexOf("if(hasCuts&&!draft.cutProfileId)return toast");
+  assert.match(assignment,/const needsGeneral=draft\.lines\.some\(line=>!line\.requiresCut\)/);
   assert.ok(pickingAt>=0&&pickingAt<confirmAt);
   assert.ok(cutAt>=0&&cutAt<confirmAt);
   assert.equal((assignment.match(/confirmReception\(/g)||[]).length,1);
