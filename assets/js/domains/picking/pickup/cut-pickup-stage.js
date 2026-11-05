@@ -33,7 +33,7 @@ export function renderCutPickup(host,data,{reload,refreshLists}){
 
   bindPickupSelection(host,items,async ids=>{
     const result=await api.confirmCutPickup(data.order.id,ids);
-    toast(result.allCollected?"Todos los cortes fueron recogidos. Continúa con la verificación de mercancía.":`Recogida registrada. Quedan ${result.remaining} corte(s) pendientes.`,"success",7000);
+    toast(Number(result.remaining)===0?"Los cortes asignados quedaron recogidos. Continúa con la verificación de mercancía.":`Recogida registrada. Quedan ${result.remaining} corte(s) pendientes.`,"success",7000);
     refreshLists?.();
     await reload?.();
   });
