@@ -1,0 +1,40 @@
+name: Preparar No aplica en Alistamiento general
+on:
+  push:
+    branches:
+      - fix/cut-only-no-general-picking-20261105
+permissions:
+  contents: write
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/cut-only-no-general-picking-20261105
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Sintaxis de Recepción y Alistamiento
+        run: |
+          node --check assets/js/domains/receiving/order/stages/assignment.js
+          node --check assets/js/domains/receiving/order/assignment/assignment-pool.js
+          node --check assets/js/domains/receiving/order/actions/confirm-reception.js
+          node --check assets/js/domains/picking/picking-controller.js
+      - name: Regresión del pedido solo Corte
+        run: |
+          node --test scripts/tests/cut-only-no-general-picking.test.mjs
+          node --test scripts/tests/cutting-dual-role-pickup.test.mjs
+          node --test scripts/tests/receiving-order-certification.test.mjs
+      - name: Regenerar manifiesto PWA
+        run: npm run pwa:generate
+      - name: Publicar manifiesto y retirar preparador
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm .github/workflows/prepare-cut-only-no-picker.yml
+          git add -A assets/precache-manifest.json service-worker.js .github/workflows/prepare-cut-only-no-picker.yml
+          git diff --cached --quiet && { echo "No hubo cambios de caché"; exit 1; }
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "build(pwa): actualizar pedidos de Corte sin alistamiento general"
+          git push origin HEAD:fix/cut-only-no-general-picking-20261105
