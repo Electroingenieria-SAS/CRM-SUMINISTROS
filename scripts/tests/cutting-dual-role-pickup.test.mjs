@@ -55,3 +55,13 @@ test("Cortador y ayudante ocupados simultáneamente en PACO y Jornada",()=>{
  assert.match(timeline,/cp.profile_id/);
  assert.match(timeline,/Apoyo en Corte/);
 });
+
+test("La cola identifica al ayudante y mantiene los saldos de cada responsable",()=>{
+ const migration=read("supabase/migrations/20261105151500_cutting_polivalent_pickup_metrics.sql");
+ assert.match(migration,/cutPickupProfileName/);
+ assert.match(migration,/v_remaining_person/);
+ assert.match(migration,/remainingOrder/);
+ const standalone=read("assets/js/domains/picking/pickup/open-cut-pickup.js");
+ assert.match(standalone,/Number\(result.remaining\)===0/);
+ assert.match(pickStage,/Number\(result.remaining\)===0/);
+});
