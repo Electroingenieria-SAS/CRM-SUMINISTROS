@@ -24,6 +24,14 @@ export function renderPickingFlow(host,data,{reload,refreshLists}={}){
     return;
   }
 
+  if(data.order?.metadata?.receptionAssignment?.pickingNotRequired===true){
+    host.innerHTML=shell(data,`<section class="picking-empty"><strong>Alistamiento general · No aplica</strong><p>Este pedido solo contiene materiales de Corte. No hay mercancía convencional que buscar ni auxiliar de Alistamiento general asignado.</p><p>El auxiliar polivalente recoge los cortes; al quedar todos recogidos, el pedido avanza automáticamente a Facturación.</p><button type="button" class="btn btn-primary" data-refresh-cut-only>Actualizar estado del pedido</button></section>`);
+    bindClose(host);
+    host.querySelector("[data-refresh-cut-only]")?.addEventListener("click",()=>reload?.());
+    enhancePickingExperience(host);
+    return;
+  }
+
   const task=activeTask(data);
   if(!task){
     host.innerHTML=shell(data,`<section class="picking-empty"><strong>No existe una tarea activa de Alistamiento.</strong><p>Solicita revisión del flujo antes de continuar.</p></section>`);
