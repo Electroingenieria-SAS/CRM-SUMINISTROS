@@ -1,0 +1,63 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import {assignmentStage} from "../../assets/js/domains/receiving/order/stages/assignment.js";
+const read=path=>readFileSync(new URL("../../"+path,import.meta.url),"utf8");
+const pool=read("assets/js/domains/receiving/order/assignment/assignment-pool.js");
+const confirm=read("assets/js/domains/receiving/order/actions/confirm-reception.js");
+const picking=read("assets/js/domains/picking/picking-controller.js");
+const receptionSql=read("supabase/migrations/20261105183000_cut_only_reception_no_picker.sql");
+const pickupSql=read("supabase/migrations/20261105183500_cut_only_auto_advance_after_pickup.sql");
+const data={order:{id:"order-1"},files:[]};
+const cutPool=[{id:"cutter",name:"Auxiliar de Corte"}];
+const logisticPool=[{id:"general",name:"Auxiliar Logístico"}];
+const helpers=[{id:"helper",name:"Auxiliar polivalente"}];
+const draft=lines=>({mode:"CORRECT",lines,pickingProfileId:"",cutProfileId:"",cutPickupProfileId:""});
+const line=requiresCut=>({description:"Cable",quantity:1,requiresCut});
+test("Recepción marca No aplica cuando todas las líneas son de Corte",()=>{
+ const html=assignmentStage(data,draft([line(true)]),logisticPool,cutPool,helpers);
+ assert.match(html,/Auxiliar de alistamiento general/);
+ assert.match(html,/data-picking-profile disabled/);
+ assert.match(html,/No aplica · Todo el pedido requiere Corte/);
+ assert.doesNotMatch(html,/data-picking-profile required/);
+ assert.match(html,/data-cut-profile required/);
+ assert.match(html,/data-cut-pickup-profile required/);
+ assert.match(html,/avanzará automáticamente a Facturación/);
+});
+test("Pedido mixto sigue exigiendo alistamiento general y Corte con tres responsables",()=>{
+ const html=assignmentStage(data,draft([line(true),line(false)]),logisticPool,cutPool,helpers);
+ assert.match(html,/data-picking-profile required/);
+ assert.doesNotMatch(html,/No aplica · Todo el pedido requiere Corte/);
+ assert.match(html,/data-cut-profile required/);
+ assert.match(html,/data-cut-pickup-profile required/);
+ assert.match(pool,/if\(needsGeneral&&!draft.pickingProfileId\)/);
+ assert.match(pool,/if\(needsGeneral&&!pickingPool.some/);
+ assert.match(confirm,/pickingProfileId:draft.lines.some\(line=>!line.requiresCut\)/);
+});
+test("Sin Corte sigue exigiendo alistamiento general y no muestra selector polivalente",()=>{
+ const html=assignmentStage(data,draft([line(false)]),logisticPool,cutPool,helpers);
+ assert.match(html,/data-picking-profile required/);
+ assert.doesNotMatch(html,/data-cut-profile required/);
+ assert.doesNotMatch(html,/data-cut-pickup-profile required/);
+});
+test("Servidor deriva No aplica de líneas reales, sin tomarlo de la petición",()=>{
+ assert.match(receptionSql,/v_needs_picking:=exists/);
+ assert.match(receptionSql,/not coalesce\(\(l->>'requiresCut'\)::boolean,false\)/);
+ assert.match(receptionSql,/v_picking:=null/);
+ assert.match(receptionSql,/pickingNotRequired/);
+ assert.match(receptionSql,/v_skip_picking/);
+ assert.match(receptionSql,/when v_skip_picking then 'WAITING'/);
+ assert.match(receptionSql,/when v_skip_picking then jsonb_build_object/);
+ assert.match(picking,/Alistamiento general · No aplica/);
+});
+test("No se factura sin finalizar y recoger todos los cortes",()=>{
+ assert.match(pickupSql,/finish_cut_only_order_if_collected/);
+ assert.match(pickupSql,/not i.requires_cut/);
+ assert.match(pickupSql,/cr.process_status='READY'/);
+ assert.match(pickupSql,/cr.collection_status='COLLECTED'/);
+ assert.match(pickupSql,/cr.units_completed>=cr.units_required/);
+ assert.match(pickupSql,/PICKING_NOT_APPLICABLE/);
+ assert.match(pickupSql,/currentShipmentRequiresCut/);
+ assert.match(pickupSql,/p_actor,true,null/);
+ assert.match(pickupSql,/REVOKE EXECUTE ON FUNCTION erp_supply.finish_cut_only_order_if_collected/);
+});

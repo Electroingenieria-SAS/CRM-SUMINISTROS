@@ -294,7 +294,7 @@ test("PDF error, assignment validation and final confirmation retain no-duplicat
   assert.match(processPdf,/toast\(error\.message,"error"/);
 
   const assignment=source("assignment/assignment-pool.js");
-  assert.match(assignment,/if\(!draft\.pickingProfileId\)return toast/);
+  assert.match(assignment,/if\(needsGeneral&&!draft\.pickingProfileId\)return toast/);
   assert.match(assignment,/if\(hasCuts&&!draft\.cutProfileId\)return toast/);
   assert.equal((assignment.match(/confirmReception\(/g)||[]).length,1);
 
@@ -315,7 +315,7 @@ test("final confirmation payload preserves order/material identifiers and cuttin
     "unit:line.unit||\"UND\"",
     "requiresCut:Boolean(line.requiresCut)",
     "requestedCutLength:line.requiresCut?Number(line.requestedCutLength||line.quantity):null",
-    "pickingProfileId:draft.pickingProfileId",
+    "pickingProfileId:draft.lines.some(line=>!line.requiresCut)?draft.pickingProfileId:null",
     "cutProfileId:draft.lines.some(line=>line.requiresCut)?draft.cutProfileId:null"
   ])assert.ok(confirm.includes(token),token);
 });
