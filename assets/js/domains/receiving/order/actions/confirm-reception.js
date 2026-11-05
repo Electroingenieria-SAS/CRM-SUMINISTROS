@@ -21,6 +21,7 @@ export function confirmReception(host,data,draft,{reload,refreshLists}={}){
           readerVersion:draft.readerVersion||null,
           pickingProfileId:draft.pickingProfileId,
           cutProfileId:draft.lines.some(line=>line.requiresCut)?draft.cutProfileId:null,
+          cutPickupProfileId:draft.lines.some(line=>line.requiresCut)?draft.cutPickupProfileId:null,
           lines:draft.lines.map((line,index)=>({
             orderItemId:line.orderItemId||null,
             lineNumber:index+1,

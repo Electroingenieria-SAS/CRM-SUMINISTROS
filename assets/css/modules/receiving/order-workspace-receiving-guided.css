@@ -258,3 +258,9 @@
   .receiving-order .reception-origin-option { grid-template-columns:1fr; gap:7px; }
   .receiving-order .reception-origin-option .control { width:100%; }
 }
+
+/* Tercera asignación operativa: responsable exclusivo de los carretos y recogida de Corte. */
+.receiving-order .reception-assignment-grid>.reception-cut-pickup-field{grid-column:1/-1}
+.receiving-order .reception-cut-pickup-field{border-color:#b9d9ee;background:#f3f9fd}
+.receiving-order .reception-cut-pickup-field>label{font-weight:750}
+@media(max-width:680px){.receiving-order .reception-assignment-grid>.reception-cut-pickup-field{grid-column:auto}}
